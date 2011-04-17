@@ -1,0 +1,13 @@
+You have three parts to your code:
+
+1. The main application `application.c` which uses the services of the functions in the source file.
+2. The source file `facility.c` which provides services to the rest of the application.
+3. The header file `facility.h` which is the intermediary between the two parts.
+
+The main code in `application.c` should be oblivious to the platform dependencies; it should use the interface declared in the header `facility.h` and should not need to adapt that usage to different systems.
+
+The code in `facility.h` should be self-contained and platform neutral.  If it depends on any other headers, it must include them.  The user of `facility.h` should be able to write `#include <facility.h>` anywhere at the top of their source file (or, in fact, anywhere outside a function body) and it should work.
+
+The implementation code in `facility.c` will include `facility.h`; it should be the first header to provide a simple, effective self-containment check.  Normally, the code would also include some variation on the theme of `config.h` - a header that defines what facilities are available on the current build platform.  The name `config.h` is conventional with the autotools - autoconf, automake, libtool, etc.
+
+The implementation code undertakes to provide the published service declared in `facility.h`.  Your `config.h` should 
