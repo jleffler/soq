@@ -1,0 +1,8 @@
+*.dSYM
+*.o
+*.orig
+*~
+a.out
+arq_5.txt
+b-tree_file
+core
