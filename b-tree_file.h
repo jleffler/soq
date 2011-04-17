@@ -16,9 +16,9 @@
 #define CLRSCR "cls"
 #endif
 
-#define T 5 // minimum degree of B-tree
-#define Min (T-1)
-#define Max ((2*T)-1)
+enum { T   = 5         }; // minimum degree of B-tree
+enum { Min = T - 1     }; 
+enum { Max = 2 * T - 1 }; 
 
 //global vars
 extern FILE *arqt, *arqb;

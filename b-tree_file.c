@@ -40,6 +40,8 @@ int main(void)
             err_exit("ERRO interno: houve um problema ao abrir o arquivo 'arq_5.txt'... o programa terminara!\n");
         printf("\n\nCriando Arvore B a partir de 'arq_5.txt'. O resultado sera o arquivo 'arq_5_b.dat'...\n");
         raiz = (Nod*)malloc(sizeof(Nod)); //alloc root
+        if (raiz == 0)
+            err_exit("Memory allocation failed (%s():%d)\n", __func__, __LINE__);
         cria_b(); //create the B-tree
     }
 
@@ -108,6 +110,8 @@ void b_split(Nod *x, unsigned int i, Nod *y)
     unsigned int j=1;
 
     z = (Nod*)realloc(z, sizeof(Nod));
+    if (z == 0)
+        err_exit("Memory allocation failed (%s():%d)\n", __func__, __LINE__);
 
     fseek(arqb, 0, SEEK_END);
     z->pos = ftell(arqb);
@@ -115,14 +119,14 @@ void b_split(Nod *x, unsigned int i, Nod *y)
     z->folha = y->folha;
     z->num = Min;
 
-    for(j=1; j<=Min; j++)
+    for (j=1; j<=Min; j++)
     {
         strcpy(z->chave[j], y->chave[j+T]);
     }
 
     if (y->folha == 0)
     {
-        for(j=1; j<=T; j++)
+        for (j=1; j<=T; j++)
         {
             z->c[j] = y->c[j+T];
         }
@@ -130,14 +134,14 @@ void b_split(Nod *x, unsigned int i, Nod *y)
 
     y->num = Min;
 
-    for(j=(x->num + 1); j<=(i+1); j--)
+    for (j=(x->num + 1); j<=(i+1); j--)
     {
         x->c[(j+1)] = x->c[j];
     }
 
     x->c[(i+1)] = z->pos;
 
-    for(j=x->num; j<=i; j--)
+    for (j=x->num; j<=i; j--)
     {
         strcpy(x->chave[j+1], x->chave[j]);
     }
@@ -154,6 +158,7 @@ void b_split(Nod *x, unsigned int i, Nod *y)
 
     fseek(arqb, z->pos, SEEK_SET);
     fwrite(z, sizeof(Nod), 1, arqb);
+    fflush(arqb);
 
     //free(z);
     //free(y);
@@ -179,6 +184,7 @@ void b_ins(Nod *x, char *val)
 
         fseek(arqb, x->pos, SEEK_SET);
         fwrite(x, sizeof(Nod), 1, arqb);
+        fflush(arqb);
     }
     else
     {
@@ -187,6 +193,8 @@ void b_ins(Nod *x, char *val)
         i++;
 
         C = (Nod*)realloc(C, sizeof(Nod));
+        if (C == 0)
+            err_exit("Memory allocation failed (%s():%d)\n", __func__, __LINE__);
 
         fseek(arqb, x->c[i], SEEK_SET);
         fread(C, sizeof(Nod), 1, arqb);
@@ -212,32 +220,22 @@ void b_ins(Nod *x, char *val)
 //B-TREE-INSERT //i believe the problem is here!
 void insere_b(char *val)
 {
-    Nod *S = NULL, *R = NULL;
-
-    R = (Nod*)realloc(R, sizeof(Nod));
-    //R = raiz;
+    //Nod *R = NULL;
+    //R = (Nod*)realloc(R, sizeof(Nod));
+    Nod *R = raiz;
 
     if (R->num == Max)
     {
-        S = (Nod*)realloc(S, sizeof(Nod));
-
-        /*      fseek(arqb, 0, SEEK_END);
-                S->pos = ftell(arqb);
-        */
+        /* Need to split the node -- ??? */
+        Nod *S = (Nod*)realloc(S, sizeof(Nod));
+        if (S == 0)
+            err_exit("Memory allocation failed (%s():%d)\n", __func__, __LINE__);
         raiz = S;
-
         S->folha = 0;
         S->num = 0;
         S->c[1] = R->pos;
-
-        /*      fseek(arqb, S->pos, SEEK_SET);
-                fwrite(S, sizeof(Nod), 1, arqb);
-
-        */
         b_split(S, 1, R);
         b_ins(S, val);
-
-        //free(S);
     }
     else
     {
@@ -269,6 +267,8 @@ void busca_b(Nod *x, char *val)
     else
     {
         C = (Nod*)realloc(C, sizeof(Nod));
+        if (C == 0)
+            err_exit("Memory allocation failed (%s():%d)\n", __func__, __LINE__);
         fseek(arqb, x->c[i], SEEK_SET);
         fread(C, sizeof(Nod), 1, arqb);
         lt++;
@@ -284,16 +284,19 @@ void cria_b(void)
     char V[11];
     int lines = fSize(arqt);
 
+    /* Initialize the root node */
     raiz->folha = 1;
     raiz->num = 0;
     raiz->pos = 0;
-    for (i = 1; i <= (Max+1); i++)
+    for (i = 0; i < (Max+2); i++)
     {
         raiz->c[i] = -1;
     }
+    memset(raiz->chave, '\0', sizeof(raiz->chave));
 
     fseek(arqb, raiz->pos, SEEK_SET);
     fwrite(raiz, sizeof(Nod), 1, arqb);
+    fflush(arqb);
 
     rewind(arqt);
     for (i = 0; i < lines; i++)
