@@ -12,10 +12,16 @@ OFLAGS = -g #-O
 UFLAGS =
 IFLAGS = -I${HOME}/inc
 
+IXXFLAGS = ${IFLAGS}
+SXXFLAGS =
+WXXFLAGS = -Wall -Wextra
+UXXFLAGS =
+
 LDFLAGS = -L${HOME}/lib/64
 LDLIBS  = -ljl
 
-CFLAGS = ${OFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
+CFLAGS   = ${OFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
+CXXFLAGS = ${OXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
 all:
 	@echo "You must specify a target to build"
