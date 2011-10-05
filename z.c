@@ -20,15 +20,15 @@ char *fileNames[8];
 
 //Prototypes
 void readFile(char*);
-void printNumbers();
-void freeMem();
-void convertToInt();
+void printNumbers(void);
+void freeMem(void);
+void convertToInt(void);
 int intcmp(const void *n1, const void *n2);
 void doLeafStuff(char*);
 void createLeafs(int, int);
 void breed(int);
 
-int main()
+int main(void)
 {
   fileNames[0] = "1";
   fileNames[1] = "2";
@@ -260,7 +260,7 @@ void readFile(char* fileName)
     numberChar = (char **) realloc(numberChar, numbs*sizeof(char *));
 }
 
-void printNumbers()
+void printNumbers(void)
 {
   //printf("numbs: %d\n", numbs);
   for(i = 0; i < numbs; i++){
@@ -268,7 +268,7 @@ void printNumbers()
   }
 }
 
-void convertToInt(){
+void convertToInt(void){
   numbers = (int *) malloc(numbs * sizeof (int));
   for(i = 0; i < numbs; i++){
     numbers[i] = atoi(numberChar[i]);
@@ -292,7 +292,7 @@ int intcmp(const void *n1, const void *n2)
 }
 
 //free memory
-void freeMem()
+void freeMem(void)
 {
   for(i = 0; i < numbs; i++)
     free(numberChar[i]);
