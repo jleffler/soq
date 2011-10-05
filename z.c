@@ -15,7 +15,7 @@ char *fileNames[8];
 
 #define READ 0
 #define WRITE 1
-#define MAX 1024 
+#define MAX 1024
 #define NUMOFFILES 8
 
 //Prototypes
@@ -43,17 +43,17 @@ int main(void)
 //   int rightPipe[2];
 //   pid_t leftPID;
 //   pid_t rightPID;
-//   
+//
 //   if (pipe (upPipe) < 0 || pipe(leftPipe) < 0 || pipe(rightPipe) < 0) {
 //     perror ("plumbing problem");
 //     exit(1);
-//   }//else 
-//   
+//   }//else
+//
 //   if ((leftPID = fork()) < 0) {
 //     perror ("left fork failed");
 //     exit(1);
 //   }
-//   
+//
 //   if(leftPID == 0){
 //     dup2(leftPipe[WRITE], upPipe[WRITE]);
 //     pipe(leftPipe);
@@ -63,7 +63,7 @@ int main(void)
 //       close(rightPipe[WRITE]);
 //       close(leftPipe[READ]);
 //       close(leftPipe[WRITE]);
-//       
+//
 //       numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
 //       readFile(fileNames[1]);
 //       convertToInt();
@@ -74,11 +74,11 @@ int main(void)
 //       close(upPipe[WRITE]);
 //       exit(0);
 //   }
-//     
+//
 //   if((rightPID = fork()) < 0){
 //     perror("right fork failed");
 //   }
-//     
+//
 //   if(rightPID == 0){
 //     dup2(rightPipe[WRITE], upPipe[WRITE]);
 //     pipe(leftPipe);
@@ -89,32 +89,27 @@ int main(void)
 //       close(rightPipe[WRITE]);
 //       close(leftPipe[READ]);
 //       close(leftPipe[WRITE]);
-//       
+//
 //       numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
 //       readFile(fileNames[2]);
 //       convertToInt();
 //       for(i = 0; i < numbs; i++)
 // 	write(upPipe[WRITE], &numbers[i], sizeof(int));
 //       freeMem();
-//       
+//
 //       close(upPipe[READ]);
 //       close(upPipe[WRITE]);
 //       exit(0);
-//     
+//
 //   }
 //   wait(&leftPID);
 //   wait(&rightPID);
-//   
+//
 //   close(upPipe[READ]);
 //   close(upPipe[WRITE]);
-//   
+//
 //   //close(leftPipe[WRITE]);
-//   
-//   
-//   
-//   
-//   
-//   
+//
 //   int passUp = 1;
 //   int leftContents = 999999999;
 //   int rightContents = 999999999;
@@ -135,19 +130,19 @@ int main(void)
 // 	//perror("left empty");
 //       }
 //     }
-//     
+//
 //     if(rightContents == 999999999){
 //       nbytes = read(rightPipe[READ], &intbuffer, sizeof(intbuffer));
 //       if(nbytes > 0){
 // 	rightContents = intbuffer;
 // 	//printf("Set right: %d\n", rightContents);
 //       }
-//       else{ 
+//       else{
 // 	rightEmpty = 1;
 // 	//perror("right empty");
 //       }
 //     }
-//     
+//
 //     if(leftContents < rightContents){
 //       //perror("***left < right***");
 //       printf("Master Printout: %d\n", leftContents);
@@ -168,24 +163,12 @@ int main(void)
 //       passUp = 0;
 //       perror("exit loop");
 //     }
-//     
+//
 //   }
-//   
+//
 //   close(rightPipe[READ]);
 //   close(leftPipe[READ]);
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   //int nbytes = 1;
   //int intbuffer;
   //while(nbytes > 0){
@@ -193,7 +176,7 @@ int main(void)
   //  printf("**********left Pipe: %d\n", intbuffer);
   //}
  // close(leftPipe[READ]);
-  
+
  // close(rightPipe[WRITE]);
  // int nbytes2 = 1;
  // int intbuffer2;
@@ -202,13 +185,11 @@ int main(void)
  //   printf("**********Right Pipe: %d\n", intbuffer2);
  // }
  // close(rightPipe[READ]);
-  
-  
-  
+
   //createLeafs(1, NUMOFFILES);
   breed(4);
   return 0;
-  
+
 }
 
 /*THIS IS STUFF FOR THE CHILD*/
@@ -218,12 +199,12 @@ void readFile(char* fileName)
   char buffer[BUFFER_SIZE];
   FILE *fp;
   fp = fopen(fileName, "r");
-  
+
   if(fp == NULL){
     perror("Error reading file");
     exit(1);
   }
-  
+
   // While there are more lines in file
   while(fgets(buffer, sizeof(buffer), fp) != NULL){
     start = 0;
@@ -272,16 +253,15 @@ void convertToInt(void){
   numbers = (int *) malloc(numbs * sizeof (int));
   for(i = 0; i < numbs; i++){
     numbers[i] = atoi(numberChar[i]);
-    //printf("numbers[%d] = %d\n", i, numbers[i]);	
+    //printf("numbers[%d] = %d\n", i, numbers[i]);
   }
-  
+
   qsort(numbers, numbs, sizeof(int), intcmp);
-  
+
   //for(i = 0; i < numbs; i++){
-  //  printf("numbers[%d] = %d\n", i, numbers[i]);	
+  //  printf("numbers[%d] = %d\n", i, numbers[i]);
   //}
-  
-  
+
 }
 
 int intcmp(const void *n1, const void *n2)
@@ -309,18 +289,18 @@ void createLeafs(int min, int max){
   int fMin = min;
   int fMax = max;
   int fileNumber = 0;
-  
+
   //Create pipe
   if (pipe (upPipe) < 0 || pipe(leftPipe) < 0 || pipe(rightPipe) < 0) {
     perror ("plumbing problem");
     exit(1);
-  }//else 
-  
+  }//else
+
   if ((leftPID = fork()) < 0) {
     perror ("left fork failed");
     exit(1);
   }
-  
+
   if(leftPID == 0){
     fMax = ((fMax)/2);
     dup2(leftPipe[WRITE], upPipe[WRITE]);
@@ -334,7 +314,7 @@ void createLeafs(int min, int max){
       close(rightPipe[WRITE]);
       close(leftPipe[READ]);
       close(leftPipe[WRITE]);
-      
+
       numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
       readFile(fileNames[fileNumber]);
       convertToInt();
@@ -349,11 +329,11 @@ void createLeafs(int min, int max){
       createLeafs(fMin, fMax);
     }
   }
-    
+
   if((rightPID = fork()) < 0){
     perror("right fork failed");
   }
-    
+
   if(rightPID == 0){
     fMax = ((fMax)/2);
     dup2(rightPipe[WRITE], upPipe[WRITE]);
@@ -367,7 +347,7 @@ void createLeafs(int min, int max){
       close(rightPipe[WRITE]);
       close(leftPipe[READ]);
       close(leftPipe[WRITE]);
-      
+
       numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
       readFile(fileNames[fileNumber]);
       fileNumber++;
@@ -375,7 +355,7 @@ void createLeafs(int min, int max){
       for(i = 0; i < numbs; i++)
 	write(upPipe[WRITE], &numbers[i], sizeof(int));
       freeMem();
-      
+
       close(upPipe[READ]);
       close(upPipe[WRITE]);
       exit(0);
@@ -386,7 +366,7 @@ void createLeafs(int min, int max){
   }
   wait(&leftPID);
   wait(&rightPID);
-  
+
   int master = 0;
   if(fMax == 8){
     perror("Master was set********************");
@@ -395,7 +375,7 @@ void createLeafs(int min, int max){
     //dup2(upPipe[WRITE], STDOUT_FILENO);
     close(upPipe[WRITE]);
   }
-  
+
   int passUp = 1;
   int leftContents = 999999999;
   int rightContents = 999999999;
@@ -416,19 +396,19 @@ void createLeafs(int min, int max){
 	//perror("left empty");
       }
     }
-    
+
     if(rightContents == 999999999){
       nbytes = read(rightPipe[READ], &intbuffer, sizeof(intbuffer));
       if(nbytes > 0){
 	rightContents = intbuffer;
 	//perror("right set");
       }
-      else{ 
+      else{
 	rightEmpty = 1;
 	//perror("right empty");
       }
     }
-    
+
     if(leftContents < rightContents){
       //perror("***left < right***");
       if(master)
@@ -466,14 +446,11 @@ void createLeafs(int min, int max){
       passUp = 0;
       perror("exit loop");
     }
-    
+
   }
  // perror("while done");
   //close(upPipe[WRITE]);
-      
-  
-    
-  
+
   //if(master){
     //while(read(rightPipe[READ], &intbuffer, sizeof(intbuffer)) < 0){
       //perror("Numbers in order:");// %d\n")//, intbuffer);
@@ -507,7 +484,6 @@ void doLeafStuff(char *fileName){
   //freeMem();
 }
 
-
 void breed(int spawns){
   int upPipe[2];
   int leftPipe[2];
@@ -515,17 +491,17 @@ void breed(int spawns){
   int status;
   pid_t leftPID;
   pid_t rightPID;
-  
+
   if (pipe (upPipe) < 0 || pipe(leftPipe) < 0 || pipe(rightPipe) < 0) {
     perror ("plumbing problem");
     exit(1);
-  }//else 
-  
+  }//else
+
   if ((leftPID = fork()) < 0) {
     perror ("left fork failed");
     exit(1);
   }
-  
+
   if(leftPID == 0){
     dup2(leftPipe[WRITE], upPipe[WRITE]);
     pipe(leftPipe);
@@ -538,25 +514,25 @@ void breed(int spawns){
       close(rightPipe[WRITE]);
       close(leftPipe[READ]);
       close(leftPipe[WRITE]);
-      
+
       numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
       readFile(fileNames[1]);
       convertToInt();
       for(i = 0; i < numbs; i++)
 	write(upPipe[WRITE], &numbers[i], sizeof(int));
       freeMem();
-      
+
       close(upPipe[WRITE]);
       exit(0);
     }
     breed(spawns);
-    
+
   }
-    
+
   if((rightPID = fork()) < 0){
     perror("right fork failed");
   }
-    
+
   if(rightPID == 0){
     dup2(rightPipe[WRITE], upPipe[WRITE]);
     pipe(leftPipe);
@@ -570,29 +546,25 @@ void breed(int spawns){
       close(leftPipe[READ]);
       close(leftPipe[WRITE]);
       close(upPipe[READ]);
-      
+
       numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
       readFile(fileNames[2]);
       convertToInt();
       for(i = 0; i < numbs; i++)
 	write(upPipe[WRITE], &numbers[i], sizeof(int));
       freeMem();
-      
-      
+
       close(upPipe[WRITE]);
       exit(0);
     }
       breed(spawns);
-    
+
   }
   waitpid(leftPID, &status , 0);
   waitpid(rightPID, &status, 0);
-  
-  
-  
+
   //close(leftPipe[WRITE]);
-  
-  
+
   int master = 0;
   if(spawns == 4){
     master = 1;
@@ -600,8 +572,7 @@ void breed(int spawns){
     close(upPipe[WRITE]);
     perror("we are master");
   }
-  
-  
+
   int passUp = 1;
   int leftContents = 999999999;
   int rightContents = 999999999;
@@ -625,7 +596,7 @@ void breed(int spawns){
 	perror("left empty");
       }
     }
-    
+
     if(rightContents == 999999999){
       nbytes = read(rightPipe[READ], &intbuffer, sizeof(intbuffer));
       if(nbytes > 0){
@@ -633,12 +604,12 @@ void breed(int spawns){
 	rightContents = intbuffer;
 	//printf("Set right: %d\n", rightContents);
       }
-      else{ 
+      else{
 	rightEmpty = 1;
 	//perror("right empty");
       }
     }
-    
+
     if(leftContents < rightContents){
       //perror("***left < right***");
       if(master == 1)
@@ -677,9 +648,9 @@ void breed(int spawns){
       passUp = 0;
       perror("exit loop");
     }
-    
+
   }
-  
+
   close(rightPipe[READ]);
   close(leftPipe[READ]);
   if(!master)
