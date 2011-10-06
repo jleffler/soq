@@ -52,11 +52,36 @@ int  intcmp(void const *n1, void const *n2);
 
 static void sortMergeFiles(int fd, int number, char **names);
 static void sortOneFile(int fd, const char *file);
+static void convertToString(int fd, FILE *fp);
 
 int main(int argc, char **argv)
 {
-  sortMergeFiles(STDOUT_FILENO, argc - 1, &argv[1]);
-  return 0;
+    int m_pipe[2];
+    pid_t pid;
+    if (pipe(m_pipe) < 0)
+        err_error("Failed to create master pipe");
+    if ((pid = fork()) < 0)
+        err_error("Failed to fork master");
+    else if (pid == 0)
+    {
+        close(m_pipe[READ]);
+        sortMergeFiles(m_pipe[WRITE], argc - 1, &argv[1]);
+        close(m_pipe[WRITE]);
+    }
+    else
+    {
+        close(m_pipe[WRITE]);
+        convertToString(m_pipe[READ], stdout);
+        close(m_pipe[READ]);
+    }
+    return 0;
+}
+
+static void convertToString(int fd, FILE *fp)
+{
+    int value;
+    while (read(fd, &value, sizeof(int)) == sizeof(int))
+        fprintf(fp, "%d\n", value);
 }
 
 static int readInteger(int fd, int *value)
