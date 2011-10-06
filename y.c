@@ -1,13 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-static int isgn(int n)
+static int signum(int n)
 {
     return (n < 0) ? -1 : (n > 0) ? +1 : 0;
-}
-
-static int iabs(int n)
-{
-    return (n < 0) ? -n : +n;
 }
 
 enum { LO = -7, HI = -LO + 1 };
@@ -19,8 +15,7 @@ int main(void)
     {
         if (j == 0)
             continue;
-        int m = (iabs(j) - 1);
-        printf(" %4d/%-2d", j, m);
+        printf(" %4d", j);
     }
     putchar('\n');
 
@@ -31,10 +26,9 @@ int main(void)
         {
             if (j == 0)
                 continue;
-            int m = isgn(i) * (iabs(j) - 1);
+            int m = (j - signum(j));
             int k = (i + m) / j;
-            //int l = (iabs(i) + (iabs(j) - 1)) / iabs(j);
-            printf(" %4d   ", k);
+            printf(" %4d", k);
         }
         putchar('\n');
     }
