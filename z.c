@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -6,10 +7,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define READ 0
-#define WRITE 1
-#define NUMOFFILES 8
-
+/* Error reporting */
 static void err_vremark(char *fmt, va_list args)
 {
     char buffer[256];
@@ -39,29 +37,157 @@ static void err_remark(char *fmt, ...)
     va_end(args);
 }
 
-const int BUFFER_SIZE = 256;
-char **numberChar;
-int *numbers;
-int start, end, count, i;
-int numbs = 0;
-int sizeNumbers = 10;
-int numSizes[10];
+enum { READ = 0 };
+enum { WRITE = 1 };
+enum { NUMOFFILES = 8 };
+enum { BUFFER_SIZE = 256 };
+
 char *fileNames[NUMOFFILES] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 
-void readFile(char*);
+static int *a_data = 0;
+static int  a_used = 0;
+static int  a_size = 0;
+
+void readFile(char const *fileName);
 void freeMem(void);
-void convertToInt(void);
-int intcmp(const void *n1, const void *n2);
-void createLeafs(int, int);
-void breed(int);
+void sortArray(void);
+int  intcmp(void const *n1, void const *n2);
+
+
+static void sortMergeFiles(int fd, int number, char **names);
+static void sortOneFile(int fd, const char *file);
 
 int main(void)
 {
-  breed(4);
+  sortMergeFiles(STDOUT_FILENO, 5, fileNames);
   return 0;
 }
 
-void readFile(char* fileName)
+static int readInteger(int fd, int *value)
+{
+    if (read(fd, value, sizeof(int)) != sizeof(int))
+        return EOF;
+    return 0;
+}
+
+static void writeInteger(int fd, int value)
+{
+    if (write(fd, &value, sizeof(int)) != sizeof(int))
+        err_error("Failed to write integer to fd %d", fd);
+}
+
+static void mergeFiles(int fd_in1, int fd_in2, int fd_out)
+{
+    int value_1;
+    int value_2;
+    int eof_1 = readInteger(fd_in1, &value_1);
+    int eof_2 = readInteger(fd_in2, &value_2);
+
+    while (eof_1 != EOF && eof_2 != EOF)
+    {
+        err_remark("v1: %d; v2: %d", value_1, value_2);
+        if (value_1 <= value_2)
+        {
+            writeInteger(fd_out, value_1);
+            eof_1 = readInteger(fd_in1, &value_1);
+        }
+        else
+        {
+            writeInteger(fd_out, value_2);
+            eof_2 = readInteger(fd_in2, &value_2);
+        }
+    }
+
+    while (eof_1 != EOF)
+    {
+        err_remark("v1: %d", value_1);
+        writeInteger(fd_out, value_1);
+        eof_1 = readInteger(fd_in1, &value_1);
+    }
+
+    while (eof_2 != EOF)
+    {
+        err_remark("v2: %d", value_2);
+        writeInteger(fd_out, value_2);
+        eof_2 = readInteger(fd_in2, &value_2);
+    }
+}
+
+static void sortMergeFiles(int fd, int number, char **names)
+{
+    if (number == 1)
+        sortOneFile(fd, names[0]);
+    else
+    {
+        err_remark("Non-Leaf: processing %d files (%s .. %s)", number, names[0], names[number-1]);
+        int mid = number / 2;
+        int l_pipe[2];
+        int r_pipe[2];
+        pid_t l_pid;
+        pid_t r_pid;
+        if (pipe(l_pipe) < 0 || pipe(r_pipe) < 0)
+            err_error("Failed to create pipes");
+        if ((l_pid = fork()) < 0)
+            err_error("Failed to fork left child");
+        else if (l_pid == 0)
+        {
+            close(l_pipe[READ]);
+            close(r_pipe[READ]);
+            close(r_pipe[WRITE]);
+            sortMergeFiles(l_pipe[WRITE], mid, names);
+            close(l_pipe[WRITE]);
+            exit(0);
+        }
+        else if ((r_pid = fork()) < 0)
+            err_error("Failed to fork right child");
+        else if (r_pid == 0)
+        {
+            close(r_pipe[READ]);
+            close(l_pipe[READ]);
+            close(l_pipe[WRITE]);
+            sortMergeFiles(r_pipe[WRITE], number - mid, names + mid);
+            close(r_pipe[WRITE]);
+            exit(0);
+        }
+        else
+        {
+            close(l_pipe[WRITE]);
+            close(r_pipe[WRITE]);
+            mergeFiles(l_pipe[READ], r_pipe[READ], fd);
+            close(l_pipe[READ]);
+            close(r_pipe[READ]);
+            err_remark("Non-Leaf: finished %d files (%s .. %s)", number, names[0], names[number-1]);
+        }
+    }
+}
+
+static void addNumberToArray(int number)
+{
+    assert(a_used >= 0 && a_used <= a_size);
+    if (a_used == a_size)
+    {
+        int  n_size = (a_size + 1) * 2;
+        int *n_data = realloc(a_data, sizeof(*n_data) * n_size);
+        if (n_data == 0)
+            err_error("Failed to allocate space for %d numbers", n_size);
+        a_data = n_data;
+        a_size = n_size;
+    }
+    a_data[a_used++] = number;
+}
+
+/* Could be compressed to write(fd, a_data, a_used * sizeof(int)); */
+/* Arguably should check for write errors - but not SIGPIPE */
+static void writeArray(int fd)
+{
+    for (int i = 0; i < a_used; i++)
+    {   
+        err_remark("Write: %d", a_data[i]);
+        write(fd, &a_data[i], sizeof(int));
+    }
+}
+
+void readFile(char const *fileName)
 {
     char buffer[BUFFER_SIZE];
     FILE *fp;
@@ -72,51 +198,14 @@ void readFile(char* fileName)
 
     while (fgets(buffer, sizeof(buffer), fp) != NULL)
     {
-        start = 0;
-        end = 0;
-
-        while (end < BUFFER_SIZE && buffer[end] != '\0')
-        {
-            if (buffer[end] == '/' &&  buffer[end+1] == '*')
-                buffer[end] = '\0';
-            else
-            {
-                while (end < BUFFER_SIZE)
-                    end++;
-
-                if (end > start)
-                {
-                    if (numbs == sizeNumbers)
-                    {
-                        sizeNumbers += 10;
-                        numberChar = (char **) realloc(numberChar, sizeNumbers*sizeof(char *));
-                    }
-
-                    numberChar[numbs] = (char *) calloc(end-start+1, sizeof(char));
-
-                    for (i = 0; i < end-start; i++)
-                        numberChar[numbs][i] = buffer[start + i];
-                    numberChar[numbs][i] = '\0';
-                    numbs++;
-                }
-                start = ++end;
-            }
-        }
+        char *nl = strchr(buffer, '\n');
+        if (nl != 0)
+            *nl = '\0';
+        err_remark("Line: %s", buffer);
+        addNumberToArray(atoi(buffer));
     }
 
-    if (numbs < sizeNumbers)
-        numberChar = (char **) realloc(numberChar, numbs*sizeof(char *));
-}
-
-void convertToInt(void)
-{
-    numbers = (int *) malloc(numbs * sizeof (int));
-    for (i = 0; i < numbs; i++)
-    {
-        numbers[i] = atoi(numberChar[i]);
-    }
-
-    qsort(numbers, numbs, sizeof(int), intcmp);
+    fclose(fp);
 }
 
 int intcmp(const void *n1, const void *n2)
@@ -126,374 +215,23 @@ int intcmp(const void *n1, const void *n2)
     return (num1 < num2) ? -1 : (num1 > num2);
 }
 
+void sortArray(void)
+{
+    qsort(a_data, a_used, sizeof(int), intcmp);
+}
+
 void freeMem(void)
 {
-    for (i = 0; i < numbs; i++)
-        free(numberChar[i]);
-    free(numberChar);
-    free(numbers);
+    free(a_data);
 }
 
-void createLeafs(int min, int max)
+static void sortOneFile(int fd, const char *file)
 {
-    int upPipe[2];
-    int leftPipe[2];
-    int rightPipe[2];
-    pid_t leftPID;
-    pid_t rightPID;
-    int fMin = min;
-    int fMax = max;
-    int fileNumber = 0;
-
-    if (pipe (upPipe) < 0 || pipe(leftPipe) < 0 || pipe(rightPipe) < 0)
-        err_error("Failed to create one of three pipes");
-
-    if ((leftPID = fork()) < 0)
-        err_error("Left fork() failed");
-
-    if (leftPID == 0)
-    {
-        err_remark("Left starting");
-        fMax = ((fMax)/2);
-        dup2(leftPipe[WRITE], upPipe[WRITE]);
-        pipe(leftPipe);
-        pipe(rightPipe);
-
-        if (fMax == 1)
-        {
-            err_remark("Created left leaf");
-
-            close(rightPipe[READ]);
-            close(rightPipe[WRITE]);
-            close(leftPipe[READ]);
-            close(leftPipe[WRITE]);
-
-            numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
-            readFile(fileNames[fileNumber]);
-            convertToInt();
-            for (i = 0; i < numbs; i++)
-                write(upPipe[WRITE], &numbers[i], sizeof(int));
-            freeMem();
-            close(upPipe[READ]);
-            close(upPipe[WRITE]);
-            exit(0);
-        }
-        else
-        {
-            createLeafs(fMin, fMax);
-        }
-    }
-
-    if ((rightPID = fork()) < 0)
-        err_error("Right fork() failed");
-
-    if (rightPID == 0)
-    {
-        err_remark("Right starting");
-        fMax = ((fMax)/2);
-        dup2(rightPipe[WRITE], upPipe[WRITE]);
-        pipe(leftPipe);
-        pipe(rightPipe);
-
-        if (fMax == 1)
-        {
-            err_remark("Created right leaf");
-
-            close(rightPipe[READ]);
-            close(rightPipe[WRITE]);
-            close(leftPipe[READ]);
-            close(leftPipe[WRITE]);
-
-            numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
-            readFile(fileNames[fileNumber]);
-            fileNumber++;
-            convertToInt();
-            for (i = 0; i < numbs; i++)
-                write(upPipe[WRITE], &numbers[i], sizeof(int));
-            freeMem();
-
-            close(upPipe[READ]);
-            close(upPipe[WRITE]);
-            exit(0);
-        }
-        else
-        {
-            createLeafs(fMin, fMax);
-        }
-    }
-    wait(&leftPID);
-    wait(&rightPID);
-
-    int master = 0;
-    if (fMax == 8)
-    {
-        err_remark("Master was set********************");
-        master = 1;
-        close(upPipe[READ]);
-        close(upPipe[WRITE]);
-    }
-
-    int passUp = 1;
-    int leftContents = 999999999;
-    int rightContents = 999999999;
-    int leftEmpty = 0;
-    int rightEmpty = 0;
-    int intbuffer;
-    int nbytes;
-    close(rightPipe[WRITE]);
-    close(leftPipe[WRITE]);
-    while (passUp)
-    {
-        if (leftContents == 999999999)
-        {
-            nbytes = read(leftPipe[READ], &intbuffer, sizeof(intbuffer));
-            if (nbytes > 0)
-            {
-                leftContents = intbuffer;
-            }
-            else
-            {
-                leftEmpty = 1;
-            }
-        }
-
-        if (rightContents == 999999999)
-        {
-            nbytes = read(rightPipe[READ], &intbuffer, sizeof(intbuffer));
-            if (nbytes > 0)
-            {
-                rightContents = intbuffer;
-            }
-            else
-            {
-                rightEmpty = 1;
-            }
-        }
-
-        if (leftContents < rightContents)
-        {
-            if (master)
-                printf("Master Printout: %d\n", leftContents);
-            else
-                write(upPipe[WRITE], &leftContents, sizeof(int));
-            leftContents = 999999999;
-            err_remark("left contents sent up");
-        }
-        else if (rightContents < leftContents)
-        {
-            if (master)
-                printf("Master Printout: %d\n", rightContents);
-            else
-                write(upPipe[WRITE], &rightContents, sizeof(int));
-            rightContents = 999999999;
-            err_remark("right contents sent up");
-        }
-        else if ((leftContents == rightContents) && (leftEmpty != 1 && rightEmpty != 1))
-        {
-            if (master)
-            {
-                printf("Master Printout: %d\n", rightContents);
-                printf("Master Printout: %d\n", leftContents);
-                err_remark("MASTER PROCESS WENT THROUGH*********************");
-            }
-            else
-            {
-                write(upPipe[WRITE], &rightContents, sizeof(int));
-                write(upPipe[WRITE], &leftContents, sizeof(int));
-            }
-            leftContents = 999999999;
-            rightContents = 999999999;
-            err_remark("both contents sent up");
-        }
-        else if (leftEmpty == 1 && rightEmpty == 1)
-        {
-            passUp = 0;
-            err_remark("exit loop");
-        }
-    }
-
-    close(rightPipe[READ]);
-    close(leftPipe[READ]);
-    if (!master)
-    {
-        close(upPipe[WRITE]);
-        exit(0);
-    }
+    err_remark("Leaf: processing file %s", file);
+    readFile(file);
+    sortArray();
+    writeArray(fd);
+    freeMem();
+    err_remark("Leaf: finished file %s", file);
 }
 
-void breed(int spawns)
-{
-    int upPipe[2];
-    int leftPipe[2];
-    int rightPipe[2];
-    int status;
-    pid_t leftPID;
-    pid_t rightPID;
-
-    if (pipe (upPipe) < 0 || pipe(leftPipe) < 0 || pipe(rightPipe) < 0)
-        err_error("Failed to create one of three pipes");
-
-    if ((leftPID = fork()) < 0)
-        err_error("Left fork() failed");
-
-    if (leftPID == 0)
-    {
-        err_remark("Left starting");
-        dup2(leftPipe[WRITE], upPipe[WRITE]);
-        pipe(leftPipe);
-        pipe(rightPipe);
-        close(upPipe[READ]);
-        spawns = (spawns/2);
-        if (spawns == 1)
-        {
-            close(rightPipe[READ]);
-            close(rightPipe[WRITE]);
-            close(leftPipe[READ]);
-            close(leftPipe[WRITE]);
-
-            numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
-            readFile(fileNames[1]);
-            convertToInt();
-            for (i = 0; i < numbs; i++)
-                write(upPipe[WRITE], &numbers[i], sizeof(int));
-            freeMem();
-
-            close(upPipe[WRITE]);
-            exit(0);
-        }
-        breed(spawns);
-    }
-
-    if ((rightPID = fork()) < 0)
-        err_error("Right fork() failed");
-
-    if (rightPID == 0)
-    {
-        err_remark("Right starting");
-        dup2(rightPipe[WRITE], upPipe[WRITE]);
-        pipe(leftPipe);
-        pipe(rightPipe);
-        spawns = (spawns/2);
-        if (spawns == 1)
-        {
-            close(rightPipe[READ]);
-            close(rightPipe[WRITE]);
-            close(leftPipe[READ]);
-            close(leftPipe[WRITE]);
-            close(upPipe[READ]);
-
-            numberChar = (char **) calloc(sizeNumbers, sizeof(char *));
-            readFile(fileNames[2]);
-            convertToInt();
-            for (i = 0; i < numbs; i++)
-                write(upPipe[WRITE], &numbers[i], sizeof(int));
-            freeMem();
-
-            close(upPipe[WRITE]);
-            exit(0);
-        }
-        breed(spawns);
-    }
-    waitpid(leftPID, &status , 0);
-    waitpid(rightPID, &status, 0);
-
-    int master = 0;
-    if (spawns == 4)
-    {
-        master = 1;
-        close(upPipe[READ]);
-        close(upPipe[WRITE]);
-        err_remark("we are master");
-    }
-
-    int passUp = 1;
-    int leftContents = 999999999;
-    int rightContents = 999999999;
-    int leftEmpty = 0;
-    int rightEmpty = 0;
-    int intbuffer;
-    int nbytes;
-    close(rightPipe[WRITE]);
-    close(leftPipe[WRITE]);
-    if (master)
-        err_remark("Master is going into while loop");
-    while (passUp)
-    {
-        if (leftContents == 999999999)
-        {
-            nbytes = read(leftPipe[READ], &intbuffer, sizeof(intbuffer));
-            if (nbytes > 0)
-            {
-                leftContents = intbuffer;
-            }
-            else
-            {
-                leftEmpty = 1;
-                err_remark("left empty");
-            }
-        }
-
-        if (rightContents == 999999999)
-        {
-            nbytes = read(rightPipe[READ], &intbuffer, sizeof(intbuffer));
-            if (nbytes > 0)
-            {
-                rightContents = intbuffer;
-            }
-            else
-            {
-                rightEmpty = 1;
-            }
-        }
-
-        if (leftContents < rightContents)
-        {
-            if (master == 1)
-                printf("Master Printout: %d\n", leftContents);
-            else
-                write(upPipe[WRITE], &leftContents, sizeof(int));
-            leftContents = 999999999;
-            err_remark("**left sent");
-        }
-        else if (rightContents < leftContents)
-        {
-            if (master == 1)
-                printf("Master Printout: %d\n", rightContents);
-            else
-                write(upPipe[WRITE], &rightContents, sizeof(int));
-            rightContents = 999999999;
-            err_remark("**right sent");
-        }
-        else if ((leftContents == rightContents) && (leftEmpty != 1 && rightEmpty != 1))
-        {
-            if (master == 1)
-            {
-                printf("Master Printout: %d\n", rightContents);
-                printf("Master Printout: %d\n", leftContents);
-            }
-            else
-            {
-                write(upPipe[WRITE], &leftContents, sizeof(int));
-                write(upPipe[WRITE], &rightContents, sizeof(int));
-            }
-            leftContents = 999999999;
-            rightContents = 999999999;
-            err_remark("*****both sent");
-        }
-        else if (leftEmpty == 1 && rightEmpty == 1)
-        {
-            if (!master)
-            {
-                close(upPipe[WRITE]);
-                close(upPipe[READ]);
-            }
-            passUp = 0;
-            err_remark("exit loop");
-        }
-    }
-
-    close(rightPipe[READ]);
-    close(leftPipe[READ]);
-    if (!master)
-        exit(0);
-}
