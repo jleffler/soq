@@ -39,10 +39,7 @@ static void err_remark(char *fmt, ...)
 
 enum { READ = 0 };
 enum { WRITE = 1 };
-enum { NUMOFFILES = 8 };
 enum { BUFFER_SIZE = 256 };
-
-char *fileNames[NUMOFFILES] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 
 static int *a_data = 0;
 static int  a_used = 0;
@@ -53,13 +50,12 @@ void freeMem(void);
 void sortArray(void);
 int  intcmp(void const *n1, void const *n2);
 
-
 static void sortMergeFiles(int fd, int number, char **names);
 static void sortOneFile(int fd, const char *file);
 
-int main(void)
+int main(int argc, char **argv)
 {
-  sortMergeFiles(STDOUT_FILENO, 5, fileNames);
+  sortMergeFiles(STDOUT_FILENO, argc - 1, &argv[1]);
   return 0;
 }
 
@@ -115,7 +111,10 @@ static void mergeFiles(int fd_in1, int fd_in2, int fd_out)
 
 static void sortMergeFiles(int fd, int number, char **names)
 {
-    if (number == 1)
+    assert(number >= 0);
+    if (number == 0)
+        return;
+    else if (number == 1)
         sortOneFile(fd, names[0]);
     else
     {
@@ -181,7 +180,7 @@ static void addNumberToArray(int number)
 static void writeArray(int fd)
 {
     for (int i = 0; i < a_used; i++)
-    {   
+    {
         err_remark("Write: %d", a_data[i]);
         write(fd, &a_data[i], sizeof(int));
     }
