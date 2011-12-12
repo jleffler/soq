@@ -8,7 +8,8 @@ WFLAG5 = -Wold-style-definition
 WFLAG6 =
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} 
 SFLAGS = -std=c99
-OFLAGS = -g #-O
+GFLAGS = -g
+OFLAGS = -O3
 UFLAGS =
 IFLAGS = -I${HOME}/inc
 
@@ -16,12 +17,14 @@ IXXFLAGS = ${IFLAGS}
 SXXFLAGS =
 WXXFLAGS = -Wall -Wextra
 UXXFLAGS =
+OXXFLAGS = -O3
+GXXFLAGS = -g
 
 LDFLAGS = -L${HOME}/lib/64
 LDLIBS  = -ljl
 
-CFLAGS   = ${OFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
-CXXFLAGS = ${OXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
+CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
+CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
 all:
 	@echo "You must specify a target to build"
