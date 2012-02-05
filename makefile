@@ -29,5 +29,9 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 all:
 	@echo "You must specify a target to build"
 
+remove:
+	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
+	${RM_FR} ${PROG} ${PROG}.*
+
 clean:
 	${RM_FR} *.o *.dSYM core a.out
