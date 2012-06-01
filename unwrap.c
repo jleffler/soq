@@ -1,4 +1,4 @@
-extern int printf(const char *format, ...);
+#include <stdio.h>
 
 /* "unwrapper": */
 #define UNWRAP(...) __VA_ARGS__
