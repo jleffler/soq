@@ -11,6 +11,7 @@ extern int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char
 
 enum { BUFFER_SIZE = 4096 };
 enum { BYTE_KEY_SIZE = 4096 };
+enum { MAX_TAG_SIZE = 8 };
 enum { OK = 0, ERROR = 1 };
 
 #define COMMA ",\r\n"
@@ -51,7 +52,6 @@ static void rsa_copy_key(char *tag, FILE *fphex, char *value)
     fprintf(fphex, "\n");
 }
 
-enum { MAX_TAG_SIZE = 7 };
 
 /* Is the given tag in the list of tags? */
 /* If so, remove the tag from the list, decreasing list size */
@@ -80,10 +80,10 @@ static int rsa_read_one_key(FILE *fpdec, FILE *fphex, char **tags, int *num_tags
 {
     char buffer[BUFFER_SIZE];
     char value[BYTE_KEY_SIZE];
-    char tag[MAX_TAG_SIZE+1];
+    char tag[MAX_TAG_SIZE];
     char fmt[16];
 
-    sprintf(fmt, "%%%ds = %%%ds", MAX_TAG_SIZE, BYTE_KEY_SIZE-1);
+    sprintf(fmt, "%%%ds = %%%ds", MAX_TAG_SIZE-1, BYTE_KEY_SIZE-1);
 
     if (fgets(buffer, sizeof (buffer), fpdec) == NULL)
         return err_report("%s: fgets()#1 returned NULL\n", __func__);
@@ -142,7 +142,12 @@ static int rsa_read_key(FILE *fpdec, FILE *fphex, char **req_tags, int num_tags)
 
     /* Copy tag list - it will be adjusted as we go */
     for (int i = 0; i < num_tags; i++)
+    {
+        if (strlen(req_tags[i]) >= MAX_TAG_SIZE)
+            return err_report("%s: tag string %s is too long (max length %d)\n",
+                              __func__, req_tags[i], MAX_TAG_SIZE - 1);
         tags[i] = req_tags[i];
+    }
 
     while (num_tags > 0)
     {
