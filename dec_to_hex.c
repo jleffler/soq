@@ -2,11 +2,12 @@
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-extern int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char const *req_seq);
+extern int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char **req_tags, int num_tags);
 
 enum { BUFFER_SIZE = 4096 };
 enum { BYTE_KEY_SIZE = 4096 };
@@ -34,11 +35,11 @@ static int err_report(char const *format, ...)
 ** NB: If the file is on Windows, the \n will be converted to \r\n
 ** automatically.
 */
-static void rsa_copy_key(char tag, FILE *fphex, char *value)
+static void rsa_copy_key(char *tag, FILE *fphex, char *value)
 {
     char *pch;
 
-    fprintf(fphex, "%c = ", tag);
+    fprintf(fphex, "%s = ", tag);
 
     pch = strtok(value, COMMA);
     while (pch != NULL)
@@ -50,20 +51,48 @@ static void rsa_copy_key(char tag, FILE *fphex, char *value)
     fprintf(fphex, "\n");
 }
 
+enum { MAX_TAG_SIZE = 7 };
+
+/* Is the given tag in the list of tags? */
+/* If so, remove the tag from the list, decreasing list size */
+static bool interesting_tag(char *tag, char **tags, int *num_tags)
+{
+    int num = *num_tags;
+    for (int i = 0; i < num; i++)
+    {
+        if (strcmp(tag, tags[i]) == 0)
+        {
+            /* It is interesting */
+            if (i < num - 1)
+            {
+                tags[i] = tags[num - 1];
+                tags[num - 1] = 0;
+            }
+            (*num_tags)--;
+            return true;
+        }
+    }
+    return false;
+}
+
 /* Read one key (x = nn,nn,nn) line */
-static int rsa_read_one_key(FILE *fpdec, FILE *fphex, char req_letter)
+static int rsa_read_one_key(FILE *fpdec, FILE *fphex, char **tags, int *num_tags)
 {
     char buffer[BUFFER_SIZE];
     char value[BYTE_KEY_SIZE];
-    char act_letter;
+    char tag[MAX_TAG_SIZE+1];
+    char fmt[16];
+
+    sprintf(fmt, "%%%ds = %%%ds", MAX_TAG_SIZE, BYTE_KEY_SIZE-1);
 
     if (fgets(buffer, sizeof (buffer), fpdec) == NULL)
         return err_report("%s: fgets()#1 returned NULL\n", __func__);
-    if (sscanf(buffer, "%c = %s", &act_letter, value) != 2)
+    if (sscanf(buffer, fmt, tag, value) != 2)
         return err_report("%s: sscanf()#1 returned a value other than 2\n", __func__);
-    if (act_letter != req_letter)
-        return err_report("%s: letter read was '%c', not '%c' as required\n", __func__, act_letter, req_letter);
-    rsa_copy_key(req_letter, fphex, value);
+
+    /* Is the tag read an interesting one? */
+    if (interesting_tag(tag, tags, num_tags))
+        rsa_copy_key(tag, fphex, value);
     return OK;
 }
 
@@ -91,36 +120,51 @@ static int rsa_read_one_key(FILE *fpdec, FILE *fphex, char req_letter)
 ** 5.  EOF after last item is required (excess material is an error).
 */
 
+/*
+** Design decision time - Part 2
+**
+** The previous system required tags to be present in sequence, no
+** extras allowed.
+**
+** The revised design must look for specified tags in sequence, but
+** interlopers are allowed and ignored.  Further, the tags are now
+** strings, not single letters.  Repeats are ignored.  Search can stop
+** when all required tags have been converted.  EOF before getting
+** required tags is an error.
+**
+** Tags will be not longer than 7 characters.
+*/
+
 // Read Decimal value as per TAG which i provided.
-static int rsa_read_key(FILE *fpdec, FILE *fphex, char const *req_seq)
+static int rsa_read_key(FILE *fpdec, FILE *fphex, char **req_tags, int num_tags)
 {
-    char c;
-    while ((c = *req_seq++) != '\0')
+    char *tags[num_tags];
+
+    /* Copy tag list - it will be adjusted as we go */
+    for (int i = 0; i < num_tags; i++)
+        tags[i] = req_tags[i];
+
+    while (num_tags > 0)
     {
-        if (rsa_read_one_key(fpdec, fphex, c) != OK)
+        if (rsa_read_one_key(fpdec, fphex, tags, &num_tags) != OK)
             return ERROR;
     }
-    if (getc(fpdec) != EOF)
-        return err_report("%s: extra material in input file\n", __func__);
     return OK;
 }
 
-// Just open both files
-/* ...and if successful, call rsa_read_key() to transfer the data between
-** the files, and then close the files afterwards.
-*/
 /*
-** Using simple "r" and "w" modes to get native text line endings (CRLF
-** on Windows, LF aka NL on Unix).  The code doesn't use the update mode
+** Open files and, if successful, call rsa_read_key() to transfer the
+** data between the files, and then close the files afterwards.
+**
+** Use simple "r" and "w" modes to get native text line endings (CRLF on
+** Windows, LF aka NL on Unix).  The code doesn't use the update mode
 ** for the output file; you probably want the output file truncated.
 */
-int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char const *req_seq)
+int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char **req_tags, int num_tags)
 {
     FILE *fpdec = NULL;
     FILE *fphex = NULL;
-    int ret;
-
-    ret = OK;
+    int   ret   = OK;
 
     if ((fpdec = fopen(cfg_in, "r")) == NULL)
         ret = err_report("Failed to Open Configuration File %s (%d: %s)\n", cfg_in, errno, strerror(errno));
@@ -132,8 +176,7 @@ int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char const 
     }
     else
     {
-        // Here i have to change function in dynamic way like we have to pass TAG value.
-        if (rsa_read_key(fpdec, fphex, req_seq) != OK)
+        if (rsa_read_key(fpdec, fphex, req_tags, num_tags) != OK)
             ret = err_report("Failed: rsa_read_key() returned an error\n");
         fclose(fphex);
         fclose(fpdec);
@@ -145,9 +188,9 @@ int prepare_rsa_public_file(char const *cfg_in, char const *cfg_out, char const 
 int main(int argc, char **argv)
 {
     int rc = EXIT_FAILURE;
-    if (argc != 4)
-        fprintf(stderr, "Usage: %s key file-in file-out\n", argv[0]);
-    else if (prepare_rsa_public_file(argv[2], argv[3], argv[1]) == OK)
+    if (argc < 4)
+        fprintf(stderr, "Usage: %s file-in file-out key [...]\n", argv[0]);
+    else if (prepare_rsa_public_file(argv[1], argv[2], &argv[3], argc - 3) == OK)
         rc = EXIT_SUCCESS;
     return rc;
 }
