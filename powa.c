@@ -5,7 +5,8 @@
 ** 37,21   => AK21
 ** 491,321 => RW321
 ** 3941,87 => EUO87
-** From a StackOverflow question - but no idea which one.
+** From StackOverflow question 7651397 on 2011-10-04:
+** http://stackoverflow.com/questions/7651397/calc-cell-convertor-in-c
 */
 
 #include <stdio.h>
