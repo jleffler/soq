@@ -1,3 +1,13 @@
+/*
+** Convert column and row number into Excel (Spreadsheet) alphanumeric reference
+** 1,1     => A1
+** 27,1    => AA1
+** 37,21   => AK21
+** 491,321 => RW321
+** 3941,87 => EUO87
+** From a StackOverflow question - but no idea which one.
+*/
+
 #include <stdio.h>
 
 static char *powa(unsigned int code, char *buffer)
