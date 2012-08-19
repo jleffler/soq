@@ -1,4 +1,4 @@
-CC     = /usr/bin/gcc
+CC     = gcc #/usr/bin/gcc
 RM_FR  = rm -fr --
 WFLAG1 = -Wall 
 WFLAG2 = -Wextra
