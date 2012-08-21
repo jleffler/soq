@@ -32,14 +32,7 @@ SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1;
 SELECT id, COUNT(*) FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS x GROUP BY id;
 SELECT id, COUNT(*) FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS x GROUP BY id;
 
--- Query 5 - IDs having same count of rows as ID = 1
---
---SELECT idfk AS id
---  FROM t2
--- WHERE idfk != 1
--- GROUP BY idfk
---HAVING COUNT(*) = (SELECT COUNT(*) FROM t2 WHERE t2.idfk = 1);
-
+-- Query 5B - IDs having same count of distinct rows as ID = 1
 SELECT id
   FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS x
  GROUP BY id
@@ -47,50 +40,54 @@ HAVING COUNT(*) = (SELECT COUNT(*)
                      FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS x
                     GROUP BY id);
 
-SELECT idfk AS id, c, d
-  FROM t2
-  JOIN (SELECT idfk AS id
-          FROM t2
-         WHERE idfk != 1
-         GROUP BY idfk
-        HAVING COUNT(*) = (SELECT COUNT(*) FROM t2 WHERE t2.idfk = 1)
+-- Query 6B
+SELECT d2.id, d2.c, d2.d
+  FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS d2
+  JOIN (SELECT id
+          FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS x
+         GROUP BY id
+        HAVING COUNT(*) = (SELECT COUNT(*)
+                             FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS x
+                            GROUP BY id)
        ) AS j2
-    ON j2.id = t2.idfk
+    ON j2.id = d2.id
  ORDER BY id;
 
+-- Query 7B
 SELECT x.id, y.id, x.c, y.c, x.d, y.d
-  FROM (SELECT idfk AS id, c, d
-          FROM t2
-          JOIN (SELECT idfk AS id
-                  FROM t2
-                 WHERE idfk != 1
-                 GROUP BY idfk
-                HAVING COUNT(*) = (SELECT COUNT(*) FROM t2 WHERE t2.idfk = 1)
+  FROM (SELECT d2.id, d2.c, d2.d
+          FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS d2
+          JOIN (SELECT id
+                  FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS x
+                 GROUP BY id
+                HAVING COUNT(*) = (SELECT COUNT(*)
+                                     FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS x
+                                    GROUP BY id)
                ) AS j2
-            ON j2.id = t2.idfk
+            ON j2.id = d2.id
        ) AS x
-  JOIN (SELECT idfk AS id, c, d
-          FROM t2 WHERE idfk = 1
-       ) AS y
+  JOIN (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS y
     ON x.c = y.c AND x.d = y.d
  ORDER BY x.id, y.id, x.c, x.d;
 
+-- Query 8B
 SELECT x.id
-  FROM (SELECT idfk AS id, c, d
-          FROM t2
-          JOIN (SELECT idfk AS id
-                  FROM t2
-                 WHERE idfk != 1
-                 GROUP BY idfk
-                HAVING COUNT(*) = (SELECT COUNT(*) FROM t2 WHERE t2.idfk = 1)
+  FROM (SELECT d2.id, d2.c, d2.d
+          FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS d2
+          JOIN (SELECT id
+                  FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk != 1) AS x
+                 GROUP BY id
+                HAVING COUNT(*) = (SELECT COUNT(*)
+                                     FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS x
+                                    GROUP BY id)
                ) AS j2
-            ON j2.id = t2.idfk
+            ON j2.id = d2.id
        ) AS x
-  JOIN (SELECT idfk AS id, c, d
-          FROM t2 WHERE idfk = 1
-       ) AS y
+  JOIN (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS y
     ON x.c = y.c AND x.d = y.d
  GROUP BY x.id
-HAVING COUNT(*) = (SELECT COUNT(*) FROM t2 WHERE t2.idfk = 1);
+HAVING COUNT(*) = (SELECT COUNT(*)
+                     FROM (SELECT DISTINCT idfk AS id, c, d FROM t2 WHERE idfk  = 1) AS x
+                    GROUP BY id);
 
 ROLLBACK;
