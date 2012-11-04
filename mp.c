@@ -10,7 +10,6 @@ typedef struct Child
 {
     int   fd_to;
     FILE *fp_from;
-    int   fd_from;
     pid_t pid;
 } Child;
 
@@ -57,7 +56,6 @@ static int make_kid(Child *kid)
     else
     {
         kid->fd_to   = pipe1[P_WRITE];
-        kid->fd_from = pipe2[P_READ];
         kid->fp_from = fdopen(pipe2[P_READ], "r");
         close(pipe1[P_READ]);
         close(pipe2[P_WRITE]);
@@ -133,12 +131,7 @@ static void be_childish(void)
     qsort(lines, num_lines, sizeof(char *), qs_compare);
 
     for (size_t i = 0; i < num_lines; i++)
-    {
-        /* Using write() ensures each line is output to pipe separately */
-        int len = strlen(lines[i]);
-        if (write(STDOUT_FILENO, lines[i], len) != len)
-            err_exit("Short write to parent (%d)\n", (int)getpid());
-    }
+        fputs(lines[i], stdout);
 
     exit(0);
 }
@@ -177,7 +170,6 @@ static void read_line(Child *kid, char *buffer, size_t maxlen, int *length)
         buffer[0] = '\0';
         *length = -1;
         fclose(kid->fp_from);
-        kid->fd_from = -1;
         kid->fp_from = 0;
     }
 }
