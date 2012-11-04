@@ -1,6 +1,5 @@
 #define _XOPEN_VERSION 600
 
-#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,9 +17,10 @@ typedef struct Child
 enum { P_READ, P_WRITE };   /* Read, write descriptor of a pipe */
 enum { MAX_LINE = 4096 };
 
-static void err_exit(const char *fmt, ...);
 static void be_childish(void);
-static void be_parental(size_t nkids, Child *kids);
+static void distribute(size_t nkids, Child *kids);
+static void err_exit(const char *fmt, ...);
+static void merge(size_t nkids, Child *kids);
 
 static int make_kid(Child *kid)
 {
@@ -67,16 +67,19 @@ static int make_kid(Child *kid)
 
 int main(void)
 {
-    enum { NUM_KIDS = 3 };
+    enum { NUM_KIDS = 5 };
     Child kids[NUM_KIDS];
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < NUM_KIDS; i++)
     {
         if (make_kid(&kids[i]) != 0)
             err_exit("Fault starting child %d\n", i);
-//fprintf(stderr, "PID %.5d (to = %d, from = %d)\n", (int)kid[i].pid, kid[i].fd_to, kid[i].fd_from);
     }
-    be_parental(NUM_KIDS, kids);
+
+    distribute(NUM_KIDS, kids);
+    merge(NUM_KIDS, kids);
+
+    /* waitpid() in a loop?  Disposition of SIGCHLD? */
     return(0);
 }
 
@@ -112,11 +115,9 @@ static void be_childish(void)
     size_t num_lines = 0;
     size_t max_lines = 0;
     char input[MAX_LINE];
-    int pid = getpid();
 
     while (fgets(input, sizeof(input), stdin) != 0)
     {
-//fprintf(stderr, "%d: IN: %s", pid, input);
         if (num_lines >= max_lines)
         {
             size_t n = (2 * max_lines + 2);
@@ -127,23 +128,18 @@ static void be_childish(void)
             max_lines = n;
         }
         lines[num_lines++] = estrdup(input);
-//fprintf(stderr, "%d: CP: %s", pid, lines[num_lines-1]);
     }
 
-//fprintf(stderr, "%d: B Sort\n", pid);
     qsort(lines, num_lines, sizeof(char *), qs_compare);
-//fprintf(stderr, "%d: A Sort\n", pid);
 
     for (size_t i = 0; i < num_lines; i++)
     {
-//fprintf(stderr, "%d: Out: %s", pid, lines[i]);
-        //fputs(lines[i], stdout);
+        /* Using write() ensures each line is output to pipe separately */
         int len = strlen(lines[i]);
         if (write(STDOUT_FILENO, lines[i], len) != len)
-            err_exit("Short write to parent (%d)\n", (int)pid);
+            err_exit("Short write to parent (%d)\n", (int)getpid());
     }
 
-//fprintf(stderr, "%d: Done\n", pid),
     exit(0);
 }
 
@@ -175,11 +171,9 @@ static void read_line(Child *kid, char *buffer, size_t maxlen, int *length)
     {
         *length = strlen(buffer);
         buffer[*length] = '\0';
-//fprintf(stderr, "READ %.5d: %s", (int)kid->pid, buffer);
     }
     else
     {
-//fprintf(stderr, "EOF %.5d\n", (int)kid->pid);
         buffer[0] = '\0';
         *length = -1;
         fclose(kid->fp_from);
@@ -206,19 +200,12 @@ static void min_line(size_t nkids, int *len, char **lines, size_t maxlen, Child 
     {
         if (len[i] <= 0)
             continue;
-        if (min_str == 0)
-        {
-            min_str = lines[i];
-            min_kid = i;
-        }
-        else if (strcmp(min_str, lines[i]) > 0)
+        if (min_str == 0 || strcmp(min_str, lines[i]) > 0)
         {
             min_str = lines[i];
             min_kid = i;
         }
     }
-    assert(min_str != 0);
-//fprintf(stderr, "MIN %zd = %s", min_kid, lines[min_kid]);
     strcpy(output, min_str);
     read_line(&kids[min_kid], lines[min_kid], maxlen, &len[min_kid]);
 }
@@ -240,14 +227,6 @@ static void merge(size_t nkids, Child *kids)
     while (not_all_done(nkids, len))
     {
         min_line(nkids, len, lines, MAX_LINE, kids, output);
-//        printf("MAIN: %s", output);
-//        fflush(stdout);
         fputs(output, stdout);
     }
-}
-
-static void be_parental(size_t nkids, Child *kids)
-{
-    distribute(nkids, kids);
-    merge(nkids, kids);
 }
