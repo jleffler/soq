@@ -20,7 +20,6 @@ static void be_childish(void);
 static void distribute(size_t nkids, Child *kids);
 static void err_exit(const char *fmt, ...);
 static void merge(size_t nkids, Child *kids);
-static void sig_handler(int signum);
 static void wait_for_kids(size_t nkids, Child *kids);
 
 static int make_kid(Child *kid)
@@ -69,7 +68,12 @@ int main(void)
 {
     enum { NUM_KIDS = 5 };
     Child kids[NUM_KIDS];
-    signal(SIGCHLD, sig_handler);
+    struct sigaction act;
+
+    sigfillset(&act.sa_mask);
+    act.sa_flags   = 0;
+    act.sa_handler = SIG_DFL;
+    sigaction(SIGCHLD, &act, 0);
 
     for (int i = 0; i < NUM_KIDS; i++)
     {
@@ -228,11 +232,6 @@ static void merge(size_t nkids, Child *kids)
     }
 }
 
-static void sig_handler(int signum)
-{
-    signal(signum, sig_handler);
-}
-
 static void wait_for_kids(size_t nkids, Child *kids)
 {
     int pid;
@@ -246,6 +245,8 @@ static void wait_for_kids(size_t nkids, Child *kids)
                 kids[i].pid = -1;
         }
     }
+
+    /* This check loop is not really necessary */
     for (size_t i = 0; i < nkids; i++)
     {
         if (kids[i].pid != -1)
