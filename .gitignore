@@ -3,21 +3,22 @@
 *.o
 *.orig
 *~
+# All one-character file names
+?
 a.out
 arq_5.txt
 arq_5_b.dat
 b-tree_file
+const-stuff
 core
+fifocircle
+madump
+multi-pipe-sort
 piped-merge-sort
 powa
 pthread-?
 quine
-madump
-fifocircle
-const-stuff
-unwrap
 regress
 strandsort
 tcflush
-# All one-character file names
-?
+unwrap
