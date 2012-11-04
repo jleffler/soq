@@ -9,8 +9,9 @@
 
 typedef struct Child
 {
-    int fd_to;
-    int fd_from;
+    int   fd_to;
+    FILE *fp_from;
+    int   fd_from;
     pid_t pid;
 } Child;
 
@@ -57,6 +58,7 @@ static int make_kid(Child *kid)
     {
         kid->fd_to   = pipe1[P_WRITE];
         kid->fd_from = pipe2[P_READ];
+        kid->fp_from = fdopen(pipe2[P_READ], "r");
         close(pipe1[P_READ]);
         close(pipe2[P_WRITE]);
         return 0;
@@ -72,6 +74,7 @@ int main(void)
     {
         if (make_kid(&kids[i]) != 0)
             err_exit("Fault starting child %d\n", i);
+//fprintf(stderr, "PID %.5d (to = %d, from = %d)\n", (int)kid[i].pid, kid[i].fd_to, kid[i].fd_from);
     }
     be_parental(NUM_KIDS, kids);
     return(0);
@@ -109,9 +112,11 @@ static void be_childish(void)
     size_t num_lines = 0;
     size_t max_lines = 0;
     char input[MAX_LINE];
+    int pid = getpid();
 
     while (fgets(input, sizeof(input), stdin) != 0)
     {
+//fprintf(stderr, "%d: IN: %s", pid, input);
         if (num_lines >= max_lines)
         {
             size_t n = (2 * max_lines + 2);
@@ -122,10 +127,23 @@ static void be_childish(void)
             max_lines = n;
         }
         lines[num_lines++] = estrdup(input);
+//fprintf(stderr, "%d: CP: %s", pid, lines[num_lines-1]);
     }
-    qsort(lines, sizeof(char *), num_lines, qs_compare);
+
+//fprintf(stderr, "%d: B Sort\n", pid);
+    qsort(lines, num_lines, sizeof(char *), qs_compare);
+//fprintf(stderr, "%d: A Sort\n", pid);
+
     for (size_t i = 0; i < num_lines; i++)
-        fputs(lines[i], stdout);
+    {
+//fprintf(stderr, "%d: Out: %s", pid, lines[i]);
+        //fputs(lines[i], stdout);
+        int len = strlen(lines[i]);
+        if (write(STDOUT_FILENO, lines[i], len) != len)
+            err_exit("Short write to parent (%d)\n", (int)pid);
+    }
+
+//fprintf(stderr, "%d: Done\n", pid),
     exit(0);
 }
 
@@ -153,13 +171,20 @@ static void distribute(size_t nkids, Child *kids)
 
 static void read_line(Child *kid, char *buffer, size_t maxlen, int *length)
 {
-    *length = read(kid->fd_from, buffer, maxlen);
-    if (*length > 0)
+    if (fgets(buffer, maxlen, kid->fp_from) != 0)
+    {
+        *length = strlen(buffer);
         buffer[*length] = '\0';
+//fprintf(stderr, "READ %.5d: %s", (int)kid->pid, buffer);
+    }
     else
     {
-        close(kid->fd_from);
+//fprintf(stderr, "EOF %.5d\n", (int)kid->pid);
+        buffer[0] = '\0';
+        *length = -1;
+        fclose(kid->fp_from);
         kid->fd_from = -1;
+        kid->fp_from = 0;
     }
 }
 
@@ -179,7 +204,9 @@ static void min_line(size_t nkids, int *len, char **lines, size_t maxlen, Child 
     char   *min_str = 0;
     for (size_t i = 0; i < nkids; i++)
     {
-        if (len[i] > 0 && min_str == 0)
+        if (len[i] <= 0)
+            continue;
+        if (min_str == 0)
         {
             min_str = lines[i];
             min_kid = i;
@@ -191,6 +218,7 @@ static void min_line(size_t nkids, int *len, char **lines, size_t maxlen, Child 
         }
     }
     assert(min_str != 0);
+//fprintf(stderr, "MIN %zd = %s", min_kid, lines[min_kid]);
     strcpy(output, min_str);
     read_line(&kids[min_kid], lines[min_kid], maxlen, &len[min_kid]);
 }
@@ -212,6 +240,8 @@ static void merge(size_t nkids, Child *kids)
     while (not_all_done(nkids, len))
     {
         min_line(nkids, len, lines, MAX_LINE, kids, output);
+//        printf("MAIN: %s", output);
+//        fflush(stdout);
         fputs(output, stdout);
     }
 }
