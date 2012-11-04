@@ -1,7 +1,9 @@
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 typedef struct Child
@@ -18,6 +20,8 @@ static void be_childish(void);
 static void distribute(size_t nkids, Child *kids);
 static void err_exit(const char *fmt, ...);
 static void merge(size_t nkids, Child *kids);
+static void sig_handler(int signum);
+static void wait_for_kids(size_t nkids, Child *kids);
 
 static int make_kid(Child *kid)
 {
@@ -65,6 +69,7 @@ int main(void)
 {
     enum { NUM_KIDS = 5 };
     Child kids[NUM_KIDS];
+    signal(SIGCHLD, sig_handler);
 
     for (int i = 0; i < NUM_KIDS; i++)
     {
@@ -75,7 +80,7 @@ int main(void)
     distribute(NUM_KIDS, kids);
     merge(NUM_KIDS, kids);
 
-    /* waitpid() in a loop?  Disposition of SIGCHLD? */
+    wait_for_kids(NUM_KIDS, kids);
     return(0);
 }
 
@@ -220,5 +225,30 @@ static void merge(size_t nkids, Child *kids)
     {
         min_line(nkids, len, lines, MAX_LINE, kids, output);
         fputs(output, stdout);
+    }
+}
+
+static void sig_handler(int signum)
+{
+    signal(signum, sig_handler);
+}
+
+static void wait_for_kids(size_t nkids, Child *kids)
+{
+    int pid;
+    int status;
+
+    while ((pid = waitpid(-1, &status, 0)) != -1)
+    {
+        for (size_t i = 0; i < nkids; i++)
+        {
+            if (pid == kids[i].pid)
+                kids[i].pid = -1;
+        }
+    }
+    for (size_t i = 0; i < nkids; i++)
+    {
+        if (kids[i].pid != -1)
+            err_exit("Child %d died without being tracked\n", (int)kids[i].pid);
     }
 }
