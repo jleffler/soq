@@ -1,5 +1,3 @@
-#define _XOPEN_VERSION 600
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +6,7 @@
 
 typedef struct Child
 {
-    int   fd_to;
+    FILE *fp_to;
     FILE *fp_from;
     pid_t pid;
 } Child;
@@ -55,7 +53,7 @@ static int make_kid(Child *kid)
     }
     else
     {
-        kid->fd_to   = pipe1[P_WRITE];
+        kid->fp_to   = fdopen(pipe1[P_WRITE], "w");
         kid->fp_from = fdopen(pipe2[P_READ], "r");
         close(pipe1[P_READ]);
         close(pipe2[P_WRITE]);
@@ -131,7 +129,10 @@ static void be_childish(void)
     qsort(lines, num_lines, sizeof(char *), qs_compare);
 
     for (size_t i = 0; i < num_lines; i++)
-        fputs(lines[i], stdout);
+    {
+        if (fputs(lines[i], stdout) == EOF)
+            err_exit("Short write to parent from %d\n", (int)getpid());
+    }
 
     exit(0);
 }
@@ -143,8 +144,7 @@ static void distribute(size_t nkids, Child *kids)
 
     while (fgets(input, sizeof(input), stdin) != 0)
     {
-        int len = strlen(input);
-        if (write(kids[n].fd_to, input, len) != len)
+        if (fputs(input, kids[n].fp_to) == EOF)
             err_exit("Short write to child %d\n", (int)kids[n].pid);
         if (++n >= nkids)
             n = 0;
@@ -153,8 +153,8 @@ static void distribute(size_t nkids, Child *kids)
     /* Close pipes to children - let's them get on with sorting */
     for (size_t i = 0; i < nkids; i++)
     {
-        close(kids[i].fd_to);
-        kids[i].fd_to = -1;
+        fclose(kids[i].fp_to);
+        kids[i].fp_to = 0;
     }
 }
 
