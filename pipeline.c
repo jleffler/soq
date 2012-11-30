@@ -3,9 +3,14 @@
 */
 
 /* stderr.h */
+#ifndef STDERR_H_INCLUDED
+#define STDERR_H_INCLUDED
+
 static void err_setarg0(const char *argv0);
 static void err_sysexit(char const *fmt, ...);
 static void err_syswarn(char const *fmt, ...);
+
+#endif /* STDERR_H_INCLUDED */
 
 /* pipeline.c */
 #include <assert.h>
