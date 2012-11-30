@@ -2,21 +2,27 @@
 ** How to create a pipeline of N processes?
 */
 
-#include <assert.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-
-typedef int Pipe[2];
-
+/* stderr.h */
 static void err_setarg0(const char *argv0);
 static void err_sysexit(char const *fmt, ...);
 static void err_syswarn(char const *fmt, ...);
 
-static void exec_last_command(int ncmds, char ***cmds, Pipe output);
+/* pipeline.c */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
+typedef int Pipe[2];
+
+/* exec_nth_command() and exec_pipe_command() are mutually recursive */
+static void exec_pipe_command(int ncmds, char ***cmds, Pipe output);
+
+/* With the standard output plumbing sorted, execute Nth command */
 static void exec_nth_command(int ncmds, char ***cmds)
 {
+    assert(ncmds >= 1);
     if (ncmds > 1)
     {
         pid_t pid;
@@ -28,7 +34,7 @@ static void exec_nth_command(int ncmds, char ***cmds)
         if (pid == 0)
         {
             /* Child */
-            exec_last_command(ncmds-1, cmds, input);
+            exec_pipe_command(ncmds-1, cmds, input);
         }
         /* Fix standard input to read end of pipe */
         dup2(input[0], 0);
@@ -40,7 +46,8 @@ static void exec_nth_command(int ncmds, char ***cmds)
     /*NOTREACHED*/
 }
 
-static void exec_last_command(int ncmds, char ***cmds, Pipe output)
+/* Given pipe, plumb it to standard output, then execute Nth command */
+static void exec_pipe_command(int ncmds, char ***cmds, Pipe output)
 {
     assert(ncmds >= 1);
     /* Fix stdout to write end of pipe */
@@ -50,6 +57,7 @@ static void exec_last_command(int ncmds, char ***cmds, Pipe output)
     exec_nth_command(ncmds, cmds);
 }
 
+/* Execute the N commands in the pipeline */
 static void exec_pipeline(int ncmds, char ***cmds)
 {
     assert(ncmds >= 1);
@@ -61,6 +69,7 @@ static void exec_pipeline(int ncmds, char ***cmds)
     exec_nth_command(ncmds, cmds);
 }
 
+/* Collect dead children until there are none left */
 static void corpse_collector(void)
 {
     pid_t parent = getpid();
@@ -83,17 +92,55 @@ static char *cmd4[] = { "sort", "-n",         0 };
 static char **cmds[] = { cmd0, cmd1, cmd2, cmd3, cmd4 };
 static int   ncmds = sizeof(cmds) / sizeof(cmds[0]);
 
+static void exec_arguments(int argc, char **argv)
+{
+    /* Split the command line into sequences of arguments */
+    /* Break at pipe symbols as arguments on their own */
+    char **cmdv[argc/2];            // Way too many
+    char  *args[argc+1];
+    int cmdn = 0;
+    int argn = 0;
+
+    cmdv[cmdn++] = &args[argn];
+    for (int i = 1; i < argc; i++)
+    {
+        char *arg = argv[i];
+        if (strcmp(arg, "|") == 0)
+        {
+            if (i == 1)
+                err_sysexit("Syntax error: pipe before any command");
+            if (args[argn-1] == 0)
+                err_sysexit("Syntax error: two pipes with no command between");
+            arg = 0;
+        }
+        args[argn++] = arg;
+        if (arg == 0)
+            cmdv[cmdn++] = &args[argn];
+    }
+    args[argn] = 0;
+    exec_pipeline(cmdn, cmdv);
+}
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
     if (argc == 1)
+    {
+        /* Run the built in pipe-line */
         exec_pipeline(ncmds, cmds); 
+    }
     else
-        err_sysexit("Too many arguments (%d)", argc);
+    {
+        /* Run command line specified by user */
+        exec_arguments(argc, argv);
+    }
     corpse_collector();
     return(0);
 }
 
+/* stderr.c */
+/*#include "stderr.h"*/
+#include <stdio.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <string.h>

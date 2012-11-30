@@ -15,6 +15,7 @@ fifocircle
 madump
 multi-pipe-sort
 piped-merge-sort
+pipeline
 powa
 pthread-?
 quine
