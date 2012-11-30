@@ -13,14 +13,10 @@ static void err_setarg0(const char *argv0);
 static void err_sysexit(char const *fmt, ...);
 static void err_syswarn(char const *fmt, ...);
 
-static void exec_last_command(int ncmds, char ***cmds, Pipe output)
-{
-    assert(ncmds >= 1);
-    /* Fix stdout to write end of pipe */
-    dup2(output[1], 1);
-    close(output[0]);
-    close(output[1]);
+static void exec_last_command(int ncmds, char ***cmds, Pipe output);
 
+static void exec_nth_command(int ncmds, char ***cmds)
+{
     if (ncmds > 1)
     {
         pid_t pid;
@@ -44,6 +40,16 @@ static void exec_last_command(int ncmds, char ***cmds, Pipe output)
     /*NOTREACHED*/
 }
 
+static void exec_last_command(int ncmds, char ***cmds, Pipe output)
+{
+    assert(ncmds >= 1);
+    /* Fix stdout to write end of pipe */
+    dup2(output[1], 1);
+    close(output[0]);
+    close(output[1]);
+    exec_nth_command(ncmds, cmds);
+}
+
 static void exec_pipeline(int ncmds, char ***cmds)
 {
     assert(ncmds >= 1);
@@ -52,27 +58,7 @@ static void exec_pipeline(int ncmds, char ***cmds)
         err_syswarn("Failed to fork");
     if (pid != 0)
         return;
-
-    if (ncmds > 1)
-    {
-        Pipe input;
-        if (pipe(input) != 0)
-            err_sysexit("Failed to create pipe");
-        if ((pid = fork()) < 0)
-            err_sysexit("Failed to fork");
-        if (pid == 0)
-        {
-            /* Child */
-            exec_last_command(ncmds-1, cmds, input);
-        }
-        /* Fix standard input to read end of pipe */
-        dup2(input[0], 0);
-        close(input[0]);
-        close(input[1]);
-    }
-    execvp(cmds[ncmds-1][0], cmds[ncmds-1]);
-    err_sysexit("Failed to exec %s", cmds[ncmds-1][0]);
-    /*NOTREACHED*/
+    exec_nth_command(ncmds, cmds);
 }
 
 static void corpse_collector(void)
