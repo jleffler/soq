@@ -13,6 +13,7 @@ static void err_syswarn(char const *fmt, ...);
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+/*#include "stderr.h"*/
 
 typedef int Pipe[2];
 
