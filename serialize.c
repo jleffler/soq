@@ -10,7 +10,6 @@ static void err_syswarn(char const *fmt, ...);
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 enum { SAMPLE_SIZE = 20 }; /* 2065 in original */
 enum { NUM_PERSON  = 10 }; /*   20 in original */
@@ -80,8 +79,8 @@ static void populate_data(Data *data, size_t entry_num)
 {
     /* entry_num serves as 'changing' size */
     data->ID = entry_num;
-    data->t3 = entry_num *  SAMPLE_SIZE; //atan2(entry_num, SAMPLE_SIZE);
-    data->kernel_par = (1.0 * SAMPLE_SIZE) / entry_num; //cos(entry_num) + sin(entry_num);
+    data->t3 = entry_num * SAMPLE_SIZE;
+    data->kernel_par = (1.0 * SAMPLE_SIZE) / entry_num;
 
     for (size_t i = 0; i < SAMPLE_SIZE; i++)
         data->test_sample[i][0] = i + entry_num;
@@ -103,7 +102,7 @@ static void populate_data(Data *data, size_t entry_num)
     for (size_t i = 0; i < data->alpha_new_row; i++)
     {
         for (size_t j = 0; j < data->alpha_new_col; j++)
-            data->XX[i][j] = i * data->alpha_new_col + j;
+            data->alpha_new[i][j] = i * data->alpha_new_col + j;
     }
 }
 
