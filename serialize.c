@@ -12,8 +12,8 @@ static void err_syswarn(char const *fmt, ...);
 #include <stdlib.h>
 #include <math.h>
 
-enum { SAMPLE_SIZE = 5 }; /* 2065 in original */
-enum { NUM_PERSON  = 3 }; /*   20 in original */
+enum { SAMPLE_SIZE = 20 }; /* 2065 in original */
+enum { NUM_PERSON  = 10 }; /*   20 in original */
 
 struct Data
 {
@@ -163,6 +163,14 @@ static void set_file_name(char *buffer, size_t buflen, size_t i)
     snprintf(buffer, buflen, "exp_data.%.3zd.exp", i);
 }
 
+static void export_1D_double(FILE *fp, double *data, size_t ncols)
+{
+    if (fwrite(&ncols, sizeof(ncols), 1, fp) != 1)
+        err_sysexit("Failed to write number of columns");
+    if (fwrite(data, sizeof(double), ncols, fp) != ncols)
+        err_sysexit("Failed to write array of %zd doubles", ncols);
+}
+
 static void export_2D_double(FILE *fp, double **data, size_t nrows, size_t ncols)
 {
     if (fwrite(&nrows, sizeof(nrows), 1, fp) != 1)
@@ -170,18 +178,7 @@ static void export_2D_double(FILE *fp, double **data, size_t nrows, size_t ncols
     if (fwrite(&ncols, sizeof(ncols), 1, fp) != 1)
         err_sysexit("Failed to write number of columns");
     for (size_t i = 0; i < nrows; i++)
-    {
-        if (fwrite(data[i], sizeof(double), ncols, fp) != ncols)
-            err_sysexit("Failed to write array of %zd doubles", ncols);
-    }
-}
-
-static void export_1D_double(FILE *fp, double *data, size_t ncols)
-{
-    if (fwrite(&ncols, sizeof(ncols), 1, fp) != 1)
-        err_sysexit("Failed to write number of columns");
-    if (fwrite(data, sizeof(double), ncols, fp) != ncols)
-        err_sysexit("Failed to write array of %zd doubles", ncols);
+        export_1D_double(fp, data[i], ncols);
 }
 
 static void export_int(FILE *fp, int value)
@@ -247,6 +244,9 @@ static size_t import_size_t(FILE *fp)
 
 static void import_1D_double(FILE *fp, double *data, size_t nvalues)
 {
+    size_t size = import_size_t(fp);
+    if (size != nvalues)
+        err_sysexit("Size mismatch (wanted %zd, actual %zd)\n", nvalues, size);
     if (fread(data, sizeof(data[0]), nvalues, fp) != nvalues)
         err_sysexit("Failed to read %zd doubles");
 }
@@ -255,7 +255,6 @@ static void import_2D_double(FILE *fp, double ***data, size_t *nrows, size_t *nc
 {
     *nrows = import_size_t(fp);
     *ncols = import_size_t(fp);
-fprintf(stderr, "2D array size %zd x %zd = %zd\n", *nrows, *ncols, *nrows * *ncols);
     *data  = alloc_2D_double(*nrows, *ncols);
     for (size_t i = 0; i < *nrows; i++)
         import_1D_double(fp, (*data)[i], *ncols);
@@ -264,18 +263,12 @@ fprintf(stderr, "2D array size %zd x %zd = %zd\n", *nrows, *ncols, *nrows * *nco
 static void import_data(FILE *fp, Data *data)
 {
     data->ID = import_int(fp);
-fprintf(stderr, "ID = %d\n", data->ID);
     data->t3 = import_double(fp);
-fprintf(stderr, "t3 = %e\n", data->t3);
     data->kernel_par = import_double(fp);
-fprintf(stderr, "kp = %e\n", data->kernel_par);
 
     import_1D_double(fp, &data->test_sample[0][0], sizeof(data->test_sample)/sizeof(data->test_sample[0][0]));
-print_1D_double(stderr, "test_sample", &data->test_sample[0][0], sizeof(data->test_sample)/sizeof(data->test_sample[0][0]));
     import_2D_double(fp, &data->XX, &data->XX_row, &data->XX_col);
-print_2D_double(stderr, "XX", data->XX, data->XX_row, data->XX_col);
     import_2D_double(fp, &data->alpha_new, &data->alpha_new_row, &data->alpha_new_col);
-print_2D_double(stderr, "alpha_new", data->alpha_new, data->alpha_new_row, data->alpha_new_col);
 }
 
 static void import_array(Data *data, size_t nentries)
