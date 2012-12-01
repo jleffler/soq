@@ -129,9 +129,26 @@ static void exec_arguments(int argc, char **argv)
     exec_pipeline(cmdn, cmdv);
 }
 
+#include <signal.h>
+
+typedef void (*SigHandler)(int signum);
+
+static void sigchld_status(void)
+{
+    const char *handling = "Handler";
+    SigHandler sigchld = signal(SIGCHLD, SIG_IGN);
+    signal(SIGCHLD, sigchld);
+    if (sigchld == SIG_IGN)
+        handling = "Ignored";
+    else if (sigchld == SIG_DFL)
+        handling = "Default";
+    printf("SIGCHLD set to %s\n", handling);
+}
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
+    sigchld_status();
     if (argc == 1)
     {
         /* Run the built in pipe-line */
