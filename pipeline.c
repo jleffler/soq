@@ -123,6 +123,8 @@ static void exec_arguments(int argc, char **argv)
         if (arg == 0)
             cmdv[cmdn++] = &args[argn];
     }
+    if (args[argn-1] == 0)
+        err_sysexit("Syntax error: pipe with no command following");
     args[argn] = 0;
     exec_pipeline(cmdn, cmdv);
 }
