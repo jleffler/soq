@@ -37,6 +37,20 @@ static tNode *new_node(void)
     return(tree);
 }
 
+static void free_node(tNode *tree)
+{
+    assert(tree != 0);
+    assert(tree->l != 0);
+    for (size_t i = 0; i < 27; i++)
+    {
+        if (tree->l[i] != 0)
+            free_node(tree->l[i]);
+    }
+    free(tree->l);
+    free(tree->w);
+    free(tree);
+}
+
 static void add_word_suffix(tNode *tree, char const *word, char const *suffix)
 {
     int c;
@@ -173,6 +187,9 @@ int main(void)
         else
             printf("Leaf [%s] for [%s]\n", leaf->w, words[i]);
     }
+
+    /* Release memory */
+    free_node(root);
 
     return(0);
 }
