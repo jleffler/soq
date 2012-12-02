@@ -84,8 +84,8 @@ static tNode *find_word_suffix(tNode *tree, char const *word, char const *suffix
             c = tolower(c) - 'a' + 1;
             if (tree->l[c] == 0)
                 return(0);
-            if (*suffix == '\0')
-                break;
+            //if (*suffix == '\0')
+            //    break;
             tNode *rv = find_word_suffix(tree->l[c], word, suffix);
             if (rv == 0)
             {
