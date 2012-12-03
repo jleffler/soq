@@ -1,25 +1,16 @@
-/* SO 13674617/adding-word-to-trie-structure-dictionary */
+/* SO 13674617 Adding word to trie structure dictionary */
 
-/*
-** I'm trying to create a trie structure which can be inserted words,
-** but the struct has to be exactly like this:
-*/
+#ifndef TRIE_H_INCLUDED
+#define TRIE_H_INCLUDED
 
-typedef struct tNode_t
-{
-    struct tNode_t **l;
-    char            *w;
-} tNode;
+typedef struct tNode_t tNode;
+extern void trie_add_word(tNode *trie, char const *word);
+extern char const *trie_find_word(tNode *trie, char const *word);
+extern void trie_print(tNode *trie);
+extern tNode *trie_new(void);
+extern void trie_free(tNode *trie);
 
-/*
-** The member l is a pointer to an array of 27 pointers to tNodes;
-** that's the part I don't understand.
-**
-** If the array is of pointers to tNodes, how do I insert words into it?
-** And since the size of the array is 27 (26 lower case letters a-z and
-** the terminating character) how do you know where to input the word
-** depending on what the beginning letter is?
-*/
+#endif /* TRIE_H_INCLUDED */
 
 #include <assert.h>
 #include <ctype.h>
@@ -28,43 +19,43 @@ typedef struct tNode_t
 #include <string.h>
 #include <stdarg.h>
 
-extern void trie_add_word(tNode *tree, char const *word);
-extern tNode *trie_find_word(tNode *tree, char const *word);
-extern void trie_print(tNode *tree);
-extern tNode *trie_new(void);
-extern void trie_free(tNode *tree);
+struct tNode_t
+{
+    struct tNode_t **l;
+    char            *w;
+};
 
 static void db_print(char const *fmt, ...);
 
 tNode *trie_new(void)
 {
-    tNode *tree = malloc(sizeof(tNode));
-    assert(tree != 0);      // Abysmal way to validate memory allocation
-    tree->w = 0;
-    tree->l = (tNode **)calloc(27, sizeof(tNode *));
-    assert(tree->l != 0);   // Abysmal way to validate memory allocation
-    return(tree);
+    tNode *trie = malloc(sizeof(tNode));
+    assert(trie != 0);      // Abysmal way to validate memory allocation
+    trie->w = 0;
+    trie->l = (tNode **)calloc(27, sizeof(tNode *));
+    assert(trie->l != 0);   // Abysmal way to validate memory allocation
+    return(trie);
 }
 
-void trie_free(tNode *tree)
+void trie_free(tNode *trie)
 {
-    assert(tree != 0);
-    assert(tree->l != 0);
+    assert(trie != 0);
+    assert(trie->l != 0);
     for (size_t i = 0; i < 27; i++)
     {
-        if (tree->l[i] != 0)
-            trie_free(tree->l[i]);
+        if (trie->l[i] != 0)
+            trie_free(trie->l[i]);
     }
-    free(tree->l);
-    free(tree->w);
-    free(tree);
+    free(trie->l);
+    free(trie->w);
+    free(trie);
 }
 
-static void add_word_suffix(tNode *tree, char const *word, char const *suffix)
+static void add_word_suffix(tNode *trie, char const *word, char const *suffix)
 {
     int c;
-    assert(tree != 0);
-    assert(tree->l != 0);
+    assert(trie != 0);
+    assert(trie->l != 0);
     db_print("-->> %s: word [%s], suffix [%s]\n", __func__, word, suffix);
     while ((c = *suffix++) != '\0')
     {
@@ -72,30 +63,30 @@ static void add_word_suffix(tNode *tree, char const *word, char const *suffix)
         {
             db_print("---- %s: letter %c (index %d)\n", __func__, c, c - 'a' + 1);
             c = tolower(c) - 'a' + 1;
-            assert(tree->l != 0);
-            if (tree->l[c] == 0)
-                tree->l[c] = trie_new();
+            assert(trie->l != 0);
+            if (trie->l[c] == 0)
+                trie->l[c] = trie_new();
             db_print("---- %s: recurse: [%s]/[%s]\n", __func__, word, suffix);
-            add_word_suffix(tree->l[c], word, suffix);
+            add_word_suffix(trie->l[c], word, suffix);
             db_print("<<-- %s\n", __func__);
             return;
         }
     }
-    if (tree->w != 0)
+    if (trie->w != 0)
     {
-        db_print("---- %s: tree already contains word [%s] at [%s]\n", __func__, word, tree->w);
+        db_print("---- %s: trie already contains word [%s] at [%s]\n", __func__, word, trie->w);
         return;
     }
-    tree->w = strdup(word);
-    db_print("<<-- %s: inserted word [%s]\n", __func__, tree->w);
+    trie->w = strdup(word);
+    db_print("<<-- %s: inserted word [%s]\n", __func__, trie->w);
 }
 
-void trie_add_word(tNode *tree, char const *word)
+void trie_add_word(tNode *trie, char const *word)
 {
-    add_word_suffix(tree, word, word);
+    add_word_suffix(trie, word, word);
 }
 
-static tNode *find_word_suffix(tNode *tree, char const *word, char const *suffix)
+static char const *find_word_suffix(tNode *trie, char const *word, char const *suffix)
 {
     int c;
     db_print("-->> %s: word [%s] suffix[%s]\n", __func__, word, suffix);
@@ -105,42 +96,42 @@ static tNode *find_word_suffix(tNode *tree, char const *word, char const *suffix
         {
             db_print("---- %s: letter %c\n", __func__, c);
             c = tolower(c) - 'a' + 1;
-            if (tree->l[c] == 0)
+            if (trie->l[c] == 0)
                 return(0);
-            tNode *rv = find_word_suffix(tree->l[c], word, suffix+1);
+            char const *rv = find_word_suffix(trie->l[c], word, suffix+1);
             if (rv == 0)
             {
                 db_print("<<-- %s: missing [%s]/[%s]\n", __func__, word, suffix);
                 return 0;
             }
-            db_print("<<-- %s: found [%s] for [%s]/[%s]\n", __func__, rv->w, word, suffix);
+            db_print("<<-- %s: found [%s] for [%s]/[%s]\n", __func__, rv, word, suffix);
             return rv;
         }
     }
-    if (tree->w == 0)
+    if (trie->w == 0)
     {
         db_print("<<-- %s: missing [%s]/[%s]\n", __func__, word, suffix);
         return 0;
     }
-    db_print("<<-- %s: found [%s] for [%s]/[%s]\n", __func__, tree->w, word, suffix);
-    return(tree);
+    db_print("<<-- %s: found [%s] for [%s]/[%s]\n", __func__, trie->w, word, suffix);
+    return(trie->w);
 }
 
-tNode *trie_find_word(tNode *tree, char const *word)
+char const *trie_find_word(tNode *trie, char const *word)
 {
-    return find_word_suffix(tree, word, word);
+    return find_word_suffix(trie, word, word);
 }
 
-void trie_print(tNode *tree)
+void trie_print(tNode *trie)
 {
-    assert(tree != 0);
-    assert(tree->l != 0);
-    if (tree->w != 0)
-        printf("%s\n", tree->w);
+    assert(trie != 0);
+    assert(trie->l != 0);
+    if (trie->w != 0)
+        printf("%s\n", trie->w);
     for (size_t i = 0; i < 27; i++)
     {
-        if (tree->l[i] != 0)
-            trie_print(tree->l[i]);
+        if (trie->l[i] != 0)
+            trie_print(trie->l[i]);
     }
 }
 
@@ -159,7 +150,7 @@ static void db_print(char const *fmt, ...)
 
 int main(int argc, char **argv)
 {
-    tNode *root = trie_new();
+    tNode *trie = trie_new();
 
     /* Set debugging - and use argv */
     if (argc > 1 && argv[argc] == 0)
@@ -167,10 +158,10 @@ int main(int argc, char **argv)
 
     /* First test */
     char const *word = "cab";
-    trie_add_word(root, word);
-    tNode *leaf = trie_find_word(root, word);
-    printf("Leaf word = %s\n", leaf->w);
-    trie_free(root);
+    trie_add_word(trie, word);
+    char const *leaf = trie_find_word(trie, word);
+    printf("Leaf word = %s\n", leaf);
+    trie_free(trie);
 
     /* Second, more comprehensive test */
     static char const *words[] =
@@ -204,21 +195,21 @@ int main(int argc, char **argv)
     /* First time, add every other word; second time, every word */
     for (size_t mod = 2; mod > 0; mod--)
     {
-        root = trie_new();
+        trie = trie_new();
         printf("\nTest %zu\n", ++counter);
         for (size_t i = 0; i < num_words; i++)
         {
             if (i % mod == 0)
-                trie_add_word(root, words[i]);
-            tNode *leaf = trie_find_word(root, words[i]);
+                trie_add_word(trie, words[i]);
+            char const *leaf = trie_find_word(trie, words[i]);
             if (leaf == 0)
                 printf("Word [%s] is missing\n", words[i]);
             else
-                printf("Word [%s] for [%s]\n", leaf->w, words[i]);
+                printf("Word [%s] for [%s]\n", leaf, words[i]);
         }
         printf("\nTrie:\n");
-        trie_print(root);
-        trie_free(root);
+        trie_print(trie);
+        trie_free(trie);
     }
 
     return(0);
