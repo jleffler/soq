@@ -28,26 +28,32 @@ typedef struct tNode_t
 #include <string.h>
 #include <stdarg.h>
 
+extern void trie_add_word(tNode *tree, char const *word);
+extern tNode *trie_find_word(tNode *tree, char const *word);
+extern void trie_print(tNode *tree);
+extern tNode *trie_new(void);
+extern void trie_free(tNode *tree);
+
 static void db_print(char const *fmt, ...);
 
-static tNode *new_node(void)
+tNode *trie_new(void)
 {
     tNode *tree = malloc(sizeof(tNode));
-    assert(tree != 0);
+    assert(tree != 0);      // Abysmal way to validate memory allocation
     tree->w = 0;
     tree->l = (tNode **)calloc(27, sizeof(tNode *));
-    assert(tree->l != 0);
+    assert(tree->l != 0);   // Abysmal way to validate memory allocation
     return(tree);
 }
 
-static void free_node(tNode *tree)
+void trie_free(tNode *tree)
 {
     assert(tree != 0);
     assert(tree->l != 0);
     for (size_t i = 0; i < 27; i++)
     {
         if (tree->l[i] != 0)
-            free_node(tree->l[i]);
+            trie_free(tree->l[i]);
     }
     free(tree->l);
     free(tree->w);
@@ -68,7 +74,7 @@ static void add_word_suffix(tNode *tree, char const *word, char const *suffix)
             c = tolower(c) - 'a' + 1;
             assert(tree->l != 0);
             if (tree->l[c] == 0)
-                tree->l[c] = new_node();
+                tree->l[c] = trie_new();
             db_print("---- %s: recurse: [%s]/[%s]\n", __func__, word, suffix);
             add_word_suffix(tree->l[c], word, suffix);
             db_print("<<-- %s\n", __func__);
@@ -84,7 +90,7 @@ static void add_word_suffix(tNode *tree, char const *word, char const *suffix)
     db_print("<<-- %s: inserted word [%s]\n", __func__, tree->w);
 }
 
-static void add_word(tNode *tree, char const *word)
+void trie_add_word(tNode *tree, char const *word)
 {
     add_word_suffix(tree, word, word);
 }
@@ -120,12 +126,12 @@ static tNode *find_word_suffix(tNode *tree, char const *word, char const *suffix
     return(tree);
 }
 
-static tNode *find_word(tNode *tree, char const *word)
+tNode *trie_find_word(tNode *tree, char const *word)
 {
     return find_word_suffix(tree, word, word);
 }
 
-static void print_tree(tNode *tree)
+void trie_print(tNode *tree)
 {
     assert(tree != 0);
     assert(tree->l != 0);
@@ -134,99 +140,11 @@ static void print_tree(tNode *tree)
     for (size_t i = 0; i < 27; i++)
     {
         if (tree->l[i] != 0)
-            print_tree(tree->l[i]);
+            trie_print(tree->l[i]);
     }
 }
 
 static int debug = 0;
-
-int main(int argc, char **argv)
-{
-    tNode *root = new_node();
-
-    /* Set debugging - and use argv */
-    if (argc > 1 && argv[argc] == 0)
-        debug = 1;
-
-    /* First test */
-    char const *word = "cab";
-    add_word(root, word);
-    tNode *leaf = find_word(root, word);
-    printf("Leaf word = %s\n", leaf->w);
-
-    /* Second, more comprehensive test */
-    static char const *words[] =
-    {
-        "cabal",
-        "cabbie",
-        "cab",
-        "centre",
-        "cinema",
-        "cold",
-        "culminate",
-        "culmination",
-        "duck",
-        "cabs",
-        "amniocentesis",
-        "amniocentesis",
-        "amniocentesis",
-        "cam",
-        "cab",
-        "cab",
-        "zulu",
-        "alpha",
-        "bravo",
-        "Charlie",
-        "delta",
-        "echo",
-        "foxtrot",
-        "golf",
-        "hotel",
-        "India",
-        "Juliet",
-        "kilo",
-        "Lima",
-        "Mike",
-        "November",
-        "Oscar",
-        "Papa",
-        "Quebec",
-        "Romeo",
-        "Sierra",
-        "Tango",
-        "uMBRelLA",
-        "Victor",
-        "Whisky",
-        "X-ray",
-        "Yankee",
-        "Zulu",
-    };
-    size_t num_words = sizeof(words) / sizeof(words[0]);
-    size_t counter = 0;
-
-    /* First time, add every other word; second time, every word */
-    for (size_t mod = 2; mod > 0; mod--)
-    {
-        printf("\nTest %zu\n", ++counter);
-        for (size_t i = 0; i < num_words; i++)
-        {
-            if (i % mod == 0)
-                add_word(root, words[i]);
-            tNode *leaf = find_word(root, words[i]);
-            if (leaf == 0)
-                printf("Word [%s] is missing\n", words[i]);
-            else
-                printf("Leaf [%s] for [%s]\n", leaf->w, words[i]);
-        }
-        printf("\nTree:\n");
-        print_tree(root);
-    }
-
-    /* Release memory */
-    free_node(root);
-
-    return(0);
-}
 
 static void db_print(char const *fmt, ...)
 {
@@ -237,4 +155,71 @@ static void db_print(char const *fmt, ...)
         vprintf(fmt, args);
         va_end(args);
     }
+}
+
+int main(int argc, char **argv)
+{
+    tNode *root = trie_new();
+
+    /* Set debugging - and use argv */
+    if (argc > 1 && argv[argc] == 0)
+        debug = 1;
+
+    /* First test */
+    char const *word = "cab";
+    trie_add_word(root, word);
+    tNode *leaf = trie_find_word(root, word);
+    printf("Leaf word = %s\n", leaf->w);
+    trie_free(root);
+
+    /* Second, more comprehensive test */
+    static char const *words[] =
+    {
+        "cabal",         "cabbie",
+        "cab",           "centre",
+        "cinema",        "cold",
+        "culminate",     "culmination",
+        "duck",          "cabs",
+        "amniocentesis", "amniocentesis",
+        "amniocentesis", "cam",
+        "cab",           "cab",
+        "zulu",          "alpha",
+        "bravo",         "Charlie",
+        "delta",         "echo",
+        "foxtrot",       "golf",
+        "hotel",         "India",
+        "Juliet",        "kilo",
+        "Lima",          "Mike",
+        "November",      "Oscar",
+        "Papa",          "Quebec",
+        "Romeo",         "Sierra",
+        "Tango",         "uMBRelLA",
+        "Victor",        "Whisky",
+        "X-ray",         "Yankee",
+        "Zulu",          "Aquarius",
+    };
+    size_t num_words = sizeof(words) / sizeof(words[0]);
+    size_t counter = 0;
+
+    /* First time, add every other word; second time, every word */
+    for (size_t mod = 2; mod > 0; mod--)
+    {
+        root = trie_new();
+        printf("\nTest %zu\n", ++counter);
+        for (size_t i = 0; i < num_words; i++)
+        {
+            if (i % mod == 0)
+                trie_add_word(root, words[i]);
+            tNode *leaf = trie_find_word(root, words[i]);
+            if (leaf == 0)
+                printf("Word [%s] is missing\n", words[i]);
+            else
+                printf("Word [%s] for [%s]\n", leaf->w, words[i]);
+        }
+        printf("\nTrie:\n");
+        trie_print(root);
+        trie_free(root);
+    }
+
+    return(0);
 }
