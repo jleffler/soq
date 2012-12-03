@@ -26,6 +26,9 @@ typedef struct tNode_t
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+
+static void db_print(char const *fmt, ...);
 
 static tNode *new_node(void)
 {
@@ -56,29 +59,29 @@ static void add_word_suffix(tNode *tree, char const *word, char const *suffix)
     int c;
     assert(tree != 0);
     assert(tree->l != 0);
-    fprintf(stderr, "-->> %s: word [%s], suffix [%s]\n", __func__, word, suffix);
+    db_print("-->> %s: word [%s], suffix [%s]\n", __func__, word, suffix);
     while ((c = *suffix++) != '\0')
     {
         if (isalpha(c))
         {
-            fprintf(stderr, "---- %s: letter %c (index %d)\n", __func__, c, c - 'a' + 1);
+            db_print("---- %s: letter %c (index %d)\n", __func__, c, c - 'a' + 1);
             c = tolower(c) - 'a' + 1;
             assert(tree->l != 0);
             if (tree->l[c] == 0)
                 tree->l[c] = new_node();
-            fprintf(stderr, "---- %s: recurse: [%s]/[%s]\n", __func__, word, suffix);
+            db_print("---- %s: recurse: [%s]/[%s]\n", __func__, word, suffix);
             add_word_suffix(tree->l[c], word, suffix);
-            fprintf(stderr, "<<-- %s\n", __func__);
+            db_print("<<-- %s\n", __func__);
             return;
         }
     }
     if (tree->w != 0)
     {
-        printf("---- %s: tree already contains word [%s] at [%s]\n", __func__, word, tree->w);
+        db_print("---- %s: tree already contains word [%s] at [%s]\n", __func__, word, tree->w);
         return;
     }
     tree->w = strdup(word);
-    fprintf(stderr, "<<-- %s: inserted word [%s]\n", __func__, tree->w);
+    db_print("<<-- %s: inserted word [%s]\n", __func__, tree->w);
 }
 
 static void add_word(tNode *tree, char const *word)
@@ -89,33 +92,31 @@ static void add_word(tNode *tree, char const *word)
 static tNode *find_word_suffix(tNode *tree, char const *word, char const *suffix)
 {
     int c;
-    fprintf(stderr, "-->> %s: word [%s] suffix[%s]\n", __func__, word, suffix);
-    while ((c = *suffix++) != '\0')
+    db_print("-->> %s: word [%s] suffix[%s]\n", __func__, word, suffix);
+    for ( ; (c = *suffix) != '\0'; suffix++)
     {
         if (isalpha(c))
         {
-            fprintf(stderr, "---- %s: letter %c\n", __func__, c);
+            db_print("---- %s: letter %c\n", __func__, c);
             c = tolower(c) - 'a' + 1;
             if (tree->l[c] == 0)
                 return(0);
-            //if (*suffix == '\0')
-            //    break;
-            tNode *rv = find_word_suffix(tree->l[c], word, suffix);
+            tNode *rv = find_word_suffix(tree->l[c], word, suffix+1);
             if (rv == 0)
             {
-                fprintf(stderr, "<<-- %s: missing [%s]/[%s]\n", __func__, word, suffix);
+                db_print("<<-- %s: missing [%s]/[%s]\n", __func__, word, suffix);
                 return 0;
             }
-            fprintf(stderr, "<<-- %s: found [%s] for [%s]/[%s]\n", __func__, rv->w, word, suffix);
+            db_print("<<-- %s: found [%s] for [%s]/[%s]\n", __func__, rv->w, word, suffix);
             return rv;
         }
     }
     if (tree->w == 0)
     {
-        fprintf(stderr, "<<-- %s: missing [%s]/[%s]\n", __func__, word, suffix);
+        db_print("<<-- %s: missing [%s]/[%s]\n", __func__, word, suffix);
         return 0;
     }
-    fprintf(stderr, "<<-- %s: found [%s] for [%s]/[%s]\n", __func__, tree->w, word, suffix);
+    db_print("<<-- %s: found [%s] for [%s]/[%s]\n", __func__, tree->w, word, suffix);
     return(tree);
 }
 
@@ -124,9 +125,28 @@ static tNode *find_word(tNode *tree, char const *word)
     return find_word_suffix(tree, word, word);
 }
 
-int main(void)
+static void print_tree(tNode *tree)
+{
+    assert(tree != 0);
+    assert(tree->l != 0);
+    if (tree->w != 0)
+        printf("%s\n", tree->w);
+    for (size_t i = 0; i < 27; i++)
+    {
+        if (tree->l[i] != 0)
+            print_tree(tree->l[i]);
+    }
+}
+
+static int debug = 0;
+
+int main(int argc, char **argv)
 {
     tNode *root = new_node();
+
+    /* Set debugging - and use argv */
+    if (argc > 1 && argv[argc] == 0)
+        debug = 1;
 
     /* First test */
     char const *word = "cab";
@@ -140,12 +160,18 @@ int main(void)
         "cabal",
         "cabbie",
         "cab",
+        "centre",
+        "cinema",
+        "cold",
+        "culminate",
+        "culmination",
         "duck",
         "cabs",
         "amniocentesis",
         "amniocentesis",
         "amniocentesis",
         "cam",
+        "cab",
         "cab",
         "zulu",
         "alpha",
@@ -176,20 +202,39 @@ int main(void)
         "Zulu",
     };
     size_t num_words = sizeof(words) / sizeof(words[0]);
+    size_t counter = 0;
 
-    for (size_t i = 0; i < num_words; i++)
+    /* First time, add every other word; second time, every word */
+    for (size_t mod = 2; mod > 0; mod--)
     {
-        if (i % 2 == 0)
-            add_word(root, words[i]);
-        tNode *leaf = find_word(root, words[i]);
-        if (leaf == 0)
-            printf("Word [%s] is missing\n", words[i]);
-        else
-            printf("Leaf [%s] for [%s]\n", leaf->w, words[i]);
+        printf("\nTest %zu\n", ++counter);
+        for (size_t i = 0; i < num_words; i++)
+        {
+            if (i % mod == 0)
+                add_word(root, words[i]);
+            tNode *leaf = find_word(root, words[i]);
+            if (leaf == 0)
+                printf("Word [%s] is missing\n", words[i]);
+            else
+                printf("Leaf [%s] for [%s]\n", leaf->w, words[i]);
+        }
+        printf("\nTree:\n");
+        print_tree(root);
     }
 
     /* Release memory */
     free_node(root);
 
     return(0);
+}
+
+static void db_print(char const *fmt, ...)
+{
+    if (debug > 0)
+    {
+        va_list args;
+        va_start(args, fmt);
+        vprintf(fmt, args);
+        va_end(args);
+    }
 }
