@@ -39,10 +39,12 @@ int main(void)
     };
     int commands_num = sizeof(commands) / sizeof(commands[0]);
 
-    /* Allow valgrind to check memory */
-    Command *pcommands = malloc(commands_num * sizeof(Command));
-    for (int i = 0; i < commands_num; i++)
-        pcommands[i] = commands[i];
+    Command *pcommands = commands;
+
+//    /* Allow valgrind to check memory */
+//    Command *pcommands = malloc(commands_num * sizeof(Command));
+//    for (int i = 0; i < commands_num; i++)
+//        pcommands[i] = commands[i];
 
     for (int i = 0; i < commands_num; i++) {   //exec all the commands instants
         if (pcommands[i]._flag_pipe_out == 1) { //creates pipe if necessary
@@ -68,7 +70,6 @@ int main(void)
                     exit(0);
                 }
                 close(pcommands[i]._fd_in);
-                close(pcommands[i-1]._fd_out);
             }
 
             if (pcommands[i]._flag_pipe_out == 1) { //if there was a pipe from this command
@@ -80,15 +81,14 @@ int main(void)
                     exit(0);
                 }
                 close(pcommands[i]._fd_out);
-                close(pcommands[i+1]._fd_in);
             }
             execvp(pcommands[i]._commands[0] , pcommands[i]._commands); //run the command
 
             perror("Error: \"execvp()\" failed");
-            exit(1);
+            exit(0);
+        } else if (pid > 0) { //father process
+            waitpid(pid, NULL, WUNTRACED);
         }
-        else
-            printf("Child PID %d running\n", (int)pid);
     }
 
     //closing all the open pipe fd's
@@ -100,13 +100,5 @@ int main(void)
             close(pcommands[i]._fd_out);
         }
     }
-
-    int status;
-    pid_t corpse;
-    while ((corpse = waitpid(-1, &status, 0)) > 0)
-        printf("Child PID %d died with status 0x%.4X\n", (int)corpse, status);
-
-    free(pcommands);
-
     return(0);
 }
