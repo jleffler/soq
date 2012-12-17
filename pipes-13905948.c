@@ -33,7 +33,7 @@ static void ch(void)
     char b[50];
     sprintf(b, "%i %i %i %i %i", pid, x, y, z, r);
     printf("Child %d: sending %s\n", pid, b);
-    while (write(fd[1], b, 50) < 0)
+    while (write(fd[1], b, strlen(b)) < 0)
         printf("Child %d: write failed\n", pid);
 
     close(fd[1]);
