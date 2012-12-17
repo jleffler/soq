@@ -7,28 +7,12 @@
 #include <unistd.h>
 
 static int fd[2];
-static int t = 1;
+static volatile sig_atomic_t t = 1;
 static int parent;
 
 static void okay(int sign)
 {
-    int pid = getpid();
-    if (pid == parent)
-        printf("Adult %d: signal %d - setting t to 0\n", pid, sign);
-    else
-        printf("Child %d: signal %d - setting t to 0\n", pid, sign);
-    t = 0;
-}
-
-static void rr(int sign)
-{
-    printf("Adult %d: signal %d - reading input\n", (int)getpid(), sign);
-    char b[50];
-    while (read(fd[0], &b, 50) < 0)
-    {
-        printf("Adult %d: read in rr() failed\n", (int)getpid());
-    }
-    printf("Adult %d: got <<%s>>\n", (int)getpid(), b);
+    t = (sign == 0);
 }
 
 static void ch(void)
@@ -38,10 +22,10 @@ static void ch(void)
     close(fd[0]);
     while (t == 1)
     {
-        printf("Child %d: sleeping on t\n", pid);
-        sleep(1);
+        printf("Child %d: pausing on t\n", pid);
+        pause();
     }
-    srand((unsigned)time(NULL) ^ pid); // init
+    srand((unsigned)time(NULL) ^ pid);
     int x = rand() % 101;
     int y = rand() % 101;
     int z = rand() % 101;
@@ -50,10 +34,8 @@ static void ch(void)
     sprintf(b, "%i %i %i %i %i", pid, x, y, z, r);
     printf("Child %d: sending %s\n", pid, b);
     while (write(fd[1], b, 50) < 0)
-    {
         printf("Child %d: write failed\n", pid);
-    }
-    kill(parent, SIGUSR2);
+
     close(fd[1]);
     printf("Child %d: exiting\n", pid);
     exit(0);
@@ -72,35 +54,38 @@ int main(void)
 
     sa.sa_handler = okay;
     sigaction(SIGUSR1, &sa, 0);
-    sa.sa_handler = rr;
-    sigaction(SIGUSR2, &sa, 0);
 
     if ((cs[0] = fork()) < 0)
         perror("fork 1");
     else if (cs[0] == 0)
-        ch();   /* Child 1 */
+        ch();
     else if ((cs[1] = fork()) < 0)
         perror("fork 2");
     else if (cs[1] == 0)
-        ch();   /* Child 2 */
+        ch();
     else if ((cs[2] = fork()) < 0)
         perror("fork 3");
     else if (cs[2] == 0)
-        ch();   /* Child 3 */
+        ch();
     else
     {
-        /* Parent */
         printf("Children: %i %i %i\n", cs[0], cs[1], cs[2]);
         close(fd[1]);
-        //sleep(1);
+
         kill(cs[0], SIGUSR1);
-        //sleep(1);
         kill(cs[1], SIGUSR1);
-        //sleep(1);
         kill(cs[2], SIGUSR1);
         printf("Children signalled\n");
-        int status;
 
+        char buffer[64];
+        int nbytes;
+        while ((nbytes = read(fd[0], buffer, sizeof(buffer)-1)) > 0)
+        {
+            buffer[nbytes] = '\0';
+            printf("Adult %d: read <<%s>>\n", parent, buffer);
+        }
+
+        int status;
         waitpid(cs[0], &status, 0);
         printf("Child 1 ended\n");
         waitpid(cs[1], &status, 0);
