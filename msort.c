@@ -31,12 +31,51 @@ static void sort_check(int *array, size_t n)
         exit(1);
 }
 
+static int *gen_int_array(size_t n, int max_val)
+{
+    int *a = malloc(n * sizeof(*a));
+    if (a == 0)
+    {
+        fprintf(stderr, "Out of memory.\n");
+        exit(1);
+    }
+    for (size_t i = 0; i < n; i++)
+        a[i] = rand() % max_val;
+    return(a);
+}
+
+static int *clone_int_array(int *master, size_t n)
+{
+    int *a = malloc(n * sizeof(*a));
+    if (a == 0)
+    {
+        fprintf(stderr, "Out of memory.\n");
+        exit(1);
+    }
+    for (size_t i = 0; i < n; i++)
+        a[i] = master[i];
+    return(a);
+}
+
+static void dump_array(FILE *fp, char const *tag, int *a, size_t n)
+{
+    char const *pad = "";
+    fprintf(fp, "Array: %s (size %zu)\n", tag, n);
+    for (size_t i = 0; i < n; i++)
+    {
+        fprintf(fp, "%s%d", pad, a[i]);
+        pad = ",";
+    }
+    putc('\n', fp);
+}
+
 static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const void *v2) )
 {
     if (n <= 1)
         return;     /* Already sorted */
 
     printf("-->> msort(%zu)\n", n);
+    dump_array(stdout, "Entry to msort()", (int *)b, n);
     void *t = malloc(s*n);
 
     if (t == NULL)
@@ -87,44 +126,6 @@ static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const 
     memcpy(b, t, (n - n2) * s);
     free(t);
     printf("<<-- msort(%zu)\n", n);
-}
-
-static int *gen_int_array(size_t n, int max_val)
-{
-    int *a = malloc(n * sizeof(*a));
-    if (a == 0)
-    {
-        fprintf(stderr, "Out of memory.\n");
-        exit(1);
-    }
-    for (size_t i = 0; i < n; i++)
-        a[i] = rand() % max_val;
-    return(a);
-}
-
-static int *clone_int_array(int *master, size_t n)
-{
-    int *a = malloc(n * sizeof(*a));
-    if (a == 0)
-    {
-        fprintf(stderr, "Out of memory.\n");
-        exit(1);
-    }
-    for (size_t i = 0; i < n; i++)
-        a[i] = master[i];
-    return(a);
-}
-
-static void dump_array(FILE *fp, char const *tag, int *a, size_t n)
-{
-    char const *pad = "";
-    fprintf(fp, "Array: %s (size %zu)\n", tag, n);
-    for (size_t i = 0; i < n; i++)
-    {
-        fprintf(fp, "%s%d", pad, a[i]);
-        pad = ",";
-    }
-    putc('\n', fp);
 }
 
 int main(int argc, char **argv)
