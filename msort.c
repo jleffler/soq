@@ -74,14 +74,14 @@ static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const 
     if (n <= 1)
         return;     /* Already sorted */
 
-    printf("-->> msort(%zu)\n", n);
-    dump_array(stdout, "Entry to msort()", (int *)b, n);
+    //printf("-->> msort(%zu)\n", n);
+    //dump_array(stdout, "Entry to msort()", (int *)b, n);
     void *t = malloc(s*n);
 
     if (t == NULL)
     {
         fprintf(stderr, "Error: No Memory.\n");
-        printf("<<-- msort(%zu)\n", n);
+        //printf("<<-- msort(%zu)\n", n);
         return;
     }
 
@@ -120,8 +120,8 @@ static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const 
     memcpy(b, t, n * s);
     free(t);
 
-    dump_array(stdout, "Exit from msort()", (int *)b, n);
-    printf("<<-- msort(%zu)\n", n);
+    //dump_array(stdout, "Exit from msort()", (int *)b, n);
+    //printf("<<-- msort(%zu)\n", n);
 }
 
 int main(int argc, char **argv)
