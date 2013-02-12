@@ -31,53 +31,62 @@ static void sort_check(int *array, size_t n)
         exit(1);
 }
 
-static void msort(void *b, size_t n, size_t s, int(*cmp)(const void*, const void*) )
+static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const void *v2) )
 {
-    char *tmp;
-    void *t;
+    if (n <= 1)
+        return;     /* Already sorted */
 
-    if ((t = malloc(s*n)) == NULL)
+    printf("-->> msort(%zu)\n", n);
+    void *t = malloc(s*n);
+
+    if (t == NULL)
     {
         fprintf(stderr, "Error: No Memory.\n");
+        printf("<<-- msort(%zu)\n", n);
         return;
     }
 
-    char *b1, *b2;
-    size_t n1, n2;
-
-    n1 = n / 2;
-    n2 = n - n1;
-    b1 = b;
-    b2 = (char *) b + (n1 * s);
+    size_t n1 = n / 2;
+    size_t n2 = n - n1;
 
     if (n2 <= n1)
+    {
+        fprintf(stderr, "Oops: %zu <= %zu\n", n2, n1);
+        free(t);
+        printf("<<-- msort(%zu)\n", n);
         return;
+    }
 
-    msort (b1, n2, s, cmp);
-    msort (b2, n1+1, s, cmp);
+    char *b1 = b;
+    char *b2 = (char *) b + (n1 * s);
 
-    tmp = t;
+    msort(b1, n2, s, cmp);
+    msort(b2, n1+1, s, cmp);
+
+    char *tmp = t;
 
     while (n1 > 0 && n2 > 0)
     {
-        if ((*cmp) (b1, b2) <= 0)
+        if ((*cmp)(b1, b2) <= 0)
         {
-            memcpy (tmp, b1, s);
+            memcpy(tmp, b1, s);
             tmp += s;
             b1 += s;
             --n1;
         }
         else
         {
-            memcpy (tmp, b2, s);
+            memcpy(tmp, b2, s);
             tmp += s;
             b2 += s;
             --n2;
         }
     }
     if (n1 > 0)
-        memcpy (tmp, b1, n1 * s);
-    memcpy (b, t, (n - n2) * s);
+        memcpy(tmp, b1, n1 * s);
+    memcpy(b, t, (n - n2) * s);
+    free(t);
+    printf("<<-- msort(%zu)\n", n);
 }
 
 static int *gen_int_array(size_t n, int max_val)
