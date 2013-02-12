@@ -88,19 +88,11 @@ static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const 
     size_t n1 = n / 2;
     size_t n2 = n - n1;
 
-    if (n2 <= n1)
-    {
-        fprintf(stderr, "Oops: %zu <= %zu\n", n2, n1);
-        free(t);
-        printf("<<-- msort(%zu)\n", n);
-        return;
-    }
-
     char *b1 = b;
     char *b2 = (char *) b + (n1 * s);
 
-    msort(b1, n2, s, cmp);
-    msort(b2, n1+1, s, cmp);
+    msort(b1, n1, s, cmp);
+    msort(b2, n2, s, cmp);
 
     char *tmp = t;
 
@@ -123,8 +115,12 @@ static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const 
     }
     if (n1 > 0)
         memcpy(tmp, b1, n1 * s);
-    memcpy(b, t, (n - n2) * s);
+    else if (n2 > 0)
+        memcpy(tmp, b2, n2 * s);
+    memcpy(b, t, n * s);
     free(t);
+
+    dump_array(stdout, "Exit from msort()", (int *)b, n);
     printf("<<-- msort(%zu)\n", n);
 }
 
