@@ -3,6 +3,25 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef int (*Comparator)(void const *v1, void const *v2);
+
+static int sort_check_generic(void *array, size_t n, size_t s, Comparator cmp)
+{
+    size_t fail = 0;
+    char *base = array;
+
+    for (size_t i = 1; i < n; i++)
+    {
+        if (cmp(&base[(i-1)*s], &base[(i-0)*s]) > 0)
+        //if (array[i-1] > array[i])
+        {
+            fprintf(stderr, "Elements %zu and %zu are out of order\n", i-1, i);
+            fail++;
+        }
+    }
+    return fail;
+}
+
 static void sort_check(int *array, size_t n)
 {
     size_t fail = 0;
@@ -138,7 +157,63 @@ static int cmp(const void *v1, const void *v2)
         return 0;
 }
 
-static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const void *v2) )
+static void msort_generic_int(void *b, size_t n, size_t s, Comparator cmp, void *scratch)
+{
+    if (n <= 1)
+        return;     /* Already sorted */
+
+    printf("-->> msort_generic_int(%zu)\n", n);
+    dump_int_array((int *)b, n);
+
+    size_t n1 = n / 2;
+    size_t n2 = n - n1;
+
+    char *b1 = b;
+    char *b2 = (char *) b + (n1 * s);
+
+    msort_generic_int(b1, n1, s, cmp, scratch);
+    msort_generic_int(b2, n2, s, cmp, scratch);
+
+    char *tmp = scratch;
+
+    while (n1 > 0 && n2 > 0)
+    {
+        if ((*cmp)(b1, b2) <= 0)
+        {
+            memcpy(tmp, b1, s);
+            tmp += s;
+            b1 += s;
+            --n1;
+        }
+        else
+        {
+            memcpy(tmp, b2, s);
+            tmp += s;
+            b2 += s;
+            --n2;
+        }
+    }
+    if (n1 > 0)
+        memcpy(tmp, b1, n1 * s);
+    else if (n2 > 0)
+        memcpy(tmp, b2, n2 * s);
+    memcpy(b, scratch, n * s);
+
+    dump_int_array((int *)b, n);
+    printf("<<-- msort(%zu)\n", n);
+}
+
+static void msort_generic(void *b, size_t n, size_t s, Comparator cmp)
+{
+    void *scratch = malloc(n * s);
+    if (scratch != 0)
+    {
+        msort_generic_int(b, n, s, cmp, scratch);
+        free(scratch);
+    }
+}
+
+static void msort(void *b, size_t n, size_t s, int (*cmp)(const void *v1, const void *v2))
 {
     if (n <= 1)
         return;     /* Already sorted */
@@ -250,10 +325,21 @@ int main(int argc, char **argv)
     ms2_int(b, n);
     msort_int(c, n);
     msort(d, n, sizeof(int), cmp);
+    msort_generic(a, n, sizeof(int), cmp);
+
+    if (sort_check_generic(a, n, sizeof(int), cmp) != 0)
+        printf("Failed to sort with msort_generic()\n");
+    if (sort_check_generic(b, n, sizeof(int), cmp) != 0)
+        printf("Failed to sort with ms2_int()\n");
+    if (sort_check_generic(c, n, sizeof(int), cmp) != 0)
+        printf("Failed to sort with msort_int()\n");
+    if (sort_check_generic(d, n, sizeof(int), cmp) != 0)
+        printf("Failed to sort with msort()\n");
 
     sort_check(d, n);
     sort_check(c, n);
     sort_check(b, n);
+    sort_check(a, n);
 
     if (n < 50)
         dump_int_array(d, n);
