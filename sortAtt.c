@@ -28,6 +28,55 @@ static void dump_int_array(int *a, int n)
     putchar('\n');
 }
 
+static void ms2_intR(int a[], int lo, int hi, int scratch[])
+{
+    int i, j, k, md;
+
+    assert(lo < hi && a != 0);
+    if (lo + 1 >= hi)
+        return;
+
+    //printf("-->> ms2_intR [%d..%d)\n", lo, hi);
+    //dump_int_array(&a[lo], hi - lo);
+    md = (lo + hi) / 2;
+
+    ms2_intR(a, lo, md, scratch);
+    ms2_intR(a, md, hi, scratch);
+
+    i = lo;    // lhs index
+    j = md;    // rhs index
+    k = 0;     // index into scratch
+
+    while (i < md && j < hi)
+    {
+        if (a[i] < a[j])
+            scratch[k++] = a[i++];
+        else
+            scratch[k++] = a[j++];
+    }
+    while (i < md)
+        scratch[k++] = a[i++];
+    while (j < hi)
+        scratch[k++] = a[j++];
+
+    for (k = 0, i = lo; i < hi; i++, k++)
+        a[i] = scratch[k];
+
+    //printf("<<-- ms2_intR [%d..%d)\n", lo, hi);
+    //dump_int_array(&a[lo], hi - lo);
+}
+
+static void ms2_int(int a[], int n)
+{
+    int *scratch = (int *)malloc(n * sizeof(int));
+
+    if (scratch != 0)
+    {
+        ms2_intR(a, 0, n, scratch);
+        free(scratch);
+    }
+}
+
 static void msort_intR(int a[], int lo, int hi, int scratch[])
 {
     int i, j, k, m;
@@ -35,8 +84,8 @@ static void msort_intR(int a[], int lo, int hi, int scratch[])
     if (lo >= hi)
         return;
 
-    printf("-->> msort_intR(%u)\n", hi - lo + 1);
-    dump_int_array(&a[lo], hi - lo + 1);
+    //printf("-->> msort_intR(%u)\n", hi - lo + 1);
+    //dump_int_array(&a[lo], hi - lo + 1);
     m = (lo + hi) / 2;
 
     msort_intR(a, lo, m, scratch);
@@ -58,11 +107,11 @@ static void msort_intR(int a[], int lo, int hi, int scratch[])
     while (j <= hi)
         scratch[k++] = a[j++];
 
-    for (k=0, i=lo; i<=hi; i++, k++)
+    for (k = 0, i = lo; i <= hi; i++, k++)
         a[i] = scratch[k];
 
-    printf("<<-- msort_intR(%u)\n", hi -lo + 1);
-    dump_int_array(&a[lo], hi - lo + 1);
+    //printf("<<-- msort_intR(%u)\n", hi -lo + 1);
+    //dump_int_array(&a[lo], hi - lo + 1);
 }
 
 static void msort_int(int a[], int n)
@@ -194,14 +243,17 @@ int main(int argc, char **argv)
     printf("running experiments with n=%d\n", n);
 
     a = gen_int_array(n, 5000);
+    b = clone_int_array(a, n);
     c = clone_int_array(a, n);
     d = clone_int_array(a, n);
 
+    ms2_int(b, n);
     msort_int(c, n);
     msort(d, n, sizeof(int), cmp);
 
     sort_check(d, n);
     sort_check(c, n);
+    sort_check(b, n);
 
     if (n < 50)
         dump_int_array(d, n);
