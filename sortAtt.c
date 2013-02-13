@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 typedef int (*Comparator)(void const *v1, void const *v2);
 
@@ -292,13 +293,57 @@ static int *clone_int_array(int *a, int n)
     return b;
 }
 
+static void sort_test(int n)
+{
+    printf("running experiments with n=%d\n", n);
+
+    int *a = gen_int_array(n, 5000);
+    int *b = clone_int_array(a, n);
+    int *c = clone_int_array(a, n);
+    int *d = clone_int_array(a, n);
+
+    if (a != 0)
+    {
+        msort_generic(a, n, sizeof(int), cmp);
+        if (sort_check_generic(a, n, sizeof(int), cmp) != 0)
+            printf("Failed to sort with msort_generic()\n");
+        sort_check(a, n);
+        free(a);
+    }
+
+    if (b != 0)
+    {
+        ms2_int(b, n);
+        if (sort_check_generic(b, n, sizeof(int), cmp) != 0)
+            printf("Failed to sort with ms2_int()\n");
+        sort_check(b, n);
+        free(b);
+    }
+
+    if (c != 0)
+    {
+        msort_int(c, n);
+        if (sort_check_generic(c, n, sizeof(int), cmp) != 0)
+            printf("Failed to sort with msort_int()\n");
+        sort_check(c, n);
+        free(c);
+    }
+
+    if (d != 0)
+    {
+        msort(d, n, sizeof(int), cmp);
+        if (sort_check_generic(d, n, sizeof(int), cmp) != 0)
+            printf("Failed to sort with msort()\n");
+        sort_check(d, n);
+        if (n < 50)
+            dump_int_array(d, n);
+        free(d);
+    }
+}
+
 int main(int argc, char **argv)
 {
     int n = 10;
-    int *a;
-    int *b = 0;
-    int *c = 0;
-    int *d;
 
     if (argc > 1)
         n = atoi(argv[1]);
@@ -315,40 +360,10 @@ int main(int argc, char **argv)
     if (n <= 0)
         n = 10;
 
-    printf("running experiments with n=%d\n", n);
+    if (argc > 2)
+        srand((int)time(0));
 
-    a = gen_int_array(n, 5000);
-    b = clone_int_array(a, n);
-    c = clone_int_array(a, n);
-    d = clone_int_array(a, n);
-
-    ms2_int(b, n);
-    msort_int(c, n);
-    msort(d, n, sizeof(int), cmp);
-    msort_generic(a, n, sizeof(int), cmp);
-
-    if (sort_check_generic(a, n, sizeof(int), cmp) != 0)
-        printf("Failed to sort with msort_generic()\n");
-    if (sort_check_generic(b, n, sizeof(int), cmp) != 0)
-        printf("Failed to sort with ms2_int()\n");
-    if (sort_check_generic(c, n, sizeof(int), cmp) != 0)
-        printf("Failed to sort with msort_int()\n");
-    if (sort_check_generic(d, n, sizeof(int), cmp) != 0)
-        printf("Failed to sort with msort()\n");
-
-    sort_check(d, n);
-    sort_check(c, n);
-    sort_check(b, n);
-    sort_check(a, n);
-
-    if (n < 50)
-        dump_int_array(d, n);
-
-    free(a);
-    free(b);
-    free(c);
-    free(d);
+    sort_test(n);
 
     return(0);
 }
-
