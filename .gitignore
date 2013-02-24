@@ -1,9 +1,9 @@
 .DS_Store
+# All one-character file names
 *.dSYM
 *.o
 *.orig
 *~
-# All one-character file names
 ?
 a.out
 arq_5.txt
