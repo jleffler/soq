@@ -1,9 +1,12 @@
-.DS_Store
-# All one-character file names
+*.bz2
 *.dSYM
+*.gz
 *.o
 *.orig
+*.tgz
+*.xz
 *~
+.DS_Store
 ?
 a.out
 arq_5.txt
