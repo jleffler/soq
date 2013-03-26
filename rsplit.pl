@@ -35,7 +35,7 @@ if (defined $opts{h})
 }
 if (defined $opts{V})
 {
-    print rcsmunger '@(#)RSPLIT Version $Revision$ ($Date$)';
+    print rcsmunger('@(#)RSPLIT Version $Revision$ ($Date$)'), "\n";
     exit 0;
 }
 die "Must specify regex and repeat\n$usestr\n" unless (defined $opts{e} && defined $opts{n});
