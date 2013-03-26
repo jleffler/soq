@@ -4,6 +4,15 @@
 #include <string.h>
 #include <time.h>
 
+/*
+** NB: sort_check_generic() does not check conservation properties of sort.
+**
+** All data in the array to be sorted must be in the array when sorted.  No
+** rows missing.  No rows added.  Where there were N copies of a value V in
+** the unsorted data, there must also be N copies of the value V in the
+** sorted data.
+*/
+
 typedef int (*Comparator)(void const *v1, void const *v2);
 
 static int sort_check_generic(void *array, size_t n, size_t s, Comparator cmp)
@@ -13,8 +22,19 @@ static int sort_check_generic(void *array, size_t n, size_t s, Comparator cmp)
 
     for (size_t i = 1; i < n; i++)
     {
+        /* Check whether comparator works correctly */
+        int cmp10 = cmp(&base[(i-1)*s], &base[(i-0)*s]);
+        int cmp01 = cmp(&base[(i-0)*s], &base[(i-1)*s]);
+        if ((cmp10  > 0 && cmp01  > 0) || (cmp10  < 0 && cmp01  < 0) ||
+            (cmp10 == 0 && cmp01 != 0) || (cmp10 != 0 && cmp01 == 0))
+        {
+            fprintf(stderr, "Bogus comparator (%d vs %d) for elements %zu and %zu\n",
+                    cmp10, cmp01, i-1, i-0);
+            fail++;
+        }
+
+        /* Check whether elements are ordered correctly */
         if (cmp(&base[(i-1)*s], &base[(i-0)*s]) > 0)
-        //if (array[i-1] > array[i])
         {
             fprintf(stderr, "Elements %zu and %zu are out of order\n", i-1, i);
             fail++;
