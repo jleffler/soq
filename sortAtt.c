@@ -1,3 +1,8 @@
+/*
+** SSCCE for Stack Overflow 14824668
+** http://stackoverflow.com/questions/14824668/
+*/
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
