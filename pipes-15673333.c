@@ -1,88 +1,150 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 extern int  makeargv(char *line, char *seps, char ***args);
 extern void err_sys(const char *msg);
+static void dump_argv(char **argv);
+static void dump_fds(void);
 
-int main(void)  
+int main(void)
 {
-    char **argp;
-    int i, j;
     char buf[80];
-    pid_t pid;
-    int pnum;   
-        //pipe number
-    int ploc[16];   
-        //pipe location 
-        //(this has a max of 12 possible pipes)
-    int targ;
-    int fdleft[2], fdright[2];
 
-    printf("            <(^_^)> \nHello \n I am your console and I am here to help you \n");
-    printf("    If you dont need me anymore just say \"bye\" ");
+    printf("            <(^_^)> \nHello \n I am your console and I am here to help you\n");
+    printf("    If you don't need me anymore just say \"bye\"\n");
     fflush(stdout);
-    write(1, "\n(>^_^)> ", 8);
-    while (strcmp(fgets(buf, 80, stdin), "bye\n")!=0)
-    {        
-        j=makeargv(buf, " \n", &argp); //this breaks the line up and returns the number of commands 
-        pnum = 0;
+    dump_fds();
+    printf("(>^_^)> ");
+    while (fgets(buf, sizeof(buf), stdin) != 0 && strcmp(buf, "bye\n") != 0)
+    {
+        pid_t pid;
+        char **argp;
+        int fdleft[2]  = { -1, -1 };
+        int fdright[2] = { -1, -1 };
+        int pnum = 0;
+        int ploc[16];
+        int j = makeargv(buf, " \n", &argp);
+
         ploc[0] = 0;
-        if (j > 16) j = 16;
-        for (i=0;i<j;i++)
+        if (j > 16)
+            j = 16;
+        for (int i = 0; i < j; i++)
         {
-            if ( strcmp(argp[i], "|") == 0)
+            if (strcmp(argp[i], "|") == 0)
             {
-                argp[i]= NULL;
-                ploc[pnum+1] = (i+1);
-                pnum++;
+                argp[i] = NULL;
+                ploc[++pnum] = i+1;
             }
-        } 
+        }
 
-        for (i = 0; i < (pnum+1); i++) 
-        {   
-            pipe(fdright);
-            if (i != 0)
-            {   
-                dup2(fdright[1], fdleft[0]);            
-            }
-            pid = fork();
+        printf("pnum = %d\n", pnum);
+        for (int k = 0; k < pnum+1; k++)
+            printf("ploc[%d] = %d\n", k, ploc[k]);
 
-
-            switch (pid)
+        for (int i = 0; i < pnum+1; i++)
+        {
+            if (i != pnum)
             {
-                case -1:
-                    err_sys("fork failed");
-                    break;
-                case 0: // child
-                    if (i != pnum)
-                    {
-                        dup2(fdright[1], 1);
-                    }
-                    if (i != 0)
-                    {
-                        dup2(fdright[0], 0); 
-                    }
-                    //printf("(^o^) running pipe[%i]\n" , i);
-                    targ =(ploc[i]) ;
-                    execvp(argp[targ], &argp[targ]);
-                    fprintf(stderr, "(-_-) I'm sorry the exec failed\n");
-                    exit(1);
-                default:
-                    dup2(fdleft[1], fdright[1]);
-                    waitpid(pid, NULL, 0);
+                if (pnum > 0)
+                {
+                    if (pipe(fdright) != 0)
+                        err_sys("pipe");
+                    //printf("%d: fdright = { %d, %d }\n", i, fdright[0], fdright[1]);
+                    //dump_fds();
+                }
+            }
+
+            if ((pid = fork()) < 0)
+                err_sys("fork failed");
+            else if (pid == 0)
+            {
+                /* Child */
+                int targ;
+                //dump_fds();
+                if (i != pnum)
+                {
+                    dup2(fdright[1], 1);
                     close(fdright[0]);
                     close(fdright[1]);
-                    //waitpid(pid, NULL, 0);
+                }
+                if (i != 0)
+                {
+                    dup2(fdleft[0], 0);
+                    close(fdleft[0]);
+                    close(fdleft[1]);
+                }
+                targ = ploc[i];
+                dump_argv(&argp[targ]);
+                dump_fds();
+                execvp(argp[targ], &argp[targ]);
+                fprintf(stderr, "(-_-) I'm sorry the exec failed\n");
+                exit(1);
             }
-        }   
-        //waitpid(pid, NULL, 0);
-        write(1, "\n(>^_^)> ", 8);
+
+            if (i != 0)
+            {
+                //dump_fds();
+                //printf("%d: fdleft = { %d, %d }\n", i, fdleft[0], fdleft[1]);
+                assert(fdleft[0] != -1 && fdleft[1] != -1);
+                close(fdleft[0]);
+                close(fdleft[1]);
+                //dump_fds();
+            }
+
+            printf("PID %d launched\n", pid);
+            fdleft[0] = fdright[0];
+            fdleft[1] = fdright[1];
+        }
+
+        //dump_fds();
+        //printf("%d: fdleft = { %d, %d }\n", -1, fdleft[0], fdleft[1]);
+        close(fdleft[0]);
+        close(fdleft[1]);
+        free(argp);
+        //dump_fds();
+
+        int corpse;
+        int status;
+        while ((corpse = waitpid(0, &status, 0)) > 0)
+            printf(":-( PID %d status 0x%.4X\n", corpse, status);
+
+        printf("\n(>^_^)> ");
     }
     printf("  v(^o^)^ BYE BYE!\n");
+}
+
+static void dump_argv(char **argv)
+{
+    int n = 0;
+    char **args;
+    args = argv;
+    while (*args++ != 0)
+        n++;
+    fprintf(stderr, "%d: %d args\n", getpid(), n);
+    args = argv;
+    while (*args != 0)
+        fprintf(stderr, "[%s]\n", *args++);
+    fprintf(stderr, "EOA\n");
+}
+
+/* Report on open file descriptors (0..19) in process */
+static void dump_fds(void)
+{
+    struct stat b;
+    char buffer[32];
+    sprintf(buffer, "%d: ", getpid());
+    char *str = buffer + strlen(buffer);
+    for (int i = 0; i < 20; i++)
+        *str++ = (fstat(i, &b) == 0) ? 'o' : '-';
+    *str++ = '\n';
+    *str = '\0';
+    fputs(buffer, stderr);
 }
 
 int makeargv(char *line, char *seps, char ***args)
@@ -107,7 +169,7 @@ int makeargv(char *line, char *seps, char ***args)
         str += len + 1;
     }
     *argp = 0;
-    { printf("%d args:\n", n); for (char **a = argv; *a != 0; a++) printf("[%s]\n", *a); printf("EOA\n"); fflush(0); }
+    dump_argv(argv);
     *args = argv;
     return(n);
 }
