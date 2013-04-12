@@ -23,6 +23,7 @@ powa
 pthread-?
 quine
 regress
+sorttest
 strandsort
 tcflush
 unwrap
