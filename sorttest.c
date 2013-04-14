@@ -239,7 +239,19 @@ static void test1(void)
 //                  test sort(x)             /* an ordered copy */
 //                  test dither(x)           /* add i%5 to x[i] */
 
-static void framework2(int a[], int n, Function sort)
+typedef void (*ExtraFiller)(int a[], int n, int m);
+
+typedef struct SortType
+{
+    ExtraFiller  filler_func;
+    const char  *filler_name;
+    Function     sorter_func;
+    const char  *sorter_name;
+    const char  *tag;
+    int          m_param;
+} SortType;
+
+static void framework2(int a[], int n, const SortType *sort)
 {
     Clock clk;
     clk_init(&clk);
@@ -250,20 +262,22 @@ static void framework2(int a[], int n, Function sort)
     swap_count = 0;
     comp_count = 0;
     clk_start(&clk);
-    (*sort)(a, n);
+    (*sort->sorter_func)(a, n);
     clk_stop(&clk);
     int rc = check_sort(a, n);
 //    printf("%7d %18s %9s %14zu %14zu %4s %11s\n",
 //            sizes[i], fillers[j].name, sorters[k].name, comp_count, swap_count,
 //            (rc == 0) ? "PASS" : "FAIL",
 //            clk_elapsed_us(&clk, buffer, sizeof(buffer)));
-    printf("%7d 0x%.16" PRIXPTR " %14zu %14zu %4s %11s\n",
-            n, (uintptr_t)sort, comp_count, swap_count,
-            (rc == 0) ? "PASS" : "FAIL",
+//    printf("%7s %18s %18s %13s %6s %14s %14s %4s %11s\n",
+//            "Number", "Sorter", "Filler", "Extra", "M", "Compares", "Swaps", "", "Time");
+    printf("%7d %18s %18s %13s %6d %14zu %14zu %4s %11s\n",
+            n, sort->sorter_name, sort->filler_name, sort->tag, sort->m_param,
+            comp_count, swap_count, (rc == 0) ? "PASS" : "FAIL",
             clk_elapsed_us(&clk, buffer, sizeof(buffer)));
 }
 
-static void test_copy(int x[], int n, Function sort)
+static void test_copy(int x[], int n, const SortType *sort)
 {
     int a[n];
     for (int i = 0; i < n; i++)
@@ -271,17 +285,19 @@ static void test_copy(int x[], int n, Function sort)
     framework2(a, n, sort);
 }
 
-static void test_reverse(int x[], int lo, int hi, Function sort)
+static void test_reverse(int x[], int lo, int hi, const SortType *sort)
 {
-    int n = hi - lo + 1;
+    int n = hi - lo;
     assert(n > 0);
     int a[n];
     for (int i = 0; i < n; i++)
+    {
         a[n-1-i] = x[i];
+    }
     framework2(a, n, sort);
 }
 
-static void test_dither(int x[], int n, Function sort)
+static void test_dither(int x[], int n, const SortType *sort)
 {
     int a[n];
     for (int i = 0; i < n; i++)
@@ -289,29 +305,27 @@ static void test_dither(int x[], int n, Function sort)
     framework2(a, n, sort);
 }
 
-typedef void (*ExtraFiller)(int a[], int n, int m);
-
 static void fill_sawtooth(int a[], int n, int m)
 {
-    for (int i = n; i < n; i++)
+    for (int i = 0; i < n; i++)
         a[i] = i % m;
 }
 
 static void fill_randmod(int a[], int n, int m)
 {
-    for (int i = n; i < n; i++)
+    for (int i = 0; i < n; i++)
         a[i] = rand() % m;
 }
 
 static void fill_stagger(int a[], int n, int m)
 {
-    for (int i = n; i < n; i++)
+    for (int i = 0; i < n; i++)
         a[i] = (i * m + i) % n;
 }
 
 static void fill_plateau(int a[], int n, int m)
 {
-    for (int i = n; i < n; i++)
+    for (int i = 0; i < n; i++)
         a[i] = (i < m) ? i : m;  // min(i, m);
 }
 
@@ -323,44 +337,61 @@ static void fill_shuffle(int a[], int n, int m)
         a[i] = rand() % m ? (j += 2) : (k += 2);
 }
 
-enum modes { sawtooth, randmod, stagger, plateau, shuffle };
+enum modes { randmod, sawtooth, stagger, plateau, shuffle };
 
-static const ExtraFiller xfiller[] =
+typedef struct ExtraInfo
 {
-    [sawtooth] = fill_sawtooth,
-    [randmod]  = fill_randmod,
-    [stagger]  = fill_stagger,
-    [plateau]  = fill_plateau,
-    [shuffle]  = fill_shuffle,
+    char        *name;
+    ExtraFiller  func;
+} ExtraInfo;
+
+static ExtraInfo xfiller[] =
+{
+    [randmod]  = { "Random Modulo", fill_randmod  },
+    [sawtooth] = { "Sawtooth",      fill_sawtooth },
+    [stagger]  = { "Stagger",       fill_stagger  },
+    [plateau]  = { "Plateau",       fill_plateau  },
+    [shuffle]  = { "Shuffle",       fill_shuffle  },
 };
 enum { NUM_XFILLERS = sizeof(xfiller) / sizeof(xfiller[0]) };
 
 static void test2(void)
 {
-    int  sizes[] = { 100, 1023, 1023, 1025 };
+    int  sizes[] = { 1000, 10239, 10240, 10241 };
     enum { NUM_SIZES = sizeof(sizes) / sizeof(sizes[0]) };
     int x[1025];
+    SortType sort;
 
-    printf("%7s %18s %14s %14s %4s %11s\n",
-            "Number", "Sorter", "Compares", "Swaps", "", "Time");
+    printf("%7s %18s %18s %13s %6s %14s %14s %4s %11s\n",
+            "Number", "Sorter", "Filler", "Extra", "M", "Compares", "Swaps", "", "Time");
 
     for (int i = 0; i < NUM_SORTERS; i++)
     {
-        Function sort = sorters[i].func;
+        sort.sorter_func = sorters[i].func;
+        sort.sorter_name = sorters[i].name;
         for (int n0 = 0; n0 < NUM_SIZES; n0++)
         {
             int n = sizes[n0];
             for (int m = 1; m < 2 * n; m *= 2)
             {
+                sort.m_param = m;
                 for (int d0 = 0; d0 < NUM_XFILLERS; d0++)
                 {
-                    (*xfiller)(x, n, m);
-                    test_copy(x, n, sort);          /* work on a copy of x */
-                    test_reverse(x, 0, n, sort);    /* on a reversed copy */
-                    test_reverse(x, 0, n/2, sort);  /* front half reversed */
-                    test_reverse(x, n/2, n, sort);  /* back half reversed */
-                    //test_sort(x, n, sort);        /* an ordered copy */
-                    test_dither(x, n, sort);        /* add i%5 to x[i] */
+                    printf("Sample Size: %d\n", n);
+                    sort.filler_func = xfiller[d0].func;
+                    sort.filler_name = xfiller[d0].name;
+                    (*sort.filler_func)(x, n, m);
+                    sort.tag = "Full Plain";
+                    test_copy(x, n, &sort);          /* work on a copy of x */
+                    sort.tag = "Full Reversed";
+                    test_reverse(x, 0, n, &sort);    /* on a reversed copy */
+                    sort.tag = "1st Half Revd";
+                    test_reverse(x, 0, n/2, &sort);  /* front half reversed */
+                    sort.tag = "2nd Half Revd";
+                    test_reverse(x, n/2, n, &sort);  /* back half reversed */
+                    //test_sort(x, n, &sort);        /* an ordered copy */
+                    sort.tag = "Full Dithered";
+                    test_dither(x, n, &sort);        /* add i%5 to x[i] */
                 }
             }
         }
@@ -369,8 +400,10 @@ static void test2(void)
 
 int main(void)
 {
-    test1();
-    test2();
+    if (0)
+        test1();
+    if (1)
+        test2();
     return(0);
 }
 
