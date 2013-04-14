@@ -359,7 +359,6 @@ static void test2(void)
 {
     int  sizes[] = { 1000, 10239, 10240, 10241 };
     enum { NUM_SIZES = sizeof(sizes) / sizeof(sizes[0]) };
-    int x[1025];
     SortType sort;
 
     printf("%7s %18s %18s %13s %6s %14s %14s %4s %11s\n",
@@ -367,19 +366,23 @@ static void test2(void)
 
     for (int i = 0; i < NUM_SORTERS; i++)
     {
+        //printf("Sorter: %s\n", sorters[i].name);
         sort.sorter_func = sorters[i].func;
         sort.sorter_name = sorters[i].name;
         for (int n0 = 0; n0 < NUM_SIZES; n0++)
         {
             int n = sizes[n0];
+            int x[n];       // Use malloc/free for better valgrind support?
+            //printf("Sample Size: %d\n", n);
             for (int m = 1; m < 2 * n; m *= 2)
             {
+                //printf("M: %d\n", m);
                 sort.m_param = m;
                 for (int d0 = 0; d0 < NUM_XFILLERS; d0++)
                 {
-                    printf("Sample Size: %d\n", n);
                     sort.filler_func = xfiller[d0].func;
                     sort.filler_name = xfiller[d0].name;
+                    //printf("Filler: %s\n", sort.filler_name);
                     (*sort.filler_func)(x, n, m);
                     sort.tag = "Full Plain";
                     test_copy(x, n, &sort);          /* work on a copy of x */
