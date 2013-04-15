@@ -9,8 +9,9 @@
 ** http://stackoverflow.com/questions/7651397/calc-cell-convertor-in-c
 */
 
-#include <stdio.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 static char *xl_encode(unsigned row, char *buffer)
 {
@@ -64,36 +65,29 @@ enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 int main(void)
 {
     char buffer[32];
+    int pass = 0;
 
     for (int i = 0; i < NUM_TESTS; i++)
     {
         char *end = xl_row_encode(tests[i].col, buffer);
         snprintf(end, sizeof(buffer) - (end - buffer), "%u", tests[i].row);
         unsigned n = xl_row_decode(buffer);
-        printf("Col %3u, Row %3u, Cell (wanted: %-8s vs actual: %-8s) Col = %3u\n",
-               tests[i].col, tests[i].row, tests[i].cell, buffer, n);
-    }
+        const char *pf = "FAIL";
 
-#if 0
-    unsigned col, row;
-    printf("Enter column and row numbers: ");
-    while (scanf("%u %u", &col, &row) == 2)
-    {
-        if (col == 0 || row == 0)
-            fprintf(stderr, "Both row and column must be larger than zero (row = %u, col = %u)\n", row, col);
-        else
+        if (tests[i].col == n && strcmp(tests[i].cell, buffer) == 0)
         {
-            char *end = xl_row_encode(col, buffer);
-            snprintf(end, sizeof(buffer) - (end - buffer), "%u", row);
-            printf("Col %u, Row %u, Cell %s\n", col, row, buffer);
-            int n = xl_row_decode(buffer);
-            printf("Cell %s = Col %u, Row %u\n", buffer, n, row);
+            pf = "PASS";
+            pass++;
         }
-        printf("Enter column and row numbers: ");
+        printf("%s: Col %3u, Row %3u, Cell (wanted: %-8s vs actual: %-8s) Col = %3u\n",
+               pf, tests[i].col, tests[i].row, tests[i].cell, buffer, n);
     }
-    putchar('\n');
-#endif /* 0 */
+    if (pass == NUM_TESTS)
+        printf("== PASS == %d tests OK\n", pass);
+    else
+        printf("!! FAIL !! %d out of %d failed\n", (NUM_TESTS - pass), NUM_TESTS);
 
-    return 0;
+
+    return (pass == NUM_TESTS) ? 0 : 1;
 }
 
