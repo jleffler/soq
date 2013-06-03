@@ -56,7 +56,7 @@ static void printtoleaf(const BST *tree)
 
 static void printtree(const char *tag, const BST *tree)
 {
-    printf("%s\n", tag);
+    printf("%s: ", tag);
     printtoleaf(tree);
     putchar('\n');
 }
@@ -75,8 +75,30 @@ int main(void)
         [7] = {  2,          0,         0   },
     };
 
+    static const int paths[] =
+    {
+         [0] = 0,  [1] = 0,  [2] = 1,  [3] = 0,  [4] = 1,
+         [5] = 1,  [6] = 0,  [7] = 1,  [8] = 1,  [9] = 0,
+        [10] = 1, [11] = 0, [12] = 1, [13] = 1, [14] = 0,
+        [15] = 0, [16] = 0, [17] = 0, [18] = 0, [19] = 0,
+        [20] = 0, [21] = 0, [22] = 1, [23] = 0, [24] = 0,
+        [25] = 1, [26] = 1, [27] = 0, [28] = 0, [29] = 0,
+    };
+
     printtree("Tree", tree);
+    int fail = 0;
     for (int i = 1; i < 30; i++)
-        printf("Target: %.2d = %d\n", i, pathtoleaf(tree, i));
-    return 0;
+    {
+        int result = pathtoleaf(tree, i);
+        const char *passfail = "PASS";
+        if (result != paths[i])
+        {
+            passfail = "FAIL";
+            fail++;
+        }
+        printf("Target: %.2d = %d %s\n", i, result, passfail);
+    }
+    printf("%s\n", (fail == 0) ? "== PASS ==" : "!! FAIL !!");
+
+    return(fail != 0);
 }
