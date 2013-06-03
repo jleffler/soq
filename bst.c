@@ -29,11 +29,13 @@ static int pathtoleaf(const BST *tree, int target)
 {
     if (tree == 0)
         return 0;
+    if (tree->left == 0 && tree->right == 0)
+        return(tree->data == target);
     if (roottoleaf(tree, target))
         return 1;
-    else if (pathtoleaf(tree->left, target))
+    if (pathtoleaf(tree->left, target))
         return 1;
-    else if (pathtoleaf(tree->right, target))
+    if (pathtoleaf(tree->right, target))
         return 1;
     else
         return 0;
