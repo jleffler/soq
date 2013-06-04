@@ -10,44 +10,28 @@ struct BST
     BST *right;
 };
 
-static int roottoleaf(const BST *tree, int local_target, int overall_target)
+static int pathtoleaf(const BST *tree, int local_target, int overall_target)
 {
     if (tree == 0)
         return 0;
     if (tree->left == 0 && tree->right == 0)
         return(tree->data == local_target);
-    // Is there a path including this node?
-    if (tree->data < local_target)
-    {
-        // Path to leaf starts at this node via left
-        if (roottoleaf(tree->left, local_target - tree->data, overall_target))
-            return 1;
-        // Path to leaf starts at this node via right
-        if (roottoleaf(tree->right, local_target - tree->data, overall_target))
-            return 1;
-    }
     // Path to leaf starts below this node on left
-    if (roottoleaf(tree->left, overall_target, overall_target))
+    if (pathtoleaf(tree->left, overall_target, overall_target))
         return 1;
     // Path to leaf starts below this node on right
-    if (roottoleaf(tree->right, overall_target, overall_target))
+    if (pathtoleaf(tree->right, overall_target, overall_target))
+        return 1;
+    // Is there a path including this node?
+    if (tree->data > local_target)
+        return 0;
+    // Path to leaf starts at this node via left
+    if (pathtoleaf(tree->left, local_target - tree->data, overall_target))
+        return 1;
+    // Path to leaf starts at this node via right
+    if (pathtoleaf(tree->right, local_target - tree->data, overall_target))
         return 1;
     return 0;
-}
-
-static int pathtoleaf(const BST *tree, int target)
-{
-    return roottoleaf(tree, target, target);
-//    if (tree == 0)
-//        return 0;
-//    if (roottoleaf(tree, target))
-//        return 1;
-//    if (pathtoleaf(tree->left, target))
-//        return 1;
-//    if (pathtoleaf(tree->right, target))
-//        return 1;
-//    else
-//        return 0;
 }
 
 static void printtoleaf(const BST *tree)
@@ -100,7 +84,7 @@ int main(void)
     int fail = 0;
     for (int i = 1; i < 30; i++)
     {
-        int result = pathtoleaf(tree, i);
+        int result = pathtoleaf(tree, i, i);
         const char *passfail = "PASS";
         if (result != paths[i])
         {
