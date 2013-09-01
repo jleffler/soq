@@ -7,7 +7,7 @@ WFLAG4 = -Wstrict-prototypes
 WFLAG5 = -Wold-style-definition
 WFLAG6 =
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} 
-SFLAGS = -std=c99
+SFLAGS = -std=c11
 GFLAGS = -g
 OFLAGS = -O3
 UFLAGS =
@@ -15,7 +15,7 @@ IFLAG1 = -I${HOME}/inc
 IFLAGS = # ${IFLAG1}
 
 IXXFLAGS = ${IFLAGS}
-SXXFLAGS =
+SXXFLAGS = -std=c++11
 WXXFLAGS = -Wall -Wextra
 UXXFLAGS =
 OXXFLAGS = -O3
