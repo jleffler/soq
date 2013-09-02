@@ -24,15 +24,23 @@ static void sigchld_handler(int signum)
     signal(signum, sigchld_handler);
 }
 
+static char *print_kib(int size, char *buffer, size_t buflen)
+{
+    snprintf(buffer, buflen, "%d (%d KiB)", size, size / BYTES_PER_KIBIBYTE);
+    return buffer;
+}
+
 static int test_arg_size(int size)
 {
+    char buffer[32];
     int result = R_TOO_SMALL;
     assert(size % 8 == 0);
     fflush(0);
     pid_t pid = fork();
     if (pid < 0)
     {
-        fprintf(stderr, "Failed to fork at size %d\n", size);
+        fprintf(stderr, "Failed to fork at size %s\n",
+                print_kib(size, buffer, sizeof(buffer)));
         exit(1);
     }
     else if (pid == 0)
@@ -46,7 +54,8 @@ static int test_arg_size(int size)
             args[j] = malloc(bytes_per_arg);
             if (args[j] == 0)
             {
-                fprintf(stderr, "Failed to allocate argument space at size %d\n", size);
+                fprintf(stderr, "Failed to allocate argument space at size %s\n",
+                        print_kib(size, buffer, sizeof(buffer)));
                 exit(E_NOT_E2BIG);
             }
             memset(args[j], j + '0', bytes_per_arg - 1);
@@ -82,10 +91,12 @@ static int test_arg_size(int size)
         int errnum = errno;
         if (errnum == E2BIG)
         {
-            fprintf(stderr, "%d: got E2BIG (%d: %s) at size %d\n", self, errnum, strerror(errnum), size);
+            fprintf(stderr, "%d: got E2BIG (%d: %s) at size %s\n", self, errnum, strerror(errnum),
+                    print_kib(size, buffer, sizeof(buffer)));
             exit(E_GOT_E2BIG);
         }
-        fprintf(stderr, "%d: got errno %d (%s) at size %d\n", self, errnum, strerror(errnum), size);
+        fprintf(stderr, "%d: got errno %d (%s) at size %s\n", self, errnum, strerror(errnum),
+                print_kib(size, buffer, sizeof(buffer)));
         exit(E_NOT_E2BIG);
     }
     else
@@ -118,16 +129,11 @@ static int test_arg_size(int size)
                     break;
                 }
             }
-            printf(" at size %d (%d KiB)\n", size, size / BYTES_PER_KIBIBYTE);
+            printf(" at size %s\n", print_kib(size, buffer, sizeof(buffer)));
             fflush(stdout);
         }
     }
     return result;
-}
-
-static void print_kib(int size)
-{
-    printf("%d (%d KiB)", size, size / BYTES_PER_KIBIBYTE);
 }
 
 static int env_size(void)
@@ -156,12 +162,12 @@ int main(void)
             lo = mid;
     }
 
+    char buffer1[32];
+    char buffer2[32];
     printf("Environment size = %d\n", env);
-    printf("Best guess: maximum argument size in range ");
-    print_kib(lo + env);
-    fputs(" to ", stdout);
-    print_kib(hi + env);
-    putchar('\n');
+    printf("Best guess: maximum argument size in range %s to %s\n",
+           print_kib(lo + env, buffer1, sizeof(buffer1)),
+           print_kib(hi + env, buffer2, sizeof(buffer2)));
 
     return 0;
 }
