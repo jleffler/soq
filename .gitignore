@@ -12,6 +12,7 @@ a.out
 cmpfltint
 const-stuff
 core
+e2big
 excel-rc
 fifocircle
 incunabulum
@@ -20,6 +21,7 @@ mda
 multi-pipe-sort
 piped-merge-sort
 pipeline
+posixver.h
 pthread-?
 quine
 recv
@@ -27,4 +29,5 @@ regress
 send
 sorttest
 streplace
+timer.h
 unwrap
