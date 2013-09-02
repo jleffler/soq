@@ -8,7 +8,6 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <signal.h>
 
 extern char **environ;  /* Sometimes in <unistd.h> */
 
@@ -18,11 +17,6 @@ enum { E_GOT_E2BIG =  37 };
 enum { E_NOT_E2BIG = 219 };
 
 enum { R_TOO_LARGE = +1, R_TOO_SMALL = -1 };
-
-static void sigchld_handler(int signum)
-{
-    signal(signum, sigchld_handler);
-}
 
 static char *print_kib(int size, char *buffer, size_t buflen)
 {
@@ -146,8 +140,6 @@ static int env_size(void)
 
 int main(void)
 {
-    signal(SIGCHLD, sigchld_handler);
-
     int env = env_size();
     int lo = 0;
     int hi = BYTES_PER_MEBIBYTE;
