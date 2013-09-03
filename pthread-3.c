@@ -26,7 +26,7 @@ static void err_error(char *fmt, ...)
 
 
 typedef struct {
-    pthread_mutex_t mutex; 
+    pthread_mutex_t mutex;
     sem_t *full;
     sem_t *empty;
     size_t count;

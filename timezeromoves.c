@@ -19,18 +19,18 @@ void list_compact(int *arr, size_t cnt)
     }
     if (pos == cnt) return;
 
-    for(dst= pos; ++pos < cnt; ) { 
+    for(dst= pos; ++pos < cnt; ) {
         /* Skip blanks; find start of filled area */
         if ( !arr[pos] ) continue;
 
         /* Find end of filled area */
         for(src = pos; ++pos < cnt; ) {
             if ( !arr[pos] ) break;
-        }   
+        }
         if (pos > src) {
             memmove(arr+dst, arr+src, (pos-src) * sizeof arr[0] );
             dst += pos-src;
-        }   
+        }
     }
 }
 
@@ -41,7 +41,7 @@ void RemoveDead(int *list, size_t n)
     for (; j >= 0 && list[j] == 0; --j)
         ;
     for (i = 0; i <= j; ++i)
-    {   
+    {
         if (list[i])
             continue;
         memcpy(&(list[i]), &(list[j]), sizeof(int));
@@ -49,13 +49,13 @@ void RemoveDead(int *list, size_t n)
         for (; j >= 0 && list[j] == 0; --j);
         if (i == j)
             break;
-    }   
+    }
 }
 
 void shufflezeroes(int *list, size_t n)
 {
-    for (size_t i = 0; i < n; ++i) 
-    {    
+    for (size_t i = 0; i < n; ++i)
+    {
         if (list[i])
             continue;
         size_t j;
@@ -68,10 +68,10 @@ void shufflezeroes(int *list, size_t n)
             break;
         memmove(&(list[i]), &(list[j]), sizeof(int) * (z - j));
         size_t s = z - j + i;
-        for(j = s; j < z; ++j) 
+        for(j = s; j < z; ++j)
             list[j] = 0;
         i = s - 1;
-    } 
+    }
 }
 
 static int nextZero(int* list, size_t start, size_t n){
@@ -213,7 +213,7 @@ static void gen_test(size_t n, const FUT *f)
     {
         list[2*i+0] = i;
         list[2*i+1] = 0;
-    }   
+    }
     test_timer(list, n, f);
 }
 

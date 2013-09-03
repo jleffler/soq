@@ -53,67 +53,66 @@ INSERT INTO Large_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 13:1
 INSERT INTO Large_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 15:15', 'Alpha', 26) { R5 };
 INSERT INTO Large_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 17:15', 'Alpha', 27) { R5 };
 
-    CREATE TABLE Small_Table
-    (
-        Event_Time  DATETIME YEAR TO MINUTE NOT NULL,
-        User_ID     CHAR(15) NOT NULL,
-        Other_Data  INTEGER NOT NULL,
-        PRIMARY KEY(User_ID, Event_Time)
-    );
+CREATE TABLE Small_Table
+(
+    Event_Time  DATETIME YEAR TO MINUTE NOT NULL,
+    User_ID     CHAR(15) NOT NULL,
+    Other_Data  INTEGER NOT NULL,
+    PRIMARY KEY(User_ID, Event_Time)
+);
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 06:15', 'Alpha', 131) { XX };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 06:20', 'Alpha',  31) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 10:20', 'Alpha',  32) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 13:20', 'Alpha',  33) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 15:20', 'Alpha',  34) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 18:15', 'Alpha', 134) { XX };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 06:15', 'Alpha', 131) { XX };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 06:20', 'Alpha',  31) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 10:20', 'Alpha',  32) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 13:20', 'Alpha',  33) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 15:20', 'Alpha',  34) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 18:15', 'Alpha', 134) { XX };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 06:15', 'Alpha', 135) { XX };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 06:16', 'Alpha',  35) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 10:20', 'Alpha',  35) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 12:14', 'Alpha',  35) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 12:15', 'Alpha', 135) { XX };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 06:15', 'Alpha', 135) { XX };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 06:16', 'Alpha',  35) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 10:20', 'Alpha',  35) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 12:14', 'Alpha',  35) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 12:15', 'Alpha', 135) { XX };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-03 09:20', 'Alpha',  36) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-03 11:20', 'Alpha',  37) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-03 09:20', 'Alpha',  36) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-03 11:20', 'Alpha',  37) { YY };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 09:20', 'Alpha',  38) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 11:20', 'Alpha',  39) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 13:20', 'Alpha',  40) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 09:20', 'Alpha',  38) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 11:20', 'Alpha',  39) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 13:20', 'Alpha',  40) { YY };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 09:20', 'Alpha',  41) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 11:20', 'Alpha',  42) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 13:20', 'Alpha',  42) { 22 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 15:20', 'Alpha',  43) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 17:20', 'Alpha',  44) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 09:20', 'Alpha',  41) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 11:20', 'Alpha',  42) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 13:20', 'Alpha',  42) { 22 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 15:20', 'Alpha',  43) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 17:20', 'Alpha',  44) { YY };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 09:20', 'Alpha',  45) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 11:20', 'Alpha',  46) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 13:20', 'Alpha',  47) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 15:20', 'Alpha',  48) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 17:20', 'Alpha',  49) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 19:20', 'Alpha',  50) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 09:20', 'Alpha',  45) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 11:20', 'Alpha',  46) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 13:20', 'Alpha',  47) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 15:20', 'Alpha',  48) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 17:20', 'Alpha',  49) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 19:20', 'Alpha',  50) { YY };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 09:20', 'Alpha',  51) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 10:20', 'Alpha',  51) { 22 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 12:20', 'Alpha',  52) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 09:20', 'Alpha',  51) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 10:20', 'Alpha',  51) { 22 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 12:20', 'Alpha',  52) { YY };
 
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 09:20', 'Alpha',  53) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 11:20', 'Alpha',  54) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 13:20', 'Alpha',  55) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 15:20', 'Alpha',  56) { YY };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 17:20', 'Alpha',  57) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 09:20', 'Alpha',  53) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 11:20', 'Alpha',  54) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 13:20', 'Alpha',  55) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 15:20', 'Alpha',  56) { YY };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-08 17:20', 'Alpha',  57) { YY };
 
-
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 13:27', 'Beta',   9) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 11:27', 'Beta',   8) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 16:27', 'Beta',   7) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 16:27', 'Beta',   6) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 10:27', 'Beta',   5) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 10:27', 'Beta',   4) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-03 10:27', 'Beta',   3) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 10:27', 'Beta',   2) { R1 };
-    INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 12:27', 'Beta',   1) { R4 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 13:27', 'Beta',   9) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-07 11:27', 'Beta',   8) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-06 16:27', 'Beta',   7) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 16:27', 'Beta',   6) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-05 10:27', 'Beta',   5) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-04 10:27', 'Beta',   4) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-03 10:27', 'Beta',   3) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-02 10:27', 'Beta',   2) { R1 };
+INSERT INTO Small_Table(Event_Time, User_ID, Other_Data) VALUES('2012-01-01 12:27', 'Beta',   1) { R4 };
 
 echo "Large Table Data";
 SELECT * FROM Large_Table ORDER BY User_ID, Event_Time;
@@ -173,9 +172,7 @@ echo "Doubleton Ranges";
            )
     ORDER BY User_ID, Min_Time;
 
-
 echo "Multiple Event Ranges";
-
 
     -- Ranges of 3 or more events
     SELECT lt1.user_id, lt1.event_time AS min_time, lt2.event_time AS max_time
@@ -232,7 +229,6 @@ echo "Multiple Event Ranges";
                AND lt8.event_time > lt1.event_time
            )
     ORDER BY User_ID, Min_Time;
-
 
 echo "All Ranges in Large Table";
 
@@ -495,7 +491,7 @@ SELECT lt1.user_id, lt1.event_time AS min_time, lt2.event_time AS max_time
            AND (lt6.event_time - lt5.event_time) > 3 UNITS HOUR
            AND NOT EXISTS
                (SELECT *
-                  FROM large_table AS lt9 
+                  FROM large_table AS lt9
                  WHERE lt9.event_time > lt5.event_time
                    AND lt6.event_time > lt9.event_time
                )

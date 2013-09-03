@@ -5,7 +5,7 @@
 //  Write no more than haystacksize characters (including '\0') into haystack.
 //
 // RETURN VALUES
-// str_replace() returns haystack on success and NULL on failure. 
+// str_replace() returns haystack on success and NULL on failure.
 // Failure means there was not sufficient room for all requested replacements.
 // Success is returned otherwise, even if no replacement is made.
 char *str_replace(char *haystack, size_t haystacksize,
@@ -23,7 +23,7 @@ static inline void paste(char *dest, const char *src)
 // str_replace() implementation
 char *str_replace(char *haystack, size_t haystacksize,
                     const char *oldneedle, const char *newneedle)
-{   
+{
     char *success = haystack;
     char *failure = NULL;
     size_t oldneedle_len = strlen(oldneedle);
@@ -50,11 +50,11 @@ char *str_replace(char *haystack, size_t haystacksize,
 
         // Pass 1: Perform copy/replace using read_ptr and write_ptr
         for (oldneedle_ptr = oldneedle,
-            read_ptr = haystack, write_ptr = haystack; 
+            read_ptr = haystack, write_ptr = haystack;
             *read_ptr != '\0';
             read_ptr++, write_ptr++)
         {
-            *write_ptr = *read_ptr;         
+            *write_ptr = *read_ptr;
             if (*read_ptr == *oldneedle_ptr)
                 oldneedle_ptr++;
             if (*oldneedle_ptr == '\0')  {  // then perform update
@@ -62,8 +62,8 @@ char *str_replace(char *haystack, size_t haystacksize,
                 write_ptr -= oldneedle_len;
                 paste(write_ptr+1, newneedle);
                 write_ptr += newneedle_len;
-            }               
-        } 
+            }
+        }
         *write_ptr = '\0';
         return success;
     }
@@ -73,7 +73,7 @@ char *str_replace(char *haystack, size_t haystacksize,
         const char *oldneedle_ptr;    // used to find an occurence of oldneedle
         const char *read_ptr;         // where to read in the haystack
         char *write_ptr;        // where to write in the haystack
-        size_t diff_len =       // the amount of extra space needed 
+        size_t diff_len =       // the amount of extra space needed
             newneedle_len -     // to replace oldneedle with newneedle
             oldneedle_len;
 
@@ -96,7 +96,7 @@ char *str_replace(char *haystack, size_t haystacksize,
             return failure; // not enough room
 
         // Pass 2: Walk backwards through haystack, performing copy/replace
-        const char *oldneedle_last =      // points to the last character 
+        const char *oldneedle_last =      // points to the last character
             oldneedle +             // (excluding the '\0') in
             oldneedle_len - 1;      // oldneedle
         for (oldneedle_ptr = oldneedle_last;
@@ -105,7 +105,7 @@ char *str_replace(char *haystack, size_t haystacksize,
         {
             *write_ptr = *read_ptr;
             if (*read_ptr == *oldneedle_ptr)
-                oldneedle_ptr--;            
+                oldneedle_ptr--;
             if (oldneedle_ptr < oldneedle) {  // perform replacement
                 oldneedle_ptr = oldneedle_last;
                 // For each occurence of oldneedle, write_ptr will
@@ -114,7 +114,7 @@ char *str_replace(char *haystack, size_t haystacksize,
                 // adjustment to write_ptr made in Pass 1.
                 write_ptr -= diff_len;
                 paste(write_ptr, newneedle);
-            }   
+            }
         }
         return success;
     }

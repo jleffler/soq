@@ -4,21 +4,21 @@ trap 'rm -f data; exit 1' 0 1 2 3 13 15
 
 # Input data:
 cat >data <<'EOF'
-bm_wp_upg_o_t1micro, sight, value = 3, zoom = 3, recoil = 1, spread_moving = -1 
-bm_wp_upg_o_marksmansight_rear, sight, value = 3, zoom = 1, recoil = 1, spread = 1 
-bm_wp_upg_o_marksmansight_front, extra, value = 1 
-bm_wp_m4_upper_reciever_edge, upper_reciever, value = 3, recoil = 1 
-bm_wp_m4_upper_reciever_round, upper_reciever, value = 1 
+bm_wp_upg_o_t1micro, sight, value = 3, zoom = 3, recoil = 1, spread_moving = -1
+bm_wp_upg_o_marksmansight_rear, sight, value = 3, zoom = 1, recoil = 1, spread = 1
+bm_wp_upg_o_marksmansight_front, extra, value = 1
+bm_wp_m4_upper_reciever_edge, upper_reciever, value = 3, recoil = 1
+bm_wp_m4_upper_reciever_round, upper_reciever, value = 1
 bm_wp_m4_uupg_b_long, barrel, value = 4, damage = 1, spread = 1, spread_moving = -2, concealment = -2
 EOF
 
 # Output data:
 #                              id,          type,value,zoom,recoil,spread_moving,spread,damage,concealment
-#             bm_wp_upg_o_t1micro,         sight,    3,   3,     1,           -1,      ,      ,           
-#  bm_wp_upg_o_marksmansight_rear,         sight,    3,   1,     1,             ,     1,      ,           
-# bm_wp_upg_o_marksmansight_front,         extra,    1,    ,      ,             ,      ,      ,           
-#    bm_wp_m4_upper_receiver_edge,upper_receiver,    3,    ,     1,             ,      ,      ,           
-#   bm_wp_m4_upper_receiver_round,upper_receiver,    1,    ,      ,             ,      ,      ,           
+#             bm_wp_upg_o_t1micro,         sight,    3,   3,     1,           -1,      ,      ,
+#  bm_wp_upg_o_marksmansight_rear,         sight,    3,   1,     1,             ,     1,      ,
+# bm_wp_upg_o_marksmansight_front,         extra,    1,    ,      ,             ,      ,      ,
+#    bm_wp_m4_upper_receiver_edge,upper_receiver,    3,    ,     1,             ,      ,      ,
+#   bm_wp_m4_upper_receiver_round,upper_receiver,    1,    ,      ,             ,      ,      ,
 #            bm_wp_m4_uupg_b_long,        barrel,    4,    ,      ,           -2,     1,     1,         -2
 
 # The awk script adapts to what it finds in the data.  The first two

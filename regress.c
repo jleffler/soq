@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>           
-#include <string.h>   
+#include <stdlib.h>
+#include <string.h>
 
 void linear_regression(const float *x, const float *y, const int n,
                        float *beta1, float *beta0);
@@ -26,7 +26,7 @@ int main(void)
     /* Get the average of the first seven elements */
     for (int i = 0; i < size_hour; i++)
         sum += pval[i];
-    ref_avg = sum / size_hour; 
+    ref_avg = sum / size_hour;
     printf("ref avg = %5.2f\n", ref_avg); // JL
 
     /* perform the regression analysis on 5 hours increment */
@@ -36,11 +36,11 @@ int main(void)
         calc_x[0] = pass + 1;
         printf("pass %d\ncalc_y[0] = %5.2f, calc_x[0] = %5.2f\n",
                pass, calc_y[0], calc_x[0]);
-        for (int i = 1; i <= Nhour; i++)  
+        for (int i = 1; i <= Nhour; i++)
         {
             int n = pass + i - 1;
             calc_y[i] = pval[n];
-            calc_x[i] = pass + i + 1; 
+            calc_x[i] = pass + i + 1;
             printf("calc_y[%d] = %5.2f, calc_x[%d] = %5.2f, n = %2d\n",
                    i, calc_y[i], i, calc_x[i], n);
         }
@@ -61,7 +61,7 @@ void linear_regression(const float *x, const float *y, const int n, float *beta1
 
     assert(n > 1);
 
-    for (int i = 0; i < n; i++) 
+    for (int i = 0; i < n; i++)
     {
         sumx1 += x[i];
         sumy1 += y[i];
@@ -73,8 +73,8 @@ void linear_regression(const float *x, const float *y, const int n, float *beta1
     {
         *beta1 = (sumxy - ((sumx1 * sumy1) / n)) /  variance;
         *beta0 = (sumy1 - ((*beta1) * sumx1)) / n;
-    } 
-    else  
+    }
+    else
     {
         *beta1 = 0.0;
         *beta0 = 0.0;

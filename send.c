@@ -33,7 +33,7 @@ static void sendFile(int sock, const char *filename, char *address, int port)
 
     while (curPos < filesize)
     {
-        struct sockaddr_in server_addr; 
+        struct sockaddr_in server_addr;
         struct hostent *recvr;
         char sendData[BUFSIZ]; // stores message to be sent
         memset(sendData, 0, BUFSIZ);
