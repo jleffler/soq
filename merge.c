@@ -1,8 +1,8 @@
 #include <errno.h>
-#include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct File
 {
@@ -42,8 +42,10 @@ int main(int argc, char **argv)
         read_line(current);
     }
 
+#if defined(CHECK_FUNDAMENTALS)
     for (int i = 1; i < argc; i++)
         printf("%d: %zu - %s\n", i, inputs[i].length, inputs[i].file);
+#endif
 
     size_t heap_size = argc - 1;
     size_t heap[argc];     // heap[0] unused
@@ -51,16 +53,21 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++)
         heap[i] = i;
 
+#if defined(CHECK_FUNDAMENTALS)
     printf("Heap before:\n");
     for (int i = 1; i < argc; i++)
-        printf("%d: %zu\n", i, heap[i]);
+        printf("%d: %zu - %s", i, heap[i], inputs[heap[i]].line);
+#endif
 
     heapify(heap, heap_size, inputs);
 
+#if defined(CHECK_FUNDAMENTALS)
     printf("Heap after:\n");
     for (int i = 1; i < argc; i++)
-        printf("%d: %zu\n", i, heap[i]);
+        printf("%d: %zu - %s", i, heap[i], inputs[heap[i]].line);
+#endif
 
+#if defined(CHECK_FUNDAMENTALS)
     printf("Compare two lines:\n");
     printf("1: %s\n", inputs[1].line);
     printf("2: %s\n", inputs[2].line);
@@ -70,6 +77,7 @@ int main(int argc, char **argv)
     printf("1 vs 2: %d\n", r12);
     printf("2 vs 1: %d\n", r21);
     printf("1 vs 1: %d\n", r11);
+#endif
 
     while (heap_size > 0)
     {
@@ -79,7 +87,14 @@ int main(int argc, char **argv)
         if (current->line == 0)
             heap[1] = heap[heap_size--];
         if (heap_size > 0)
+        {
             siftdown(heap, 1, heap_size, inputs);
+#if defined(CHECK_FUNDAMENTALS)
+            printf("Heap check:\n");
+            for (int i = 1; i < argc; i++)
+                printf("%d: %zu - %s", i, heap[i], inputs[heap[i]].line);
+#endif
+        }
     }
 
     return 0;
@@ -139,7 +154,7 @@ void siftup(size_t *heap, size_t lo, size_t hi, File *inputs)
         if (i <= lo)
             break;
         size_t p = i / 2;
-        if (compare(inputs, p, i) <= 0)
+        if (compare(inputs, heap[p], heap[i]) <= 0)
             break;
         size_t t = heap[p];
         heap[p] = heap[i];
@@ -156,9 +171,9 @@ void siftdown(size_t *heap, size_t lo, size_t hi, File *inputs)
         size_t c = 2 * i;
         if (c > hi)
             break;
-        if (c + 1 <= hi && compare(inputs, c+1, c) < 0)
+        if (c + 1 <= hi && compare(inputs, heap[c+1], heap[c]) < 0)
             c++;
-        if (compare(inputs, i, c) <= 0)
+        if (compare(inputs, heap[i], heap[c]) <= 0)
             break;
         size_t t = heap[c];
         heap[c] = heap[i];
