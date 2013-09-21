@@ -52,15 +52,8 @@ int *merge_sort(int *a, int size)
     cout << "\n";
     cout << "MSL:\n";
     int *nleft = merge_sort(left, middle);
-    dump_array("NL", nleft, middle);
-    dump_array("OL", left, middle);
-    dump_array("OR", right, size - middle);
     cout << "MSR:\n";
     int *nright = merge_sort(right, size - middle);
-    dump_array("NR", nright, size - middle);
-    dump_array("NL", nleft, middle);
-    dump_array("OL", left, middle);
-    dump_array("OR", right, size - middle);
     int *result =  merge(nleft, middle, nright, size - middle);
     dump_array("<<-- merge_sort", result, size);
     return result;
