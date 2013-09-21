@@ -1,3 +1,4 @@
+/* http://stackoverflow.com/q/18812266 Merging multiple sorted files */
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -115,7 +116,7 @@ void heapify(size_t *heap, size_t heap_size, File *inputs)
 **
 ** Heap in array x, indexed from 1, not 0 as is normal in C.
 ** Implementation will allocate but not use array[0].
-**  
+**
 **  function siftup(l, u,    i, p) {
 **          # pre  maxheap(l, u-1)
 **          # post maxheap(l, u)
@@ -129,7 +130,7 @@ void heapify(size_t *heap, size_t heap_size, File *inputs)
 **                  i = p
 **          }
 **  }
-**  
+**
 **  function siftdown(l, u,  i, c) {
 **          # pre  maxheap(l+1, u)
 **          # post maxheap(l,u)
