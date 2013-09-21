@@ -1,4 +1,5 @@
 /* http://stackoverflow.com/q/18928821 Merge sort code debugging */
+/* valgrind gives this a clean bill of health */
 
 #include <iostream>
 using namespace std;
@@ -75,36 +76,24 @@ void merge(int *l, int m, int *r, int n, int *result)
     {
         if (l[0] <= r[0])
         {
-            result[counter] = l[0];
-            cout << "B-C: " << counter << "; L = " << l[0] << "; LS = " << lsize << '\n';
-            counter++;
+            result[counter++] = *l++;
             lsize--;
-            l++;
         }
         else
         {
-            result[counter] = r[0];
-            cout << "B-C: " << counter << "; R = " << r[0] << "; RS = " << rsize << '\n';
-            counter++;
+            result[counter++] = *r++;
             rsize--;
-            r++;
         }
     }
     while (lsize > 0)
     {
-        result[counter] = l[0];
-        cout << "L-C: " << counter << "; L = " << l[0] << "; LS = " << lsize << '\n';
-        counter++;
+        result[counter++] = *l++;
         lsize--;
-        l++;
     }
     while (rsize > 0)
     {
-        result[counter] = r[0];
-        cout << "R-C: " << counter << "; R = " << r[0] << "; RS = " << rsize << '\n';
-        counter++;
+        result[counter++] = *r++;
         rsize--;
-        r++;
     }
 
     dump_array("<<-- merge", result, m+n);
