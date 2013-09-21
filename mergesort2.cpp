@@ -7,10 +7,10 @@ namespace {
 
 int *merge(int *l, int m, int *r, int n);
 
-void dump_array(int *a, int size)
+void dump_array(const char *tag, int *a, int size)
 {
     int i;
-    cout << size << ": ";
+    cout << tag << ": (" << size << ") ";
     for (i = 0; i < size; i++)
     {
         cout << ' ' << a[i];
@@ -25,8 +25,7 @@ void dump_array(int *a, int size)
 
 int *merge_sort(int *a, int size)
 {
-    cout << "-->> merge_sort:\n";
-    dump_array(a, size);
+    dump_array("-->> merge_sort", a, size);
     if (size <= 1)
     {
         cout << "<<-- merge_sort: early return\n";
@@ -53,25 +52,17 @@ int *merge_sort(int *a, int size)
     cout << "\n";
     cout << "MSL:\n";
     int *nleft = merge_sort(left, middle);
-    cout << "NL: ";
-    dump_array(nleft, middle);
-    cout << "OL: ";
-    dump_array(left, middle);
-    cout << "OR: ";
-    dump_array(right, size - middle);
+    dump_array("NL", nleft, middle);
+    dump_array("OL", left, middle);
+    dump_array("OR", right, size - middle);
     cout << "MSR:\n";
     int *nright = merge_sort(right, size - middle);
-    cout << "NR: ";
-    dump_array(nright, size - middle);
-    cout << "NL: ";
-    dump_array(nleft, middle);
-    cout << "OL: ";
-    dump_array(left, middle);
-    cout << "OR: ";
-    dump_array(right, size - middle);
+    dump_array("NR", nright, size - middle);
+    dump_array("NL", nleft, middle);
+    dump_array("OL", left, middle);
+    dump_array("OR", right, size - middle);
     int *result =  merge(nleft, middle, nright, size - middle);
-    cout << "<<-- merge_sort:\n";
-    dump_array(result, size);
+    dump_array("<<-- merge_sort", result, size);
     return result;
 }
 
@@ -84,8 +75,8 @@ int *merge(int *l, int m, int *r, int n)
     int rsize = n;
     int counter = 0;
     cout << "-->> merge: (" << m << "," << n << ")\n";
-    dump_array(l, m);
-    dump_array(r, n);
+    dump_array("L", l, m);
+    dump_array("R", r, n);
 
     while (lsize > 0 || rsize > 0)
     {
@@ -125,8 +116,7 @@ int *merge(int *l, int m, int *r, int n)
             r++;
         }
     }
-    cout << "<<-- merge:\n";
-    dump_array(result, m+n);
+    dump_array("<<-- merge", result, m+n);
     return result;
 }
 
@@ -138,7 +128,9 @@ int main()
     {
         int array1[] = { 9, 3, 5, 7, 1, 8, 0, 6, 2, 4 };
         cout << "\nMerge array of size " << i << "\n\n";
+        dump_array("Before", array1, i);
         int *result = merge_sort(array1, i);
+        dump_array("After", array1, i);
         delete[] result;
     }
     return 0;
