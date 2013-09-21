@@ -5,7 +5,7 @@ using namespace std;
 
 namespace {
 
-int *merge(int *l, int m, int *r, int n);
+void merge(int *l, int m, int *r, int n, int *result);
 
 void dump_array(const char *tag, int *a, int size)
 {
@@ -23,19 +23,20 @@ void dump_array(const char *tag, int *a, int size)
 
 };
 
-int *merge_sort(int *a, int size)
+void merge_sort(int *a, int size)
 {
     dump_array("-->> merge_sort", a, size);
     if (size <= 1)
     {
         cout << "<<-- merge_sort: early return\n";
-        return a;
+        return;
     }
 
     int middle = size/2;
     int *left = new int[middle];
     int *right = new int[size - middle];
-    cout << middle << ": ";
+
+    cout << "L split (" << middle << ") ";
     for (int i = 0; i < middle; i++)
     {
         left[i] = a[i];
@@ -43,27 +44,26 @@ int *merge_sort(int *a, int size)
     }
     cout << "\n";
 
-    cout << (size - middle) << ": ";
+    cout << "R split (" << (size - middle) << ") ";
     for (int j = 0; j < size - middle; j++)
     {
         right[j] = a[j + middle];
         cout << ' ' << right[j];
     }
     cout << "\n";
-    cout << "MSL:\n";
-    int *nleft = merge_sort(left, middle);
-    cout << "MSR:\n";
-    int *nright = merge_sort(right, size - middle);
-    int *result =  merge(nleft, middle, nright, size - middle);
-    dump_array("<<-- merge_sort", result, size);
-    return result;
+
+    merge_sort(left, middle);
+    merge_sort(right, size - middle);
+    merge(left, middle, right, size - middle, a);
+    delete [] left;
+    delete [] right;
+    dump_array("<<-- merge_sort", a, size);
 }
 
 namespace {
 
-int *merge(int *l, int m, int *r, int n)
+void merge(int *l, int m, int *r, int n, int *result)
 {
-    int *result = new int[m + n];
     int lsize = m;
     int rsize = n;
     int counter = 0;
@@ -108,21 +108,19 @@ int *merge(int *l, int m, int *r, int n)
     }
 
     dump_array("<<-- merge", result, m+n);
-    return result;
 }
 
 };
 
 int main()
 {
-    for (int i = 2; i <= 10; i++)
+    for (int i = 1; i <= 10; i++)
     {
         int array1[] = { 9, 3, 5, 7, 1, 8, 0, 6, 2, 4 };
         cout << "\nMerge array of size " << i << "\n\n";
         dump_array("Before", array1, i);
-        int *result = merge_sort(array1, i);
+        merge_sort(array1, i);
         dump_array("After", array1, i);
-        delete[] result;
     }
     return 0;
 }
