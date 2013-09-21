@@ -26,32 +26,19 @@ void dump_array(const char *tag, int *a, int size)
 
 void merge_sort(int *a, int size)
 {
-    dump_array("-->> merge_sort", a, size);
     if (size <= 1)
-    {
-        cout << "<<-- merge_sort: early return\n";
         return;
-    }
 
+    dump_array("-->> merge_sort", a, size);
     int middle = size/2;
     int *left = new int[middle];
     int *right = new int[size - middle];
 
-    cout << "L split (" << middle << ") ";
     for (int i = 0; i < middle; i++)
-    {
         left[i] = a[i];
-        cout << ' ' << left[i];
-    }
-    cout << "\n";
 
-    cout << "R split (" << (size - middle) << ") ";
     for (int j = 0; j < size - middle; j++)
-    {
         right[j] = a[j + middle];
-        cout << ' ' << right[j];
-    }
-    cout << "\n";
 
     merge_sort(left, middle);
     merge_sort(right, size - middle);
@@ -65,36 +52,24 @@ namespace {
 
 void merge(int *l, int m, int *r, int n, int *result)
 {
-    int lsize = m;
-    int rsize = n;
-    int counter = 0;
+    int *l_end = l + m;
+    int *r_end = r + n;
+    int *out = result;
     cout << "-->> merge: (" << m << "," << n << ")\n";
     dump_array("L", l, m);
     dump_array("R", r, n);
 
-    while (lsize > 0 && rsize > 0)
+    while (l < l_end && r < r_end)
     {
-        if (l[0] <= r[0])
-        {
-            result[counter++] = *l++;
-            lsize--;
-        }
+        if (*l <= *r)
+            *out++ = *l++;
         else
-        {
-            result[counter++] = *r++;
-            rsize--;
-        }
+            *out++ = *r++;
     }
-    while (lsize > 0)
-    {
-        result[counter++] = *l++;
-        lsize--;
-    }
-    while (rsize > 0)
-    {
-        result[counter++] = *r++;
-        rsize--;
-    }
+    while (l < l_end)
+        *out++ = *l++;
+    while (r < r_end)
+        *out++ = *r++;
 
     dump_array("<<-- merge", result, m+n);
 }
