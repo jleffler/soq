@@ -78,44 +78,42 @@ int *merge(int *l, int m, int *r, int n)
     dump_array("L", l, m);
     dump_array("R", r, n);
 
-    while (lsize > 0 || rsize > 0)
+    while (lsize > 0 && rsize > 0)
     {
-        if (lsize > 0 && rsize > 0)
-        {
-            if (l[0] <= r[0])
-            {
-                result[counter] = l[0];
-                cout << "C: " << counter << "; L = " << l[0] << "; LS = " << lsize << '\n';
-                counter++;
-                lsize--;
-                l++;
-            }
-            else
-            {
-                result[counter] = r[0];
-                cout << "C: " << counter << "; R = " << r[0] << "; RS = " << rsize << '\n';
-                counter++;
-                rsize--;
-                r++;
-            }
-        }
-        else if (lsize > 0)
+        if (l[0] <= r[0])
         {
             result[counter] = l[0];
-            cout << "C: " << counter << "; L = " << l[0] << "; LS = " << lsize << '\n';
+            cout << "B-C: " << counter << "; L = " << l[0] << "; LS = " << lsize << '\n';
             counter++;
             lsize--;
             l++;
         }
-        else if (rsize > 0)
+        else
         {
             result[counter] = r[0];
-            cout << "C: " << counter << "; R = " << r[0] << "; RS = " << rsize << '\n';
+            cout << "B-C: " << counter << "; R = " << r[0] << "; RS = " << rsize << '\n';
             counter++;
             rsize--;
             r++;
         }
     }
+    while (lsize > 0)
+    {
+        result[counter] = l[0];
+        cout << "L-C: " << counter << "; L = " << l[0] << "; LS = " << lsize << '\n';
+        counter++;
+        lsize--;
+        l++;
+    }
+    while (rsize > 0)
+    {
+        result[counter] = r[0];
+        cout << "R-C: " << counter << "; R = " << r[0] << "; RS = " << rsize << '\n';
+        counter++;
+        rsize--;
+        r++;
+    }
+
     dump_array("<<-- merge", result, m+n);
     return result;
 }
