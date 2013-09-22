@@ -105,27 +105,32 @@ static void run_command(char **argv, int bg_flag)
 
     if ((pid = fork()) < 0)
         printf("Fork failed\n");
-    else if (pid > 0)
-    {
-        /* Parent shell */
-        if (bg_flag == 0)
-        {
-            wait_for_child(pid, 0);
-            usleep(10000);
-        }
-        else
-        {
-            printf("%d: %s running in background\n", pid, argv[0]);
-            wait_for_child(-1, WNOHANG);
-        }
-    }
-    else
+    else if (pid == 0)
     {
         /* Child process */
         execvp(argv[0], argv);
         fprintf(stderr, "%d: failed to execute %s (%d: %s)",
                 (int)getpid(), argv[0], errno, strerror(errno));
         exit(1);
+    }
+    /* Parent shell */
+    else if (bg_flag == 0)
+    {
+        /*
+        ** (pid, 0) - wait explicitly for given child to complete,
+        ** reporting others that die first too.
+        */
+        wait_for_child(pid, 0);
+        usleep(10000);
+    }
+    else
+    {
+        printf("%d: %s running in background\n", pid, argv[0]);
+        /*
+        ** (-1, WNOHANG) - wait for any background processes that have
+        ** died but return when there are no bodies left to collect.
+        */
+        wait_for_child(-1, WNOHANG);
     }
 }
 
