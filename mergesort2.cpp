@@ -2,9 +2,8 @@
 /* valgrind gives this a clean bill of health */
 
 #include <iostream>
+#include <vector>
 using namespace std;
-
-namespace {
 
 #if !defined(TRACE_ENABLED)
 #define TRACE_ENABLED 0
@@ -30,8 +29,6 @@ void dump_array(const char *tag, T *a, int size)
         cout << '\n';
 }
 
-};
-
 template <typename T>
 void merge_sort(T *a, int size)
 {
@@ -41,8 +38,8 @@ void merge_sort(T *a, int size)
     if (ENABLE_TRACE)
         dump_array("-->> merge_sort", a, size);
     int middle = size/2;
-    T *left = new T[middle];
-    T *right = new T[size - middle];
+    vector<T> left(middle);
+    vector<T> right(size - middle);
 
     for (int i = 0; i < middle; i++)
         left[i] = a[i];
@@ -50,16 +47,12 @@ void merge_sort(T *a, int size)
     for (int j = 0; j < size - middle; j++)
         right[j] = a[j + middle];
 
-    merge_sort(left, middle);
-    merge_sort(right, size - middle);
-    merge(left, middle, right, size - middle, a);
-    delete [] left;
-    delete [] right;
+    merge_sort(left.data(), middle);
+    merge_sort(right.data(), size - middle);
+    merge(left.data(), middle, right.data(), size - middle, a);
     if (ENABLE_TRACE)
         dump_array("<<-- merge_sort", a, size);
 }
-
-namespace {
 
 template <typename T>
 void merge(T *l, int m, T *r, int n, T *result)
@@ -89,8 +82,6 @@ void merge(T *l, int m, T *r, int n, T *result)
     if (ENABLE_TRACE)
         dump_array("<<-- merge", result, m+n);
 }
-
-};
 
 #include <string>
 
