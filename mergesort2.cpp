@@ -6,6 +6,12 @@ using namespace std;
 
 namespace {
 
+#if !defined(TRACE_ENABLED)
+#define TRACE_ENABLED 0
+#endif
+
+enum { ENABLE_TRACE = TRACE_ENABLED };
+
 template <typename T>
 void merge(T *l, int m, T *r, int n, T *result);
 
@@ -32,7 +38,8 @@ void merge_sort(T *a, int size)
     if (size <= 1)
         return;
 
-    dump_array("-->> merge_sort", a, size);
+    if (ENABLE_TRACE)
+        dump_array("-->> merge_sort", a, size);
     int middle = size/2;
     T *left = new T[middle];
     T *right = new T[size - middle];
@@ -48,7 +55,8 @@ void merge_sort(T *a, int size)
     merge(left, middle, right, size - middle, a);
     delete [] left;
     delete [] right;
-    dump_array("<<-- merge_sort", a, size);
+    if (ENABLE_TRACE)
+        dump_array("<<-- merge_sort", a, size);
 }
 
 namespace {
@@ -59,9 +67,12 @@ void merge(T *l, int m, T *r, int n, T *result)
     T *l_end = l + m;
     T *r_end = r + n;
     T *out = result;
-    cout << "-->> merge: (" << m << "," << n << ")\n";
-    dump_array("L", l, m);
-    dump_array("R", r, n);
+    if (ENABLE_TRACE)
+    {
+        cout << "-->> merge: (" << m << "," << n << ")\n";
+        dump_array("L", l, m);
+        dump_array("R", r, n);
+    }
 
     while (l < l_end && r < r_end)
     {
@@ -75,7 +86,8 @@ void merge(T *l, int m, T *r, int n, T *result)
     while (r < r_end)
         *out++ = *r++;
 
-    dump_array("<<-- merge", result, m+n);
+    if (ENABLE_TRACE)
+        dump_array("<<-- merge", result, m+n);
 }
 
 };
@@ -85,31 +97,52 @@ void merge(T *l, int m, T *r, int n, T *result)
 int main()
 {
 
-    for (int i = 1; i <= 10; i++)
+    for (size_t i = 1; i <= 10; i++)
     {
         int array1[] = { 9, 3, 5, 7, 1, 8, 0, 6, 2, 4 };
-        cout << "\nMerge array of size " << i << "\n\n";
-        dump_array("Before", array1, i);
-        merge_sort(array1, i);
-        dump_array("After", array1, i);
+        if (i <= sizeof(array1)/sizeof(array1[0]))
+        {
+            cout << "\nMerge array of type int of size " << i << "\n\n";
+            dump_array("Original", array1, i);
+            merge_sort(array1, i);
+            dump_array("PostSort", array1, i);
+        }
     }
 
-    for (int i = 1; i <= 10; i++)
+    for (size_t i = 1; i <= 10; i++)
     {
         double array2[] = { 9.9, 3.1, 5.2, 7.3, 1.4, 8.5, 0.6, 6.7, 2.8, 4.9 };
-        cout << "\nMerge array of size " << i << "\n\n";
-        dump_array("Before", array2, i);
-        merge_sort(array2, i);
-        dump_array("After", array2, i);
+        if (i <= sizeof(array2)/sizeof(array2[0]))
+        {
+            cout << "\nMerge array of type double of size " << i << "\n\n";
+            dump_array("Original", array2, i);
+            merge_sort(array2, i);
+            dump_array("PostSort", array2, i);
+        }
     }
 
-    for (int i = 1; i <= 10; i++)
+    for (size_t i = 1; i <= 10; i++)
     {
         std::string array3[] = { "nine", "three", "five", "seven", "one", "eight", "zero", "six", "two", "four" };
-        cout << "\nMerge array of size " << i << "\n\n";
-        dump_array("Before", array3, i);
-        merge_sort(array3, i);
-        dump_array("After", array3, i);
+        if (i <= sizeof(array3)/sizeof(array3[0]))
+        {
+            cout << "\nMerge array type std::string of size " << i << "\n\n";
+            dump_array("Original", array3, i);
+            merge_sort(array3, i);
+            dump_array("PostSort", array3, i);
+        }
+    }
+
+    for (size_t i = 1; i <= 10; i++)
+    {
+        char array4[] = "jdfhbiagce";
+        if (i <= sizeof(array4)/sizeof(array4[0]))
+        {
+            cout << "\nMerge array type char of size " << i << "\n\n";
+            dump_array("Original", array4, i);
+            merge_sort(array4, i);
+            dump_array("PostSort", array4, i);
+        }
     }
 
     return 0;
