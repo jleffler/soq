@@ -82,6 +82,23 @@ int main(void)
     return(0);
 }
 
+static void wait_for_child(int pid)
+{
+    int status;
+    int corpse;
+    int flags = WNOHANG;
+    while ((corpse = waitpid(-1, &status, flags)) >= 0)
+    {
+        if (corpse != 0)
+            fprintf(stderr, "Process %d exited with status 0x%.4X\n",
+                    corpse, status);
+        if (corpse == pid)
+            break;
+        if (corpse == 0)
+            flags = 0;;
+    }
+}
+
 static void run_command(char **argv, int bg_flag)
 {
     int pid;
@@ -95,16 +112,7 @@ static void run_command(char **argv, int bg_flag)
         /* Parent shell */
         if (bg_flag == 0)
         {
-            int status;
-            int corpse;
-            while ((corpse = waitpid(-1, &status, WNOHANG)) >= 0)
-            {
-                if (corpse != 0)
-                    fprintf(stderr, "Process %d exited with status 0x%.4X\n",
-                            corpse, status);
-                if (corpse == 0 || corpse == pid)
-                    break;
-            }
+            wait_for_child(pid);
             usleep(10000);
         }
         else
