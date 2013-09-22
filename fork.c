@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -15,8 +14,6 @@ int main(void)
 {
     char line[MAX_LENGTH];
     char *ps1 = "toysh> ";
-
-    //signal(SIGCHLD, SIG_DFL);
 
     while (fputs(ps1, stdout) > 0 && fgets(line, sizeof(line), stdin) != NULL)
     {
@@ -82,20 +79,21 @@ int main(void)
     return(0);
 }
 
-static void wait_for_child(int pid)
+/* Wait for a specific child to die, collecting any other corpses as we go */
+/*
+** waitpid() returns 0 with WNOHANG and no children already dead but some
+** children to wait for.
+*/
+static void wait_for_child(int pid, int flags)
 {
     int status;
     int corpse;
-    int flags = WNOHANG;
-    while ((corpse = waitpid(-1, &status, flags)) >= 0)
+    while ((corpse = waitpid(-1, &status, flags)) > 0)
     {
-        if (corpse != 0)
-            fprintf(stderr, "Process %d exited with status 0x%.4X\n",
-                    corpse, status);
+        fprintf(stderr, "Process %d exited with status 0x%.4X\n",
+                corpse, status);
         if (corpse == pid)
             break;
-        if (corpse == 0)
-            flags = 0;;
     }
 }
 
@@ -112,11 +110,14 @@ static void run_command(char **argv, int bg_flag)
         /* Parent shell */
         if (bg_flag == 0)
         {
-            wait_for_child(pid);
+            wait_for_child(pid, 0);
             usleep(10000);
         }
         else
+        {
             printf("%d: %s running in background\n", pid, argv[0]);
+            wait_for_child(-1, WNOHANG);
+        }
     }
     else
     {
