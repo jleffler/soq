@@ -29,12 +29,29 @@ LDLIBS  =  ${LDLIB1}
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
-all:
+null:
 	@echo "You must specify a target to build"
+
+PROGRAMS = \
+	${MERGELIST} \
+	keysort1 \
+	keysort2 \
+	merge \
+	mergesort \
+	mergesort2 \
+	sorttest
+
+all: ${PROGRAMS}
+
+MERGELIST.o = list.o mergelist.o
+MERGELIST   = mergelist
+
+${MERGELIST}: ${FILES.o}
+	${CC} -o $@ ${CFLAGS} ${FILES.o} ${LDFLAGS} ${LDLIBS}
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
 	${RM_FR} ${PROG} ${PROG}.*
 
 clean:
-	${RM_FR} *.o *.dSYM core a.out
+	${RM_FR} *.o *.dSYM core a.out ${PROGRAMS}
