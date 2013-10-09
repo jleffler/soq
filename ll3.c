@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,6 +17,7 @@ int main(void)
 
     for (int i = 1; i < 5; i++)
         insert_node(&head, i*i);
+    insert_node(&head, 0);
     insert_node(&head, 0);
     insert_node(&head, 7);
     insert_node(&head, 7);
@@ -51,41 +53,42 @@ void insert_node(struct node **phead, int n)
 
     if (head == NULL)
     {
-        printf("Case 1\n");
+        printf("Case 1: create (%d)\n", n);
         // case one: list is empty - point head to N, and set N.link to NULL
         *phead = node;
     }
     else if (n < head->data)
     {
-        printf("Case 2\n");
+        printf("Case 2: before (%d)\n", n);
         // case two: n is less than first element in the list:
         node->link = head;
         *phead = node;
     }
     else
     {
+        prev = NULL;
         next = head;
-
-        // case three: N.data is equal to existing element, do nothing:
 
         while (next != NULL)
         {
             if (n == next->data)
             {
-                printf("Case 3: %d == %d\n", n, next->data);
-                printf("this element already exists.\n\n");
+                // case three: N.data is equal to existing element, do nothing:
+                printf("Case 3: double (%d)\n", n);
                 free(node);
                 return;
             }
+            //if (n < next->data)
+            //    break;
             prev = next;        // save the current element
             next = next->link;  // look at the next element
         }
 
-        // case four: N.data is greater than last element:
-
+        assert(prev != NULL);
         if (n > prev->data)
         {
-            printf("Case 4\n");
+            // case four: N.data is greater than last element:
+            printf("Case 4: append (%d)\n", n);
             prev->link = node;
             return;
         }
@@ -94,7 +97,7 @@ void insert_node(struct node **phead, int n)
 
         next = head;
 
-        printf("Case 5\n");
+        printf("Case 5: insert (%d)\n", n);
         while (next != NULL)
         {
             prev_data = next->data; // save the current element
