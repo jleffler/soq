@@ -2,6 +2,12 @@
 #include <stdio.h>
 
 static int visited[64];
+typedef struct Link
+{
+    int from;
+    int to;
+} Link;
+static Link links[64];
 
 struct Node
 {
@@ -11,21 +17,21 @@ struct Node
 
 typedef void (*Print)(struct Node *p);
 
-static void prt_path_r(struct Node *p)
+static void prt_fwd_path_r(struct Node *p)
 {
+    char *pad = "";
     assert(p != 0);
-    if (p->prev == NULL)
-        printf("%d", p->node + 1);
-    else
+    if (p->prev != NULL)
     {
-        prt_path_r(p->prev);
-        printf("->%d", p->node + 1);
+        prt_fwd_path_r(p->prev);
+        pad = " ->";
     }
+    printf("%s %d (%d:%d)", pad, p->node + 1, links[p->node].from, links[p->node].to);
 }
 
 static void prt_fwd_path(struct Node *p)
 {
-    prt_path_r(p);
+    prt_fwd_path_r(p);
     putchar('\n');
 }
 
@@ -128,6 +134,8 @@ static void mark_edges(int n, int paths[n][n], int nodes[n][n])
             }
             else
             {
+                links[pathnum].from = i + 1;
+                links[pathnum].to   = j + 1;
                 pathnum++;
                 nodes[i][j] = pathnum;
                 nodes[j][i] = pathnum;
