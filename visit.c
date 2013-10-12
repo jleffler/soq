@@ -2,16 +2,11 @@
 #include <stdio.h>
 
 static int visited[64];
-typedef struct Link
-{
-    int from;
-    int to;
-} Link;
-static Link links[64];
 
 struct Node
 {
     int node;
+    int edge;
     struct Node *prev;
 };
 
@@ -26,7 +21,7 @@ static void prt_fwd_path_r(struct Node *p)
         prt_fwd_path_r(p->prev);
         pad = " ->";
     }
-    printf("%s %d (%d:%d)", pad, p->node + 1, links[p->node].from, links[p->node].to);
+    printf("%s %d (E-%d)", pad, p->node + 1, p->edge);
 }
 
 static void prt_fwd_path(struct Node *p)
@@ -45,9 +40,9 @@ static void prt_rev_path(struct Node *p)
     }
 }
 
-static void visit(int node, struct Node *prev_node, int size, int edges[size][size], int end, Print prt_path)
+static void visit1(int node, struct Node *prev_node, int size, int edges[size][size], int end, Print prt_path)
 {
-    struct Node n = { node, prev_node };
+    struct Node n = { node, 0, prev_node };
     struct Node *p = &n;
 
     printf("-->> %s (%d)\n", __func__, node);
@@ -63,9 +58,38 @@ static void visit(int node, struct Node *prev_node, int size, int edges[size][si
         for (int i = 0; i < size; ++i)
         {
             if (visited[i] == 0 && edges[node][i] != 0)
-                visit(i, &n, size, edges, end, prt_path);
+                visit1(i, &n, size, edges, end, prt_path);
         }
         visited[node] = 0;
+    }
+    printf("<<-- %s\n", __func__);
+}
+
+static void visit2(int node, struct Node *prev_node, int size, int edges[size][size], int end, Print prt_path, int *traversed)
+{
+    struct Node n = { node, 0, prev_node };
+    struct Node *p = &n;
+
+    printf("-->> %s (%d)\n", __func__, node);
+    if (node == end)
+    {
+        printf("Solution: ");
+        prt_path(p);
+    }
+    else
+    {
+        prt_path(p);
+        for (int i = 0; i < size; ++i)
+        {
+            int e = edges[node][i];
+            if (e != 0 && traversed[e] == 0)
+            {
+                traversed[e] = 1;
+                n.edge = e;
+                visit2(i, &n, size, edges, end, prt_path, traversed);
+                traversed[e] = 0;
+            }
+        }
     }
     printf("<<-- %s\n", __func__);
 }
@@ -120,7 +144,7 @@ static void dump_array(char const *fmt, int size, int edges[size][size])
     }
 }
 
-static void mark_edges(int n, int paths[n][n], int nodes[n][n])
+static void mark_matrix(int n, int paths[n][n], int nodes[n][n])
 {
     int pathnum = 0;
     for (int i = 0; i < n; i++)
@@ -134,8 +158,6 @@ static void mark_edges(int n, int paths[n][n], int nodes[n][n])
             }
             else
             {
-                links[pathnum].from = i + 1;
-                links[pathnum].to   = j + 1;
                 pathnum++;
                 nodes[i][j] = pathnum;
                 nodes[j][i] = pathnum;
@@ -144,6 +166,7 @@ static void mark_edges(int n, int paths[n][n], int nodes[n][n])
     }
 }
 
+#if 0
 static void mark_connections(int prow, int pcol,
                              int npaths, int paths[npaths][npaths],
                              int nedges, int edges[nedges][nedges])
@@ -177,13 +200,15 @@ static void mark_connections(int prow, int pcol,
         }
     }
 }
+#endif /* 0 */
 
+#if 0
 static void map_paths_edges(int npaths, int paths[npaths][npaths],
                             int nedges, int edges[nedges][nedges])
 {
     int nodes[npaths][npaths];
 
-    mark_edges(npaths, paths, nodes);
+    mark_matrix(npaths, paths, nodes);
     puts("Path numbers:");
     dump_array(" %2d", npaths, nodes);
 
@@ -196,6 +221,7 @@ static void map_paths_edges(int npaths, int paths[npaths][npaths],
         }
     }
 }
+#endif /* 0 */
 
 static void zero_array(int n, int a[n][n])
 {
@@ -206,9 +232,16 @@ static void zero_array(int n, int a[n][n])
     }
 }
 
+static void zero_vector(int n, int v[n])
+{
+    for (int i = 0; i < n; i++)
+        v[i] = 0;
+}
+
 int main(void)
 {
-    int paths[12][12] =
+    enum { N = 12 };
+    int paths[N][N] =
     {
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -227,23 +260,25 @@ int main(void)
     if (1 == 0)
     {
         puts("Stage 1:");
-        chk_array_properties("paths", 12, paths);
-        dump_array(" %d", 12, paths);
-        prt_links(12, paths);
-        visit(0, NULL, 12, paths, 11, prt_rev_path);
+        chk_array_properties("paths", N, paths);
+        dump_array(" %d", N, paths);
+        prt_links(N, paths);
+        visit1(0, NULL, N, paths, 11, prt_rev_path);
     }
 
     if (1 == 1)
     {
         puts("Stage 2:");
-        int n = count_edges(12, paths);
-        int edges[n][n];
-        zero_array(n, edges);
-        map_paths_edges(12, paths, n, edges);
-        dump_array(" %4d", n, edges);
-        chk_array_properties("edges", n, edges);
-        prt_links(n, edges);
-        visit(0, NULL, n, edges, n-1, prt_fwd_path);
+        int matrix[N][N];
+        int nedges = count_edges(N, paths);
+        int edges[nedges + 1];
+        zero_array(N, matrix);
+        zero_vector(nedges + 1, edges);
+        mark_matrix(N, paths, matrix);
+        dump_array(" %2d", N, matrix);
+        chk_array_properties("matrix", N, matrix);
+        prt_links(N, matrix);
+        visit2(0, NULL, N, matrix, N-1, prt_fwd_path, edges);
     }
 
     return 0;
