@@ -9,6 +9,8 @@ struct Node
     struct Node *prev;
 };
 
+typedef void (*Print)(struct Node *p);
+
 static void prt_path_r(struct Node *p)
 {
     assert(p != 0);
@@ -21,18 +23,28 @@ static void prt_path_r(struct Node *p)
     }
 }
 
-static void prt_path(struct Node *p)
+static void prt_fwd_path(struct Node *p)
 {
     prt_path_r(p);
     putchar('\n');
 }
 
-static void visit(int node, struct Node *prev_node, int size, int edges[size][size], int end)
+static void prt_rev_path(struct Node *p)
+{
+    assert(p != 0);
+    while (p != 0)
+    {
+        printf("%d%s", p->node + 1, (p->prev == 0) ? "\n" : "->");
+        p = p->prev;
+    }
+}
+
+static void visit(int node, struct Node *prev_node, int size, int edges[size][size], int end, Print prt_path)
 {
     struct Node n = { node, prev_node };
     struct Node *p = &n;
 
-    printf("-->> %s\n", __func__);
+    printf("-->> %s (%d)\n", __func__, node);
     if (node == end)
     {
         printf("Solution: ");
@@ -44,8 +56,8 @@ static void visit(int node, struct Node *prev_node, int size, int edges[size][si
         visited[node] = 1;
         for (int i = 0; i < size; ++i)
         {
-            if ((visited[i] == 0) && (edges[node][i] == 1))
-                visit(i, &n, size, edges, end);
+            if (visited[i] == 0 && edges[node][i] != 0)
+                visit(i, &n, size, edges, end, prt_path);
         }
         visited[node] = 0;
     }
@@ -204,21 +216,27 @@ int main(void)
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
     };
 
-    puts("Stage 1:");
-    chk_array_properties("paths", 12, paths);
-    dump_array(" %d", 12, paths);
-    prt_links(12, paths);
-    visit(0, NULL, 12, paths, 11);
+    if (1 == 0)
+    {
+        puts("Stage 1:");
+        chk_array_properties("paths", 12, paths);
+        dump_array(" %d", 12, paths);
+        prt_links(12, paths);
+        visit(0, NULL, 12, paths, 11, prt_rev_path);
+    }
 
-    puts("Stage 2:");
-    int n = count_edges(12, paths);
-    int edges[n][n];
-    zero_array(n, edges);
-    map_paths_edges(12, paths, n, edges);
-    dump_array(" %4d", n, edges);
-    chk_array_properties("edges", n, edges);
-    prt_links(n, edges);
-    visit(0, NULL, n, edges, n-1);
+    if (1 == 1)
+    {
+        puts("Stage 2:");
+        int n = count_edges(12, paths);
+        int edges[n][n];
+        zero_array(n, edges);
+        map_paths_edges(12, paths, n, edges);
+        dump_array(" %4d", n, edges);
+        chk_array_properties("edges", n, edges);
+        prt_links(n, edges);
+        visit(0, NULL, n, edges, n-1, prt_fwd_path);
+    }
 
     return 0;
 }
