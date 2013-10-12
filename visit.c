@@ -1,14 +1,14 @@
 #include <assert.h>
 #include <stdio.h>
 
-static int visited[64];
-
 struct Node
 {
     int node;
     int edge;
     struct Node *prev;
 };
+
+static int num_solutions = 0;
 
 typedef void (*Print)(struct Node *p);
 
@@ -21,7 +21,7 @@ static void prt_fwd_path_r(struct Node *p)
         prt_fwd_path_r(p->prev);
         pad = " ->";
     }
-    printf("%s %d (E-%d)", pad, p->node + 1, p->edge);
+    printf("%s N%d (E%d)", pad, p->node + 1, p->edge);
 }
 
 static void prt_fwd_path(struct Node *p)
@@ -30,17 +30,7 @@ static void prt_fwd_path(struct Node *p)
     putchar('\n');
 }
 
-static void prt_rev_path(struct Node *p)
-{
-    assert(p != 0);
-    while (p != 0)
-    {
-        printf("%d%s", p->node + 1, (p->prev == 0) ? "\n" : "->");
-        p = p->prev;
-    }
-}
-
-static void visit1(int node, struct Node *prev_node, int size, int edges[size][size], int end, Print prt_path)
+static void visit2(int node, struct Node *prev_node, int size, int edges[size][size], int end, int *traversed)
 {
     struct Node n = { node, 0, prev_node };
     struct Node *p = &n;
@@ -48,37 +38,12 @@ static void visit1(int node, struct Node *prev_node, int size, int edges[size][s
     printf("-->> %s (%d)\n", __func__, node);
     if (node == end)
     {
-        printf("Solution: ");
-        prt_path(p);
+        printf("Solution %d: ", ++num_solutions);
+        prt_fwd_path(p);
     }
     else
     {
-        prt_path(p);
-        visited[node] = 1;
-        for (int i = 0; i < size; ++i)
-        {
-            if (visited[i] == 0 && edges[node][i] != 0)
-                visit1(i, &n, size, edges, end, prt_path);
-        }
-        visited[node] = 0;
-    }
-    printf("<<-- %s\n", __func__);
-}
-
-static void visit2(int node, struct Node *prev_node, int size, int edges[size][size], int end, Print prt_path, int *traversed)
-{
-    struct Node n = { node, 0, prev_node };
-    struct Node *p = &n;
-
-    printf("-->> %s (%d)\n", __func__, node);
-    if (node == end)
-    {
-        printf("Solution: ");
-        prt_path(p);
-    }
-    else
-    {
-        prt_path(p);
+        prt_fwd_path(p);
         for (int i = 0; i < size; ++i)
         {
             int e = edges[node][i];
@@ -86,7 +51,7 @@ static void visit2(int node, struct Node *prev_node, int size, int edges[size][s
             {
                 traversed[e] = 1;
                 n.edge = e;
-                visit2(i, &n, size, edges, end, prt_path, traversed);
+                visit2(i, &n, size, edges, end, traversed);
                 traversed[e] = 0;
             }
         }
@@ -166,63 +131,6 @@ static void mark_matrix(int n, int paths[n][n], int nodes[n][n])
     }
 }
 
-#if 0
-static void mark_connections(int prow, int pcol,
-                             int npaths, int paths[npaths][npaths],
-                             int nedges, int edges[nedges][nedges])
-{
-    int code = 100 * (prow + 1) + (pcol + 1);
-    assert(pcol != prow);
-    int r1 = paths[prow][pcol] - 1;
-    assert(r1 >= 0 && r1 < nedges);
-
-    /* First record paths to the right on this row */
-    for (int i = pcol + 1; i < npaths; i++)
-    {
-        int r2;
-        if ((r2 = paths[prow][i] - 1) >= 0)
-        {
-            assert(r2 >= 0 && r2 < nedges);
-            edges[r1][r2] = code;
-            edges[r2][r1] = code;
-        }
-    }
-
-    /* Second record paths below in this column */
-    for (int i = prow + 1; i < npaths; i++)
-    {
-        int r2;
-        if ((r2 = paths[i][pcol] - 1) >= 0)
-        {
-            assert(r2 >= 0 && r2 < nedges);
-            edges[r1][r2] = code;
-            edges[r2][r1] = code;
-        }
-    }
-}
-#endif /* 0 */
-
-#if 0
-static void map_paths_edges(int npaths, int paths[npaths][npaths],
-                            int nedges, int edges[nedges][nedges])
-{
-    int nodes[npaths][npaths];
-
-    mark_matrix(npaths, paths, nodes);
-    puts("Path numbers:");
-    dump_array(" %2d", npaths, nodes);
-
-    for (int i = 0; i < npaths; i++)
-    {
-        for (int j = i; j < npaths; j++)
-        {
-            if (nodes[i][j] != 0)
-                mark_connections(i, j, npaths, nodes, nedges, edges);
-        }
-    }
-}
-#endif /* 0 */
-
 static void zero_array(int n, int a[n][n])
 {
     for (int i = 0; i < n; i++)
@@ -257,29 +165,18 @@ int main(void)
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
     };
 
-    if (1 == 0)
-    {
-        puts("Stage 1:");
-        chk_array_properties("paths", N, paths);
-        dump_array(" %d", N, paths);
-        prt_links(N, paths);
-        visit1(0, NULL, N, paths, 11, prt_rev_path);
-    }
-
-    if (1 == 1)
-    {
-        puts("Stage 2:");
-        int matrix[N][N];
-        int nedges = count_edges(N, paths);
-        int edges[nedges + 1];
-        zero_array(N, matrix);
-        zero_vector(nedges + 1, edges);
-        mark_matrix(N, paths, matrix);
-        dump_array(" %2d", N, matrix);
-        chk_array_properties("matrix", N, matrix);
-        prt_links(N, matrix);
-        visit2(0, NULL, N, matrix, N-1, prt_fwd_path, edges);
-    }
+    int matrix[N][N];
+    int nedges = count_edges(N, paths);
+    int edges[nedges + 1];
+    zero_array(N, matrix);
+    zero_vector(nedges + 1, edges);
+    mark_matrix(N, paths, matrix);
+    puts("Edges numbered:");
+    dump_array(" %2d", N, matrix);
+    chk_array_properties("matrix", N, matrix);
+    prt_links(N, matrix);
+    visit2(0, NULL, N, matrix, N-1, edges);
+    printf("%d Solutions found\n", num_solutions);
 
     return 0;
 }
