@@ -52,15 +52,17 @@ static void visit(int node, struct Node *prev_node, int size, int edges[size][si
     printf("<<-- %s\n", __func__);
 }
 
-static void chk_symmetry(int size, int edges[size][size])
+static void chk_array_properties(char const *tag, int n, int a[n][n])
 {
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < size; j++)
+        for (int j = 0; j < n; j++)
         {
-            if (edges[i][j] != edges[j][i])
-                printf("E[%d,%d] = %d, E[%d,%d] = %d\n", i, j, edges[i][j], j, i, edges[j][i]);
+            if (a[i][j] != a[j][i])
+                printf("E[%d,%d] = %d, E[%d,%d] = %d\n", i, j, a[i][j], j, i, a[j][i]);
         }
+        if (a[i][i] != 0)
+            fprintf(stderr, "%s[%d][%d] != 0\n", tag, i, i);
     }
 }
 
@@ -76,7 +78,7 @@ static void prt_links(int size, int edges[size][size])
     }
 }
 
-static int cnt_edges(int size, int edges[size][size])
+static int count_edges(int size, int edges[size][size])
 {
     int count = 0;
     for (int i = 0; i < size; i++)
@@ -90,29 +92,68 @@ static int cnt_edges(int size, int edges[size][size])
     return count;
 }
 
-static void mark_connections(int prow, int pcol, int erow,
+static void dump_array(char const *fmt, int size, int edges[size][size])
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+            printf(fmt, edges[i][j]);
+        putchar('\n');
+    }
+}
+
+static void mark_edges(int n, int paths[n][n], int nodes[n][n])
+{
+    int pathnum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = i; j < n; j++)
+        {
+            if (paths[i][j] == 0)
+            {
+                nodes[i][j] = 0;
+                nodes[j][i] = 0;
+            }
+            else
+            {
+                pathnum++;
+                nodes[i][j] = pathnum;
+                nodes[j][i] = pathnum;
+            }
+        }
+    }
+}
+
+static void mark_connections(int prow, int pcol,
                              int npaths, int paths[npaths][npaths],
                              int nedges, int edges[nedges][nedges])
 {
     int code = 100 * (prow + 1) + (pcol + 1);
-    int ecol = 0;
-    assert(erow < nedges);
     assert(pcol != prow);
-    for (int i = 0; i < npaths; i++)
+    int r1 = paths[prow][pcol] - 1;
+    assert(r1 >= 0 && r1 < nedges);
+
+    /* First record paths to the right on this row */
+    for (int i = pcol + 1; i < npaths; i++)
     {
-        for (int j = i; j < npaths; j++)
+        int r2;
+        if ((r2 = paths[prow][i] - 1) >= 0)
         {
-            if (paths[i][j] != 0)
-            {
-                assert(ecol < nedges);
-                if (i == prow || j == pcol)
-                {
-                    assert(erow != ecol);
-                    edges[erow][ecol] = code;
-                    edges[ecol][erow] = code;
-                }
-                ecol++;
-            }
+            assert(r2 >= 0 && r2 < nedges);
+            edges[r1][r2] = code;
+            edges[r2][r1] = code;
+        }
+    }
+
+    /* Second record paths below in this column */
+    for (int i = prow + 1; i < npaths; i++)
+    {
+        int r2;
+        if ((r2 = paths[i][pcol] - 1) >= 0)
+        {
+            assert(r2 >= 0 && r2 < nedges);
+            edges[r1][r2] = code;
+            edges[r2][r1] = code;
         }
     }
 }
@@ -120,13 +161,18 @@ static void mark_connections(int prow, int pcol, int erow,
 static void map_paths_edges(int npaths, int paths[npaths][npaths],
                             int nedges, int edges[nedges][nedges])
 {
-    int pathnum = 0;
+    int nodes[npaths][npaths];
+
+    mark_edges(npaths, paths, nodes);
+    puts("Path numbers:");
+    dump_array(" %2d", npaths, nodes);
+
     for (int i = 0; i < npaths; i++)
     {
         for (int j = i; j < npaths; j++)
         {
-            if (paths[i][j] != 0)
-                mark_connections(i, j, pathnum++, npaths, paths, nedges, edges);
+            if (nodes[i][j] != 0)
+                mark_connections(i, j, npaths, nodes, nedges, edges);
         }
     }
 }
@@ -137,25 +183,6 @@ static void zero_array(int n, int a[n][n])
     {
         for (int j = 0; j < n; j++)
             a[i][j] = 0;
-    }
-}
-
-static void chk_zero_diagonal(char const *tag, int n, int a[n][n])
-{
-    for (int i = 0; i < n; i++)
-    {
-        if (a[i][i] != 0)
-            fprintf(stderr, "%s[%d][%d] != 0\n", tag, i, i);
-    }
-}
-
-static void dump_array(char const *fmt, int size, int edges[size][size])
-{
-    for (int i = 0; i < size; i++)
-    {
-        for (int j = 0; j < size; j++)
-            printf(fmt, edges[i][j]);
-        putchar('\n');
     }
 }
 
@@ -178,20 +205,18 @@ int main(void)
     };
 
     puts("Stage 1:");
-    chk_symmetry(12, paths);
-    chk_zero_diagonal("paths", 12, paths);
+    chk_array_properties("paths", 12, paths);
     dump_array(" %d", 12, paths);
     prt_links(12, paths);
     visit(0, NULL, 12, paths, 11);
 
     puts("Stage 2:");
-    int n = cnt_edges(12, paths);
+    int n = count_edges(12, paths);
     int edges[n][n];
     zero_array(n, edges);
     map_paths_edges(12, paths, n, edges);
     dump_array(" %4d", n, edges);
-    chk_symmetry(n, edges);
-    chk_zero_diagonal("edges", n, edges);
+    chk_array_properties("edges", n, edges);
     prt_links(n, edges);
     visit(0, NULL, n, edges, n-1);
 
