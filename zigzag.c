@@ -2,40 +2,49 @@
 
 #include <stdio.h>
 
-void fonc(int tab2[8][8], int vect[8]);
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) > (b) ? (b) : (a))
 
-void fonc(int tab2[8][8], int vect[8])
+static void dezigzag(int out[64], int in[8][8])
 {
-    static const struct ZigZag
+    int n = 0;
+    for (int diag = 0; diag < 15; diag++)
     {
-        unsigned char y, x;
-    } zigzag[8*8] =
-    {
-        { 0, 0 }, { 1, 0 }, { 0, 1 }, { 0, 2 },
-        { 1, 1 }, { 2, 0 }, { 3, 0 }, { 2, 1 },
-        { 1, 2 }, { 0, 3 }, { 0, 4 }, { 1, 3 },
-        { 2, 2 }, { 3, 1 }, { 4, 0 }, { 5, 0 },
-        { 4, 1 }, { 3, 2 }, { 2, 3 }, { 1, 4 },
-        { 0, 5 }, { 0, 6 }, { 1, 5 }, { 2, 4 },
-        { 3, 3 }, { 4, 2 }, { 5, 1 }, { 6, 0 },
-        { 7, 0 }, { 6, 1 }, { 5, 2 }, { 4, 3 },
-        { 3, 4 }, { 2, 5 }, { 1, 6 }, { 0, 7 },
-        { 1, 7 }, { 2, 6 }, { 3, 5 }, { 4, 4 },
-        { 5, 3 }, { 6, 2 }, { 7, 1 }, { 7, 2 },
-        { 6, 3 }, { 5, 4 }, { 4, 5 }, { 3, 6 },
-        { 2, 7 }, { 3, 7 }, { 4, 6 }, { 5, 5 },
-        { 6, 4 }, { 7, 3 }, { 7, 4 }, { 6, 5 },
-        { 5, 6 }, { 4, 7 }, { 5, 7 }, { 6, 6 },
-        { 7, 5 }, { 7, 6 }, { 6, 7 }, { 7, 7 },
-    };
-
-    for (int i = 0; i < 64; i++)
-        vect[i] = tab2[zigzag[i].x][zigzag[i].y];
+        for (int i = max(0, diag - 7); i <= min(7, diag); i++)
+            out[n++] = diag % 2 ? in[diag - i][i] : in[i][diag - i];
+    }
 }
 
 int main(void)
 {
-    int vect[64];
+    int out[64] = {-1};
+    int in[8][8];
+
+    for (int i = 0; i < 64; i++)
+        in[i % 8][i / 8] = i;
+
+    puts("Matrix:");
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+            printf("%3d", in[i][j]);
+        putchar('\n');
+    }
+
+    dezigzag(out, in);
+
+    puts("Vector:");
+    for (int i = 0; i < 8 * 8; i++)
+    {
+        printf("%3d", out[i]);
+        if (i % 8 == 7)
+            putchar('\n');
+    }
+
+    //for (int i = 0; i < 64; i++) {
+    //    printf("%d: %d\n", i, out[i]);
+    //}
+
     int tab2[8][8] =
     {
         {  1,  2,  6,  7, 15, 16, 28, 29 },
@@ -56,12 +65,12 @@ int main(void)
         putchar('\n');
     }
 
-    fonc(tab2, vect);
+    dezigzag(out, tab2);
 
     puts("Vector:");
     for (int i = 0; i < 8 * 8; i++)
     {
-        printf("%3d", vect[i]);
+        printf("%3d", out[i]);
         if (i % 8 == 7)
             putchar('\n');
     }
