@@ -8,10 +8,15 @@
 static void dezigzag(int out[64], int in[8][8])
 {
     int n = 0;
-    for (int diag = 0; diag < 15; diag++)
+    for (int diag = 0; diag < (8 + 8 - 1); diag++)
     {
         for (int i = max(0, diag - 7); i <= min(7, diag); i++)
-            out[n++] = diag % 2 ? in[diag - i][i] : in[i][diag - i];
+        {
+            int x = diag % 2 == 0 ? i      : diag-i;
+            int y = diag % 2 == 0 ? diag-i : i;
+            printf("v[%2d] = m[%d][%d] = %2d (D = %2d)\n", n, y, x, in[y][x], diag);
+            out[n++] = diag % 2 == 0 ? in[diag - i][i] : in[i][diag - i];
+        }
     }
 }
 
