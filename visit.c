@@ -1,5 +1,6 @@
-#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 struct Node
 {
@@ -8,14 +9,12 @@ struct Node
     struct Node *prev;
 };
 
+static int vflag = 0;
 static int num_solutions = 0;
-
-typedef void (*Print)(struct Node *p);
 
 static void prt_fwd_path_r(struct Node *p)
 {
     char *pad = "";
-    assert(p != 0);
     if (p->prev != NULL)
     {
         prt_fwd_path_r(p->prev);
@@ -35,7 +34,7 @@ static void visit2(int node, struct Node *prev_node, int size, int edges[size][s
     struct Node n = { node, 0, prev_node };
     struct Node *p = &n;
 
-    printf("-->> %s (%d)\n", __func__, node);
+    if (vflag) printf("-->> %s (%d)\n", __func__, node);
     if (node == end)
     {
         printf("Solution %d: ", ++num_solutions);
@@ -43,7 +42,7 @@ static void visit2(int node, struct Node *prev_node, int size, int edges[size][s
     }
     else
     {
-        prt_fwd_path(p);
+        if (vflag) prt_fwd_path(p);
         for (int i = 0; i < size; ++i)
         {
             int e = edges[node][i];
@@ -56,7 +55,7 @@ static void visit2(int node, struct Node *prev_node, int size, int edges[size][s
             }
         }
     }
-    printf("<<-- %s\n", __func__);
+    if (vflag) printf("<<-- %s\n", __func__);
 }
 
 static void chk_array_properties(char const *tag, int n, int a[n][n])
@@ -66,21 +65,24 @@ static void chk_array_properties(char const *tag, int n, int a[n][n])
         for (int j = 0; j < n; j++)
         {
             if (a[i][j] != a[j][i])
-                printf("E[%d,%d] = %d, E[%d,%d] = %d\n", i, j, a[i][j], j, i, a[j][i]);
+                fprintf(stderr, "Broken symmetry: %s[%d,%d] = %d, %s[%d,%d] = %d\n",
+                        tag, i, j, a[i][j], tag, j, i, a[j][i]);
         }
         if (a[i][i] != 0)
-            fprintf(stderr, "%s[%d][%d] != 0\n", tag, i, i);
+            fprintf(stderr, "Non-zero leading diagonal: %s[%d][%d] == %d\n",
+                    tag, i, i, a[i][i]);
     }
 }
 
 static void prt_links(int size, int edges[size][size])
 {
+    int edge_num = 0;
     for (int i = 0; i < size; i++)
     {
         for (int j = i; j < size; j++)
         {
             if (edges[i][j])
-                printf("%d -> %d\n", i+1, j+1);
+                printf("%2d: %d -> %d\n", ++edge_num, i+1, j+1);
         }
     }
 }
@@ -146,7 +148,13 @@ static void zero_vector(int n, int v[n])
         v[i] = 0;
 }
 
-int main(void)
+static void usage(char const *arg0)
+{
+    fprintf(stderr, "Usage: %s [-v]\n", arg0);
+    exit(1);
+}
+
+int main(int argc, char **argv)
 {
     enum { N = 12 };
     int paths[N][N] =
@@ -164,6 +172,25 @@ int main(void)
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
     };
+    int opt;
+
+    while ((opt = getopt(argc, argv, "v")) != -1)
+    {
+        switch (opt)
+        {
+        case 'v':
+            vflag = 1;
+            break;
+        default:
+            usage(argv[0]);
+            break;
+        }
+    }
+    if (optind != argc)
+        usage(argv[0]);
+    puts("Connections:");
+    dump_array(" %2d", N, paths);
+    chk_array_properties("paths", N, paths);
 
     int matrix[N][N];
     int nedges = count_edges(N, paths);
@@ -174,6 +201,7 @@ int main(void)
     puts("Edges numbered:");
     dump_array(" %2d", N, matrix);
     chk_array_properties("matrix", N, matrix);
+    puts("Edges enumerated:");
     prt_links(N, matrix);
     visit2(0, NULL, N, matrix, N-1, edges);
     printf("%d Solutions found\n", num_solutions);
