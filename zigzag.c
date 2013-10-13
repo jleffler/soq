@@ -2,83 +2,53 @@
 
 #include <stdio.h>
 
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define min(a, b) ((a) > (b) ? (b) : (a))
+static inline int max(int a, int b) { return (a > b) ? a : b; }
+static inline int min(int a, int b) { return (a < b) ? a : b; }
 
-static void dezigzag(int out[64], int in[8][8])
+static void print_info(int r, int c)
 {
-    int n = 0;
-    for (int diag = 0; diag < (8 + 8 - 1); diag++)
+    int n = r + c - 1;
+    printf("R = %d, C = %d, N = %d\n", r, c, n);
+    for (int i = 0; i < n; i++)
     {
-        for (int i = max(0, diag - 7); i <= min(7, diag); i++)
+        /*
+        int max_x = min(i, c-1);
+        int min_x = max(0, i - n + c);
+        int max_y = min(i, r-1);
+        int min_y = max(0, i - n + r);
+        printf("i = %d, min_x = %d, max_x = %d, min_y = %d, max_y = %d\n",
+                i, min_x, max_x, min_y, max_y);
+        */
+        printf("%d:", i);
+        if (i % 2 == 0)
         {
-            int x = diag % 2 == 0 ? i      : diag-i;
-            int y = diag % 2 == 0 ? diag-i : i;
-            printf("v[%2d] = m[%d][%d] = %2d (D = %2d)\n", n, y, x, in[y][x], diag);
-            out[n++] = diag % 2 == 0 ? in[diag - i][i] : in[i][diag - i];
+            int max_x = min(i, c-1);
+            int min_x = max(0, i - n + c);
+            for (int j = min_x; j <= max_x; j++)
+                printf(" (%d,%d)", j, i - j);
         }
+        else
+        {
+            int max_y = min(i, r-1);
+            int min_y = max(0, i - n + r);
+            for (int j = min_y; j <= max_y; j++)
+                printf(" (%d,%d)", i - j, j);
+        }
+        putchar('\n');
     }
+
 }
 
 int main(void)
 {
-    int out[64] = {-1};
-    int in[8][8];
-
-    for (int i = 0; i < 64; i++)
-        in[i % 8][i / 8] = i;
-
-    puts("Matrix:");
-    for (int i = 0; i < 8; i++)
+    struct test
     {
-        for (int j = 0; j < 8; j++)
-            printf("%3d", in[i][j]);
-        putchar('\n');
-    }
+        int rows;
+        int cols;
+    } tests[] = { { 4, 4 }, { 6, 4 }, { 4, 7 } };
 
-    dezigzag(out, in);
-
-    puts("Vector:");
-    for (int i = 0; i < 8 * 8; i++)
-    {
-        printf("%3d", out[i]);
-        if (i % 8 == 7)
-            putchar('\n');
-    }
-
-    //for (int i = 0; i < 64; i++) {
-    //    printf("%d: %d\n", i, out[i]);
-    //}
-
-    int tab2[8][8] =
-    {
-        {  1,  2,  6,  7, 15, 16, 28, 29 },
-        {  3,  5,  8, 14, 17, 27, 30, 43 },
-        {  4,  9, 13, 18, 26, 31, 42, 44 },
-        { 10, 12, 19, 25, 32, 41, 45, 54 },
-        { 11, 20, 24, 33, 40, 46, 53, 55 },
-        { 21, 23, 34, 39, 47, 52, 56, 61 },
-        { 22, 35, 38, 48, 51, 57, 60, 62 },
-        { 36, 37, 49, 50, 58, 59, 63, 64 },
-    };
-
-    puts("Matrix:");
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-            printf("%3d", tab2[i][j]);
-        putchar('\n');
-    }
-
-    dezigzag(out, tab2);
-
-    puts("Vector:");
-    for (int i = 0; i < 8 * 8; i++)
-    {
-        printf("%3d", out[i]);
-        if (i % 8 == 7)
-            putchar('\n');
-    }
+    for (size_t i = 0; i < sizeof(tests)/sizeof(tests[0]); i++)
+        print_info(tests[i].rows, tests[i].cols);
 
     return 0;
 }
