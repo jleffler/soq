@@ -1,3 +1,8 @@
+/*
+** Intended for http://stackoverflow.com/questions/19239445 originally.
+** Posted for http://stackoverflow.com/questions/19304085.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
