@@ -2,59 +2,69 @@
 
 #include <stdio.h>
 
-static inline int max(int a, int b) { return ((a) > (b) ? (a) : (b)); }
-static inline int min(int a, int b) { return ((a) < (b) ? (a) : (b)); }
+static inline int max(int a, int b) { return (a > b) ? a : b; }
+static inline int min(int a, int b) { return (a < b) ? a : b; }
 
-void dezigzag(int rows, int cols, int out[rows * cols], int in[rows][cols]);
-
-void dezigzag(int rows, int cols, int out[rows * cols], int in[rows][cols])
+static void print_info(int rows, int cols)
 {
-    int n = 0;
-    for (int diag = 0; diag < (rows + cols - 1); diag++)
+    int n = rows + cols - 1;
+    printf("R = %d, C = %d, N = %d\n", rows, cols, n);
+    for (int i = 0; i < n; i++)
     {
-        for (int i = max(0, diag - (rows - 1)); i <= min(cols - 1, diag); i++)
+        /*
+        int max_x = min(i, cols-1);
+        int min_x = max(0, i - n + cols);
+        int max_y = min(i, rows-1);
+        int min_y = max(0, i - n + rows);
+        printf("i = %d, min_x = %d, max_x = %d, min_y = %d, max_y = %d\n",
+                i, min_x, max_x, min_y, max_y);
+        */
+        printf("%2d:", i);
+        if (i % 2 == 0)
         {
-            int x = diag % 2 == 0 ? i      : diag-i;
-            int y = diag % 2 == 0 ? diag-i : i;
-            printf("v[%2d] = m[%d][%d] = %2d (D = %2d)\n", n, y, x, in[y][x], diag);
-            out[n++] = diag % 2 == 0 ? in[diag - i][i] : in[i][diag - i];
+            int max_x = min(i, cols-1);
+            int min_x = max(0, i - n + cols);
+            for (int j = min_x; j <= max_x; j++)
+                /* (col,row) */
+                printf(" (%d,%d)", j, i - j);
+        }
+        else
+        {
+            int max_y = min(i, rows-1);
+            int min_y = max(0, i - n + rows);
+            for (int j = min_y; j <= max_y; j++)
+                printf(" (%d,%d)", i - j, j);
+        }
+        putchar('\n');
+    }
+}
+
+static void zigzag(int rows, int cols, int matrix[rows][cols], int vector[rows*cols])
+{
+    int n = rows + cols - 1;
+    int v = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (i % 2 == 0)
+        {
+            int max_x = min(i, cols-1);
+            int min_x = max(0, i - n + cols);
+            for (int j = min_x; j <= max_x; j++)
+                vector[v++] = matrix[i-j][j];
+        }
+        else
+        {
+            int max_y = min(i, rows-1);
+            int min_y = max(0, i - n + rows);
+            for (int j = min_y; j <= max_y; j++)
+                vector[v++] = matrix[j][i-j];
         }
     }
 }
 
-void fonc(int tab2[3][4], int vect[3 * 4]);
-
-void fonc(int tab2[3][4], int vect[3 * 4])
+static void dump_matrix(const char *tag, int rows, int cols, int matrix[rows][cols])
 {
-    static const struct ZigZag
-    {
-        unsigned char y, x;
-    } zigzag[3*4] =
-    {
-        { 0, 0 }, { 1, 0 }, { 0, 1 }, { 0, 2 },
-        { 1, 1 }, { 2, 0 }, { 3, 0 }, { 2, 1 },
-        { 1, 2 }, { 2, 2 }, { 3, 1 }, { 3, 2 },
-    };
-
-    for (int i = 0; i < 3*4; i++)
-        vect[i] = tab2[zigzag[i].x][zigzag[i].y];
-}
-
-static void dump_vector(int rows, int cols, int vector[rows * cols])
-{
-    puts("Vector:");
-    int limit = rows * cols;
-    for (int i = 0; i < limit; i++)
-    {
-        printf("%3d", vector[i]);
-        if (i % cols == cols - 1)
-            putchar('\n');
-    }
-}
-
-static void dump_matrix(int rows, int cols, int matrix[rows][cols])
-{
-    puts("Matrix:");
+    printf("%s (%d x %d):\n", tag, rows, cols);
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < cols; j++)
@@ -63,75 +73,21 @@ static void dump_matrix(int rows, int cols, int matrix[rows][cols])
     }
 }
 
-int main(void)
+static void dump_vector(const char *tag, int rows, int cols, int vector[rows * cols])
 {
-
-    if (1)
+    printf("%s (%d : %d):\n", tag, rows, cols);
+    for (int i = 0; i < rows * cols; i++)
     {
-    enum { ROWS = 3, COLS = 4 };
-    int matrix[ROWS][COLS] =
-    {
-        {  1,  2,  6,  7, },
-        {  3,  5,  8, 11, },
-        {  4,  9, 10, 12, },
-    };
-    int vector[ROWS*COLS];
-
-    dump_matrix(ROWS, COLS, matrix);
-    dezigzag(ROWS, COLS, vector, matrix);
-    dump_vector(ROWS, COLS, vector);
+        printf("%3d", vector[i]);
+        if (i % cols == cols - 1)
+            putchar('\n');
     }
+}
 
-    if (1)
-    {
-    enum { ROWS = 4, COLS = 4 };
-    int matrix[ROWS][COLS] =
-    {
-        {  1,  2,  6,  7, },
-        {  3,  5,  8, 13, },
-        {  4,  9, 12, 14, },
-        { 10, 11, 15, 16, },
-    };
-    int vector[ROWS*COLS];
-
-    dump_matrix(ROWS, COLS, matrix);
-    dezigzag(ROWS, COLS, vector, matrix);
-    dump_vector(ROWS, COLS, vector);
-    }
-
-    if (0)
-    {
-    enum { ROWS = 3, COLS = 4 };
-    int matrix[ROWS][COLS] =
-    {
-        {  1,  2,  6,  7, },
-        {  3,  5,  8, 11, },
-        {  4,  9, 10, 12, },
-    };
-    int vector[ROWS*COLS];
-
-    dump_matrix(ROWS, COLS, matrix);
-    fonc(matrix, vector);
-    dump_vector(ROWS, COLS, vector);
-    }
-
-    if (0)
-    {
-    int out[64] = {-1};
-    int in[8][8];
-
-    for (int i = 0; i < 64; i++)
-        in[i % 8][i / 8] = i;
-
-    dump_matrix(8, 8, in);
-    dezigzag(8, 8, out, in);
-    dump_vector(8, 8, out);
-    }
-
-    if (0)
-    {
-    int out[64] = {-1};
-    int tab2[8][8] =
+static void test_8x8(void)
+{
+    int vector[8*8];
+    int matrix[8][8] =
     {
         {  1,  2,  6,  7, 15, 16, 28, 29 },
         {  3,  5,  8, 14, 17, 27, 30, 43 },
@@ -143,10 +99,41 @@ int main(void)
         { 36, 37, 49, 50, 58, 59, 63, 64 },
     };
 
-    dump_matrix(8, 8, tab2);
-    dezigzag(8, 8, out, tab2);
-    dump_vector(8, 8, out);
-    }
+    printf("\nTest 8x8\n\n");
+    print_info(8, 8);
+    dump_matrix("Matrix", 8, 8, matrix);
+    zigzag(8, 8, matrix, vector);
+    dump_vector("Vector", 8, 8, vector);
+}
 
+static void test_9x6(void)
+{
+    enum { rows = 9 };
+    enum { cols = 6 };
+    int vector[rows * cols];
+    int matrix[rows][cols] =
+    {
+        {  1,  2,  6,  7, 15, 16, },
+        {  3,  5,  8, 14, 17, 27, },
+        {  4,  9, 13, 18, 26, 28, },
+        { 10, 12, 19, 25, 29, 39, },
+        { 11, 20, 24, 30, 38, 40, },
+        { 21, 23, 31, 37, 41, 48, },
+        { 22, 32, 36, 42, 47, 49, },
+        { 33, 35, 43, 46, 50, 53, },
+        { 34, 44, 45, 51, 52, 54, },
+    };
+
+    printf("\nTest 9x6\n\n");
+    print_info(rows, cols);
+    dump_matrix("Matrix", rows, cols, matrix);
+    zigzag(rows, cols, matrix, vector);
+    dump_vector("Vector", rows, cols, vector);
+}
+
+int main(void)
+{
+    test_8x8();
+    test_9x6();
     return 0;
 }
