@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -41,11 +42,9 @@ void insert_node(struct node **phead, int n)
 {
     struct node N = {n, NULL};
     struct node *node = malloc(sizeof(*node));
-    struct node *next, *prev;
-    int prev_data = 0;
     struct node *head = *phead;
 
-    if (node == 0)
+    if (node == NULL)
     {
         fprintf(stderr, "Failed to allocate node for %d\n", n);
         exit(1);
@@ -65,10 +64,19 @@ void insert_node(struct node **phead, int n)
     }
     else
     {
-        next = head;
+        struct node *next = head;
+        struct node *prev = NULL;
 
         while (next != NULL)
         {
+            if (n < next->data)
+            {
+                printf("Case 5: insert %d before %d\n", n, next->data);
+                assert(prev != NULL);
+                prev->link = node;
+                node->link = next;
+                return;
+            }
             if (n == next->data)
             {
                 printf("Case 3: double %d == %d\n", n, next->data);
@@ -79,30 +87,12 @@ void insert_node(struct node **phead, int n)
             next = next->link;  // look at the next element
         }
 
+        assert(prev != NULL && n > prev->data);
         if (n > prev->data)
         {
             printf("Case 4: append %d\n", node->data);
             prev->link = node;
             return;
-        }
-
-        // case five: N.data is in between list elements:
-
-        next = head;
-
-        printf("Case 5: middle %d\n", node->data);
-        while (next != NULL)
-        {
-            prev_data = next->data; // save the current element
-            prev = next;            // save pointer to current element
-            next = next->link;      // look at the next element
-
-            if ((n > prev_data) && (n < next->data))
-            {
-                prev->link = node;
-                node->link = next;
-                return;
-            }
         }
     }
 }
