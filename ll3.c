@@ -18,6 +18,8 @@ int main(void)
         insert_node(&head, i*i);
     insert_node(&head, 0);
     insert_node(&head, 7);
+    for (int i = 1; i < 5; i++)
+        insert_node(&head, i*i - 3);
     insert_node(&head, 7);
     insert_node(&head, 0);
 
@@ -52,14 +54,12 @@ void insert_node(struct node **phead, int n)
 
     if (head == NULL)
     {
-        printf("Case 1\n");
-        // case one: list is empty - point head to N, and set N.link to NULL
+        printf("Case 1: create %d\n", node->data);
         *phead = node;
     }
     else if (n < head->data)
     {
-        printf("Case 2\n");
-        // case two: n is less than first element in the list:
+        printf("Case 2: insert %d\n", node->data);
         node->link = head;
         *phead = node;
     }
@@ -67,14 +67,11 @@ void insert_node(struct node **phead, int n)
     {
         next = head;
 
-        // case three: N.data is equal to existing element, do nothing:
-
         while (next != NULL)
         {
             if (n == next->data)
             {
-                printf("Case 3: %d == %d\n", n, next->data);
-                //printf("this element already exists.\n\n");
+                printf("Case 3: double %d == %d\n", n, next->data);
                 free(node);
                 return;
             }
@@ -82,11 +79,9 @@ void insert_node(struct node **phead, int n)
             next = next->link;  // look at the next element
         }
 
-        // case four: N.data is greater than last element:
-
         if (n > prev->data)
         {
-            printf("Case 4\n");
+            printf("Case 4: append %d\n", node->data);
             prev->link = node;
             return;
         }
@@ -95,7 +90,7 @@ void insert_node(struct node **phead, int n)
 
         next = head;
 
-        printf("Case 5\n");
+        printf("Case 5: middle %d\n", node->data);
         while (next != NULL)
         {
             prev_data = next->data; // save the current element
