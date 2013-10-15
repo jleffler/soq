@@ -1,5 +1,4 @@
 /* http://stackoverflow.com/q/19214293 Unable to modify global variable in C */
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,7 +27,6 @@ int main(void)
     test_insert(&head, 7);
     test_insert(&head, 0);
 
-    print_list(head);
     free_list(&head);
     return 0;
 }
@@ -52,7 +50,6 @@ void print_list(struct node *head)
 
 void free_list(struct node **phead)
 {
-    assert(phead != NULL);
     struct node *head = *phead;
     while (head != NULL)
     {
