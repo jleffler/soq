@@ -47,22 +47,22 @@ void insert_node(struct node **phead, int n)
     struct node *next = head;
     struct node *prev = NULL;
 
-    while (next != NULL && n >= next->data)
+    while (next != NULL && n > next->data)
     {
-        if (n == next->data)
-        {
-            free(node);
-            return;
-        }
         prev = next;
         next = next->link;
     }
 
-    node->link = next;
-    if (prev == NULL)
-        *phead = node;
+    if (next != NULL && n == next->data)
+        free(node);
     else
-        prev->link = node;
+    {
+        node->link = next;
+        if (prev == NULL)
+            *phead = node;
+        else
+            prev->link = node;
+    }
 }
 
 void test_insert(struct node **head, int n)
