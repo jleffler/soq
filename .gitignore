@@ -15,12 +15,15 @@ core
 e2big
 excel-rc
 fifocircle
+fifosize
 incunabulum
+ll3
 madump
 mda
 multi-pipe-sort
 piped-merge-sort
 pipeline
+pipesize
 posixver.h
 pthread-?
 quine
@@ -31,3 +34,4 @@ sorttest
 streplace
 timer.h
 unwrap
+zigzag
