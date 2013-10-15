@@ -31,35 +31,6 @@ int main(void)
     return 0;
 }
 
-void test_insert(struct node **head, int n)
-{
-    printf("%2d:", n);
-    insert_node(head, n);
-    print_list(*head);
-}
-
-void print_list(struct node *head)
-{
-    while (head != NULL)
-    {
-        printf(" %2i", head->data);
-        head = head->link;
-    }
-    putchar('\n');
-}
-
-void free_list(struct node **phead)
-{
-    struct node *head = *phead;
-    while (head != NULL)
-    {
-        struct node *next = head->link;
-        free(head);
-        head = next;
-    }
-    *phead = 0;
-}
-
 void insert_node(struct node **phead, int n)
 {
     struct node *node = malloc(sizeof(*node));
@@ -94,3 +65,31 @@ void insert_node(struct node **phead, int n)
         prev->link = node;
 }
 
+void test_insert(struct node **head, int n)
+{
+    printf("%2d:", n);
+    insert_node(head, n);
+    print_list(*head);
+}
+
+void print_list(struct node *head)
+{
+    while (head != NULL)
+    {
+        printf(" %2i", head->data);
+        head = head->link;
+    }
+    putchar('\n');
+}
+
+void free_list(struct node **phead)
+{
+    struct node *head = *phead;
+    while (head != NULL)
+    {
+        struct node *next = head->link;
+        free(head);
+        head = next;
+    }
+    *phead = 0;
+}
