@@ -1,3 +1,4 @@
+/* http://stackoverflow.com/q/19214293 Unable to modify global variable in C */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
