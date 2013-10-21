@@ -76,7 +76,7 @@ static void *Writer(void* arg) {
     return NULL;
 }
 
-int main() {
+int main(void) {
     char buffer[BUFFER_SIZE];
     pthread_t reader, writer;
     Context context;

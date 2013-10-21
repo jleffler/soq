@@ -33,8 +33,54 @@ LDLIBS  = # ${LDLIB1}
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
-all:
+PROGRAMS = \
+	am-pm \
+	arraysize \
+	binary \
+	bst \
+	computist-1 \
+	computist-2 \
+	e2big \
+	excel-rc \
+	expand_tilde \
+	factors \
+	fault \
+	fifocircle \
+	fifosize \
+	filter.stderr \
+	gai \
+	genouterr \
+	heapprt \
+	ll3 \
+	matmake3d \
+	matmul89 \
+	matmul99 \
+	mda \
+	pipesize \
+	prime-factors \
+	pthread-1 \
+	pthread-2 \
+	pthread-3 \
+	q7 \
+	quine \
+	quiz \
+	readdir \
+	regress \
+	roundup \
+	scan \
+	sigalrm \
+	sigchld \
+	signals \
+	streplace \
+	uint128 \
+	unwrap \
+	visit \
+	zigzag
+
+default:
 	@echo "You must specify a target to build"
+
+all: ${PROGRAMS}
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
@@ -42,3 +88,4 @@ remove:
 
 clean:
 	${RM_FR} *.o *.dSYM core a.out
+	${RM_FR} ${PROGRAMS}

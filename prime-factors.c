@@ -103,7 +103,7 @@ static void print_factors(u64_t value, size_t n_factors, u64_t *factors)
         putchar('\n');
 }
 
-void builtin_tests(void)
+static void builtin_tests(void)
 {
     u64_t tests[] =
     {

@@ -78,7 +78,7 @@ int main(void)
     const char format6[] = "centre (%d ,%d ) size (%d ,%d %1[)]%n";
     printf("Format:    <<%s>>\n", format6);
     printf("   Data:   <<%s>>\n", data[5]);
-    if (sscanf(data[5], format6, &x1, &y1, &x2, &y2, str, &len) != 5)
+    if ((rc = sscanf(data[5], format6, &x1, &y1, &x2, &y2, str, &len)) != 5)
         printf("!! Failed: scanf() returned %d\n", rc);
     else
         printf("== Passed: centre(%d,%d) size(%d,%d) len=%d <<%s>>\n", x1, y1, x2, y2, len, &data[5][len]);

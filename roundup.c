@@ -70,7 +70,7 @@ int main(void)
                 continue;
             int r1 = roundup1(values[j], divisors[i]);
             int r2 = roundup2(values[j], divisors[i]);
-            int r3 = roundup2(values[j], divisors[i]);
+            int r3 = roundup3(values[j], divisors[i]);
             if (r1 != r2 || r1 != r3)
             {
                 if (!last_failed)
