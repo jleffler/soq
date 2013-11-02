@@ -1,5 +1,11 @@
+/*
+** Q-Number Format (for Q-7 specifically).
+** http://stackoverflow.com/q/19217464
+** http://en.wikipedia.org/wiki/Q_%28number_format%29
+*/
 #include <stdio.h>
 
+/* 128 == 1 << 7 */
 const int c0 = (0.0299 * 128 + 0.5);
 const int c1 = (0.4701 * 128 + 0.5);
 const int c2 = (0.4701 * 128 + 0.5);
