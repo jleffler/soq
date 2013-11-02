@@ -18,9 +18,8 @@ int main(void)
 
     if (pid == -1)
     {
-        printf("error\n");
+        printf("fork error\n");
     }
-
     else if (pid == 0)
     {
         (void) signal(SIGALRM, catcher);
@@ -43,6 +42,9 @@ int main(void)
             sleep(1);
             kill(pid, SIGALRM);
         }
+        usleep(1000);
+        kill(pid, SIGTERM);
     }
+    return 0;
 }
 
