@@ -1,3 +1,8 @@
+#!/bin/bash
+#
+# SO 15858766 - Tilde expansion in quotes
+# http://stackoverflow.com/questions/15858766
+#
 # Working function - painful, but can you simplify any of it?
 # NB: Assumes that ~user does not expand to a name with double spaces or
 #     tabs or newlines, etc.
@@ -6,7 +11,6 @@ expand_tilde()
 {
     case "$1" in
     (\~)        echo "$HOME";;
-#    (\~/)       echo "$HOME/";;
     (\~/*)      echo "$HOME/${1#\~/}";;
     (\~[^/]*/*) local user=$(eval echo ${1%%/*})
                 echo "$user/${1#*/}";;
