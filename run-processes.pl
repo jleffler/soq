@@ -22,8 +22,8 @@ for my $i (1..20)
     my $pid;
     if (($pid = fork()) == 0)
     {
-        my $tm = int(rand() * (10 - 2) + 2);
-        print "sleep $tm\n";
+        my $tm = int(rand(8)) + 2;
+        print "$$: sleep $tm\n";
         # Using exec in a block on its own is the documented way to
         # avoid the warning:
         # Statement unlikely to be reached at filename.pl line NN.
