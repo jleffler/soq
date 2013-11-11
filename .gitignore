@@ -11,6 +11,8 @@
 *.xz
 *~
 .DS_Store
+3-star
+4-star
 ?
 a.out
 am-pm
@@ -41,14 +43,12 @@ matmul89
 matmul99
 mda
 multi-pipe-sort
+pipecircle
 piped-merge-sort
 pipeline
 pipesize
 posixver.h
 prime-factors
-pthread-1
-pthread-2
-pthread-3
 pthread-?
 q7
 qs37
@@ -69,5 +69,4 @@ timer.h
 uint128
 unwrap
 visit
-pipecircle
 zigzag
