@@ -34,6 +34,8 @@ CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
 PROGRAMS = \
+	3-star \
+	4-star \
 	am-pm \
 	arraysize \
 	binary \
