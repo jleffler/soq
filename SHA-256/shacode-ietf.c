@@ -1,3 +1,4 @@
+
 /**************************** sha.h ****************************/
 /******************* See RFC 4634 for details ******************/
 #ifndef _SHA_H_
@@ -27,7 +28,6 @@
 #include <stdint.h>
 /*
  * If you do not have the ISO standard stdint.h header file, then you
-
  * must typedef the following:
  *    name              meaning
  *  uint64_t         unsigned 64 bit integer
@@ -83,14 +83,11 @@ typedef enum SHAversion {
  */
 typedef struct SHA1Context {
     uint32_t Intermediate_Hash[SHA1HashSize/4]; /* Message Digest */
-
     uint32_t Length_Low;                /* Message length in bits */
     uint32_t Length_High;               /* Message length in bits */
-
     int_least16_t Message_Block_Index;  /* Message_Block array index */
                                         /* 512-bit message blocks */
     uint8_t Message_Block[SHA1_Message_Block_Size];
-
     int Computed;                       /* Is the digest computed? */
     int Corrupted;                      /* Is the digest corrupted? */
 } SHA1Context;
@@ -101,14 +98,11 @@ typedef struct SHA1Context {
  */
 typedef struct SHA256Context {
     uint32_t Intermediate_Hash[SHA256HashSize/4]; /* Message Digest */
-
     uint32_t Length_Low;                /* Message length in bits */
     uint32_t Length_High;               /* Message length in bits */
-
     int_least16_t Message_Block_Index;  /* Message_Block array index */
                                         /* 512-bit message blocks */
     uint8_t Message_Block[SHA256_Message_Block_Size];
-
     int Computed;                       /* Is the digest computed? */
     int Corrupted;                      /* Is the digest corrupted? */
 } SHA256Context;
@@ -125,11 +119,9 @@ typedef struct SHA512Context {
     uint64_t Intermediate_Hash[SHA512HashSize/8]; /* Message Digest */
     uint64_t Length_Low, Length_High;   /* Message length in bits */
 #endif /* USE_32BIT_ONLY */
-
     int_least16_t Message_Block_Index;  /* Message_Block array index */
                                         /* 1024-bit message blocks */
     uint8_t Message_Block[SHA512_Message_Block_Size];
-
     int Computed;                       /* Is the digest computed?*/
     int Corrupted;                      /* Is the digest corrupted? */
 } SHA512Context;
@@ -261,18 +253,6 @@ extern int hmacResult(HMACContext *ctx,
                       uint8_t digest[USHAMaxHashSize]);
 
 #endif /* _SHA_H_ */
-
-8.2. The SHA Code
-
-   This code is primarily intended as expository and could be optimized
-   further.  For example, the assignment rotations through the variables
-   a, b, ..., h could be treated as a cycle and the loop unrolled,
-   rather than doing the explicit copying.
-
-   Note that there are alternative representations of the Ch() and Maj()
-   functions controlled by an ifdef.
-
-8.2.1. sha1.c
 
 /**************************** sha1.c ****************************/
 /******************** See RFC 4634 for details ******************/
@@ -706,8 +686,6 @@ static void SHA1ProcessMessageBlock(SHA1Context *context)
 
   context->Message_Block_Index = 0;
 }
-
-8.2.2. sha224-256.c
 
 /*************************** sha224-256.c ***************************/
 /********************* See RFC 4634 for details *********************/
@@ -1286,7 +1264,6 @@ static int SHA224_256Reset(SHA256Context *context, uint32_t *H0)
  *     The size of the hash, either 28 or 32.
  *
  * Returns:
-
  *   sha Error Code.
  */
 static int SHA224_256ResultN(SHA256Context *context,
@@ -1309,8 +1286,6 @@ static int SHA224_256ResultN(SHA256Context *context,
 
   return shaSuccess;
 }
-
-8.2.3. sha384-512.c
 
 /*************************** sha384-512.c ***************************/
 /********************* See RFC 4634 for details *********************/
@@ -2366,8 +2341,6 @@ static int SHA384_512ResultN(SHA512Context *context,
   return shaSuccess;
 }
 
-8.2.4. usha.c
-
 /**************************** usha.c ****************************/
 /******************** See RFC 4634 for details ******************/
 /*
@@ -2604,7 +2577,6 @@ int USHAHashSize(enum SHAversion whichSha)
  * USHAHashSizeBits
  *
  * Description:
-
  *   This function will return the hashsize for the given SHA
  *   algorithm, expressed in bits.
  *
@@ -2627,8 +2599,6 @@ int USHAHashSizeBits(enum SHAversion whichSha)
     case SHA512: return SHA512HashSizeBits;
   }
 }
-
-8.2.5. sha-private.h
 
 /*************************** sha-private.h ***************************/
 /********************** See RFC 4634 for details *********************/
@@ -2659,8 +2629,6 @@ int USHAHashSizeBits(enum SHAversion whichSha)
 #define SHA_Parity(x, y, z)  ((x) ^ (y) ^ (z))
 
 #endif /* _SHA_PRIVATE__H */
-
-8.3 The HMAC Code
 
 /**************************** hmac.c ****************************/
 /******************** See RFC 4634 for details ******************/
@@ -2800,7 +2768,6 @@ int hmacReset(HMACContext *ctx, enum SHAversion whichSha,
  *  Description:
  *      This function accepts an array of octets as the next portion
  *      of the message.
-
  *
  *  Parameters:
  *      context: [in/out]
@@ -2849,7 +2816,6 @@ int hmacFinalBits(HMACContext *ctx,
   if (!ctx) return shaNull;
   /* then final bits of datagram */
   return USHAFinalBits(&ctx->shaContext, bits, bitcount);
-
 }
 
 /*

@@ -87,7 +87,6 @@ static int scasecmp(const char *s1, const char *s2);
   "\x3a\x3a\x30\x5e\xd5\xe2\x11\x6c\xd4\xa4\xc9\x87\xfc\x06\x57\x00" \
   "\x64\x91\xb1\x49\xcc\xd4\xb5\x11\x30\xac\x62\xb1\x9d\xc2\x48\xc7" \
   "\x44\x54\x3d\x20\xcd\x39\x52\xdc\xed\x1f\x06\xcc\x3b\x18\xb9\x1f" \
-
   "\x3f\x55\x63\x3e\xcc\x30\x85\xf4\x90\x70\x60\xd2"
 #define TEST10_224 \
   "\x55\xb2\x10\x07\x9c\x61\xb5\x3a\xdd\x52\x06\x22\xd1\xac\x97\xd5" \
@@ -136,7 +135,6 @@ static int scasecmp(const char *s1, const char *s2);
   "\x52\x44\xea\x34\x97\xde\x26\xa4\x19\x1c\x5f\x62\xe5\xe9\xa2\xd8" \
   "\x08\x2f\x05\x51\xf4\xa5\x30\x68\x26\xe9\x1c\xc0\x06\xce\x1b\xf6" \
   "\x0f\xf7\x19\xd4\x2f\xa5\x21\xc8\x71\xcd\x23\x94\xd9\x6e\xf4\x46" \
-
   "\x8f\x21\x96\x6b\x41\xf2\xba\x80\xc2\x6e\x83\xa9"
 #define TEST10_384 \
   "\x39\x96\x69\xe2\x8f\x6b\x9c\x6d\xbc\xbb\x69\x12\xec\x10\xff\xcf" \
@@ -185,7 +183,6 @@ static int scasecmp(const char *s1, const char *s2);
   "\xa2\xf3\xc0\xc7\x58\xe5\xf5\x51\x86\x3a\x96\xc9\x49\xad\x47\xd7" \
   "\xfb\x40\xd2"
 #define SHA1_SEED "\xd0\x56\x9c\xb3\x66\x5a\x8a\x43\xeb\x6e\xa2\x3d" \
-
   "\x75\xa3\xc4\xd2\x05\x4a\x0d\x7d"
 #define SHA224_SEED "\xd0\x56\x9c\xb3\x66\x5a\x8a\x43\xeb\x6e\xa2" \
   "\x3d\x75\xa3\xc4\xd2\x05\x4a\x0d\x7d\x66\xa9\xca\x99\xc9\xce\xb0" \
@@ -630,6 +627,7 @@ struct hmachash {
  * Check the hash value against the expected string, expressed in hex
  */
 static const char hexdigits[] = "0123456789ABCDEF";
+static
 int checkmatch(const unsigned char *hashvalue,
   const char *hexstr, int hashsize)
 {
@@ -645,6 +643,7 @@ int checkmatch(const unsigned char *hashvalue,
 /*
  * Print the string, converting non-printable characters to "."
  */
+static
 void printstr(const char *str, int len)
 {
   for ( ; len-- > 0; str++)
@@ -654,6 +653,7 @@ void printstr(const char *str, int len)
 /*
  * Print the string, converting non-printable characters to hex "## ".
  */
+static
 void printxstr(const char *str, int len)
 {
   for ( ; len-- > 0; str++)
@@ -664,6 +664,7 @@ void printxstr(const char *str, int len)
 /*
  * Print a usage message.
  */
+static
 void usage(const char *argv0)
 {
   fprintf(stderr,
@@ -675,7 +676,6 @@ void usage(const char *argv0)
         "[-p] [-P|-X]\n"
     "Hash a string:\n"
       "\t%s [-S expectedresult] -s hashstr [-k key]\n"
-
     "Hash a file:\n"
       "\t%s [-S expectedresult] -f file [-k key]\n"
     "Hash a file, ignoring whitespace:\n"
@@ -707,6 +707,7 @@ void usage(const char *argv0)
 /*
  * Print the results and PASS/FAIL.
  */
+static
 void printResult(uint8_t *Message_Digest, int hashsize,
     const char *hashname, const char *testtype, const char *testname,
     const char *resultarray, int printResults, int printPassFail)
@@ -754,6 +755,7 @@ void printResult(uint8_t *Message_Digest, int hashsize,
  * repeated repeatcount times, followed by the extrabits. If the
  * result is known, it is in resultarray in uppercase hex.
  */
+static
 int hash(int testno, int loopno, int hashno,
   const char *testarray, int length, long repeatcount,
   int numberExtrabits, int extrabits, const unsigned char *keyarray,
@@ -834,6 +836,7 @@ int hash(int testno, int loopno, int hashno,
  * Exercise a hash series of functions. The input is a filename.
  * If the result is known, it is in resultarray in uppercase hex.
  */
+static
 int hashfile(int hashno, const char *hashfilename, int bits,
   int bitcount, int skipSpaces, const unsigned char *keyarray,
   int keylen, const char *resultarray, int hashsize,
@@ -926,6 +929,7 @@ int hashfile(int hashno, const char *hashfilename, int bits,
  * This result is then checked, and used to seed the next cycle.
  * If the result is known, it is in resultarrays in uppercase hex.
  */
+static
 void randomtest(int hashno, const char *seed, int hashsize,
     const char **resultarrays, int randomcount,
     int printResults, int printPassFail)
@@ -972,6 +976,7 @@ void randomtest(int hashno, const char *seed, int hashsize,
 /*
  * Look up a hash name.
  */
+static
 int findhash(const char *argv0, const char *opt)
 {
   int i;
@@ -993,6 +998,7 @@ int findhash(const char *argv0, const char *opt)
 /*
  * Run some tests that should invoke errors.
  */
+static
 void testErrors(int hashnolow, int hashnohigh, int printResults,
     int printPassFail)
 {
@@ -1046,6 +1052,7 @@ void testErrors(int hashnolow, int hashnohigh, int printResults,
 }
 
 /* replace a hex string in place with its value */
+static
 int unhexStr(char *hexstr)
 {
   char *o = hexstr;

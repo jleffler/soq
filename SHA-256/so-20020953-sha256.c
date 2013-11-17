@@ -209,7 +209,7 @@ int main(void)
         // 2. Set working var with hash val.
         memcpy(working_vars, hash_words, WORKING_VARS_SIZE*sizeof(uint32_t));
 
-        // 3. 
+        // 3.
         for (sch_idx = 0; sch_idx < MESSAGE_SCHEDULE_SIZE; ++sch_idx)
         {
             temp_words[TEMP_1] = working_vars[W_VAR_H] +
