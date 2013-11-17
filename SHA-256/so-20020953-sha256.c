@@ -138,7 +138,7 @@ static inline uint32_t LowerSigmaOne(uint32_t x)
 static uint32_t message_schedule[MESSAGE_SCHEDULE_SIZE];
 
 // Working vars.  Defined at fips180-3 - section 6.2 .
-// position 0->a , 1->b, 2->c, 3->d, 4->e, 5->f, 6->g, 7->h.
+// position 0->a, 1->b, 2->c, 3->d, 4->e, 5->f, 6->g, 7->h.
 static uint32_t working_vars[WORKING_VARS_SIZE];
 
 // Hash value. Defined at fips180-3 - section 6.2 .
@@ -154,13 +154,13 @@ int main(void)
     int number_of_blocks = 1;
     uint32_t message_block[MESSAGE_BLOCK_SIZE];
 
-    // Dummy message block 'a'
+    // Dummy message block 'abc'
     memset(message_block, (uint32_t)0, MESSAGE_BLOCK_SIZE*sizeof(uint32_t));
-    message_block[0] = 0x61; // ASCII 'a'.
-    message_block[1] = 0x80; // append 10000000.
-    message_block[MESSAGE_BLOCK_SIZE-1] = 0x08; // Original message length->8bits.
+    message_block[0] = 0x61626380; // ASCII 'abc'.
+    // message_block[1]=0x80; // append 10000000.
+    message_block[MESSAGE_BLOCK_SIZE-1] = 0x18; // Original message length->24bits.
 
-    printf("\n-----------DUMMY MESSAGE BLOCK representing the message 'a'-------------\n");
+    printf("\n-----------DUMMY MESSAGE BLOCK representing the message 'abc'-------------\n");
     for (i = 0; i < MESSAGE_BLOCK_SIZE; ++i)
     {
         PrintBin(message_block[i]);
@@ -209,7 +209,7 @@ int main(void)
         // 2. Set working var with hash val.
         memcpy(working_vars, hash_words, WORKING_VARS_SIZE*sizeof(uint32_t));
 
-        // 3.
+        // 3. Main permutation/hashing algorithm
         for (sch_idx = 0; sch_idx < MESSAGE_SCHEDULE_SIZE; ++sch_idx)
         {
             temp_words[TEMP_1] = working_vars[W_VAR_H] +
