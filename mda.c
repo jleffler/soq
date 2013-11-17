@@ -74,18 +74,18 @@ static Array *make_array(size_t elem_size, size_t ndims, ...)
     /* Total space needed
     ** For a concrete example: ndims == 3
     **
-    ** nbytes[0] = a->dim[0].size * a->dim[0].number
-    ** nbytes[1] = a->dim[1].size * a->dim[0].number * a->dim[1].number
-    ** nbytes[2] = a->dim[2].size * a->dim[0].number * a->dim[1].number * a->dim[2].number
+    ** nbytes[0] = a->dim[0].size * (a->dim[0].number)
+    ** nbytes[1] = a->dim[1].size * (a->dim[0].number * a->dim[1].number)
+    ** nbytes[2] = a->dim[2].size * (a->dim[0].number * a->dim[1].number * a->dim[2].number)
     */
     size_t nbytes[MAX_DIMS] = { 0 };
     size_t tbytes = 0;
     size_t product = 1;
     for (size_t i = 0; i < ndims; i++)
     {
-        product  *= a->dim[i].number;
+        product   *= a->dim[i].number;
         nbytes[i]  = a->dim[i].size * product;
-        tbytes   += nbytes[i];
+        tbytes    += nbytes[i];
     }
 
     /* Debugging dump */
@@ -194,6 +194,7 @@ int main(void)
     //extern Array *make_array(size_t elem_size, size_t ndims, size_t *dims);
     //Array *a = make_array(sizeof(char), NUM_SIZES, sizes);
 
+    /* Approximately equivalent to char a[3][4][5]; */
     Array *a = make_array(sizeof(char), 3, (size_t)3, (size_t)4, (size_t)5);
     if (a->base == 0)
         fprintf(stderr, "Array allocation failed!\n");
