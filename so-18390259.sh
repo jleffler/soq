@@ -7,8 +7,8 @@ cat >data <<'EOF'
 bm_wp_upg_o_t1micro, sight, value = 3, zoom = 3, recoil = 1, spread_moving = -1
 bm_wp_upg_o_marksmansight_rear, sight, value = 3, zoom = 1, recoil = 1, spread = 1
 bm_wp_upg_o_marksmansight_front, extra, value = 1
-bm_wp_m4_upper_reciever_edge, upper_reciever, value = 3, recoil = 1
-bm_wp_m4_upper_reciever_round, upper_reciever, value = 1
+bm_wp_m4_upper_receiver_edge, upper_receiver, value = 3, recoil = 1
+bm_wp_m4_upper_receiver_round, upper_receiver, value = 1
 bm_wp_m4_uupg_b_long, barrel, value = 4, damage = 1, spread = 1, spread_moving = -2, concealment = -2
 EOF
 
