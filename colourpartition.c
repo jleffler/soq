@@ -43,22 +43,10 @@ void partition3(color *arr, unsigned n)
     {
         //printf("i = %2u, r = %2u, w = %2u, c = %c", i, r, w, color_code(arr[i]));
         //dump_colors("", arr, n);
-        //do
-        //{
-        switch (arr[i])
-        {
-        case WHITE:
-            swap(&arr[i], &arr[w++]);
-            break;
-        case RED:
+        if (arr[i] == RED)
             swap(&arr[i], &arr[--r]);
-            if (arr[i] == WHITE)
-                swap(&arr[i], &arr[w++]);
-            break;
-        case BLACK:
-            break;
-        }
-        //} while (arr[i] == WHITE);
+        if (arr[i] == WHITE)
+            swap(&arr[i], &arr[w++]);
     }
 }
 
