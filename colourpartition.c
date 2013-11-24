@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
+#include "stderr.h"
 
 typedef enum { WHITE, BLACK, RED } Colour;
 
@@ -144,9 +146,10 @@ static bool test_sequence(Test t)
     return rc;
 }
 
-int main(void)
+static size_t fixed_tests(void)
 {
     size_t fail = 0;
+
     Colour array1[] = { WHITE, BLACK, RED };
     Colour array2[] = { WHITE, WHITE, WHITE };
     Colour array3[] = { RED, RED, RED };
@@ -180,14 +183,57 @@ int main(void)
             fail++;
     }
 
+    return fail;
+}
+
+int main(int argc, char **argv)
+{
+    static char const optstr[] = "fs:";
+    static char const usestr[] = "[-f][-s seed][-n number][-m maxsize]";
     unsigned seed = time(0);
+    size_t number = 1000;
+    size_t maxsize = 100;
+    bool fixed = true;
+    int opt;
+
+    err_setarg0(argv[0]);
+
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'f':
+            fixed = false;
+            break;
+        case 'm':
+            maxsize = strtoul(optarg, 0, 0);
+            break;
+        case 'n':
+            number = strtoul(optarg, 0, 0);
+            break;
+        case 's':
+            seed = atoi(optarg);
+            break;
+        default:
+            err_usage(usestr);
+            break;
+        }
+    }
+    if (optind != argc)
+        err_usage(usestr);
+
+    size_t fail = 0;
+
+    if (fixed)
+        fail += fixed_tests();
+
     srand(seed);
     printf("Seed: %u\n", seed);
 
-    for (size_t i = 0; i < 1000; i++)
+    for (size_t i = 0; i < number; i++)
     {
         Test t;
-        t.size = rand() % 100;
+        t.size = rand() % maxsize;
         t.data = malloc(t.size * sizeof(*t.data));
         if (t.data == 0)
         {
