@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef enum { WHITE, BLACK, RED } Colour;
 
@@ -128,8 +129,9 @@ typedef struct Test
     size_t size;
 } Test;
 
-static void test_sequence(Test t)
+static bool test_sequence(Test t)
 {
+    bool rc = true;
     size_t  n = t.size;
     Colour *a = t.data;
     Colour *d = dup_sequence(n, a);
@@ -137,15 +139,14 @@ static void test_sequence(Test t)
     partition3(n, d);
     dump_colours("After ", d, n);
     if (is_invalid_sequence(n, d))
-    {
-        dump_colours("Before", a, n);
-        dump_colours("After ", d, n);
-    }
+        rc = false;
     free(d);
+    return rc;
 }
 
 int main(void)
 {
+    size_t fail = 0;
     Colour array1[] = { WHITE, BLACK, RED };
     Colour array2[] = { WHITE, WHITE, WHITE };
     Colour array3[] = { RED, RED, RED };
@@ -174,7 +175,36 @@ int main(void)
     enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 
     for (size_t i = 0; i < NUM_TESTS; i++)
-        test_sequence(tests[i]);
+    {
+        if (test_sequence(tests[i]) == false)
+            fail++;
+    }
+
+    unsigned seed = time(0);
+    srand(seed);
+    printf("Seed: %u\n", seed);
+
+    for (size_t i = 0; i < 1000; i++)
+    {
+        Test t;
+        t.size = rand() % 100;
+        t.data = malloc(t.size * sizeof(*t.data));
+        if (t.data == 0)
+        {
+            fprintf(stderr, "Out of memory\n");
+            exit(1);
+        }
+        printf("Test: %zu (%zu)\n", i, t.size);
+        for (size_t j = 0; j < t.size; j++)
+            t.data[j] = rand() % 3;
+        if (test_sequence(t) == false)
+        {
+            fail++;
+            break;
+        }
+    }
+
+    printf("Failures: %zu\n", fail);
 
     return 0;
 }
