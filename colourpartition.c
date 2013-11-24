@@ -1,6 +1,7 @@
 /* SO 20164204 */
 #define DEBUG
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,6 +36,23 @@ static void dump_colours(char const *tag, Colour *data, unsigned num)
     print_colours(stdout, tag, data, num);
 }
 
+static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r)
+{
+    assert(w <= r);
+    assert(r <= num);
+    fprintf(fp, "%s:", tag);
+    for (unsigned i = 0; i < num; i++)
+    {
+        char pad = ' ';
+        if (i == w || i == r)
+            pad = '|';
+        fprintf(fp, "%c%c", pad, colour_code(data[i]));
+    }
+    if (r == num || w == num)
+        putc('|', fp);
+    putc('\n', fp);
+}
+
 static
 void swap(Colour *p1, Colour *p2)
 {
@@ -64,14 +82,14 @@ void partition3(size_t n, Colour *arr)
     {
 
         DB_TRACE(1, "i = %2u [1] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
-        DB_CALL(1, print_colours(stderr, "", arr, n));
+        DB_CALL(1, trace_colours(stderr, "", arr, n, w, r));
         if (arr[i] == RED)
         {
             swap(&arr[i], &arr[--r]);
             while (r > w && arr[r-1] == RED)
                 r--;
             DB_TRACE(1, "i = %2u [2] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
-            DB_CALL(1, print_colours(stderr, "", arr, n));
+            DB_CALL(1, trace_colours(stderr, "", arr, n, w, r));
         }
         if (arr[i] == WHITE)
         {
@@ -79,7 +97,7 @@ void partition3(size_t n, Colour *arr)
             while (w < r && arr[w] == WHITE)
                 w++;
             DB_TRACE(1, "i = %2u [3] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
-            DB_CALL(1, print_colours(stderr, "", arr, n));
+            DB_CALL(1, trace_colours(stderr, "", arr, n, w, r));
         }
     }
 }
