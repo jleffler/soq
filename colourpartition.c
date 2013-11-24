@@ -1,11 +1,21 @@
+/* SO 20164204 */
+#define DEBUG
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include "range.h"
 #include "stderr.h"
+#include "debug.h"
 
 typedef enum { WHITE, BLACK, RED } Colour;
+
+static char const *colour_name(Colour c)
+{
+    return(c == WHITE ? "WHITE" : c == RED ? "RED" : "BLACK");
+}
 
 static char colour_code(Colour c)
 {
@@ -43,34 +53,33 @@ void partition3(size_t n, Colour *arr)
     size_t w = 0;
     size_t r = n;
 
-    //putchar('\n');
-    //printf("w0 = %d; r0 = %d: ", w, r);
+    DB_TRACE(1, "\nw0 = %d; r0 = %d: ", w, r);
     while (w < r && arr[w] == WHITE)
         w++;
     while (r > w && arr[r-1] == RED)
         r--;
-    //printf("w1 = %d; r1 = %d\n", w, r);
+    DB_TRACE(1, "w1 = %d; r1 = %d\n", w, r);
 
     for (size_t i = w; i < r; i++)
     {
 
-        //printf("-| i = %2u, r = %2u, w = %2u, c = %c", i, r, w, colour_code(arr[i]));
-        //dump_colours("", arr, n);
+        DB_TRACE(1, "i = %2u [1] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
+        DB_CALL(1, print_colours(stderr, "", arr, n));
         if (arr[i] == RED)
         {
             swap(&arr[i], &arr[--r]);
             while (r > w && arr[r-1] == RED)
                 r--;
-            //printf("-- i = %2u, r = %2u, w = %2u, c = %c", i, r, w, colour_code(arr[i]));
-            //dump_colours("", arr, n);
+            DB_TRACE(1, "i = %2u [2] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
+            DB_CALL(1, print_colours(stderr, "", arr, n));
         }
         if (arr[i] == WHITE)
         {
             swap(&arr[i], &arr[w++]);
             while (w < r && arr[w] == WHITE)
                 w++;
-            //printf("|- i = %2u, r = %2u, w = %2u, c = %c", i, r, w, colour_code(arr[i]));
-            //dump_colours("", arr, n);
+            DB_TRACE(1, "i = %2u [3] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
+            DB_CALL(1, print_colours(stderr, "", arr, n));
         }
     }
 }
@@ -125,11 +134,29 @@ static bool is_invalid_sequence(size_t n, Colour *a)
     return rc;
 }
 
+static size_t seqno = 0;
+static bool   wflag = false;
+
 typedef struct Test
 {
     Colour *data;
-    size_t size;
+    size_t  size;
 } Test;
+
+static void write_sequence(size_t seq, size_t n, Colour *a)
+{
+    size_t i;
+    printf("Colour seq_%03zu[] =\n{\n", seq);
+    for (i = 0; i < n; i++)
+    {
+        printf(" %s,", colour_name(a[i]));
+        if (i % 10 == 9)
+            putchar('\n');
+    }
+    if (i %10 != 0)
+        putchar('\n');
+    printf("};\n");
+}
 
 static bool test_sequence(Test t)
 {
@@ -141,94 +168,101 @@ static bool test_sequence(Test t)
     partition3(n, d);
     dump_colours("After ", d, n);
     if (is_invalid_sequence(n, d))
+    {
+        if (wflag)
+            write_sequence(++seqno, n, a);
         rc = false;
+    }
     free(d);
     return rc;
 }
 
-static size_t fixed_tests(void)
+static size_t fixed_tests(char const *range)
 {
     size_t fail = 0;
 
-    Colour array1[] = { WHITE, BLACK, RED };
-    Colour array2[] = { WHITE, WHITE, WHITE };
-    Colour array3[] = { RED, RED, RED };
-    Colour array4[] = { BLACK, BLACK, BLACK };
-    Colour array5[] = { RED, BLACK, WHITE };
-    Colour array6[] = { WHITE, WHITE, RED, RED, BLACK, BLACK, WHITE };
-    Colour array7[] = { BLACK, BLACK, WHITE, WHITE, RED, RED, BLACK, BLACK, WHITE, BLACK, BLACK, };
-    Colour array8[] = { WHITE, BLACK };
-    Colour array9[] = { BLACK, BLACK, RED, RED, WHITE, WHITE, RED };
-    Colour array0[] = { BLACK, BLACK, RED, WHITE, RED };
-    Colour arrayA[] = { RED, BLACK, RED, WHITE, RED, RED, BLACK, WHITE, RED, BLACK, RED, BLACK, BLACK, RED, BLACK, WHITE, BLACK, WHITE, WHITE, WHITE, WHITE, RED, RED, RED, RED, BLACK, WHITE };
+    Colour seq_001[] = { WHITE, BLACK, RED };
+    Colour seq_002[] = { WHITE, WHITE, WHITE };
+    Colour seq_003[] = { RED, RED, RED };
+    Colour seq_004[] = { BLACK, BLACK, BLACK };
+    Colour seq_005[] = { RED, BLACK, WHITE };
+    Colour seq_006[] = { WHITE, WHITE, RED, RED, BLACK, BLACK, WHITE };
+    Colour seq_007[] =
+    {
+        BLACK, BLACK, WHITE, WHITE, RED, RED, BLACK, BLACK, WHITE,
+        BLACK, BLACK,
+    };
+    Colour seq_008[] = { WHITE, BLACK };
+    Colour seq_009[] = { BLACK, BLACK, RED, RED, WHITE, WHITE, RED };
+    Colour seq_010[] = { BLACK, BLACK, RED, WHITE, RED };
+    Colour seq_011[] =
+    {
+        RED, BLACK, RED, WHITE, RED, RED, BLACK, WHITE, RED, BLACK, RED,
+        BLACK, BLACK, RED, BLACK, WHITE, BLACK, WHITE, WHITE, WHITE,
+        WHITE, RED, RED, RED, RED, BLACK, WHITE
+    };
+    Colour seq_012[] =
+    {
+        WHITE, WHITE, RED, WHITE, RED, BLACK, RED, BLACK, WHITE, BLACK,
+        RED, RED, RED, WHITE, RED, RED, BLACK, BLACK, BLACK, RED, RED,
+        BLACK, BLACK, WHITE, WHITE, RED, WHITE, BLACK, RED, BLACK,
+        WHITE, RED, WHITE, WHITE, RED, WHITE, BLACK, RED, RED, RED,
+        WHITE,
+    };
     Test tests[] =
     {
-        { array1, sizeof(array1)/sizeof(array1[0]) },
-        { array2, sizeof(array2)/sizeof(array2[0]) },
-        { array3, sizeof(array3)/sizeof(array3[0]) },
-        { array4, sizeof(array4)/sizeof(array4[0]) },
-        { array5, sizeof(array5)/sizeof(array5[0]) },
-        { array6, sizeof(array6)/sizeof(array6[0]) },
-        { array7, sizeof(array7)/sizeof(array7[0]) },
-        { array8, sizeof(array8)/sizeof(array8[0]) },
-        { array9, sizeof(array9)/sizeof(array9[0]) },
-        { array0, sizeof(array0)/sizeof(array0[0]) },
-        { arrayA, sizeof(arrayA)/sizeof(arrayA[0]) },
+        { seq_001, sizeof(seq_001)/sizeof(seq_001[0]) },
+        { seq_002, sizeof(seq_002)/sizeof(seq_002[0]) },
+        { seq_003, sizeof(seq_003)/sizeof(seq_003[0]) },
+        { seq_004, sizeof(seq_004)/sizeof(seq_004[0]) },
+        { seq_005, sizeof(seq_005)/sizeof(seq_005[0]) },
+        { seq_006, sizeof(seq_006)/sizeof(seq_006[0]) },
+        { seq_007, sizeof(seq_007)/sizeof(seq_007[0]) },
+        { seq_008, sizeof(seq_008)/sizeof(seq_008[0]) },
+        { seq_009, sizeof(seq_009)/sizeof(seq_009[0]) },
+        { seq_010, sizeof(seq_010)/sizeof(seq_010[0]) },
+        { seq_011, sizeof(seq_011)/sizeof(seq_011[0]) },
+        { seq_012, sizeof(seq_012)/sizeof(seq_012[0]) },
     };
     enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 
-    for (size_t i = 0; i < NUM_TESTS; i++)
+    if (range != 0)
     {
-        if (test_sequence(tests[i]) == false)
-            fail++;
+        const char *ptr = range;
+        const char *nxt;
+        long lo;
+        long hi;
+        while ((nxt = parse_range(ptr, &lo, &hi)) != 0)
+        {
+            if (nxt == ptr)
+                err_error("invalid range string (%s)\n", range);
+            if (hi == 0)
+                hi = NUM_TESTS;
+            for (long i = lo; i <= hi; i++)
+            {
+                if (test_sequence(tests[i]) == false)
+                    fail++;
+            }
+            ptr = nxt;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < NUM_TESTS; i++)
+        {
+            if (test_sequence(tests[i]) == false)
+                fail++;
+        }
     }
 
     return fail;
 }
 
-int main(int argc, char **argv)
+static size_t random_tests(size_t seed, size_t number, size_t maxsize)
 {
-    static char const optstr[] = "fs:";
-    static char const usestr[] = "[-f][-s seed][-n number][-m maxsize]";
-    unsigned seed = time(0);
-    size_t number = 1000;
-    size_t maxsize = 100;
-    bool fixed = true;
-    int opt;
-
-    err_setarg0(argv[0]);
-
-    while ((opt = getopt(argc, argv, optstr)) != -1)
-    {
-        switch (opt)
-        {
-        case 'f':
-            fixed = false;
-            break;
-        case 'm':
-            maxsize = strtoul(optarg, 0, 0);
-            break;
-        case 'n':
-            number = strtoul(optarg, 0, 0);
-            break;
-        case 's':
-            seed = atoi(optarg);
-            break;
-        default:
-            err_usage(usestr);
-            break;
-        }
-    }
-    if (optind != argc)
-        err_usage(usestr);
-
     size_t fail = 0;
-
-    if (fixed)
-        fail += fixed_tests();
-
     srand(seed);
-    printf("Seed: %u\n", seed);
+    printf("Seed: %zu\n", seed);
 
     for (size_t i = 0; i < number; i++)
     {
@@ -249,6 +283,65 @@ int main(int argc, char **argv)
             break;
         }
     }
+    return fail;
+}
+
+int main(int argc, char **argv)
+{
+    static char const optstr[] = "dfm:n:o:rs:t:w";
+    static char const usestr[] = "[-dfrw][-m maxsize][-n number][-s seed][-t tests]";
+    char const *range = 0;
+    unsigned seed = time(0);
+    size_t number = 1000;
+    size_t maxsize = 100;
+    bool fixed = true;
+    bool random = true;
+    int opt;
+
+    err_setarg0(argv[0]);
+
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'd':
+            db_setdebug(1);
+            break;
+        case 'f':
+            fixed = false;
+            break;
+        case 'm':
+            maxsize = strtoul(optarg, 0, 0);
+            break;
+        case 'n':
+            number = strtoul(optarg, 0, 0);
+            break;
+        case 'r':
+            random = false;
+            break;
+        case 's':
+            seed = atoi(optarg);
+            break;
+        case 't':
+            range = optarg;
+            break;
+        case 'w':
+            wflag = true;
+            break;
+        default:
+            err_usage(usestr);
+            break;
+        }
+    }
+    if (optind != argc)
+        err_usage(usestr);
+
+    size_t fail = 0;
+
+    if (fixed)
+        fail += fixed_tests(range);
+    if (random)
+        fail += random_tests(seed, number, maxsize);
 
     printf("Failures: %zu\n", fail);
 
