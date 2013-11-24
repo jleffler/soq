@@ -122,13 +122,30 @@ static bool is_invalid_sequence(size_t n, Colour *a)
     return rc;
 }
 
+typedef struct Test
+{
+    Colour *data;
+    size_t size;
+} Test;
+
+static void test_sequence(Test t)
+{
+    size_t  n = t.size;
+    Colour *a = t.data;
+    Colour *d = dup_sequence(n, a);
+    dump_colours("Before", a, n);
+    partition3(n, d);
+    dump_colours("After ", d, n);
+    if (is_invalid_sequence(n, d))
+    {
+        dump_colours("Before", a, n);
+        dump_colours("After ", d, n);
+    }
+    free(d);
+}
+
 int main(void)
 {
-    struct test
-    {
-        Colour *data;
-        size_t size;
-    };
     Colour array1[] = { WHITE, BLACK, RED };
     Colour array2[] = { WHITE, WHITE, WHITE };
     Colour array3[] = { RED, RED, RED };
@@ -140,7 +157,7 @@ int main(void)
     Colour array9[] = { BLACK, BLACK, RED, RED, WHITE, WHITE, RED };
     Colour array0[] = { BLACK, BLACK, RED, WHITE, RED };
     Colour arrayA[] = { RED, BLACK, RED, WHITE, RED, RED, BLACK, WHITE, RED, BLACK, RED, BLACK, BLACK, RED, BLACK, WHITE, BLACK, WHITE, WHITE, WHITE, WHITE, RED, RED, RED, RED, BLACK, WHITE };
-    struct test tests[] =
+    Test tests[] =
     {
         { array1, sizeof(array1)/sizeof(array1[0]) },
         { array2, sizeof(array2)/sizeof(array2[0]) },
@@ -157,20 +174,7 @@ int main(void)
     enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 
     for (size_t i = 0; i < NUM_TESTS; i++)
-    {
-        size_t  n = tests[i].size;
-        Colour *t = tests[i].data;
-        Colour *d = dup_sequence(n, t);
-        dump_colours("Before", t, n);
-        partition3(n, d);
-        dump_colours("After ", d, n);
-        if (is_invalid_sequence(n, d))
-        {
-            dump_colours("Before", t, n);
-            dump_colours("After ", d, n);
-        }
-        free(d);
-    }
+        test_sequence(tests[i]);
 
     return 0;
 }
