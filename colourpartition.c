@@ -16,8 +16,7 @@ typedef enum { WHITE, BLACK, RED } Colour;
 static char colour_code(Colour c);
 static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r, size_t c);
 
-static
-void swap(Colour *p1, Colour *p2)
+static void swap(Colour *p1, Colour *p2)
 {
     Colour tmp;
     tmp = *p1;
@@ -25,8 +24,7 @@ void swap(Colour *p1, Colour *p2)
     *p2 = tmp;
 }
 
-static
-void partition3(size_t n, Colour *arr)
+static void partition3(size_t n, Colour *arr)
 {
     if (n <= 1)
         return;
@@ -47,7 +45,8 @@ void partition3(size_t n, Colour *arr)
         DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
         while (arr[i] == RED)
         {
-            DB_CALL(1, fprintf(stderr, "i = %2zu R-SWAP %2zu %c with %2zu %c\n", i, i, colour_code(arr[i]), r-1, colour_code(arr[r-1])));
+            DB_CALL(1, fprintf(stderr, "i = %2zu R-SWAP %2zu %c with %2zu %c\n",
+                               i, i, colour_code(arr[i]), r-1, colour_code(arr[r-1])));
             swap(&arr[i], &arr[--r]);
             while (r > w && arr[r-1] == RED)
                 r--;
@@ -63,7 +62,8 @@ void partition3(size_t n, Colour *arr)
         }
         while (i > w && arr[i] == WHITE)
         {
-            DB_CALL(1, fprintf(stderr, "i = %2zu W-SWAP %2zu %c with %2zu %c\n", i, i, colour_code(arr[i]), w, colour_code(arr[w])));
+            DB_CALL(1, fprintf(stderr, "i = %2zu W-SWAP %2zu %c with %2zu %c\n",
+                               i, i, colour_code(arr[i]), w, colour_code(arr[w])));
             swap(&arr[i], &arr[w++]);
             while (w < r && arr[w] == WHITE)
                 w++;
@@ -90,15 +90,15 @@ static char colour_code(Colour c)
     return(c == WHITE ? 'W' : c == RED ? 'R' : 'B');
 }
 
-static void print_colours(FILE *fp, char const *tag, Colour *data, unsigned num)
+static void print_colours(FILE *fp, char const *tag, Colour *data, size_t num)
 {
-    fprintf(fp, "%s:", tag);
-    for (unsigned i = 0; i < num; i++)
+    fprintf(fp, "%s: (%zu)", tag, num);
+    for (size_t i = 0; i < num; i++)
         fprintf(fp, " %c", colour_code(data[i]));
     putc('\n', fp);
 }
 
-static void dump_colours(char const *tag, Colour *data, unsigned num)
+static void dump_colours(char const *tag, Colour *data, size_t num)
 {
     print_colours(stdout, tag, data, num);
 }
@@ -119,7 +119,9 @@ static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num,
             pad = ']';
         fprintf(fp, "%c%c", pad, colour_code(data[i]));
     }
-    if (r == num || w == num)
+    if (c == num - 1)
+        putc(']', fp);
+    else if (r == num || w == num)
         putc('|', fp);
     putc('\n', fp);
 }
@@ -197,7 +199,7 @@ static bool is_invalid_sequence(size_t n, Colour *a)
     {
         if (a[b] == WHITE)
         {
-            fprintf(stderr, "Error: %c out of position (%zu):", colour_code(a[b]), b);
+            fprintf(stderr, "Error: %c out of position (%zu)", colour_code(a[b]), b);
             print_colours(stderr, "", a, n);
             rc = true;
         }
@@ -210,7 +212,7 @@ static bool is_invalid_sequence(size_t n, Colour *a)
     {
         if (a[r] != RED)
         {
-            fprintf(stderr, "Error: %c out of position (%zu):", colour_code(a[r]), r);
+            fprintf(stderr, "Error: %c out of position (%zu)", colour_code(a[r]), r);
             print_colours(stderr, "", a, n);
             rc = true;
         }
@@ -308,6 +310,11 @@ static size_t fixed_tests(char const *range)
     Colour seq_019[] = { BLACK, RED, };
     Colour seq_020[] = { WHITE, WHITE, };
     Colour seq_021[] = { WHITE, RED, };
+    Colour seq_022[] = { RED, WHITE, RED, WHITE, };
+    Colour seq_023[] =
+    {
+        RED, WHITE, RED, WHITE, RED, RED, WHITE, WHITE, WHITE,
+    };
     Test tests[] =
     {
         { seq_001, sizeof(seq_001)/sizeof(seq_001[0]) },
@@ -331,6 +338,8 @@ static size_t fixed_tests(char const *range)
         { seq_019, sizeof(seq_019)/sizeof(seq_019[0]) },
         { seq_020, sizeof(seq_020)/sizeof(seq_020[0]) },
         { seq_021, sizeof(seq_021)/sizeof(seq_021[0]) },
+        { seq_022, sizeof(seq_022)/sizeof(seq_022[0]) },
+        { seq_023, sizeof(seq_023)/sizeof(seq_023[0]) },
     };
     enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 
