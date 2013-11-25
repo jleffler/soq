@@ -195,7 +195,6 @@ static bool test_sequence(Test t)
     dump_colours("Before", a, n);
     partition3(n, d);
     dump_colours("After ", d, n);
-    cd = count_sequence(n, d);
     if (is_invalid_sequence(n, d))
     {
         if (wflag)
