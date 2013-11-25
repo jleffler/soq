@@ -365,8 +365,8 @@ static size_t random_tests(size_t seed, size_t number, size_t maxsize)
 
 int main(int argc, char **argv)
 {
-    static char const optstr[] = "dfm:n:o:rs:t:w";
-    static char const usestr[] = "[-dfrw][-m maxsize][-n number][-s seed][-t tests]";
+    static char const optstr[] = "dfm:n:o:rs:t:vw";
+    static char const usestr[] = "[-dfrvw][-m maxsize][-n number][-s seed][-t tests]";
     char const *range = 0;
     unsigned seed = time(0);
     size_t number = 1000;
@@ -383,6 +383,7 @@ int main(int argc, char **argv)
         {
         case 'd':
             db_setdebug(1);
+            verbose = 1;
             break;
         case 'f':
             fixed = false;
