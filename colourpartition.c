@@ -32,12 +32,12 @@ static void partition3(size_t n, Colour *arr)
     size_t w = 0;
     size_t r = n;
 
-    //DB_TRACE(1, "\nw0 = %zu; r0 = %zu: ", w, r);
+    DB_TRACE(1, "\nw0 = %zu; r0 = %zu: ", w, r);
     while (w < r && arr[w] == WHITE)
         w++;
     while (r > w && arr[r-1] == RED)
         r--;
-    //DB_TRACE(1, "w1 = %zu; r1 = %zu\n", w, r);
+    DB_TRACE(1, "w1 = %zu; r1 = %zu\n", w, r);
 
     for (size_t i = w; i < r; i++)
     {
@@ -45,33 +45,13 @@ static void partition3(size_t n, Colour *arr)
         DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
         if (arr[i] == RED)
         {
-            //DB_CALL(1, fprintf(stderr, "i = %2zu R-SWAP %2zu %c with %2zu %c\n",
-                               //i, i, colour_code(arr[i]), r-1, colour_code(arr[r-1])));
             swap(&arr[i], &arr[--r]);
-            //while (r > w && arr[r-1] == RED)
-                //r--;
-            //while (w < r && arr[w] == WHITE)
-                //w++;
-            //if (i < w)
-            //{
-                //DB_TRACE(1, "R-SWAP i = %zu; w = %zu\n", i, w);
-                //i = w;
-            //}
             DB_TRACE(1, "i = %2zu [2] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
             DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
         }
         if (arr[i] == WHITE)
         {
-            //DB_CALL(1, fprintf(stderr, "i = %2zu W-SWAP %2zu %c with %2zu %c\n",
-                               //i, i, colour_code(arr[i]), w, colour_code(arr[w])));
             swap(&arr[i], &arr[w++]);
-            //while (w < r && arr[w] == WHITE)
-                //w++;
-            //if (i < w)
-            //{
-                //DB_TRACE(1, "W-SWAP i = %zu; w = %zu\n", i, w);
-                //i = w;
-            //}
             DB_TRACE(1, "i = %2zu [3] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
             DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
         }
@@ -111,8 +91,8 @@ static void dump_colours(char const *tag, Colour *data, size_t num)
 
 static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r, size_t c)
 {
-    //assert(w <= r);
-    //assert(r <= num);
+    assert(w <= r);
+    assert(r <= num);
     fprintf(fp, "%s: ", tag);
     for (unsigned i = 0; i < num; i++)
     {
@@ -143,51 +123,6 @@ static Colour *dup_sequence(size_t n, Colour const *a)
     for (size_t i = 0; i < n; i++)
         d[i] = a[i];
     return d;
-}
-
-typedef struct Counts
-{
-    size_t  white;
-    size_t  black;
-    size_t  red;
-} Counts;
-
-static Counts count_sequence(size_t n, Colour const *a)
-{
-    Counts c = { 0, 0, 0 };
-    for (size_t i = 0; i < n; i++)
-    {
-        if (a[i] == WHITE)
-            c.white++;
-        else if (a[i] == BLACK)
-            c.black++;
-        else if (a[i] == RED)
-            c.red++;
-        else
-            assert(a[i] >= WHITE && a[i] <= RED);
-    }
-    return c;
-}
-
-static bool equal_counts(char const *tag, Counts c1, Counts c2)
-{
-    bool rc = true;
-    if (c1.white != c2.white)
-    {
-        rc = false;
-        fprintf(stderr, "%s: White counts mismatch (%zu vs %zu)\n", tag, c1.white, c2.white);
-    }
-    if (c1.black != c2.black)
-    {
-        rc = false;
-        fprintf(stderr, "%s: Black counts mismatch (%zu vs %zu)\n", tag, c1.black, c2.black);
-    }
-    if (c1.red != c2.red)
-    {
-        rc = false;
-        fprintf(stderr, "%s: Red counts mismatch (%zu vs %zu)\n", tag, c1.red, c2.red);
-    }
-    return rc;
 }
 
 static bool is_invalid_sequence(size_t n, Colour *a)
@@ -257,14 +192,10 @@ static bool test_sequence(Test t)
     size_t  n = t.size;
     Colour *a = t.data;
     Colour *d = dup_sequence(n, a);
-    Counts ca = count_sequence(n, a);
-    Counts cd = count_sequence(n, d);
-    assert(equal_counts("Pre", ca, cd));
     dump_colours("Before", a, n);
     partition3(n, d);
     dump_colours("After ", d, n);
     cd = count_sequence(n, d);
-    assert(equal_counts("Post", ca, cd));
     if (is_invalid_sequence(n, d))
     {
         if (wflag)
