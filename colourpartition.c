@@ -13,6 +13,73 @@
 
 typedef enum { WHITE, BLACK, RED } Colour;
 
+static char colour_code(Colour c);
+static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r, size_t c);
+
+static
+void swap(Colour *p1, Colour *p2)
+{
+    Colour tmp;
+    tmp = *p1;
+    *p1 = *p2;
+    *p2 = tmp;
+}
+
+static
+void partition3(size_t n, Colour *arr)
+{
+    if (n <= 1)
+        return;
+
+    size_t w = 0;
+    size_t r = n;
+
+    DB_TRACE(1, "\nw0 = %zu; r0 = %zu: ", w, r);
+    while (w < r && arr[w] == WHITE)
+        w++;
+    while (r > w && arr[r-1] == RED)
+        r--;
+    DB_TRACE(1, "w1 = %zu; r1 = %zu\n", w, r);
+
+    for (size_t i = w; i < r; i++)
+    {
+        DB_TRACE(1, "i = %2zu [1] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
+        DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
+        while (arr[i] == RED)
+        {
+            DB_CALL(1, fprintf(stderr, "i = %2zu R-SWAP %2zu %c with %2zu %c\n", i, i, colour_code(arr[i]), r-1, colour_code(arr[r-1])));
+            swap(&arr[i], &arr[--r]);
+            while (r > w && arr[r-1] == RED)
+                r--;
+            while (w < r && arr[w] == WHITE)
+                w++;
+            if (i < w)
+            {
+                DB_TRACE(1, "R-SWAP i = %zu; w = %zu\n", i, w);
+                i = w;
+            }
+            DB_TRACE(1, "i = %2zu [2] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
+            DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
+        }
+        while (i > w && arr[i] == WHITE)
+        {
+            DB_CALL(1, fprintf(stderr, "i = %2zu W-SWAP %2zu %c with %2zu %c\n", i, i, colour_code(arr[i]), w, colour_code(arr[w])));
+            swap(&arr[i], &arr[w++]);
+            while (w < r && arr[w] == WHITE)
+                w++;
+            if (i < w)
+            {
+                DB_TRACE(1, "W-SWAP i = %zu; w = %zu\n", i, w);
+                i = w;
+            }
+            DB_TRACE(1, "i = %2zu [3] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
+            DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
+        }
+    }
+}
+
+/* DEBUGGING and TEST infrastructure */
+
 static char const *colour_name(Colour c)
 {
     return(c == WHITE ? "WHITE" : c == RED ? "RED" : "BLACK");
@@ -36,70 +103,25 @@ static void dump_colours(char const *tag, Colour *data, unsigned num)
     print_colours(stdout, tag, data, num);
 }
 
-static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r)
+static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r, size_t c)
 {
-    assert(w <= r);
-    assert(r <= num);
-    fprintf(fp, "%s:", tag);
+    //assert(w <= r);
+    //assert(r <= num);
+    fprintf(fp, "%s: ", tag);
     for (unsigned i = 0; i < num; i++)
     {
         char pad = ' ';
         if (i == w || i == r)
             pad = '|';
+        if (i == c)
+            pad = '[';
+        if (i == c+1)
+            pad = ']';
         fprintf(fp, "%c%c", pad, colour_code(data[i]));
     }
     if (r == num || w == num)
         putc('|', fp);
     putc('\n', fp);
-}
-
-static
-void swap(Colour *p1, Colour *p2)
-{
-    Colour tmp;
-    tmp = *p1;
-    *p1 = *p2;
-    *p2 = tmp;
-}
-
-static
-void partition3(size_t n, Colour *arr)
-{
-    if (n <= 1)
-        return;
-
-    size_t w = 0;
-    size_t r = n;
-
-    DB_TRACE(1, "\nw0 = %d; r0 = %d: ", w, r);
-    while (w < r && arr[w] == WHITE)
-        w++;
-    while (r > w && arr[r-1] == RED)
-        r--;
-    DB_TRACE(1, "w1 = %d; r1 = %d\n", w, r);
-
-    for (size_t i = w; i < r; i++)
-    {
-
-        DB_TRACE(1, "i = %2u [1] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
-        DB_CALL(1, trace_colours(stderr, "", arr, n, w, r));
-        if (arr[i] == RED)
-        {
-            swap(&arr[i], &arr[--r]);
-            while (r > w && arr[r-1] == RED)
-                r--;
-            DB_TRACE(1, "i = %2u [2] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
-            DB_CALL(1, trace_colours(stderr, "", arr, n, w, r));
-        }
-        if (arr[i] == WHITE)
-        {
-            swap(&arr[i], &arr[w++]);
-            while (w < r && arr[w] == WHITE)
-                w++;
-            DB_TRACE(1, "i = %2u [3] w = %2u, r = %2u, c = %c", i, w, r, colour_code(arr[i]));
-            DB_CALL(1, trace_colours(stderr, "", arr, n, w, r));
-        }
-    }
 }
 
 static Colour *dup_sequence(size_t n, Colour const *a)
@@ -113,6 +135,51 @@ static Colour *dup_sequence(size_t n, Colour const *a)
     for (size_t i = 0; i < n; i++)
         d[i] = a[i];
     return d;
+}
+
+typedef struct Counts
+{
+    size_t  white;
+    size_t  black;
+    size_t  red;
+} Counts;
+
+static Counts count_sequence(size_t n, Colour const *a)
+{
+    Counts c = { 0, 0, 0 };
+    for (size_t i = 0; i < n; i++)
+    {
+        if (a[i] == WHITE)
+            c.white++;
+        else if (a[i] == BLACK)
+            c.black++;
+        else if (a[i] == RED)
+            c.red++;
+        else
+            assert(a[i] >= WHITE && a[i] <= RED);
+    }
+    return c;
+}
+
+static bool equal_counts(char const *tag, Counts c1, Counts c2)
+{
+    bool rc = true;
+    if (c1.white != c2.white)
+    {
+        rc = false;
+        fprintf(stderr, "%s: White counts mismatch (%zu vs %zu)\n", tag, c1.white, c2.white);
+    }
+    if (c1.black != c2.black)
+    {
+        rc = false;
+        fprintf(stderr, "%s: Black counts mismatch (%zu vs %zu)\n", tag, c1.black, c2.black);
+    }
+    if (c1.red != c2.red)
+    {
+        rc = false;
+        fprintf(stderr, "%s: Red counts mismatch (%zu vs %zu)\n", tag, c1.red, c2.red);
+    }
+    return rc;
 }
 
 static bool is_invalid_sequence(size_t n, Colour *a)
@@ -182,9 +249,14 @@ static bool test_sequence(Test t)
     size_t  n = t.size;
     Colour *a = t.data;
     Colour *d = dup_sequence(n, a);
+    Counts ca = count_sequence(n, a);
+    Counts cd = count_sequence(n, d);
+    assert(equal_counts("Pre", ca, cd));
     dump_colours("Before", a, n);
     partition3(n, d);
     dump_colours("After ", d, n);
+    cd = count_sequence(n, d);
+    assert(equal_counts("Post", ca, cd));
     if (is_invalid_sequence(n, d))
     {
         if (wflag)
@@ -227,6 +299,15 @@ static size_t fixed_tests(char const *range)
         WHITE, RED, WHITE, WHITE, RED, WHITE, BLACK, RED, RED, RED,
         WHITE,
     };
+    Colour seq_013[] = { RED, WHITE, RED, };
+    Colour seq_014[] = { RED, WHITE, };
+    Colour seq_015[] = { RED, BLACK, };
+    Colour seq_016[] = { RED, RED, };
+    Colour seq_017[] = { BLACK, WHITE, };
+    Colour seq_018[] = { BLACK, BLACK, };
+    Colour seq_019[] = { BLACK, RED, };
+    Colour seq_020[] = { WHITE, WHITE, };
+    Colour seq_021[] = { WHITE, RED, };
     Test tests[] =
     {
         { seq_001, sizeof(seq_001)/sizeof(seq_001[0]) },
@@ -241,6 +322,15 @@ static size_t fixed_tests(char const *range)
         { seq_010, sizeof(seq_010)/sizeof(seq_010[0]) },
         { seq_011, sizeof(seq_011)/sizeof(seq_011[0]) },
         { seq_012, sizeof(seq_012)/sizeof(seq_012[0]) },
+        { seq_013, sizeof(seq_013)/sizeof(seq_013[0]) },
+        { seq_014, sizeof(seq_014)/sizeof(seq_014[0]) },
+        { seq_015, sizeof(seq_015)/sizeof(seq_015[0]) },
+        { seq_016, sizeof(seq_016)/sizeof(seq_016[0]) },
+        { seq_017, sizeof(seq_017)/sizeof(seq_017[0]) },
+        { seq_018, sizeof(seq_018)/sizeof(seq_018[0]) },
+        { seq_019, sizeof(seq_019)/sizeof(seq_019[0]) },
+        { seq_020, sizeof(seq_020)/sizeof(seq_020[0]) },
+        { seq_021, sizeof(seq_021)/sizeof(seq_021[0]) },
     };
     enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 
@@ -255,11 +345,14 @@ static size_t fixed_tests(char const *range)
             if (nxt == ptr)
                 err_error("invalid range string (%s)\n", range);
             if (hi == 0)
-                hi = NUM_TESTS;
+                hi = NUM_TESTS-1;
             for (long i = lo; i <= hi; i++)
             {
                 if (test_sequence(tests[i]) == false)
+                {
+                    printf("Test %ld: Failed\n", i);
                     fail++;
+                }
             }
             ptr = nxt;
         }
@@ -269,7 +362,10 @@ static size_t fixed_tests(char const *range)
         for (size_t i = 0; i < NUM_TESTS; i++)
         {
             if (test_sequence(tests[i]) == false)
+            {
+                printf("Test %ld: Failed\n", i);
                 fail++;
+            }
         }
     }
 
