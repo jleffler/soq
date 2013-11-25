@@ -32,49 +32,55 @@ static void partition3(size_t n, Colour *arr)
     size_t w = 0;
     size_t r = n;
 
-    DB_TRACE(1, "\nw0 = %zu; r0 = %zu: ", w, r);
+    //DB_TRACE(1, "\nw0 = %zu; r0 = %zu: ", w, r);
     while (w < r && arr[w] == WHITE)
         w++;
     while (r > w && arr[r-1] == RED)
         r--;
-    DB_TRACE(1, "w1 = %zu; r1 = %zu\n", w, r);
+    //DB_TRACE(1, "w1 = %zu; r1 = %zu\n", w, r);
 
     for (size_t i = w; i < r; i++)
     {
         DB_TRACE(1, "i = %2zu [1] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
         DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
-        while (arr[i] == RED)
+        if (arr[i] == RED)
         {
-            DB_CALL(1, fprintf(stderr, "i = %2zu R-SWAP %2zu %c with %2zu %c\n",
-                               i, i, colour_code(arr[i]), r-1, colour_code(arr[r-1])));
+            //DB_CALL(1, fprintf(stderr, "i = %2zu R-SWAP %2zu %c with %2zu %c\n",
+                               //i, i, colour_code(arr[i]), r-1, colour_code(arr[r-1])));
             swap(&arr[i], &arr[--r]);
-            while (r > w && arr[r-1] == RED)
-                r--;
-            while (w < r && arr[w] == WHITE)
-                w++;
-            if (i < w)
-            {
-                DB_TRACE(1, "R-SWAP i = %zu; w = %zu\n", i, w);
-                i = w;
-            }
+            //while (r > w && arr[r-1] == RED)
+                //r--;
+            //while (w < r && arr[w] == WHITE)
+                //w++;
+            //if (i < w)
+            //{
+                //DB_TRACE(1, "R-SWAP i = %zu; w = %zu\n", i, w);
+                //i = w;
+            //}
             DB_TRACE(1, "i = %2zu [2] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
             DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
         }
-        while (i > w && arr[i] == WHITE)
+        if (arr[i] == WHITE)
         {
-            DB_CALL(1, fprintf(stderr, "i = %2zu W-SWAP %2zu %c with %2zu %c\n",
-                               i, i, colour_code(arr[i]), w, colour_code(arr[w])));
+            //DB_CALL(1, fprintf(stderr, "i = %2zu W-SWAP %2zu %c with %2zu %c\n",
+                               //i, i, colour_code(arr[i]), w, colour_code(arr[w])));
             swap(&arr[i], &arr[w++]);
-            while (w < r && arr[w] == WHITE)
-                w++;
-            if (i < w)
-            {
-                DB_TRACE(1, "W-SWAP i = %zu; w = %zu\n", i, w);
-                i = w;
-            }
+            //while (w < r && arr[w] == WHITE)
+                //w++;
+            //if (i < w)
+            //{
+                //DB_TRACE(1, "W-SWAP i = %zu; w = %zu\n", i, w);
+                //i = w;
+            //}
             DB_TRACE(1, "i = %2zu [3] w = %2zu, r = %2zu, c = %c", i, w, r, colour_code(arr[i]));
             DB_CALL(1, trace_colours(stderr, "", arr, n, w, r, i));
         }
+        while (r > w && arr[r-1] == RED)
+            r--;
+        while (w < r && arr[w] == WHITE)
+            w++;
+        if (i < w && w > 0)
+            i = w - 1;
     }
 }
 
