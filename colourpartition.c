@@ -125,7 +125,7 @@ static Colour *dup_sequence(size_t n, Colour const *a)
     return d;
 }
 
-static bool is_invalid_sequence(size_t n, Colour *a)
+static bool is_invalid_sequence(size_t n, Colour *a, bool report)
 {
     bool rc = false;
     size_t w;
@@ -140,8 +140,11 @@ static bool is_invalid_sequence(size_t n, Colour *a)
     {
         if (a[b] == WHITE)
         {
-            fprintf(stderr, "Error: %c out of position (%zu)", colour_code(a[b]), b);
-            print_colours(stderr, "", a, n);
+            if (report)
+            {
+                fprintf(stderr, "Error: %c out of position (%zu)", colour_code(a[b]), b);
+                print_colours(stderr, "", a, n);
+            }
             rc = true;
         }
         if (a[b] != BLACK)
@@ -153,8 +156,11 @@ static bool is_invalid_sequence(size_t n, Colour *a)
     {
         if (a[r] != RED)
         {
-            fprintf(stderr, "Error: %c out of position (%zu)", colour_code(a[r]), r);
-            print_colours(stderr, "", a, n);
+            if (report)
+            {
+                fprintf(stderr, "Error: %c out of position (%zu)", colour_code(a[r]), r);
+                print_colours(stderr, "", a, n);
+            }
             rc = true;
         }
     }
@@ -163,12 +169,13 @@ static bool is_invalid_sequence(size_t n, Colour *a)
 }
 
 static size_t seqno = 0;
-static bool   wflag = false;
+static bool wflag = false;
+static bool verbose = false;
 
 typedef struct Test
 {
     Colour *data;
-    size_t  size;
+    size_t size;
 } Test;
 
 static void write_sequence(size_t seq, size_t n, Colour *a)
@@ -189,14 +196,21 @@ static void write_sequence(size_t seq, size_t n, Colour *a)
 static bool test_sequence(Test t)
 {
     bool rc = true;
-    size_t  n = t.size;
+    size_t n = t.size;
     Colour *a = t.data;
     Colour *d = dup_sequence(n, a);
-    dump_colours("Before", a, n);
+    if (verbose)
+        dump_colours("Before", a, n);
     partition3(n, d);
-    dump_colours("After ", d, n);
-    if (is_invalid_sequence(n, d))
+    if (verbose)
+        dump_colours("After ", d, n);
+    if (is_invalid_sequence(n, d, false))
     {
+        if (!verbose)
+            dump_colours("Before", a, n);
+        is_invalid_sequence(n, d, true);
+        if (!verbose)
+            dump_colours("After ", d, n);
         if (wflag)
             write_sequence(++seqno, n, a);
         rc = false;
@@ -205,7 +219,7 @@ static bool test_sequence(Test t)
     return rc;
 }
 
-static size_t fixed_tests(char const *range)
+static size_t fixed_tests(char const *range, size_t *counter)
 {
     size_t fail = 0;
 
@@ -279,6 +293,7 @@ static size_t fixed_tests(char const *range)
     };
     enum { NUM_TESTS = sizeof(tests) / sizeof(tests[0]) };
 
+    *counter = 0;
     if (range != 0)
     {
         const char *ptr = range;
@@ -293,6 +308,7 @@ static size_t fixed_tests(char const *range)
                 hi = NUM_TESTS-1;
             for (long i = lo; i <= hi; i++)
             {
+                (*counter)++;
                 if (test_sequence(tests[i]) == false)
                 {
                     printf("Test %ld: Failed\n", i);
@@ -306,6 +322,7 @@ static size_t fixed_tests(char const *range)
     {
         for (size_t i = 0; i < NUM_TESTS; i++)
         {
+            (*counter)++;
             if (test_sequence(tests[i]) == false)
             {
                 printf("Test %ld: Failed\n", i);
@@ -333,7 +350,8 @@ static size_t random_tests(size_t seed, size_t number, size_t maxsize)
             fprintf(stderr, "Out of memory\n");
             exit(1);
         }
-        printf("Test: %zu (%zu)\n", i, t.size);
+        if (verbose)
+            printf("Test: %zu (%zu)\n", i, t.size);
         for (size_t j = 0; j < t.size; j++)
             t.data[j] = rand() % 3;
         if (test_sequence(t) == false)
@@ -384,6 +402,9 @@ int main(int argc, char **argv)
         case 't':
             range = optarg;
             break;
+        case 'v':
+            verbose = true;
+            break;
         case 'w':
             wflag = true;
             break;
@@ -398,11 +419,17 @@ int main(int argc, char **argv)
     size_t fail = 0;
 
     if (fixed)
-        fail += fixed_tests(range);
-    if (random)
-        fail += random_tests(seed, number, maxsize);
-
-    printf("Failures: %zu\n", fail);
+    {
+        size_t counter;
+        fail = fixed_tests(range, &counter);
+        printf("Failures: %zu in %zu fixed tests\n", fail, counter);
+    }
+    if (fail == 0 && random)
+    {
+        fail = random_tests(seed, number, maxsize);
+        printf("Failures: %zu in %zu random tests\n", fail, number);
+    }
 
     return 0;
 }
+
