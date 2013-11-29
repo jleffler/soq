@@ -7,6 +7,8 @@
 ** Key: 2 rec:1 2 3 4 5 6 ...
 **
 ** Sorting on the key number in column 2 of the records.
+**
+** Read from standard input; write to standard output.
 */
 
 #include <errno.h>

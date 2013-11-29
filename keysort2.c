@@ -7,6 +7,9 @@
 ** Key: 2 rec:1 2 3 4 5 6 ...
 **
 ** Sorting on the key number in column 2 of the records.
+**
+** Similar to, and derived from, keysort1.c.  Read from named file (or
+** standard input) and write to same file (or standard output).
 */
 #include <errno.h>
 #include <stdarg.h>
