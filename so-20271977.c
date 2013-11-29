@@ -47,16 +47,16 @@ static inline int compare(Array4 const *A, size_t p, size_t r)
         return 0;
 }
 
-static void dump_partition(char const *tag, Array4 const *A, size_t p, size_t r)
+static void dump_array(char const *tag, Array4 const *A)
 {
-    printf("%s [%zu..%zu]:\n", tag, p, r);
-    for (size_t i = p; i <= r; i++)
+    printf("%s [%zu..%zu]:\n", tag, (size_t)0, A->n-1);
+    for (size_t i = 0; i < A->n; i++)
         printf("(" FLTFMT ", " FLTFMT ", " FLTFMT ", " FLTFMT ")\n", A->x[i], A->y[i], A->z[i], A->w[i]);
 }
 
-static void chk_sort(Array4 const *A, size_t p, size_t r)
+static void chk_sort(Array4 const *A)
 {
-    for (size_t i = p; i < r; i++)
+    for (size_t i = 0; i < A->n - 1; i++)
     {
         if (compare(A, i, i+1) > 0)
         {
@@ -97,41 +97,36 @@ static void load_random(Array4 *A)
 
 static void load_ascending(Array4 *A)
 {
-    size_t size = A->n;
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < A->n; i++)
         set(A, i, i);
 }
 
 static void load_descending(Array4 *A)
 {
-    size_t size = A->n;
-    for (size_t i = 0; i < size; i++)
-        set(A, i, size - i);
+    for (size_t i = 0; i < A->n; i++)
+        set(A, i, A->n - i);
 }
 
 static void load_uniform(Array4 *A)
 {
-    size_t size = A->n;
-    for (size_t i = 0; i < size; i++)
-        set(A, i, size);
+    for (size_t i = 0; i < A->n; i++)
+        set(A, i, A->n);
 }
 
 static void load_organpipe(Array4 *A)
 {
-    size_t size = A->n;
-    for (size_t i = 0; i <= size / 2; i++)
+    for (size_t i = 0; i <= A->n / 2; i++)
         set(A, i, i);
-    for (size_t i = size / 2 + 1; i < size; i++)
-        set(A, i, size - i);
+    for (size_t i = A->n / 2 + 1; i < A->n; i++)
+        set(A, i, A->n - i);
 }
 
 static void load_invorganpipe(Array4 *A)
 {
-    size_t size = A->n;
-    size_t range = size / 2;
-    for (size_t i = 0; i < size / 2; i++)
+    size_t range = A->n / 2;
+    for (size_t i = 0; i < A->n / 2; i++)
         set(A, i, range - i);
-    for (size_t i = size / 2 + 1; i < size; i++)
+    for (size_t i = A->n / 2 + 1; i < A->n; i++)
         set(A, i, i - range);
 }
 
@@ -142,22 +137,21 @@ typedef size_t (*Part)(Array4 *A, size_t p, size_t r);
 static void test_one_sort(Array4 *A, Sort sort, char const *s_tag,
                           char const *l_tag, char const *z_tag)
 {
-    size_t size = A->n;
     if (trace)
     {
         printf("%s-%s-%s:", z_tag, l_tag, s_tag);
-        dump_partition("Before", A, 0, size - 1);
+        dump_array("Before", A);
     }
     clock_t start = clock();
     (*sort)(A);
     clock_t finish = clock();
     double sec = (finish - start) / (double)CLOCKS_PER_SEC;
     printf("%s-%s-%s: %13.6f\n", z_tag, l_tag, s_tag, sec);
-    chk_sort(A, 0, size - 1);
+    chk_sort(A);
     if (trace)
     {
         printf("%s-%s-%s:", z_tag, l_tag, s_tag);
-        dump_partition("After", A, 0, size - 1);
+        dump_array("After", A);
     }
 }
 
