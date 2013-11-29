@@ -9,6 +9,7 @@
 
 typedef struct Array4
 {
+    size_t  n;
     double *x;
     double *y;
     double *z;
@@ -82,83 +83,87 @@ static inline void set(Array4 *A, size_t p, double d)
     A->w[p] = d * 2.0;
 }
 
-static void load_random(Array4 *A, size_t p, size_t r)
+static void load_random(Array4 *A)
 {
-    size_t range = (r - p + 1);
-    for (size_t i = p; i <= r; i++)
+    size_t size = A->n;
+    for (size_t i = 0; i < size; i++)
     {
-        A->x[i] = drand48() * range;
-        A->y[i] = drand48() * range + drand48() - 0.5;
-        A->z[i] = drand48() * range / 2.0;
-        A->w[i] = drand48() * range * 2.0;
+        A->x[i] = drand48() * size;
+        A->y[i] = drand48() * size + drand48() - 0.5;
+        A->z[i] = drand48() * size / 2.0;
+        A->w[i] = drand48() * size * 2.0;
     }
 }
 
-static void load_ascending(Array4 *A, size_t p, size_t r)
+static void load_ascending(Array4 *A)
 {
-    for (size_t i = p; i <= r; i++)
+    size_t size = A->n;
+    for (size_t i = 0; i < size; i++)
         set(A, i, i);
 }
 
-static void load_descending(Array4 *A, size_t p, size_t r)
+static void load_descending(Array4 *A)
 {
-    size_t range = (r - p + 1);
-    for (size_t i = p; i <= r; i++)
-        set(A, i, range - i);
+    size_t size = A->n;
+    for (size_t i = 0; i < size; i++)
+        set(A, i, size - i);
 }
 
-static void load_uniform(Array4 *A, size_t p, size_t r)
+static void load_uniform(Array4 *A)
 {
-    for (size_t i = p; i <= r; i++)
-        set(A, i, r);
+    size_t size = A->n;
+    for (size_t i = 0; i < size; i++)
+        set(A, i, size);
 }
 
-static void load_organpipe(Array4 *A, size_t p, size_t r)
+static void load_organpipe(Array4 *A)
 {
-    size_t range = r - p + 1;
-    for (size_t i = p; i <= r / 2; i++)
+    size_t size = A->n;
+    for (size_t i = 0; i <= size / 2; i++)
         set(A, i, i);
-    for (size_t i = r / 2 + 1; i <= r; i++)
-        set(A, i, range - i);
+    for (size_t i = size / 2 + 1; i < size; i++)
+        set(A, i, size - i);
 }
 
-static void load_invorganpipe(Array4 *A, size_t p, size_t r)
+static void load_invorganpipe(Array4 *A)
 {
-    size_t range = (r - p + 1) / 2;
-    for (size_t i = p; i <= r / 2; i++)
+    size_t size = A->n;
+    size_t range = size / 2;
+    for (size_t i = 0; i < size / 2; i++)
         set(A, i, range - i);
-    for (size_t i = r / 2 + 1; i <= r; i++)
+    for (size_t i = size / 2 + 1; i < size; i++)
         set(A, i, i - range);
 }
 
-typedef void (*Load)(Array4 *A, size_t p, size_t r);
+typedef void (*Load)(Array4 *A);
 typedef void (*Sort)(Array4 *A, size_t p, size_t r);
 typedef size_t (*Part)(Array4 *A, size_t p, size_t r);
 
-static void test_one_sort(Array4 *A, size_t p, size_t r, Sort sort, char const *s_tag,
+static void test_one_sort(Array4 *A, size_t size, Sort sort, char const *s_tag,
                           char const *l_tag, char const *z_tag)
 {
     if (trace)
     {
         printf("%s-%s-%s:", z_tag, l_tag, s_tag);
-        dump_partition("Before", A, p, r);
+        dump_partition("Before", A, 0, size - 1);
     }
     clock_t start = clock();
-    (*sort)(A, p, r);
+    (*sort)(A, 0, size - 1);
     clock_t finish = clock();
     double sec = (finish - start) / (double)CLOCKS_PER_SEC;
     printf("%s-%s-%s: %13.6f\n", z_tag, l_tag, s_tag, sec);
-    chk_sort(A, p, r);
+    chk_sort(A, 0, size - 1);
     if (trace)
     {
         printf("%s-%s-%s:", z_tag, l_tag, s_tag);
-        dump_partition("After", A, p, r);
+        dump_partition("After", A, 0, size - 1);
     }
 }
 
 static Array4 *alloc_array(size_t size)
 {
     Array4 *A = xmalloc(sizeof(*A));
+    A->n = size;
     A->x = xmalloc(size * sizeof(A->x[0]));
     A->y = xmalloc(size * sizeof(A->y[0]));
     A->z = xmalloc(size * sizeof(A->z[0]));
@@ -171,6 +176,7 @@ static Array4 *dup_array(Array4 *A, size_t size)
     Array4 *B = alloc_array(size);
     if (B != 0)
     {
+        B->n = A->n;
         memmove(B->x, A->x, size * sizeof(A->x[0]));
         memmove(B->y, A->y, size * sizeof(A->y[0]));
         memmove(B->z, A->z, size * sizeof(A->z[0]));
@@ -188,7 +194,7 @@ static void free_array(Array4 *A)
     free(A);
 }
 
-static void test_set_sorts(Array4 *A, size_t p, size_t r, char const *l_tag, char const *z_tag)
+static void test_set_sorts(Array4 *A, size_t size, char const *l_tag, char const *z_tag)
 {
     struct sorter
     {
@@ -203,8 +209,8 @@ static void test_set_sorts(Array4 *A, size_t p, size_t r, char const *l_tag, cha
     enum { NUM_SORTS = sizeof(sort) / sizeof(sort[0]) };
     for (int i = 0; i < NUM_SORTS; i++)
     {
-        Array4 *B = dup_array(A, r - p + 1);
-        test_one_sort(B, p, r, sort[i].function, sort[i].tag, l_tag, z_tag);
+        Array4 *B = dup_array(A, size);
+        test_one_sort(B, size, sort[i].function, sort[i].tag, l_tag, z_tag);
         free(B);
     }
 }
@@ -228,8 +234,8 @@ static void test_set_loads(size_t size, char const *z_tag)
     Array4 *A = alloc_array(size);
     for (int i = 0; i < NUM_LOADS; i++)
     {
-        load[i].function(A, 0, size-1);
-        test_set_sorts(A, 0, size-1, load[i].tag, z_tag);
+        load[i].function(A);
+        test_set_sorts(A, size, load[i].tag, z_tag);
     }
     free_array(A);
 }
