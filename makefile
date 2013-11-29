@@ -29,6 +29,9 @@ LDLIBS  =  ${LDLIB1}
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
+MERGELIST.o = list.o mergelist.o
+MERGELIST   = mergelist
+
 null:
 	@echo "You must specify a target to build"
 
@@ -39,15 +42,19 @@ PROGRAMS = \
 	merge \
 	mergesort \
 	mergesort2 \
+	msort \
+	piped-merge-sort \
+	qs2 \
+	qs3 \
+	qs7 \
+	radixsort \
+	so-20271977 \
 	sorttest
 
 all: ${PROGRAMS}
 
-MERGELIST.o = list.o mergelist.o
-MERGELIST   = mergelist
-
-${MERGELIST}: ${FILES.o}
-	${CC} -o $@ ${CFLAGS} ${FILES.o} ${LDFLAGS} ${LDLIBS}
+${MERGELIST}: ${MERGELIST.o}
+	${CC} -o $@ ${CFLAGS} ${MERGELIST.o} ${LDFLAGS} ${LDLIBS}
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
