@@ -153,6 +153,7 @@ static void test_one_sort(Array4 *A, Sort sort, char const *s_tag,
         printf("%s-%s-%s:", z_tag, l_tag, s_tag);
         dump_array("After", A);
     }
+    fflush(stdout);
 }
 
 static Array4 *alloc_array(size_t size)
