@@ -139,9 +139,10 @@ typedef void (*Load)(Array4 *A);
 typedef void (*Sort)(Array4 *A, size_t p, size_t r);
 typedef size_t (*Part)(Array4 *A, size_t p, size_t r);
 
-static void test_one_sort(Array4 *A, size_t size, Sort sort, char const *s_tag,
+static void test_one_sort(Array4 *A, Sort sort, char const *s_tag,
                           char const *l_tag, char const *z_tag)
 {
+    size_t size = A->n;
     if (trace)
     {
         printf("%s-%s-%s:", z_tag, l_tag, s_tag);
@@ -171,12 +172,13 @@ static Array4 *alloc_array(size_t size)
     return A;
 }
 
-static Array4 *dup_array(Array4 *A, size_t size)
+static Array4 *dup_array(Array4 *A)
 {
+    size_t size = A->n;
     Array4 *B = alloc_array(size);
     if (B != 0)
     {
-        B->n = A->n;
+        B->n = size;
         memmove(B->x, A->x, size * sizeof(A->x[0]));
         memmove(B->y, A->y, size * sizeof(A->y[0]));
         memmove(B->z, A->z, size * sizeof(A->z[0]));
@@ -194,7 +196,7 @@ static void free_array(Array4 *A)
     free(A);
 }
 
-static void test_set_sorts(Array4 *A, size_t size, char const *l_tag, char const *z_tag)
+static void test_set_sorts(Array4 *A, char const *l_tag, char const *z_tag)
 {
     struct sorter
     {
@@ -209,8 +211,8 @@ static void test_set_sorts(Array4 *A, size_t size, char const *l_tag, char const
     enum { NUM_SORTS = sizeof(sort) / sizeof(sort[0]) };
     for (int i = 0; i < NUM_SORTS; i++)
     {
-        Array4 *B = dup_array(A, size);
-        test_one_sort(B, size, sort[i].function, sort[i].tag, l_tag, z_tag);
+        Array4 *B = dup_array(A);
+        test_one_sort(B, sort[i].function, sort[i].tag, l_tag, z_tag);
         free(B);
     }
 }
@@ -235,7 +237,7 @@ static void test_set_loads(size_t size, char const *z_tag)
     for (int i = 0; i < NUM_LOADS; i++)
     {
         load[i].function(A);
-        test_set_sorts(A, size, load[i].tag, z_tag);
+        test_set_sorts(A, load[i].tag, z_tag);
     }
     free_array(A);
 }
