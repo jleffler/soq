@@ -29,9 +29,9 @@ static void *xmalloc(size_t size)
     return space;
 }
 
-void quicksort_last(Array4 *A, size_t p, size_t r);
-void quicksort_random(Array4 *A, size_t p, size_t r);
-void selectionsort(Array4 *A, size_t p, size_t r);
+void quicksort_last(Array4 *A);
+void quicksort_random(Array4 *A);
+void selectionsort(Array4 *A);
 
 static inline int compare(Array4 const *A, size_t p, size_t r)
 {
@@ -136,7 +136,7 @@ static void load_invorganpipe(Array4 *A)
 }
 
 typedef void (*Load)(Array4 *A);
-typedef void (*Sort)(Array4 *A, size_t p, size_t r);
+typedef void (*Sort)(Array4 *A);
 typedef size_t (*Part)(Array4 *A, size_t p, size_t r);
 
 static void test_one_sort(Array4 *A, Sort sort, char const *s_tag,
@@ -149,7 +149,7 @@ static void test_one_sort(Array4 *A, Sort sort, char const *s_tag,
         dump_partition("Before", A, 0, size - 1);
     }
     clock_t start = clock();
-    (*sort)(A, 0, size - 1);
+    (*sort)(A);
     clock_t finish = clock();
     double sec = (finish - start) / (double)CLOCKS_PER_SEC;
     printf("%s-%s-%s: %13.6f\n", z_tag, l_tag, s_tag, sec);
@@ -257,14 +257,14 @@ static void quicksort_partition(Array4 *A, size_t p, size_t r, Part partition)
 static size_t partition_random(Array4 *A, size_t p, size_t r);
 static size_t partition_last(Array4 *A, size_t p, size_t r);
 
-void quicksort_random(Array4 *A, size_t p, size_t r)
+void quicksort_random(Array4 *A)
 {
-    quicksort_partition(A, p, r, partition_random);
+    quicksort_partition(A, 0, A->n - 1, partition_random);
 }
 
-void quicksort_last(Array4 *A, size_t p, size_t r)
+void quicksort_last(Array4 *A)
 {
-    quicksort_partition(A, p, r, partition_last);
+    quicksort_partition(A, 0, A->n - 1, partition_last);
 }
 
 static inline size_t random_int(size_t p, size_t r)
@@ -319,11 +319,12 @@ static size_t partition_last(Array4 *A, size_t p, size_t r)
     return i;
 }
 
-void selectionsort(Array4 *A, size_t p, size_t r)
+void selectionsort(Array4 *A)
 {
-    for ( ; p < r; p++)
+    size_t r = A->n;
+    for (size_t p = 0; p < r; p++)
     {
-        for (size_t i = p; i <= r; i++)
+        for (size_t i = p; i < r; i++)
         {
             if (compare(A, p, i) > 0)
                 swap(A, p, i);
