@@ -58,7 +58,7 @@ static void chk_sort(Array4 const *A)
 {
     for (size_t i = 0; i < A->n - 1; i++)
     {
-        if (compare(A, i, i+1) > 0)
+        //if (compare(A, i, i+1) > 0)
         {
             if (A->x[i] > A->x[i+1])
             {
@@ -237,6 +237,7 @@ static void test_set_loads(size_t size, char const *z_tag)
     free_array(A);
 }
 
+/* Main Quick Sort function */
 static void quicksort_partition(Array4 *A, size_t p, size_t r, Part partition)
 {
     if (p < r)
@@ -252,11 +253,13 @@ static void quicksort_partition(Array4 *A, size_t p, size_t r, Part partition)
 static size_t partition_random(Array4 *A, size_t p, size_t r);
 static size_t partition_last(Array4 *A, size_t p, size_t r);
 
+/* Quick Sort Wrapper function - specifying random partitioning */
 void quicksort_random(Array4 *A)
 {
     quicksort_partition(A, 0, A->n - 1, partition_random);
 }
 
+/* Quick Sort Wrapper function - specifying partitioning about last element */
 void quicksort_last(Array4 *A)
 {
     quicksort_partition(A, 0, A->n - 1, partition_last);
@@ -314,6 +317,7 @@ static size_t partition_last(Array4 *A, size_t p, size_t r)
     return i;
 }
 
+/* Selection Sort algorithm */
 void selectionsort(Array4 *A)
 {
     size_t r = A->n;
@@ -326,6 +330,28 @@ void selectionsort(Array4 *A)
         }
     }
 }
+
+/*
+** To apply this to the real code, where there are 4 arrays to be sorted
+** in parallel, you might write:
+**
+**    Array4 a;
+**    a.x = x;
+**    a.y = y;
+**    a.z = z;
+**    a.w = w;
+**    a.n = n;
+**    quicksort_random(&a);
+**
+** Or even:
+**
+**    quicksort_random((Array4){ .n = n, .x = x, .y = y, .z = z, .w = w });
+**
+** combining designated initializers and compound literals.  Or you could write a
+** trivial wrapper so that you can call:
+**
+**    quicksort_random_wrapper(n, x, y, z, w);
+*/
 
 int main(void)
 {
