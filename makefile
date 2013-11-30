@@ -12,7 +12,7 @@ GFLAGS = -g
 OFLAGS = -O3
 UFLAGS = # Set on command line
 IFLAG1 = -I${HOME}/inc
-IFLAGS = # ${IFLAG1}
+IFLAGS = ${IFLAG1}
 
 IXXFLAGS = ${IFLAGS}
 SXXFLAGS = -std=c++11
@@ -27,8 +27,8 @@ GXXFLAGS = -g
 
 LDFLAG1 = -L${HOME}/lib/64
 LDLIB1  = -ljl
-LDFLAGS = # ${LDFLAG1}
-LDLIBS  = # ${LDLIB1}
+LDFLAGS = ${LDFLAG1}
+LDLIBS  = ${LDLIB1}
 
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
@@ -40,6 +40,7 @@ PROGRAMS = \
 	arraysize \
 	binary \
 	bst \
+	cntinv \
 	computist-1 \
 	computist-2 \
 	e2big \
@@ -65,7 +66,6 @@ PROGRAMS = \
 	pthread-3 \
 	q7 \
 	quine \
-	quiz \
 	readdir \
 	regress \
 	roundup \

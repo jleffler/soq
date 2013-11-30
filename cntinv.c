@@ -118,7 +118,7 @@ static int *copy(int *a, int n)
 int main(void)
 {
     // Performance cross-over is between 100 and 200 (around 150)
-    //for (int i = 100; i < 200; i += 10)
+    for (int i = 100; i < 200; i += 10)
     //for (int i = 100; i < 100000; i *= 2)
     {
         int *a1 = generate(i);
