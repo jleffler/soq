@@ -33,6 +33,17 @@ LDLIBS  = ${LDLIB1}
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
 
+# Non-compiling source, or source not compiling to a program
+#    incunabulum.c \
+#    modern-incunabulum.c \
+#    cmpfltint.c \
+#	 substr.c \		# -DTEST to make executable
+#	 rangesquash1.pl
+#	 rangesquash2.pl
+#	 rangesquash3.pl
+#	 rangesquash4.pl
+#
+
 PROGRAMS = \
 	3-star \
 	4-star \
@@ -41,6 +52,7 @@ PROGRAMS = \
 	binary \
 	bst \
 	cntinv \
+	colourpartition \
 	computist-1 \
 	computist-2 \
 	e2big \
@@ -55,10 +67,13 @@ PROGRAMS = \
 	genouterr \
 	heapprt \
 	ll3 \
+	madump \
 	matmake3d \
 	matmul89 \
 	matmul99 \
 	mda \
+	multiopts \
+	pipecircle \
 	pipesize \
 	prime-factors \
 	pthread-1 \
@@ -67,13 +82,16 @@ PROGRAMS = \
 	q7 \
 	quine \
 	readdir \
+	recv \
 	regress \
 	roundup \
 	scan \
+	send \
 	sigalrm \
 	sigchld \
 	signals \
 	streplace \
+	timezeromoves \
 	uint128 \
 	unwrap \
 	visit \

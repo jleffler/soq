@@ -59,7 +59,7 @@ static void sendFile(int sock, const char *filename, char *address, int port)
         if(DEBUG) {
             char tempData[1201];
             strncpy(tempData, sendData, 1200);
-            tempData[1201] ='\0';
+            tempData[1200] ='\0';
             printf("SEND:\n%s\n\n\n", tempData);
         }
 
