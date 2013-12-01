@@ -5,18 +5,19 @@
 #include <inttypes.h>
 #include "timer.h"
 
+typedef int Data;
 static size_t swap_count = 0;
 static size_t comp_count = 0;
 
-static void swap(int *a, int *b)
+static inline void swap(Data *a, Data *b)
 {
     swap_count++;
-    int t = *a;
+    Data t = *a;
     *a = *b;
     *b = t;
 }
 
-static void kvik_sort(int a[], int l, int d)
+static void kvik_sort(Data a[], int l, int d)
 {
     if (l >= d)
         return;
@@ -36,12 +37,12 @@ static void kvik_sort(int a[], int l, int d)
     kvik_sort(a, k+1, d);
 }
 
-static void quick_sort(int a[], int n)
+static void quick_sort(Data a[], int n)
 {
     kvik_sort(a, 0, n-1);
 }
 
-static void selection_sort(int a[], int n)
+static void selection_sort(Data a[], int n)
 {
     for (int i = 0; i < n - 1; i++)
     {
@@ -58,7 +59,7 @@ static void selection_sort(int a[], int n)
     }
 }
 
-static void insertion_sort(int a[], int n)
+static void insertion_sort(Data a[], int n)
 {
     for (int i = 0; i < n - 1; i++)
     {
@@ -75,7 +76,7 @@ static void insertion_sort(int a[], int n)
     }
 }
 
-static void bubble_sort(int a[], int n)
+static void bubble_sort(Data a[], int n)
 {
     for (int i = n - 1; i > 0; i--)
     {
@@ -88,25 +89,25 @@ static void bubble_sort(int a[], int n)
     }
 }
 
-static void fill_random(int a[], int n)
+static void fill_random(Data a[], int n)
 {
     for (int i = 0; i < n; i++)
         a[i] = rand();
 }
 
-static void fill_ascending(int a[], int n)
+static void fill_ascending(Data a[], int n)
 {
     for (int i = 0; i < n; i++)
         a[i] = rand();
 }
 
-static void fill_descending(int a[], int n)
+static void fill_descending(Data a[], int n)
 {
     for (int i = 0; i < n; i++)
         a[i] = -i;
 }
 
-static void fill_fwdorganpipe(int a[], int n)
+static void fill_fwdorganpipe(Data a[], int n)
 {
     int m = n / 2;
     for (int i = 0; i < m; i++)
@@ -118,7 +119,7 @@ static void fill_fwdorganpipe(int a[], int n)
         a[m] = m;
 }
 
-static void fill_revorganpipe(int a[], int n)
+static void fill_revorganpipe(Data a[], int n)
 {
     int m = n / 2;
     for (int i = 0; i < m; i++)
@@ -130,13 +131,13 @@ static void fill_revorganpipe(int a[], int n)
         a[m] = 0;
 }
 
-static void fill_uniform(int a[], int n)
+static void fill_uniform(Data a[], int n)
 {
-    for (int i = 0; i < n; i++)
+    for (Data i = 0; i < n; i++)
         a[i] = 1;
 }
 
-static int check_sort(int a[], int n)
+static int check_sort(Data a[], int n)
 {
     int rc = 0;
     for (int i = 0; i < n-1; i++)
@@ -150,7 +151,7 @@ static int check_sort(int a[], int n)
     return rc;
 }
 
-typedef void (*Function)(int a[], int n);
+typedef void (*Function)(Data a[], int n);
 
 typedef struct FuncInfo
 {
@@ -194,9 +195,9 @@ static void test1(void)
 
     for (int i = 0; i < NUM_SIZES; i++)
     {
-        size_t nbytes = sizes[i] * sizeof(int);
-        int *a0 = malloc(nbytes);
-        int *a1 = malloc(nbytes);
+        size_t nbytes = sizes[i] * sizeof(Data);
+        Data *a0 = malloc(nbytes);
+        Data *a1 = malloc(nbytes);
         for (int j = 0; j < NUM_FILLERS; j++)
         {
             (*fillers[j].func)(a0, sizes[i]);
@@ -239,7 +240,7 @@ static void test1(void)
 //                  test sort(x)             /* an ordered copy */
 //                  test dither(x)           /* add i%5 to x[i] */
 
-typedef void (*ExtraFiller)(int a[], int n, int m);
+typedef void (*ExtraFiller)(Data a[], int n, int m);
 
 typedef struct SortType
 {
@@ -251,7 +252,7 @@ typedef struct SortType
     int          m_param;
 } SortType;
 
-static void framework2(int a[], int n, const SortType *sort)
+static void framework2(Data a[], int n, const SortType *sort)
 {
     Clock clk;
     clk_init(&clk);
@@ -277,19 +278,19 @@ static void framework2(int a[], int n, const SortType *sort)
             clk_elapsed_us(&clk, buffer, sizeof(buffer)));
 }
 
-static void test_copy(int x[], int n, const SortType *sort)
+static void test_copy(Data x[], int n, const SortType *sort)
 {
-    int a[n];
+    Data a[n];
     for (int i = 0; i < n; i++)
         a[i] = x[i];
     framework2(a, n, sort);
 }
 
-static void test_reverse(int x[], int lo, int hi, const SortType *sort)
+static void test_reverse(Data x[], int lo, int hi, const SortType *sort)
 {
     int n = hi - lo;
     assert(n > 0);
-    int a[n];
+    Data a[n];
     for (int i = 0; i < n; i++)
     {
         a[n-1-i] = x[i];
@@ -297,7 +298,7 @@ static void test_reverse(int x[], int lo, int hi, const SortType *sort)
     framework2(a, n, sort);
 }
 
-static void test_dither(int x[], int n, const SortType *sort)
+static void test_dither(Data x[], int n, const SortType *sort)
 {
     int a[n];
     for (int i = 0; i < n; i++)
@@ -305,31 +306,31 @@ static void test_dither(int x[], int n, const SortType *sort)
     framework2(a, n, sort);
 }
 
-static void fill_sawtooth(int a[], int n, int m)
+static void fill_sawtooth(Data a[], int n, int m)
 {
     for (int i = 0; i < n; i++)
         a[i] = i % m;
 }
 
-static void fill_randmod(int a[], int n, int m)
+static void fill_randmod(Data a[], int n, int m)
 {
     for (int i = 0; i < n; i++)
         a[i] = rand() % m;
 }
 
-static void fill_stagger(int a[], int n, int m)
+static void fill_stagger(Data a[], int n, int m)
 {
     for (int i = 0; i < n; i++)
         a[i] = (i * m + i) % n;
 }
 
-static void fill_plateau(int a[], int n, int m)
+static void fill_plateau(Data a[], int n, int m)
 {
     for (int i = 0; i < n; i++)
         a[i] = (i < m) ? i : m;  // min(i, m);
 }
 
-static void fill_shuffle(int a[], int n, int m)
+static void fill_shuffle(Data a[], int n, int m)
 {
     int j = 0;
     int k = 1;
@@ -372,7 +373,7 @@ static void test2(void)
         for (int n0 = 0; n0 < NUM_SIZES; n0++)
         {
             int n = sizes[n0];
-            int x[n];       // Use malloc/free for better valgrind support?
+            Data x[n];       // Use malloc/free for better valgrind support?
             //printf("Sample Size: %d\n", n);
             for (int m = 1; m < 2 * n; m *= 2)
             {
@@ -403,7 +404,7 @@ static void test2(void)
 
 int main(void)
 {
-    if (0)
+    if (1)
         test1();
     if (1)
         test2();
@@ -433,15 +434,15 @@ int main(void)
 //                  test dither(x)           /* add i%5 to x[i] */
 
 #if 0
-static void iswap(int i, int j, int a[])
+static void iswap(int i, int j, Data a[])
 {
-    int t = a[i];
+    Data t = a[i];
     a[i] = a[j];
     a[j] = t;
     swap_count++;
 }
 
-static void iisort(int *a, int n)
+static void iisort(Data *a, int n)
 {
     int i, j;
     for (i = 1; i < n; i++)
@@ -449,7 +450,7 @@ static void iisort(int *a, int n)
             iswap(j, j-1, a);
 }
 
-static void iqsort0(int *a, int n)
+static void iqsort0(Data *a, int n)
 {
     int i, j;
     if (n <= 1) return;
@@ -464,7 +465,7 @@ static void iqsort0(int *a, int n)
     iqsort0(a+j+1, n-j-1);
 }
 
-static void iqsort1(int *a, int n)
+static void iqsort1(Data *a, int n)
 {
     int i, j;
     if (n <= 1) return;
@@ -490,9 +491,10 @@ static char *med3(char *a, char *b, char *c, int (*cmp)())
         : (cmp(b, c) > 0 ? b : cmp(a, c) > 0 ? c : a);
 }
 
-void iqsort2(int *x, int n)
+void iqsort2(Data *x, int n)
 {
-    int a, b, c, d, l, h, s, v;
+    int a, b, c, d, l, h, s;
+    Data v;
     if (n <= 1) return;
     v = x[rand() % n];
     a = b = 0;
