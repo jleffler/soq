@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 static int fail_after = 0;
 static int num_allocs = 0;
@@ -40,17 +39,18 @@ static int ***allocate_3d_array(int no1, int ****a)
         {
             if (((*a)[l][h]=(int*)xmalloc(2*sizeof(int))) == 0)
             {
-                /* Release prior items in current row */
+                /* Release prior items in current (partial) row */
                 for (int h1 = 0; h1 < h; h1++)
                     free((*a)[l][h1]);
-                free((*a)[l]);
-                /* Release items in prior rows */
+                /* Release items in prior (complete) rows */
                 for (int l1 = 0; l1 < l; l1++)
                 {
                     for (int h1 = 0; h1 < no1; h1++)
                         free((*a)[l1][h1]);
-                    free((*a)[l1]);
                 }
+                /* Release entries in first (complete) level of array */
+                for (int l1 = 0; l1 < no1; l1++)
+                    free((*a)[l1]);
                 free(*a);
                 *a = 0;
                 return 0;
@@ -105,20 +105,20 @@ static void test_allocation(int no1)
     destroy_3d_array(no1, a);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     int no1 = 5;
+    int fail_limit = 33;
 
-    for (fail_after = 0; fail_after < 33; fail_after++)
+    if (argc == 2)
+        fail_limit = atoi(argv[1]);
+
+    for (fail_after = 0; fail_after < fail_limit; fail_after++)
     {
         printf("Fail after: %d\n", fail_after);
         num_allocs = 0;
         test_allocation(no1);
     }
-
-    printf("PID %d - waiting for some data to exit:", (int)getpid());
-    fflush(0);
-    getchar();
 
     return 0;
 }
