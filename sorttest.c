@@ -9,9 +9,12 @@ typedef int Data;
 static size_t swap_count = 0;
 static size_t comp_count = 0;
 
+static inline void inc_swaps(void) { swap_count++; }
+static inline void inc_comps(void) { comp_count++; }
+
 static inline void swap(Data *a, Data *b)
 {
-    swap_count++;
+    inc_swaps();
     Data t = *a;
     *a = *b;
     *b = t;
@@ -27,7 +30,7 @@ static void kvik_sort(Data a[], int l, int d)
 
     for (int i = l + 1; i <= d; i++)
     {
-        comp_count++;
+        inc_comps();
         if (a[i] < a[l])
             swap(&a[++k], &a[i]);
     }
@@ -49,11 +52,11 @@ static void selection_sort(Data a[], int n)
         int min = i;
         for (int j = i + 1; j < n; j++)
         {
-            comp_count++;
+            inc_comps();
             if (a[j] < a[min])
                 min = j;
         }
-        comp_count++;
+        inc_comps();
         if (min != i)
             swap(&a[min], &a[i]);
     }
@@ -67,7 +70,7 @@ static void insertion_sort(Data a[], int n)
         //    swap(&a[j], &a[j-1]);
         for (int j = i + 1; j > 0; j--)
         {
-            comp_count++;
+            inc_comps();
             if (a[j] < a[j-1])
                 swap(&a[j], &a[j-1]);
             else
@@ -82,7 +85,7 @@ static void bubble_sort(Data a[], int n)
     {
         for (int j = 0; j < i; j++)
         {
-            comp_count++;
+            inc_comps();
             if (a[j] > a[j+1])
                 swap(&a[j], &a[j+1]);
         }
