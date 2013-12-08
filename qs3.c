@@ -5,19 +5,19 @@
 
 typedef int Data;
 
-static inline void swap(Data *array, int i, int j)
+static inline void swap(Data *array, size_t i, size_t j)
 {
     Data t = array[i];
     array[i] = array[j];
     array[j] = t;
 }
 
-static void dump_partition(char const *tag, Data *array, int lo, int hi)
+static void dump_partition(char const *tag, Data *array, size_t lo, size_t hi)
 {
     if (lo < hi)
     {
-        int i;
-        printf("%s: %d..%d\n", tag, lo, hi);
+        size_t i;
+        printf("%s: %zu..%zu\n", tag, lo, hi);
         for (i = lo; i <= hi; i++)
         {
             printf(" %4d", array[i]);
@@ -29,30 +29,31 @@ static void dump_partition(char const *tag, Data *array, int lo, int hi)
     }
 }
 
-static int partition(Data *A, int p, int r)
+static size_t partition(Data *A, size_t p, size_t r)
 {
     const Data x = A[r];
-    int i = p - 1;  // Must be signed type if p can be zero
-    int j = p;
+    size_t i = p;
+    size_t j = p;
 
     while (j < r)
     {
         if (A[j] <= x)
-            swap(A, ++i, j);
+            swap(A, i++, j);
         j++;
     }
-    swap(A, i + 1, r);
-    return i + 1;
+    swap(A, i, r);
+    return i;
 }
 
-static void quicksort_last(Data *A, int p, int r)
+static void quicksort_last(Data *A, size_t p, size_t r)
 {
     if (p < r)
     {
-        int q = partition(A, p, r);
-        printf("quicksort: %p (%d..%d)\n", (void *)&q, p, r);
-        // dump_partition("L-part", A, p, q - 1);
-        // dump_partition("R-part", A, q + 1, r);
+        size_t q = partition(A, p, r);
+        printf("quicksort: %zu (%zu..%zu=%zu)\n", q, p, r, r - p + 1);
+        //if (p + 1 < q)
+        //    dump_partition("L-part", A, p, q - 1);
+        //dump_partition("R-part", A, q + 1, r);
         quicksort_last(A, p, q - 1);
         quicksort_last(A, q + 1, r);
     }
