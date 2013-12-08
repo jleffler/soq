@@ -1,4 +1,5 @@
 /* SO 19607450 -- heavily extended compared with original answer */
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,24 +9,24 @@ typedef int Data;
 
 static int trace = 0;
 
-void quicksort_last(Data *A, int p, int r);
-void quicksort_random(Data *A, int p, int r);
-void selectionsort(Data *A, int p, int r);
+void quicksort_last(Data *A, size_t p, size_t r);
+void quicksort_random(Data *A, size_t p, size_t r);
+void selectionsort(Data *A, size_t p, size_t r);
 
-static int partition_last(Data *A, int p, int r);
-static int partition_random(Data *A, int p, int r);
+static size_t partition_last(Data *A, size_t p, size_t r);
+static size_t partition_random(Data *A, size_t p, size_t r);
 
-static inline void swap(Data *array, int i, int j)
+static inline void swap(Data *array, size_t i, size_t j)
 {
     Data t = array[i];
     array[i] = array[j];
     array[j] = t;
 }
 
-static void dump_partition(char const *tag, Data const *A, int p, int r)
+static void dump_partition(char const *tag, Data const *A, size_t p, size_t r)
 {
-    int i;
-    printf("%s [%d..%d]:\n", tag, p, r);
+    size_t i;
+    printf("%s [%zu..%zu]:\n", tag, p, r);
     for (i = p; i <= r; i++)
     {
         printf(" %3d", A[i]);
@@ -36,67 +37,67 @@ static void dump_partition(char const *tag, Data const *A, int p, int r)
         putchar('\n');
 }
 
-static void chk_sort(Data *A, int p, int r)
+static void chk_sort(Data *A, size_t p, size_t r)
 {
-    for (int i = p; i < r; i++)
+    for (size_t i = p; i < r; i++)
     {
         if (A[i] > A[i+1])
         {
-            printf("Out of order: A[%d] = %d, A[%d] = %d\n",
+            printf("Out of order: A[%zu] = %d, A[%zu] = %d\n",
                    i, A[i], i+1, A[i+1]);
         }
     }
 }
 
-static void load_random(Data *A, int p, int r)
+static void load_random(Data *A, size_t p, size_t r)
 {
-    int range = (r - p + 1);
-    for (int i = p; i <= r; i++)
+    size_t range = (r - p + 1);
+    for (size_t i = p; i <= r; i++)
         A[i] = rand() % range;
 }
 
-static void load_ascending(Data *A, int p, int r)
+static void load_ascending(Data *A, size_t p, size_t r)
 {
-    for (int i = p; i <= r; i++)
+    for (size_t i = p; i <= r; i++)
         A[i] = i;
 }
 
-static void load_descending(Data *A, int p, int r)
+static void load_descending(Data *A, size_t p, size_t r)
 {
-    int range = (r - p + 1);
-    for (int i = p; i <= r; i++)
+    size_t range = (r - p + 1);
+    for (size_t i = p; i <= r; i++)
         A[i] = range - i;
 }
 
-static void load_uniform(Data *A, int p, int r)
+static void load_uniform(Data *A, size_t p, size_t r)
 {
-    for (int i = p; i <= r; i++)
+    for (size_t i = p; i <= r; i++)
         A[i] = r;
 }
 
-static void load_organpipe(Data *A, int p, int r)
+static void load_organpipe(Data *A, size_t p, size_t r)
 {
-    int range = r - p + 1;
-    for (int i = p; i <= r / 2; i++)
+    size_t range = r - p + 1;
+    for (size_t i = p; i <= r / 2; i++)
         A[i] = i;
-    for (int i = r / 2 + 1; i <= r; i++)
+    for (size_t i = r / 2 + 1; i <= r; i++)
         A[i] = range - i;
 }
 
-static void load_invorganpipe(Data *A, int p, int r)
+static void load_invorganpipe(Data *A, size_t p, size_t r)
 {
-    int range = (r - p + 1) / 2;
-    for (int i = p; i <= r / 2; i++)
+    size_t range = (r - p + 1) / 2;
+    for (size_t i = p; i <= r / 2; i++)
         A[i] = range - i;
-    for (int i = r / 2 + 1; i <= r; i++)
+    for (size_t i = r / 2 + 1; i <= r; i++)
         A[i] = i - range;
 }
 
-typedef void (*Load)(Data *A, int p, int r);
-typedef void (*Sort)(Data *A, int p, int r);
-typedef int  (*Part)(Data *A, int p, int r);
+typedef void (*Load)(Data *A, size_t p, size_t r);
+typedef void (*Sort)(Data *A, size_t p, size_t r);
+typedef size_t  (*Part)(Data *A, size_t p, size_t r);
 
-static void test_one_sort(Data *A, int p, int r, Sort sort, char const *s_tag,
+static void test_one_sort(Data *A, size_t p, size_t r, Sort sort, char const *s_tag,
                           char const *l_tag, char const *z_tag)
 {
     if (trace)
@@ -111,16 +112,16 @@ static void test_one_sort(Data *A, int p, int r, Sort sort, char const *s_tag,
         dump_partition("After", A, p, r);
 }
 
-static int *dup_array(Data *A, int p, int r)
+static Data *dup_array(Data *A, size_t p, size_t r)
 {
-    int  nbytes = sizeof(*A) * (r - p + 1);
+    size_t  nbytes = sizeof(*A) * (r - p + 1);
     Data *B = malloc(nbytes);
     if (B != 0)
         memmove(B, A, nbytes);
     return B;
 }
 
-static void test_set_sorts(Data *A, int p, int r, char const *l_tag, char const *z_tag)
+static void test_set_sorts(Data *A, size_t p, size_t r, char const *l_tag, char const *z_tag)
 {
     struct sorter
     {
@@ -133,7 +134,7 @@ static void test_set_sorts(Data *A, int p, int r, char const *l_tag, char const 
         { selectionsort, "SS.N" },
     };
     enum { NUM_SORTS = sizeof(sort) / sizeof(sort[0]) };
-    for (int i = 0; i < NUM_SORTS; i++)
+    for (size_t i = 0; i < NUM_SORTS; i++)
     {
         Data *B = dup_array(A, p, r);
         test_one_sort(B, p, r, sort[i].function, sort[i].tag, l_tag, z_tag);
@@ -141,7 +142,7 @@ static void test_set_sorts(Data *A, int p, int r, char const *l_tag, char const 
     }
 }
 
-static void test_set_loads(int size, char const *z_tag)
+static void test_set_loads(size_t size, char const *z_tag)
 {
     struct loader
     {
@@ -158,7 +159,7 @@ static void test_set_loads(int size, char const *z_tag)
     };
     enum { NUM_LOADS = sizeof(load) / sizeof(load[0]) };
     Data *A = malloc(size * sizeof(*A));
-    for (int i = 0; i < NUM_LOADS; i++)
+    for (size_t i = 0; i < NUM_LOADS; i++)
     {
         load[i].function(A, 0, size-1);
         test_set_sorts(A, 0, size-1, load[i].tag, z_tag);
@@ -170,78 +171,81 @@ int main(void)
 {
     srand(time(NULL));
 
-    for (int i = 10; i <= 40; i+= 10)
+    for (size_t i = 10; i <= 40; i+= 10)
     {
         char buffer[10];
-        snprintf(buffer, sizeof(buffer), "%dK", i);
+        snprintf(buffer, sizeof(buffer), "%zuK", i);
         test_set_loads(1000*i, buffer);
     }
 
     return 0;
 }
 
-static void quicksort_partition(Data *A, int p, int r, Part partition)
+static void quicksort_partition(Data *A, size_t p, size_t r, Part partition)
 {
     if (p < r)
     {
-        int q = (*partition)(A, p, r);
-        quicksort_partition(A, p, q-1, partition);
+        size_t q = (*partition)(A, p, r);
+        if (p+1 < q)
+            quicksort_partition(A, p, q-1, partition);
         quicksort_partition(A, q+1, r, partition);
     }
 }
 
-void quicksort_last(Data *A, int p, int r)
+void quicksort_last(Data *A, size_t p, size_t r)
 {
     quicksort_partition(A, p, r, partition_last);
 }
 
-void quicksort_random(Data *A, int p, int r)
+void quicksort_random(Data *A, size_t p, size_t r)
 {
     quicksort_partition(A, p, r, partition_random);
 }
 
-static int random_int(int p, int r)
+static size_t random_int(size_t p, size_t r)
 {
     return (rand() % (r - p + 1) + p);
 }
 
-static int partition_random(Data *A, int p, int r)
+static size_t partition_random(Data *A, size_t p, size_t r)
 {
-    int pivot = random_int(p, r);
+    size_t pivot = random_int(p, r);
     swap(A, pivot, r);
     const Data x=A[r];
-    int i=p-1;
-    int j=p;
+    size_t i=p;
+    size_t j=p;
 
     while (j<=r)
     {
         if (A[j]<=x)
-            swap(A, ++i, j);
+            swap(A, i++, j);
         j++;
     }
-    return i;
+    assert(i > 0);
+    return i-1;
 }
 
-static int partition_last(Data *A, int p, int r)
+static size_t partition_last(Data *A, size_t p, size_t r)
 {
     const Data x = A[r];
-    int i = p - 1;
-    int j = p;
+    size_t i = p;
+    size_t j = p;
 
     while (j <= r)
     {
         if (A[j] <= x)
-            swap(A, ++i, j);
+            swap(A, i++, j);
         j++;
     }
-    return i;
+    assert(i > 0);
+    return i-1;
 }
 
-void selectionsort(Data *A, int p, int r)
+void selectionsort(Data *A, size_t p, size_t r)
 {
     for ( ; p < r; p++)
     {
-        for (int i = p; i <= r; i++)
+        for (size_t i = p; i <= r; i++)
         {
             if (A[p] > A[i])
                 swap(A, p, i);
