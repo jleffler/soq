@@ -152,7 +152,7 @@ void Quick_Sort(int *a, int p, int r)
         //dump_partition("Lo Range", a, p, q-1);
         //printf("Pivot: a[%d] = %d\n", q, a[q]);
         //dump_partition("Hi Range", a, q+1, r);
-        Quick_Sort(a, p, q-1);          // JL: Optimization
+        Quick_Sort(a, p, q-1);
         Quick_Sort(a, q+1, r);
     }
 }
@@ -160,9 +160,9 @@ void Quick_Sort(int *a, int p, int r)
 static int partition(int *a, int p, int r)
 {
     assert(p <= r);
-    if (p == r)                         // JL: Key change
-        return p;                       // JL: Key change
-    int i = p;                          // JL: Key change
+    if (p == r)
+        return p;
+    int i = p;
     int j = r + 1;
     int x = a[p];
     //printf("-->> partition: lo = %d, hi = %d, pivot = %d\n", p, r, x);
@@ -172,15 +172,15 @@ static int partition(int *a, int p, int r)
         {
             j--;
             //printf("---- partition 1: a[%d] = %d\n", j, a[j]);
-        }   while (x < a[j]);           // JL: Key change
+        }   while (x < a[j]);
 
         do
         {
             i++;
             //printf("---- partition 2: a[%d] = %d\n", i, a[i]);
-        }   while (i <= r && x > a[i]); // JL: Key change
+        }   while (i <= r && x > a[i]);
 
-        if (i <= j)                     // JL: Key change
+        if (i <= j)
         {
             //printf("---- partition: swap a[%d] = %d with a[%d] = %d\n", i, a[i], j, a[j]);
             int temp = a[i];
@@ -190,9 +190,9 @@ static int partition(int *a, int p, int r)
         else
         {
             // This swap step is crucial.
-            int temp = a[p];            // JL: Key change
-            a[p] = a[j];                // JL: Key change
-            a[j] = temp;                // JL: Key change
+            int temp = a[p];
+            a[p] = a[j];
+            a[j] = temp;
             //dump_partition("a-lo", a, p, j-1);
             //printf("a-pivot[%d] = %d\n", j, a[j]);
             //dump_partition("a-hi", a, j+1, r);
