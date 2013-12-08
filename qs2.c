@@ -41,10 +41,10 @@ static void chk_sort(Data *A, size_t p, size_t r)
 {
     for (size_t i = p; i < r; i++)
     {
-        if (A[i] > A[i+1])
+        if (A[i] > A[i + 1])
         {
             printf("Out of order: A[%zu] = %d, A[%zu] = %d\n",
-                   i, A[i], i+1, A[i+1]);
+                   i, A[i], i + 1, A[i + 1]);
         }
     }
 }
@@ -95,7 +95,7 @@ static void load_invorganpipe(Data *A, size_t p, size_t r)
 
 typedef void (*Load)(Data *A, size_t p, size_t r);
 typedef void (*Sort)(Data *A, size_t p, size_t r);
-typedef size_t  (*Part)(Data *A, size_t p, size_t r);
+typedef size_t (*Part)(Data *A, size_t p, size_t r);
 
 static void test_one_sort(Data *A, size_t p, size_t r, Sort sort, char const *s_tag,
                           char const *l_tag, char const *z_tag)
@@ -114,7 +114,7 @@ static void test_one_sort(Data *A, size_t p, size_t r, Sort sort, char const *s_
 
 static Data *dup_array(Data *A, size_t p, size_t r)
 {
-    size_t  nbytes = sizeof(*A) * (r - p + 1);
+    size_t nbytes = sizeof(*A) * (r - p + 1);
     Data *B = malloc(nbytes);
     if (B != 0)
         memmove(B, A, nbytes);
@@ -161,8 +161,8 @@ static void test_set_loads(size_t size, char const *z_tag)
     Data *A = malloc(size * sizeof(*A));
     for (size_t i = 0; i < NUM_LOADS; i++)
     {
-        load[i].function(A, 0, size-1);
-        test_set_sorts(A, 0, size-1, load[i].tag, z_tag);
+        load[i].function(A, 0, size - 1);
+        test_set_sorts(A, 0, size - 1, load[i].tag, z_tag);
     }
     free(A);
 }
@@ -171,13 +171,12 @@ int main(void)
 {
     srand(time(NULL));
 
-    for (size_t i = 10; i <= 40; i+= 10)
+    for (size_t i = 10; i <= 40; i += 10)
     {
         char buffer[10];
         snprintf(buffer, sizeof(buffer), "%zuK", i);
-        test_set_loads(1000*i, buffer);
+        test_set_loads(1000 * i, buffer);
     }
-
     return 0;
 }
 
@@ -186,9 +185,9 @@ static void quicksort_partition(Data *A, size_t p, size_t r, Part partition)
     if (p < r)
     {
         size_t q = (*partition)(A, p, r);
-        if (p+1 < q)
-            quicksort_partition(A, p, q-1, partition);
-        quicksort_partition(A, q+1, r, partition);
+        if (p + 1 < q)
+            quicksort_partition(A, p, q - 1, partition);
+        quicksort_partition(A, q + 1, r, partition);
     }
 }
 
@@ -204,25 +203,25 @@ void quicksort_random(Data *A, size_t p, size_t r)
 
 static size_t random_int(size_t p, size_t r)
 {
-    return (rand() % (r - p + 1) + p);
+    return(rand() % (r - p + 1) + p);
 }
 
 static size_t partition_random(Data *A, size_t p, size_t r)
 {
     size_t pivot = random_int(p, r);
     swap(A, pivot, r);
-    const Data x=A[r];
-    size_t i=p;
-    size_t j=p;
+    const Data x = A[r];
+    size_t i = p;
+    size_t j = p;
 
-    while (j<=r)
+    while (j <= r)
     {
-        if (A[j]<=x)
+        if (A[j] <= x)
             swap(A, i++, j);
         j++;
     }
     assert(i > 0);
-    return i-1;
+    return i - 1;
 }
 
 static size_t partition_last(Data *A, size_t p, size_t r)
@@ -238,7 +237,7 @@ static size_t partition_last(Data *A, size_t p, size_t r)
         j++;
     }
     assert(i > 0);
-    return i-1;
+    return i - 1;
 }
 
 void selectionsort(Data *A, size_t p, size_t r)
