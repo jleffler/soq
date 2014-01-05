@@ -54,7 +54,7 @@ static void check_partition(int a[], int start, int end, int rank)
 static int order(int a[], int start, int end, int rank)
 {
     int mark;
-    int i, j, k, pivot;
+    int i, k, pivot;
     int value;
 
     if (debug)
@@ -73,7 +73,7 @@ static int order(int a[], int start, int end, int rank)
         assert(start < end);
         assert(rank > start && rank - 1 <= end);
 
-        j = k = start;
+        k = start + 1;
         pivot = a[start];
         if (debug) printf("pivot = %d\n", pivot);
         for (i = start + 1; i < end; i++)
@@ -85,19 +85,18 @@ static int order(int a[], int start, int end, int rank)
                 a[k] = a[i];
                 a[i] = temp;
                 if (debug) printf("A[%d,%d]<=>(%d,%d)\n", i, k, a[i], a[k]);
-                j = i;
                 k++;
             }
         }
 
         if (debug)
         {
-            printf("i = %d, j = %d, k = %d\n", i, j, k);
+            printf("i = %d, k = %d\n", i, k);
             dump_partition("loop:", a, start, end);
         }
 
-        int temp = a[j];
-        a[j] = a[k];
+        int temp = a[start];
+        a[start] = a[--k];
         a[k] = temp;
         mark = k;
 
@@ -107,7 +106,7 @@ static int order(int a[], int start, int end, int rank)
         if (rank - 1 == mark)
             value = a[rank - 1];
         else if (rank - 1 < mark)
-            value = order(a, start, mark - 1, rank);
+            value = order(a, start, mark, rank);
         else
             value = order(a, mark + 1, end, rank);
     }
