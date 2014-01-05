@@ -16,7 +16,7 @@ typedef enum { WHITE, BLACK, RED } Colour;
 static char colour_code(Colour c);
 static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num, size_t w, size_t r, size_t c);
 
-static void swap(Colour *p1, Colour *p2)
+static inline void swap(Colour *p1, Colour *p2)
 {
     Colour tmp;
     tmp = *p1;
