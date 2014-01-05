@@ -122,9 +122,9 @@ static int order(int a[], int start, int end, int rank)
 
 int main(int argc, char **argv)
 {
-    int a[10] = { 27, 32, 23, 36, 24, 31, 25, 38, 29, 30 };
-    int b[10];
+    int a[] = { 27, 32, 23, 36, 24, 31, 25, 38, 29, 30 };
     enum { SIZE = sizeof(a) / sizeof(a[0]) };
+    int b[SIZE];
     int rank;
 
     int opt;
@@ -141,20 +141,15 @@ int main(int argc, char **argv)
         }
     }
 
-    while (printf("enter the rank (1..%d): ", SIZE) > 0 && scanf("%d", &rank) == 1)
+    for (rank = 1; rank <= SIZE; rank++)
     {
         printf("Rank: %d\n", rank);
-        if (rank > 0 && rank <= SIZE)
-        {
-            memmove(b, a, sizeof(b));
-            dump_partition("Before:", b, 0, SIZE);
-            int value = order(b, 0, 10, rank);
-            printf("rank %d is value %d (a[%d] = %d)\n", rank, value, rank-1, b[rank-1]);
-            dump_partition("After: ", b, 0, SIZE);
-            check_partition(b, 0, SIZE, rank-1);
-        }
-        else
-            printf("Invalid value %d (should be 1..%d)\n", rank, SIZE);
+        memmove(b, a, sizeof(b));
+        dump_partition("Before:", b, 0, SIZE);
+        int value = order(b, 0, SIZE, rank);
+        printf("rank %d is value %d (a[%d] = %d)\n", rank, value, rank - 1, b[rank - 1]);
+        dump_partition("After: ", b, 0, SIZE);
+        check_partition(b, 0, SIZE, rank - 1);
     }
     putchar('\n');
 
