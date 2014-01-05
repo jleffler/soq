@@ -36,7 +36,7 @@ static void check_partition(int a[], int start, int end, int rank)
                    i, a[i], rank, a[rank]);
         }
     }
-    for (int i = rank+1; i < end; i++)
+    for (int i = rank + 1; i < end; i++)
     {
         if (a[i] < a[rank])
         {
@@ -149,11 +149,11 @@ int main(int argc, char **argv)
     for (int rank = 0; rank < SIZE; rank++)
     {
         int b[SIZE];
-        printf("Rank: %d\n", rank+1);
+        printf("Rank: %d\n", rank + 1);
         memmove(b, a, sizeof(b));
         dump_partition("Before:", b, 0, SIZE);
-        int value = order(b, 0, SIZE, rank+1);
-        printf("rank %d is value %d (a[%d] = %d)\n", rank+1, value, rank, b[rank]);
+        int value = order(b, 0, SIZE, rank + 1);
+        printf("rank %d is value %d (b[%d] = %d)\n", rank + 1, value, rank, b[rank]);
         dump_partition("After: ", b, 0, SIZE);
         check_partition(b, 0, SIZE, rank);
     }
@@ -172,8 +172,8 @@ int main(int argc, char **argv)
         {
             memmove(y, x, sizeof(y));
             dump_partition("Before:", y, 0, X_SIZE);
-            int value = order(y, 0, X_SIZE, j+1);
-            printf("rank %d is value %d (a[%d] = %d)\n", j+1, value, j, y[j]);
+            int value = order(y, 0, X_SIZE, j + 1);
+            printf("rank %d is value %d (y[%d] = %d)\n", j + 1, value, j, y[j]);
             dump_partition("After: ", y, 0, X_SIZE);
             check_partition(y, 0, X_SIZE, j);
         }
