@@ -56,7 +56,6 @@ static void check_partition(int a[], int start, int end, int rank)
 */
 static int order(int a[], int start, int end, int rank)
 {
-    int mark;
     int i, k, pivot;
     int value;
 
@@ -101,17 +100,16 @@ static int order(int a[], int start, int end, int rank)
         int temp = a[start];
         a[start] = a[--k];
         a[k] = temp;
-        mark = k;
 
-        assert(mark >= start && mark < end);
+        assert(k >= start && k < end);
         if (debug) dump_partition("swap:", a, start, end);
 
-        if (rank - 1 == mark)
+        if (rank - 1 == k)
             value = a[rank - 1];
-        else if (rank - 1 < mark)
-            value = order(a, start, mark, rank);
+        else if (rank - 1 < k)
+            value = order(a, start, k, rank);
         else
-            value = order(a, mark + 1, end, rank);
+            value = order(a, k + 1, end, rank);
     }
 
     if (debug)
