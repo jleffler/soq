@@ -124,8 +124,6 @@ int main(int argc, char **argv)
 {
     int a[] = { 27, 32, 23, 36, 24, 31, 25, 38, 29, 30 };
     enum { SIZE = sizeof(a) / sizeof(a[0]) };
-    int b[SIZE];
-    int rank;
 
     int opt;
     while ((opt = getopt(argc, argv, "d")) != -1)
@@ -141,17 +139,17 @@ int main(int argc, char **argv)
         }
     }
 
-    for (rank = 1; rank <= SIZE; rank++)
+    for (int rank = 0; rank < SIZE; rank++)
     {
-        printf("Rank: %d\n", rank);
+        int b[SIZE];
+        printf("Rank: %d\n", rank+1);
         memmove(b, a, sizeof(b));
         dump_partition("Before:", b, 0, SIZE);
-        int value = order(b, 0, SIZE, rank);
-        printf("rank %d is value %d (a[%d] = %d)\n", rank, value, rank - 1, b[rank - 1]);
+        int value = order(b, 0, SIZE, rank+1);
+        printf("rank %d is value %d (a[%d] = %d)\n", rank+1, value, rank, b[rank]);
         dump_partition("After: ", b, 0, SIZE);
-        check_partition(b, 0, SIZE, rank - 1);
+        check_partition(b, 0, SIZE, rank);
     }
-    putchar('\n');
 
     return 0;
 }
