@@ -8,10 +8,11 @@ static int debug = 0;
 static void dump_partition(char const *tag, int a[], int start, int end)
 {
     int i;
+    int w = (end > 10) ? 2 : 1;
     printf("%s (%d..%d)%s", tag, start, end, (end > start + 10) ? "\n" : ":");
     for (i = start; i < end; i++)
     {
-        printf(" [%d] = %d", i, a[i]);
+        printf(" [%*d] = %d", w, i, a[i]);
         if (i % 10 == 9)
             putchar('\n');
     }
@@ -26,19 +27,19 @@ static void check_partition(int a[], int start, int end, int rank)
     assert(rank >= start && rank < end);
     for (int i = 0; i < rank; i++)
     {
-        if (a[i] >= a[rank])
+        if (a[i] > a[rank])
         {
             ok = 0;
-            printf("BUG: a[%d] = %d should be smaller than a[%d] = %d\n",
+            printf("BUG: a[%d] = %d should be no larger than a[%d] = %d\n",
                    i, a[i], rank, a[rank]);
         }
     }
     for (int i = rank+1; i < end; i++)
     {
-        if (a[i] <= a[rank])
+        if (a[i] < a[rank])
         {
             ok = 0;
-            printf("BUG: a[%d] = %d should be larger than a[%d] = %d\n",
+            printf("BUG: a[%d] = %d should be no smaller than a[%d] = %d\n",
                    i, a[i], rank, a[rank]);
         }
     }
@@ -120,18 +121,25 @@ static int order(int a[], int start, int end, int rank)
     return value;
 }
 
+#include <time.h>
+#include <stdlib.h>
+
 int main(int argc, char **argv)
 {
     int a[] = { 27, 32, 23, 36, 24, 31, 25, 38, 29, 30 };
     enum { SIZE = sizeof(a) / sizeof(a[0]) };
+    long seed = time(0);
 
     int opt;
-    while ((opt = getopt(argc, argv, "d")) != -1)
+    while ((opt = getopt(argc, argv, "ds:")) != -1)
     {
         switch (opt)
         {
         case 'd':
             debug = 1;
+            break;
+        case 's':
+            seed = atol(optarg);
             break;
         default:
             /* Ignore */
@@ -149,6 +157,27 @@ int main(int argc, char **argv)
         printf("rank %d is value %d (a[%d] = %d)\n", rank+1, value, rank, b[rank]);
         dump_partition("After: ", b, 0, SIZE);
         check_partition(b, 0, SIZE, rank);
+    }
+
+    srand(seed);
+    printf("Seed: %ld\n", seed);
+    for (int i = 0; i < 10; i++)
+    {
+        enum { X_SIZE = 30 };
+        debug = 0;
+        int x[X_SIZE];
+        for (int j = 0; j < X_SIZE; j++)
+            x[j] = rand() % 50 + 50;
+        int y[X_SIZE];
+        for (int j = 0; j < X_SIZE; j++)
+        {
+            memmove(y, x, sizeof(y));
+            dump_partition("Before:", y, 0, X_SIZE);
+            int value = order(y, 0, X_SIZE, j+1);
+            printf("rank %d is value %d (a[%d] = %d)\n", j+1, value, j, y[j]);
+            dump_partition("After: ", y, 0, X_SIZE);
+            check_partition(y, 0, X_SIZE, j);
+        }
     }
 
     return 0;
