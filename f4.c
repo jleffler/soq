@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 static int debug = 0;
@@ -120,9 +122,6 @@ static int order(int a[], int start, int end, int rank)
 
     return value;
 }
-
-#include <time.h>
-#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
