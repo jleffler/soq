@@ -1,8 +1,39 @@
-#include <iostream>
-#include <algorithm>
+#include <cassert>
 #include <cstring>
+#include <iostream>
+#include <utility>  // swap
 
 using namespace std;
+
+template<class T>
+static void check_partition(T *a, long start, long end, long rank)
+{
+    int ok = 1;
+    assert(start >= 0 && start < end);
+    assert(rank >= start && rank < end);
+    for (long i = 0; i < rank; i++)
+    {
+        if (a[i] > a[rank])
+        {
+            ok = 0;
+            cout << "BUG: a[" << i << "] = " << a[i]
+                 << " should be no larger than a["
+                 << rank << "] = " << a[rank] << "\n";
+        }
+    }
+    for (long i = rank + 1; i < end; i++)
+    {
+        if (a[i] < a[rank])
+        {
+            ok = 0;
+            cout << "BUG: a[" << i << "] = " << a[i]
+                 << " should be no smaller than a["
+                 << rank << "] = " << a[rank] << "\n";
+        }
+    }
+    if (!ok)
+        assert(0);
+}
 
 template<class T>
 void printArray(char const *tag, T *A, long N)
@@ -14,13 +45,15 @@ void printArray(char const *tag, T *A, long N)
 }
 
 template<class T>
-long partition(T *a, T &p, long N)
+long partition(T *a, long N)
 {
-    long i = 0, j = N - 1;
+    long j = N - 1;
+    long i = 1;
 
-    printArray("-->>partition", a, N);
-    p = a[(i + j) / 2];
-    cout << p << endl;
+    printArray("-->> partition()", a, N);
+    swap(a[(i + j)/2], a[0]);
+    T p = a[0];
+    cout << "Pivot: [" << (i + j) / 2 << "] = " << p << endl;
 
     do
     {
@@ -29,45 +62,44 @@ long partition(T *a, T &p, long N)
         while (a[j] > p)
             j--;
         if (i <= j)
-        {
-            T temp = a[i];
-            a[i++] = a[j];
-            a[j--] = temp;
-        }
+            swap(a[i++], a[j--]);
     } while (i <= j);
-    printArray("<<--partition", a, N);
-    return ++j;
+    swap(a[0], a[--i]);
+    printArray("<<-- partition()", a, N);
+    check_partition(a, 0, N, i);
+    cout << "Returning: " << i << endl;
+    return i;
 }
 
 template<class T>
-T quickSelect(T *input, T &p, long N, long k)
+T quickSelect(T *input, long N, long k)
 {
-    long j = partition(input, p, N);
+    long j = partition(input, N);
     long pivot = j + 1;
     if (2 < N)
     {
         if (j == k - 1)
         {
-            return p;
+            return input[j];
         }
         else if (k < pivot)
         {
-            return quickSelect(input, p, j, k);
+            return quickSelect(input, j, k);
         }
         else
         {
-            return quickSelect(input + j, p, N - j, k - j);
+            return quickSelect(input + j, N - j, k - j);
         }
     }
     else
     {
         if (j == k - 1)
         {
-            return p;
+            return input[j];
         }
         else
         {
-            return input[1];
+            return input[0];
         }
     }
 }
@@ -85,9 +117,9 @@ int main()
         int B[A_SIZE];
         memmove(B, A, sizeof(B));
         cout << "Rank [" << i << "]" << endl;
-        int pivot = A[0];
-        cout << "Rank [" << i << "] = " << quickSelect(A, pivot, A_SIZE, 2) << endl;
+        cout << "Rank [" << i << "] = " << quickSelect(B, A_SIZE, i) << endl;
         printArray("Finish", B, A_SIZE);
+        check_partition(B, 0, A_SIZE, i-1);
     }
     return 0;
 }
