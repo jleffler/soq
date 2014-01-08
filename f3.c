@@ -82,11 +82,14 @@ static int order(int a[], int start, int end, int rank)
         {
             if (a[i] < pivot)
             {
-                if (debug) printf("B[%d,%d]<=>(%d,%d) ", i, k, a[i], a[k]);
-                int temp = a[k];
-                a[k] = a[i];
-                a[i] = temp;
-                if (debug) printf("A[%d,%d]<=>(%d,%d)\n", i, k, a[i], a[k]);
+                if (i != k)
+                {
+                    if (debug) printf("B[%d,%d]<=>(%d,%d) ", i, k, a[i], a[k]);
+                    int temp = a[k];
+                    a[k] = a[i];
+                    a[i] = temp;
+                    if (debug) printf("A[%d,%d]<=>(%d,%d)\n", i, k, a[i], a[k]);
+                }
                 k++;
             }
         }
@@ -161,19 +164,20 @@ int main(int argc, char **argv)
     for (int i = 0; i < 10; i++)
     {
         enum { X_SIZE = 30 };
-        debug = 0;
-        int x[X_SIZE];
-        for (int j = 0; j < X_SIZE; j++)
-            x[j] = rand() % 50 + 50;
+        int x_size = 21 + i;
         int y[X_SIZE];
-        for (int j = 0; j < X_SIZE; j++)
+        int x[X_SIZE];
+        debug = 0;
+        for (int j = 0; j < x_size; j++)
+            x[j] = rand() % 50 + 50;
+        for (int j = 0; j < x_size; j++)
         {
             memmove(y, x, sizeof(y));
-            dump_partition("Before:", y, 0, X_SIZE);
-            int value = order(y, 0, X_SIZE, j + 1);
+            dump_partition("Before:", y, 0, x_size);
+            int value = order(y, 0, x_size, j + 1);
             printf("rank %d is value %d (y[%d] = %d)\n", j + 1, value, j, y[j]);
-            dump_partition("After: ", y, 0, X_SIZE);
-            check_partition(y, 0, X_SIZE, j);
+            dump_partition("After: ", y, 0, x_size);
+            check_partition(y, 0, x_size, j);
         }
     }
 
