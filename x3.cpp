@@ -59,12 +59,13 @@ void printArray(char const *tag, T *A, long N)
 template<class T>
 long partition(T *a, long N)
 {
-    printArray("-->> partition()", a, N);
+    printArray("--->> partition()", a, N);
     long j = N - 1;
     long i = 1;
     swap(a[(i + j)/2], a[0]);
     T p = a[0];
     cout << "Pivot: [" << (i + j) / 2 << "] = " << p << endl;
+    printArray("--0-- partition()", a, N);
 
     do
     {
@@ -73,12 +74,18 @@ long partition(T *a, long N)
         while (j > 0 && a[j] > p)
             j--;
         if (i <= j)
+        {
+            cout << "swap (" << i << "," << j << ")<=>(" << a[i] << "," << a[j] << ")\n";
             swap(a[i++], a[j--]);
+            printArray("--1-- partition()", a, N);
+        }
     } while (i <= j);
+
+    printArray("--2-- partition()", a, N);
     swap(a[0], a[--i]);
-    printArray("<<-- partition()", a, N);
-    check_partition(a, 0, N, i);
-    cout << "Returning: " << i << endl;
+
+    printArray("--3-- partition()", a, N);
+    cout << "<<--- partition(): " << i << endl;
     return i;
 }
 
@@ -91,25 +98,32 @@ T quickSelect(T *input, long N, long k)
     {
         if (j == k - 1)
         {
+            cout << "<<-- quickSelect() - 1: " << input[j] << endl;
             return input[j];
         }
         else if (k < pivot)
         {
-            return quickSelect(input, j, k);
+            T value = quickSelect(input, j, k);
+            cout << "<<-- quickSelect() - 2: " << value << endl;
+            return value;
         }
         else
         {
-            return quickSelect(input + j, N - j, k - j);
+            T value = quickSelect(input + j, N - j, k - j);
+            cout << "<<-- quickSelect() - 3: " << value << endl;
+            return value;
         }
     }
     else
     {
         if (j == k - 1)
         {
+            cout << "<<-- quickSelect() - 4: " << input[j] << endl;
             return input[j];
         }
         else
         {
+            cout << "<<-- quickSelect() - 5: " << input[0] << endl;
             return input[0];
         }
     }
