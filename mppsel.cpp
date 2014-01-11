@@ -10,13 +10,13 @@ using namespace std;
 static const int debug = 0;
 
 template<class T>
-static void check_partition(T *a, size_t start, size_t end, size_t rank)
+static void check_partition(T *a, size_t end, size_t rank)
 {
     int ok = 1;
-    if (debug) cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
-    assert(start < end);
-    assert(rank >= start && rank <= end);
-    for (size_t i = start; i < rank; i++)
+    if (debug) cout << "e = " << end << "; r = " << rank << endl;
+    assert(0 < end);
+    assert(rank <= end);
+    for (size_t i = 0; i < rank; i++)
     {
         if (a[i] > a[rank])
         {
@@ -84,7 +84,7 @@ size_t partition(T *a, size_t u)        // u = max valid index
     if (debug) printArray("--2-- partition()", a, u);
     swap(a[0], a[m]);
     if (debug) printArray("<<--- partition()", a, u);
-    check_partition(a, 0, u, m);
+    check_partition(a, u, m);
     if (debug) cout << "Returning: " << m << endl;
     return m;
 }
@@ -133,7 +133,7 @@ int main()
         Select(B, A_SIZE-1, i);
         cout << "Rank [" << i << "] = " << B[i] << endl;
         printArray("Finish", B, A_SIZE-1);
-        check_partition(B, 0, A_SIZE-1, i);
+        check_partition(B, A_SIZE-1, i);
         cout << '\n';
     }
     return 0;
