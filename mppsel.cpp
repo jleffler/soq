@@ -88,9 +88,8 @@ size_t partition(T *a, size_t l, size_t u)        // u = max valid index
     return m;
 }
 
-// OK when index type is signed; fails when index type is unsigned!
 template<class T>
-void Select(T *a, int l, int u, int k)
+void Select(T *a, size_t l, size_t u, size_t k)
 {
     assert(l <= k && k <= u);
     assert(l == 0);
@@ -99,12 +98,18 @@ void Select(T *a, int l, int u, int k)
         cout << "l = " << l << ", k = " << k << ", u = " << u << endl;
         assert(l <= k && k <= u);
         assert(l == 0);
-        int m = partition(a, l, u);
+        size_t m = partition(a, l, u);
         assert(l <= m && m <= u);
         if (k <= m)
+        {
+            if (u <= m - 1)
+                break;
             u = m - 1;
+        }
         if (k >= m)
         {
+            if (u <= m + 1)
+                break;
             a += m + 1;
             u -= m + 1;
             k -= m + 1;
