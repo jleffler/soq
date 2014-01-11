@@ -7,11 +7,13 @@
 
 using namespace std;
 
+static const int debug = 0;
+
 template<class T>
 static void check_partition(T *a, size_t start, size_t end, size_t rank)
 {
     int ok = 1;
-    cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
+    if (debug) cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
     assert(start < end);
     assert(rank >= start && rank <= end);
     for (size_t i = start; i < rank; i++)
@@ -60,29 +62,29 @@ void printArray(char const *tag, T *A, size_t l, size_t u)
 template<class T>
 size_t partition(T *a, size_t l, size_t u)        // u = max valid index
 {
-    printArray("--->> partition()", a, l, u);
+    if (debug) printArray("--->> partition()", a, l, u);
     size_t m = l;
     swap(a[(u+l) / 2], a[l]);
     T p = a[l];
-    cout << "Pivot: [" << (u+1) / 2 << "] = " << p << endl;
-    printArray("--0-- partition()", a, l, u);
+    if (debug) cout << "Pivot: [" << (u+1) / 2 << "] = " << p << endl;
+    if (debug) printArray("--0-- partition()", a, l, u);
 
     for (size_t i = l+1; i <= u; i++)
     {
         if (a[i] < p)
         {
             ++m;
-            cout << "swap (" << i << "," << m << ")<=>(" << a[i] << "," << a[m] << ")\n";
+            if (debug) cout << "swap (" << i << "," << m << ")<=>(" << a[i] << "," << a[m] << ")\n";
             swap(a[i], a[m]);
-            printArray("--1-- partition()", a, l, u);
+            if (debug) printArray("--1-- partition()", a, l, u);
         }
     }
 
-    printArray("--2-- partition()", a, l, u);
+    if (debug) printArray("--2-- partition()", a, l, u);
     swap(a[l], a[m]);
-    printArray("<<--- partition()", a, l, u);
+    if (debug) printArray("<<--- partition()", a, l, u);
     check_partition(a, l, u, m);
-    cout << "Returning: " << m << endl;
+    if (debug) cout << "Returning: " << m << endl;
     return m;
 }
 
@@ -90,13 +92,13 @@ template<class T>
 void Select(T *a, size_t l, size_t u, size_t k)
 {
     assert(l <= k && k <= u);
-    if (l < u)
+    while (l < u)
     {
         size_t m = partition(a, l, u);
-        if (k < m)
-            Select(a, l, m-1, k);
-        else if (k > m)
-            Select(a, m+1, u, k);
+        if (k <= m)
+            u = m - 1;
+        if (k >= m)
+            l = m + 1;
     }
 }
 
