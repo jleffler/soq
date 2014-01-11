@@ -1,12 +1,27 @@
 #include <cassert>
+#include <cstdlib>  // rand, srand
 #include <cstring>
-#include <iostream>
+#include <ctime>    // time
 #include <iomanip>  // setw
+#include <iostream>
 #include <utility>  // swap
 
 using namespace std;
 
 static const int debug = 0;
+
+static size_t RandomInteger(size_t lo, size_t hi)
+{
+    assert(hi > lo);
+    size_t range = hi - lo + 1;
+    size_t max_r = RAND_MAX - (RAND_MAX % range);
+    size_t r;
+    while ((r = rand()) > max_r)
+        ;
+    r = (r % range + lo);
+    assert(lo <= r && r <= hi);
+    return r;
+}
 
 template<class T>
 static void check_partition(T *a, size_t N, size_t rank)
@@ -61,16 +76,15 @@ template<class T>
 size_t partition(T *a, size_t N)
 {
     assert(N > 1);
-    size_t u = N - 1;
-    assert(u > 0);
     if (debug) printArray("--->> partition()", a, N);
     size_t m = 0;
-    swap(a[(u) / 2], a[0]);
+    //swap(a[(N-1) / 2], a[0]);
+    swap(a[RandomInteger(0, N-1)], a[0]);
     T p = a[0];
-    if (debug) cout << "Pivot: [" << (u+1) / 2 << "] = " << p << endl;
+    if (debug) cout << "Pivot: [" << (N-1) / 2 << "] = " << p << endl;
     if (debug) printArray("--0-- partition()", a, N);
 
-    for (size_t i = 1; i <= u; i++)
+    for (size_t i = 1; i < N; i++)
     {
         if (a[i] < p)
         {
@@ -89,12 +103,10 @@ size_t partition(T *a, size_t N)
     return m;
 }
 
-// u is maximum valid index in a, rather than number of elements in a
 template<class T>
 void Select(T *a, size_t N, size_t k)
 {
     assert(N > 0);
-    assert(k < N);
     while (1 < N)
     {
         assert(k < N);
@@ -117,17 +129,23 @@ void Select(T *a, size_t N, size_t k)
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
+    long t = time(0);
+    if (argc > 1)
+        t = atol(argv[1]);
+    cout << "Seed: " << t << "\n";
+    srand(t);
+
     int A[] =
     {
         96, 4, 10, -35, 55,   6, 6, 6, -67,  0,   2,  34,  6, 4,
         56, 2,  7,  -9, 45, -27, 5, 7,   8, 94, -99, -98, 99,
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
-    printArray("Initial", A, A_SIZE-1);
-    for (size_t m = 1; m < A_SIZE; m++)
+    for (size_t m = 1; m <= A_SIZE; m++)
     {
+        printArray("Initial", A, m);
         for (size_t r = 0; r < m; r++)
         {
             int B[A_SIZE];
