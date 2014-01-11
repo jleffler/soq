@@ -89,17 +89,15 @@ size_t partition(T *a, size_t l, size_t u)        // u = max valid index
 }
 
 template<class T>
-void Select(T *a, size_t l, size_t u, size_t k)
+void Select(T *a, size_t u, size_t k)
 {
-    assert(l <= k && k <= u);
-    assert(l == 0);
-    while (l < u)
+    assert(k <= u);
+    while (0 < u)
     {
-        cout << "l = " << l << ", k = " << k << ", u = " << u << endl;
-        assert(l <= k && k <= u);
-        assert(l == 0);
-        size_t m = partition(a, l, u);
-        assert(l <= m && m <= u);
+        if (debug) cout << "k = " << k << ", u = " << u << endl;
+        assert(k <= u);
+        size_t m = partition(a, 0, u);
+        assert(m <= u);
         if (k <= m)
         {
             if (m <= 1)
@@ -131,7 +129,7 @@ int main()
         int B[A_SIZE];
         memmove(B, A, sizeof(B));
         cout << "Rank [" << i << "]" << endl;
-        Select(B, 0, A_SIZE-1, i);
+        Select(B, A_SIZE-1, i);
         cout << "Rank [" << i << "] = " << B[i] << endl;
         printArray("Finish", B, 0, A_SIZE-1);
         check_partition(B, 0, A_SIZE-1, i);
