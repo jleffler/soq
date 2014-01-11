@@ -14,7 +14,6 @@ static void check_partition(T *a, size_t N, size_t rank)
     size_t end = N - 1;
     int ok = 1;
     if (debug) cout << "e = " << end << "; r = " << rank << endl;
-    assert(0 < end);
     assert(rank <= end);
     for (size_t i = 0; i < rank; i++)
     {
@@ -95,25 +94,24 @@ template<class T>
 void Select(T *a, size_t N, size_t k)
 {
     assert(N > 0);
-    size_t u = N - 1;
-    assert(k <= u);
-    while (0 < u)
+    assert(k < N);
+    while (1 < N)
     {
-        assert(k <= u);
-        size_t m = partition(a, u+1);
-        assert(m <= u);
+        assert(k < N);
+        size_t m = partition(a, N);
+        assert(m < N);
         if (k <= m)
         {
             if (m <= 1)
                 break;
-            u = m - 1;
+            N = m;
         }
         if (k >= m)
         {
-            if (u <= m + 1)
+            if (N < m + 3)
                 break;
             a += m + 1;
-            u -= m + 1;
+            N -= m + 1;
             k -= m + 1;
         }
     }
@@ -128,16 +126,19 @@ int main()
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
     printArray("Initial", A, A_SIZE-1);
-    for (size_t i = 0; i < A_SIZE; i++)
+    for (size_t m = 1; m < A_SIZE; m++)
     {
-        int B[A_SIZE];
-        memmove(B, A, sizeof(B));
-        cout << "Rank [" << i << "]" << endl;
-        Select(B, A_SIZE, i);
-        cout << "Rank [" << i << "] = " << B[i] << endl;
-        printArray("Finish", B, A_SIZE);
-        check_partition(B, A_SIZE, i);
-        cout << '\n';
+        for (size_t r = 0; r < m; r++)
+        {
+            int B[A_SIZE];
+            memmove(B, A, sizeof(B));
+            if (debug) cout << "Rank [" << r << "]" << endl;
+            Select(B, m, r);
+            cout << "Rank [" << r << "] = " << B[r] << endl;
+            printArray("Finish", B, m);
+            check_partition(B, m, r);
+            cout << '\n';
+        }
     }
     return 0;
 }
