@@ -41,17 +41,17 @@ static void check_partition(T *a, size_t start, size_t end, size_t rank)
 }
 
 template<class T>
-void printArray(char const *tag, T *A, size_t l, size_t u)
+void printArray(char const *tag, T *A, size_t u)
 {
     size_t i;
-    size_t N = u - l + 1;
+    size_t N = u + 1;
     int const maxw = 15;
-    cout << tag << ": (" << l << "," << u << ")";
+    cout << tag << ": (" << u << ")";
     if (N > maxw)
         cout << '\n';
     for (i = 0; i < N; i++)
     {
-        cout << ' ' << setw(3) << A[i+l];
+        cout << ' ' << setw(3) << A[i];
         if (i % maxw == maxw - 1)
             cout << '\n';
     }
@@ -62,12 +62,13 @@ void printArray(char const *tag, T *A, size_t l, size_t u)
 template<class T>
 size_t partition(T *a, size_t u)        // u = max valid index
 {
-    if (debug) printArray("--->> partition()", a, 0, u);
+    assert(u > 0);
+    if (debug) printArray("--->> partition()", a, u);
     size_t m = 0;
     swap(a[(u) / 2], a[0]);
     T p = a[0];
     if (debug) cout << "Pivot: [" << (u+1) / 2 << "] = " << p << endl;
-    if (debug) printArray("--0-- partition()", a, 0, u);
+    if (debug) printArray("--0-- partition()", a, u);
 
     for (size_t i = 1; i <= u; i++)
     {
@@ -76,13 +77,13 @@ size_t partition(T *a, size_t u)        // u = max valid index
             ++m;
             if (debug) cout << "swap (" << i << "," << m << ")<=>(" << a[i] << "," << a[m] << ")\n";
             swap(a[i], a[m]);
-            if (debug) printArray("--1-- partition()", a, 0, u);
+            if (debug) printArray("--1-- partition()", a, u);
         }
     }
 
-    if (debug) printArray("--2-- partition()", a, 0, u);
+    if (debug) printArray("--2-- partition()", a, u);
     swap(a[0], a[m]);
-    if (debug) printArray("<<--- partition()", a, 0, u);
+    if (debug) printArray("<<--- partition()", a, u);
     check_partition(a, 0, u, m);
     if (debug) cout << "Returning: " << m << endl;
     return m;
@@ -123,7 +124,7 @@ int main()
         56, 2,  7,  -9, 45, -27, 5, 7,   8, 94, -99, -98, 99,
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
-    printArray("Initial", A, 0, A_SIZE-1);
+    printArray("Initial", A, A_SIZE-1);
     for (size_t i = 0; i < A_SIZE-1; i++)
     {
         int B[A_SIZE];
@@ -131,7 +132,7 @@ int main()
         cout << "Rank [" << i << "]" << endl;
         Select(B, A_SIZE-1, i);
         cout << "Rank [" << i << "] = " << B[i] << endl;
-        printArray("Finish", B, 0, A_SIZE-1);
+        printArray("Finish", B, A_SIZE-1);
         check_partition(B, 0, A_SIZE-1, i);
         cout << '\n';
     }
