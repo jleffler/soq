@@ -78,7 +78,6 @@ size_t partition(T *a, size_t N)
     assert(N > 1);
     if (debug) printArray("--->> partition()", a, N);
     size_t m = 0;
-    //swap(a[(N-1) / 2], a[0]);
     swap(a[RandomInteger(0, N-1)], a[0]);
     T p = a[0];
     if (debug) cout << "Pivot: [" << (N-1) / 2 << "] = " << p << endl;
@@ -129,6 +128,42 @@ void Select(T *a, size_t N, size_t k)
     }
 }
 
+template<class T>
+static void test_select(T *A, size_t N)
+{
+    for (size_t m = 1; m <= N; m++)
+    {
+        printArray("Initial", A, m);
+        for (size_t r = 0; r < m; r++)
+        {
+            T *B = new int[N];
+            memmove(B, A, N * sizeof(*A));
+            if (debug) cout << "Rank [" << r << "]" << endl;
+            Select(B, m, r);
+            cout << "Rank [" << r << "/" << m << "] = " << B[r] << endl;
+            printArray("Finish", B, m);
+            check_partition(B, m, r);
+            cout << '\n';
+            delete[] B;
+        }
+    }
+}
+
+template<class T>
+static void shuffle(T *A, size_t N)
+{
+    /*
+    ** Floyd's F2 algorithm from More Programming Pearls Chapter 13
+    **
+    ** Shuffle array X[1..M]:
+    **     for I := M downto 2 do
+    **         J := RandInt(1, I)
+    **         Swap(X[J], X[I])
+    */
+    for (size_t i = N-1; i > 1; i--)
+        swap(A[RandomInteger(0, i)], A[i]);
+}
+
 int main(int argc, char **argv)
 {
     long t = time(0);
@@ -143,21 +178,11 @@ int main(int argc, char **argv)
         56, 2,  7,  -9, 45, -27, 5, 7,   8, 94, -99, -98, 99,
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
-    for (size_t m = 1; m <= A_SIZE; m++)
-    {
-        printArray("Initial", A, m);
-        for (size_t r = 0; r < m; r++)
-        {
-            int B[A_SIZE];
-            memmove(B, A, sizeof(B));
-            if (debug) cout << "Rank [" << r << "]" << endl;
-            Select(B, m, r);
-            cout << "Rank [" << r << "] = " << B[r] << endl;
-            printArray("Finish", B, m);
-            check_partition(B, m, r);
-            cout << '\n';
-        }
-    }
+
+    test_select(A, A_SIZE);
+    shuffle(A, A_SIZE);
+    test_select(A, A_SIZE);
+
     return 0;
 }
 
