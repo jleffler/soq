@@ -106,20 +106,19 @@ int main()
 {
     int A[] =
     {
-        10000000,
         96, 4, 10, -35, 55,   6, 6, 6, -67,  0,   2,  34,  6, 4,
         56, 2,  7,  -9, 45, -27, 5, 7,   8, 94, -99, -98, 99,
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
-    for (size_t i = 1; i < A_SIZE; i++)
+    for (size_t i = 0; i < A_SIZE-1; i++)
     {
         int B[A_SIZE];
         memmove(B, A, sizeof(B));
         cout << "Rank [" << i << "]" << endl;
-        Select(B, 1, A_SIZE-1, i);
+        Select(B, 0, A_SIZE-1, i);
         cout << "Rank [" << i << "] = " << B[i] << endl;
         printArray("Finish", B, 1, A_SIZE-1);
-        check_partition(B, 1, A_SIZE-1, i);
+        check_partition(B, 0, A_SIZE-1, i);
         cout << '\n';
     }
     return 0;
