@@ -102,7 +102,8 @@ void Select(T *a, size_t l, size_t u, size_t k)
         assert(l <= m && m <= u);
         if (k <= m)
         {
-            if (u <= m - 1)
+            //if (u <= m - 1)
+            if (m <= 1)
                 break;
             u = m - 1;
         }
