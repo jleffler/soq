@@ -88,17 +88,27 @@ size_t partition(T *a, size_t l, size_t u)        // u = max valid index
     return m;
 }
 
+// OK when index type is signed; fails when index type is unsigned!
 template<class T>
-void Select(T *a, size_t l, size_t u, size_t k)
+void Select(T *a, int l, int u, int k)
 {
     assert(l <= k && k <= u);
+    assert(l == 0);
     while (l < u)
     {
-        size_t m = partition(a, l, u);
+        cout << "l = " << l << ", k = " << k << ", u = " << u << endl;
+        assert(l <= k && k <= u);
+        assert(l == 0);
+        int m = partition(a, l, u);
+        assert(l <= m && m <= u);
         if (k <= m)
             u = m - 1;
         if (k >= m)
-            l = m + 1;
+        {
+            a += m + 1;
+            u -= m + 1;
+            k -= m + 1;
+        }
     }
 }
 
@@ -110,6 +120,7 @@ int main()
         56, 2,  7,  -9, 45, -27, 5, 7,   8, 94, -99, -98, 99,
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
+    printArray("Initial", A, 0, A_SIZE-1);
     for (size_t i = 0; i < A_SIZE-1; i++)
     {
         int B[A_SIZE];
@@ -117,7 +128,7 @@ int main()
         cout << "Rank [" << i << "]" << endl;
         Select(B, 0, A_SIZE-1, i);
         cout << "Rank [" << i << "] = " << B[i] << endl;
-        printArray("Finish", B, 1, A_SIZE-1);
+        printArray("Finish", B, 0, A_SIZE-1);
         check_partition(B, 0, A_SIZE-1, i);
         cout << '\n';
     }
