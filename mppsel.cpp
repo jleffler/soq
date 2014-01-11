@@ -60,43 +60,43 @@ void printArray(char const *tag, T *A, size_t l, size_t u)
 }
 
 template<class T>
-size_t partition(T *a, size_t l, size_t u)        // u = max valid index
+size_t partition(T *a, size_t u)        // u = max valid index
 {
-    if (debug) printArray("--->> partition()", a, l, u);
-    size_t m = l;
-    swap(a[(u+l) / 2], a[l]);
-    T p = a[l];
+    if (debug) printArray("--->> partition()", a, 0, u);
+    size_t m = 0;
+    swap(a[(u) / 2], a[0]);
+    T p = a[0];
     if (debug) cout << "Pivot: [" << (u+1) / 2 << "] = " << p << endl;
-    if (debug) printArray("--0-- partition()", a, l, u);
+    if (debug) printArray("--0-- partition()", a, 0, u);
 
-    for (size_t i = l+1; i <= u; i++)
+    for (size_t i = 1; i <= u; i++)
     {
         if (a[i] < p)
         {
             ++m;
             if (debug) cout << "swap (" << i << "," << m << ")<=>(" << a[i] << "," << a[m] << ")\n";
             swap(a[i], a[m]);
-            if (debug) printArray("--1-- partition()", a, l, u);
+            if (debug) printArray("--1-- partition()", a, 0, u);
         }
     }
 
-    if (debug) printArray("--2-- partition()", a, l, u);
-    swap(a[l], a[m]);
-    if (debug) printArray("<<--- partition()", a, l, u);
-    check_partition(a, l, u, m);
+    if (debug) printArray("--2-- partition()", a, 0, u);
+    swap(a[0], a[m]);
+    if (debug) printArray("<<--- partition()", a, 0, u);
+    check_partition(a, 0, u, m);
     if (debug) cout << "Returning: " << m << endl;
     return m;
 }
 
+// u is maximum valid index in a, rather than number of elements in a
 template<class T>
 void Select(T *a, size_t u, size_t k)
 {
     assert(k <= u);
     while (0 < u)
     {
-        if (debug) cout << "k = " << k << ", u = " << u << endl;
         assert(k <= u);
-        size_t m = partition(a, 0, u);
+        size_t m = partition(a, u);
         assert(m <= u);
         if (k <= m)
         {
