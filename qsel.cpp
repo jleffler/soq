@@ -91,7 +91,7 @@ T quickSelect(T *input, long N, long k)
     if (2 < N)
     {
         if (j == k - 1)
-            return input[j];
+            return input[k-1];
         else if (k < pivot)
             return quickSelect(input, j, k);
         else
