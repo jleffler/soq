@@ -1,8 +1,9 @@
+#include <algorithm>    // sort
 #include <cassert>
 #include <cstring>
+#include <iomanip>      // setw
 #include <iostream>
-#include <iomanip>  // setw
-#include <utility>  // swap
+#include <utility>      // swap
 
 using namespace std;
 
@@ -104,20 +105,23 @@ T quickSelect(T *input, long N, long k)
     }
     else
     {
+        cout << "<<-- qs - 0: j = " << j << ", k = " << k << ", N = " << N << "\n";
         if (j == k - 1)
         {
+            cout << "<<-- qs - 4: " << input[j] << "\n";
             return input[j];
         }
         else
         {
-            return input[0];
+            cout << "<<-- qs - 5: " << input[k-1] << "\n";
+            return input[k-1];
         }
     }
 }
 
 int main()
 {
-    int A[] =
+    int const A[] =
     {
         96, 4, 10, -35, 55, 6, 6, 6, -67, 0, 2, 34, 6, 4,
         56, 2,  7, -9, 45, -27, 5, 7, 8, 94, -99, -98, 99
@@ -126,11 +130,18 @@ int main()
     for (size_t i = 1; i <= A_SIZE; i++)
     {
         int B[A_SIZE];
+        int C[A_SIZE];
         memmove(B, A, sizeof(B));
+        memmove(C, A, sizeof(B));
+        sort(&C[0], &C[A_SIZE]);
+        printArray("Sorted", C, A_SIZE);
         cout << "Rank [" << i << "]" << endl;
-        cout << "Rank [" << i << "] = " << quickSelect(B, A_SIZE, i) << endl;
+        int v = quickSelect(B, A_SIZE, i);
+        cout << "Rank [" << i << "] = " << v << endl;
         printArray("Finish", B, A_SIZE);
         check_partition(B, 0, A_SIZE, i-1);
+        assert(B[i-1] == C[i-1]);
+        assert(v == C[i-1]);
         cout << '\n';
     }
     return 0;
