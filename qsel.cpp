@@ -87,12 +87,11 @@ template<class T>
 T quickSelect(T *input, long N, long k)
 {
     long j = partition(input, N);
-    long pivot = j + 1;
     if (2 < N)
     {
         if (j == k - 1)
             return input[k-1];
-        else if (k < pivot)
+        else if (k < j + 1)
             return quickSelect(input, j, k);
         else
             return quickSelect(input + j, N - j, k - j);
