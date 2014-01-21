@@ -91,32 +91,14 @@ T quickSelect(T *input, long N, long k)
     if (2 < N)
     {
         if (j == k - 1)
-        {
             return input[j];
-        }
         else if (k < pivot)
-        {
             return quickSelect(input, j, k);
-        }
         else
-        {
             return quickSelect(input + j, N - j, k - j);
-        }
     }
     else
-    {
-        cout << "<<-- qs - 0: j = " << j << ", k = " << k << ", N = " << N << "\n";
-        if (j == k - 1)
-        {
-            cout << "<<-- qs - 4: " << input[j] << "\n";
-            return input[j];
-        }
-        else
-        {
-            cout << "<<-- qs - 5: " << input[k-1] << "\n";
-            return input[k-1];
-        }
-    }
+        return input[k-1];
 }
 
 int main()
