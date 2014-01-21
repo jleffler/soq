@@ -9,12 +9,10 @@ using namespace std;
 
 /* rank is in range 1..N; array indexes are in range 0..N-1 */
 template<class T>
-static void check_partition(T *a, size_t start, size_t end, size_t rank)
+static void check_partition(T *a, size_t end, size_t rank)
 {
     int ok = 1;
-    //cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
-    assert(start >= 0 && start < end);
-    assert(rank >= start && rank <= end);
+    assert(rank >= 0 && rank <= end);
     for (size_t i = 0; i < rank; i++)
     {
         if (a[i] > a[rank])
@@ -80,7 +78,7 @@ size_t partition(T *a, size_t N)
     } while (i <= j);
     swap(a[0], a[--i]);
     printArray("<<-- partition()", a, N);
-    check_partition(a, 0, N, i);
+    check_partition(a, N, i);
     cout << "Returning: " << i << endl;
     return i;
 }
@@ -119,7 +117,7 @@ int main()
         int v = quickSelect(B, A_SIZE, i);
         cout << "Rank [" << i << "] = " << v << endl;
         printArray("Finish", B, A_SIZE);
-        check_partition(B, 0, A_SIZE, i);
+        check_partition(B, A_SIZE, i);
         assert(B[i] == C[i]);
         assert(v == C[i]);
         cout << '\n';
