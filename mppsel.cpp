@@ -1,10 +1,11 @@
+#include <algorithm>    // sort
 #include <cassert>
-#include <cstdlib>  // rand, srand
+#include <cstdlib>      // rand, srand
 #include <cstring>
-#include <ctime>    // time
-#include <iomanip>  // setw
+#include <ctime>        // time
+#include <iomanip>      // setw
 #include <iostream>
-#include <utility>  // swap
+#include <utility>      // swap
 
 using namespace std;
 
@@ -137,14 +138,20 @@ static void test_select(T *A, size_t N)
         for (size_t r = 0; r < m; r++)
         {
             T *B = new int[N];
-            memmove(B, A, N * sizeof(*A));
+            T *C = new int[N];
+            memmove(B, A, N * sizeof(*A)); // C-think
+            memmove(C, A, N * sizeof(*A)); // C-think
+            sort(&C[0], &C[m]);
+            //printArray("Sorted", C, m);
             if (debug) cout << "Rank [" << r << "]" << endl;
             Select(B, m, r);
             cout << "Rank [" << r << "/" << m << "] = " << B[r] << endl;
             printArray("Finish", B, m);
             check_partition(B, m, r);
+            assert(C[r] == B[r]);
             cout << '\n';
             delete[] B;
+            delete[] C;
         }
     }
 }
