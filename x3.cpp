@@ -116,16 +116,8 @@ T quickSelect(T *input, long N, long k)
     }
     else
     {
-        if (j == k - 1)
-        {
-            cout << "<<-- quickSelect() - 4: " << input[j] << endl;
-            return input[j];
-        }
-        else
-        {
-            cout << "<<-- quickSelect() - 5: " << input[0] << endl;
-            return input[0];
-        }
+        cout << "<<-- quickSelect() - 5: " << input[k-1] << endl;
+        return input[k-1];
     }
 }
 
