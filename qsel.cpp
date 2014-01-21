@@ -87,15 +87,10 @@ template<class T>
 T quickSelect(T *input, long N, long k)
 {
     long j = partition(input, N);
-    if (2 < N)
-    {
-        if (j == k - 1)
-            return input[k-1];
-        else if (k < j + 1)
-            return quickSelect(input, j, k);
-        else
-            return quickSelect(input + j, N - j, k - j);
-    }
+    if (k < j + 1)
+        return quickSelect(input, j, k);
+    else if (k > j + 1)
+        return quickSelect(input + j, N - j, k - j);
     else
         return input[k-1];
 }
@@ -115,7 +110,7 @@ int main()
         memmove(B, A, sizeof(B));
         memmove(C, A, sizeof(B));
         sort(&C[0], &C[A_SIZE]);
-        printArray("Sorted", C, A_SIZE);
+        //printArray("Sorted", C, A_SIZE);
         cout << "Rank [" << i << "]" << endl;
         int v = quickSelect(B, A_SIZE, i);
         cout << "Rank [" << i << "] = " << v << endl;
