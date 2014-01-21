@@ -9,13 +9,13 @@ using namespace std;
 
 /* rank is in range 1..N; array indexes are in range 0..N-1 */
 template<class T>
-static void check_partition(T *a, long start, long end, long rank)
+static void check_partition(T *a, size_t start, size_t end, size_t rank)
 {
     int ok = 1;
     //cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
     assert(start >= 0 && start < end);
     assert(rank >= start && rank <= end);
-    for (long i = 0; i < rank; i++)
+    for (size_t i = 0; i < rank; i++)
     {
         if (a[i] > a[rank])
         {
@@ -25,7 +25,7 @@ static void check_partition(T *a, long start, long end, long rank)
                  << rank << "] = " << a[rank] << "\n";
         }
     }
-    for (long i = rank + 1; i < end; i++)
+    for (size_t i = rank + 1; i < end; i++)
     {
         if (a[i] < a[rank])
         {
@@ -40,9 +40,9 @@ static void check_partition(T *a, long start, long end, long rank)
 }
 
 template<class T>
-void printArray(char const *tag, T *A, long N)
+void printArray(char const *tag, T *A, size_t N)
 {
-    long i;
+    size_t i;
     int const maxw = 15;
     cout << tag << ": (" << N << ")";
     if (N > maxw)
@@ -58,13 +58,13 @@ void printArray(char const *tag, T *A, long N)
 }
 
 template<class T>
-long partition(T *a, long N)
+size_t partition(T *a, size_t N)
 {
     if (N <= 1)
         return 0;
     printArray("-->> partition()", a, N);
-    long j = N - 1;
-    long i = 1;
+    size_t j = N - 1;
+    size_t i = 1;
     swap(a[(i + j)/2], a[0]);
     T p = a[0];
     cout << "Pivot: [" << (i + j) / 2 << "] = " << p << endl;
@@ -86,10 +86,10 @@ long partition(T *a, long N)
 }
 
 template<class T>
-T quickSelect(T *input, long N, long k)
+T quickSelect(T *input, size_t N, size_t k)
 {
     assert(k >= 0 && k < N);
-    long j = partition(input, N);
+    size_t j = partition(input, N);
     assert(j >= 0 && j < N);
     if (k < j)
         return quickSelect(input, j, k);
