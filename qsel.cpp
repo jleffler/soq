@@ -12,7 +12,7 @@ template<class T>
 static void check_partition(T *a, long start, long end, long rank)
 {
     int ok = 1;
-    cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
+    //cout << "s = " << start << "; e = " << end << "; r = " << rank << endl;
     assert(start >= 0 && start < end);
     assert(rank >= start && rank <= end);
     for (long i = 0; i < rank; i++)
@@ -60,6 +60,8 @@ void printArray(char const *tag, T *A, long N)
 template<class T>
 long partition(T *a, long N)
 {
+    if (N <= 1)
+        return 0;
     printArray("-->> partition()", a, N);
     long j = N - 1;
     long i = 1;
@@ -69,7 +71,7 @@ long partition(T *a, long N)
 
     do
     {
-        while (i < N && a[i] < p)
+        while (i < N - 1 && a[i] < p)
             i++;
         while (j > 0 && a[j] > p)
             j--;
@@ -86,13 +88,15 @@ long partition(T *a, long N)
 template<class T>
 T quickSelect(T *input, long N, long k)
 {
+    assert(k >= 0 && k < N);
     long j = partition(input, N);
-    if (k < j + 1)
+    assert(j >= 0 && j < N);
+    if (k < j)
         return quickSelect(input, j, k);
-    else if (k > j + 1)
+    else if (k > j)
         return quickSelect(input + j, N - j, k - j);
     else
-        return input[k-1];
+        return input[k];
 }
 
 int main()
@@ -103,7 +107,7 @@ int main()
         56, 2,  7, -9, 45, -27, 5, 7, 8, 94, -99, -98, 99
     };
     const size_t A_SIZE = sizeof(A) / sizeof(A[0]);
-    for (size_t i = 1; i <= A_SIZE; i++)
+    for (size_t i = 0; i < A_SIZE; i++)
     {
         int B[A_SIZE];
         int C[A_SIZE];
@@ -115,9 +119,9 @@ int main()
         int v = quickSelect(B, A_SIZE, i);
         cout << "Rank [" << i << "] = " << v << endl;
         printArray("Finish", B, A_SIZE);
-        check_partition(B, 0, A_SIZE, i-1);
-        assert(B[i-1] == C[i-1]);
-        assert(v == C[i-1]);
+        check_partition(B, 0, A_SIZE, i);
+        assert(B[i] == C[i]);
+        assert(v == C[i]);
         cout << '\n';
     }
     return 0;
