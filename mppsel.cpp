@@ -104,7 +104,7 @@ size_t partition(T *a, size_t N)
 }
 
 template<class T>
-void Select(T *a, size_t N, size_t k)
+void quickSelect(T *a, size_t N, size_t k)
 {
     assert(N > 0);
     while (1 < N)
@@ -144,7 +144,7 @@ static void test_select(T *A, size_t N)
             sort(&C[0], &C[m]);
             //printArray("Sorted", C, m);
             if (debug) cout << "Rank [" << r << "]" << endl;
-            Select(B, m, r);
+            quickSelect(B, m, r);
             cout << "Rank [" << r << "/" << m << "] = " << B[r] << endl;
             printArray("Finish", B, m);
             check_partition(B, m, r);
