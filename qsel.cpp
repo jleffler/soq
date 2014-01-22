@@ -7,6 +7,8 @@
 
 using namespace std;
 
+static int const debug = 0;
+
 /* rank is in range 1..N; array indexes are in range 0..N-1 */
 template<class T>
 static void check_partition(T *a, size_t n, size_t rank)
@@ -60,12 +62,12 @@ size_t partition(T *a, size_t n)
 {
     if (n <= 1)
         return 0;
-    printArray("-->> partition()", a, n);
+    if (debug) printArray("-->> partition()", a, n);
     size_t j = n - 1;
     size_t i = 1;
     swap(a[n/2], a[0]);
     T p = a[0];
-    cout << "Pivot: [" << n / 2 << "] = " << p << endl;
+    if (debug) cout << "Pivot: [" << n / 2 << "] = " << p << endl;
 
     do
     {
@@ -77,9 +79,9 @@ size_t partition(T *a, size_t n)
             swap(a[i++], a[j--]);
     } while (i <= j);
     swap(a[0], a[--i]);
-    printArray("<<-- partition()", a, n);
+    if (debug) printArray("<<-- partition()", a, n);
     check_partition(a, n, i);
-    cout << "Returning: " << i << endl;
+    if (debug) cout << "Returning: " << i << endl;
     return i;
 }
 
@@ -121,7 +123,7 @@ int main()
         memmove(C, A, sizeof(B));
         sort(&C[0], &C[A_SIZE]);
         //printArray("Sorted", C, A_SIZE);
-        cout << "Rank [" << i << "]" << endl;
+        if (debug) cout << "Rank [" << i << "]" << endl;
         int v = quickSelect(B, A_SIZE, i);
         cout << "Rank [" << i << "] = " << v << endl;
         printArray("Finish", B, A_SIZE);
