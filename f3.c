@@ -76,7 +76,6 @@ static int order(int a[], int start, int end, int rank)
         assert(start < end);
         assert(rank >= start && rank < end);
 
-        /* Start partition */
         k = start + 1;
         pivot = a[start];
         if (debug) printf("pivot = %d\n", pivot);
@@ -108,7 +107,6 @@ static int order(int a[], int start, int end, int rank)
 
         assert(k >= start && k < end);
         if (debug) dump_partition("swap:", a, start, end);
-        /* End partition */
 
         if (rank == k)
             value = a[rank];
