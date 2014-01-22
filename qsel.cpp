@@ -1,3 +1,4 @@
+/* SO 20938023 */
 #include <algorithm>    // sort
 #include <cassert>
 #include <cstring>
