@@ -63,9 +63,9 @@ size_t partition(T *a, size_t n)
     printArray("-->> partition()", a, n);
     size_t j = n - 1;
     size_t i = 1;
-    swap(a[(i + j)/2], a[0]);
+    swap(a[n/2], a[0]);
     T p = a[0];
-    cout << "Pivot: [" << (i + j) / 2 << "] = " << p << endl;
+    cout << "Pivot: [" << n / 2 << "] = " << p << endl;
 
     do
     {
