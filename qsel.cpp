@@ -9,10 +9,10 @@ using namespace std;
 
 /* rank is in range 1..N; array indexes are in range 0..N-1 */
 template<class T>
-static void check_partition(T *a, size_t end, size_t rank)
+static void check_partition(T *a, size_t n, size_t rank)
 {
     int ok = 1;
-    assert(rank >= 0 && rank <= end);
+    assert(rank >= 0 && rank <= n);
     for (size_t i = 0; i < rank; i++)
     {
         if (a[i] > a[rank])
@@ -23,7 +23,7 @@ static void check_partition(T *a, size_t end, size_t rank)
                  << rank << "] = " << a[rank] << "\n";
         }
     }
-    for (size_t i = rank + 1; i < end; i++)
+    for (size_t i = rank + 1; i < n; i++)
     {
         if (a[i] < a[rank])
         {
@@ -38,16 +38,16 @@ static void check_partition(T *a, size_t end, size_t rank)
 }
 
 template<class T>
-void printArray(char const *tag, T *A, size_t N)
+void printArray(char const *tag, T *a, size_t n)
 {
     size_t i;
     int const maxw = 15;
-    cout << tag << ": (" << N << ")";
-    if (N > maxw)
+    cout << tag << ": (" << n << ")";
+    if (n > maxw)
         cout << '\n';
-    for (i = 0; i < N; i++)
+    for (i = 0; i < n; i++)
     {
-        cout << ' ' << setw(3) << A[i];
+        cout << ' ' << setw(3) << a[i];
         if (i % maxw == maxw - 1)
             cout << '\n';
     }
@@ -56,12 +56,12 @@ void printArray(char const *tag, T *A, size_t N)
 }
 
 template<class T>
-size_t partition(T *a, size_t N)
+size_t partition(T *a, size_t n)
 {
-    if (N <= 1)
+    if (n <= 1)
         return 0;
-    printArray("-->> partition()", a, N);
-    size_t j = N - 1;
+    printArray("-->> partition()", a, n);
+    size_t j = n - 1;
     size_t i = 1;
     swap(a[(i + j)/2], a[0]);
     T p = a[0];
@@ -69,7 +69,7 @@ size_t partition(T *a, size_t N)
 
     do
     {
-        while (i < N - 1 && a[i] < p)
+        while (i < n - 1 && a[i] < p)
             i++;
         while (j > 0 && a[j] > p)
             j--;
@@ -77,24 +77,32 @@ size_t partition(T *a, size_t N)
             swap(a[i++], a[j--]);
     } while (i <= j);
     swap(a[0], a[--i]);
-    printArray("<<-- partition()", a, N);
-    check_partition(a, N, i);
+    printArray("<<-- partition()", a, n);
+    check_partition(a, n, i);
     cout << "Returning: " << i << endl;
     return i;
 }
 
 template<class T>
-T quickSelect(T *input, size_t N, size_t k)
+T quickSelect(T *a, size_t n, size_t k)
 {
-    assert(k >= 0 && k < N);
-    size_t j = partition(input, N);
-    assert(j >= 0 && j < N);
-    if (k < j)
-        return quickSelect(input, j, k);
-    else if (k > j)
-        return quickSelect(input + j, N - j, k - j);
-    else
-        return input[k];
+    while (n > 1)
+    {
+        assert(k >= 0 && k < n);
+        size_t j = partition(a, n);
+        assert(j >= 0 && j < n);
+        if (k < j)
+            n = j;
+        else if (k > j)
+        {
+            a += j;
+            n -= j;
+            k -= j;
+        }
+        else
+            break;
+    }
+    return a[k];
 }
 
 int main()
