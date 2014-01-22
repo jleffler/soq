@@ -68,14 +68,15 @@ static int order(int a[], int start, int end, int rank)
 
     if (start == end)
     {
-        assert(start == rank - 1);
+        assert(start == rank);
         value = a[start];
     }
     else
     {
         assert(start < end);
-        assert(rank > start && rank - 1 <= end);
+        assert(rank >= start && rank < end);
 
+        /* Start partition */
         k = start + 1;
         pivot = a[start];
         if (debug) printf("pivot = %d\n", pivot);
@@ -107,10 +108,11 @@ static int order(int a[], int start, int end, int rank)
 
         assert(k >= start && k < end);
         if (debug) dump_partition("swap:", a, start, end);
+        /* End partition */
 
-        if (rank - 1 == k)
-            value = a[rank - 1];
-        else if (rank - 1 < k)
+        if (rank == k)
+            value = a[rank];
+        else if (rank < k)
             value = order(a, start, k, rank);
         else
             value = order(a, k + 1, end, rank);
@@ -151,11 +153,11 @@ int main(int argc, char **argv)
     for (int rank = 0; rank < SIZE; rank++)
     {
         int b[SIZE];
-        printf("Rank: %d\n", rank + 1);
+        printf("Rank: %d\n", rank);
         memmove(b, a, sizeof(b));
         dump_partition("Before:", b, 0, SIZE);
-        int value = order(b, 0, SIZE, rank + 1);
-        printf("rank %d is value %d (b[%d] = %d)\n", rank + 1, value, rank, b[rank]);
+        int value = order(b, 0, SIZE, rank);
+        printf("rank %d is value %d (b[%d] = %d)\n", rank, value, rank, b[rank]);
         dump_partition("After: ", b, 0, SIZE);
         check_partition(b, 0, SIZE, rank);
     }
@@ -175,8 +177,8 @@ int main(int argc, char **argv)
         {
             memmove(y, x, sizeof(y));
             dump_partition("Before:", y, 0, x_size);
-            int value = order(y, 0, x_size, j + 1);
-            printf("rank %d is value %d (y[%d] = %d)\n", j + 1, value, j, y[j]);
+            int value = order(y, 0, x_size, j);
+            printf("rank %d is value %d (y[%d] = %d)\n", j, value, j, y[j]);
             dump_partition("After: ", y, 0, x_size);
             check_partition(y, 0, x_size, j);
         }
