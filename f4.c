@@ -68,13 +68,13 @@ static int order(int a[], int start, int end, int rank)
 
     if (start == end)
     {
-        assert(start == rank - 1);
+        assert(start == rank);
         value = a[start];
     }
     else
     {
         assert(start < end);
-        assert(rank > start && rank - 1 <= end);
+        assert(rank >= start && rank < end);
 
         /* Routine thin partition - based on first element in range */
         pivot = a[start];
@@ -107,9 +107,9 @@ static int order(int a[], int start, int end, int rank)
         assert(l >= start && l < end);
         if (debug) dump_partition("swap:", a, start, end);
 
-        if (rank - 1 == l)
+        if (rank == l)
             value = a[l];
-        else if (rank - 1 < l)
+        else if (rank < l)
             value = order(a, start, l, rank);
         else
             value = order(a, l + 1, end, rank);
@@ -150,11 +150,11 @@ int main(int argc, char **argv)
     for (int rank = 0; rank < SIZE; rank++)
     {
         int b[SIZE];
-        printf("Rank: %d\n", rank + 1);
+        printf("Rank: %d\n", rank);
         memmove(b, a, sizeof(b));
         dump_partition("Before:", b, 0, SIZE);
-        int value = order(b, 0, SIZE, rank + 1);
-        printf("rank %d is value %d (b[%d] = %d)\n", rank + 1, value, rank, b[rank]);
+        int value = order(b, 0, SIZE, rank);
+        printf("rank %d is value %d (b[%d] = %d)\n", rank, value, rank, b[rank]);
         dump_partition("After: ", b, 0, SIZE);
         check_partition(b, 0, SIZE, rank);
     }
@@ -173,8 +173,8 @@ int main(int argc, char **argv)
         {
             memmove(y, x, sizeof(y));
             dump_partition("Before:", y, 0, X_SIZE);
-            int value = order(y, 0, X_SIZE, j + 1);
-            printf("rank %d is value %d (y[%d] = %d)\n", j + 1, value, j, y[j]);
+            int value = order(y, 0, X_SIZE, j);
+            printf("rank %d is value %d (y[%d] = %d)\n", j, value, j, y[j]);
             dump_partition("After: ", y, 0, X_SIZE);
             check_partition(y, 0, X_SIZE, j);
         }
