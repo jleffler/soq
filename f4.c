@@ -57,7 +57,6 @@ static void check_partition(int a[], int start, int end, int rank)
 */
 static int order(int a[], int start, int end, int rank)
 {
-    int pivot;
     int value;
 
     if (debug)
@@ -77,7 +76,7 @@ static int order(int a[], int start, int end, int rank)
         assert(rank >= start && rank < end);
 
         /* Routine thin partition - based on first element in range */
-        pivot = a[start];
+        int pivot = a[start];
         if (debug) printf("pivot = %d\n", pivot);
         int l = start + 1;
         int r = end;
@@ -108,7 +107,7 @@ static int order(int a[], int start, int end, int rank)
         if (debug) dump_partition("swap:", a, start, end);
 
         if (rank == l)
-            value = a[l];
+            value = a[rank];
         else if (rank < l)
             value = order(a, start, l, rank);
         else
@@ -166,17 +165,18 @@ int main(int argc, char **argv)
         enum { X_SIZE = 30 };
         debug = 0;
         int x[X_SIZE];
-        for (int j = 0; j < X_SIZE; j++)
+        int x_size = 21 + i;
+        for (int j = 0; j < x_size; j++)
             x[j] = rand() % 50 + 50;
         int y[X_SIZE];
-        for (int j = 0; j < X_SIZE; j++)
+        for (int j = 0; j < x_size; j++)
         {
             memmove(y, x, sizeof(y));
-            dump_partition("Before:", y, 0, X_SIZE);
-            int value = order(y, 0, X_SIZE, j);
+            dump_partition("Before:", y, 0, x_size);
+            int value = order(y, 0, x_size, j);
             printf("rank %d is value %d (y[%d] = %d)\n", j, value, j, y[j]);
-            dump_partition("After: ", y, 0, X_SIZE);
-            check_partition(y, 0, X_SIZE, j);
+            dump_partition("After: ", y, 0, x_size);
+            check_partition(y, 0, x_size, j);
         }
     }
 

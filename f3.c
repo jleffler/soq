@@ -57,7 +57,6 @@ static void check_partition(int a[], int start, int end, int rank)
 */
 static int order(int a[], int start, int end, int rank)
 {
-    int i, k, pivot;
     int value;
 
     if (debug)
@@ -76,44 +75,45 @@ static int order(int a[], int start, int end, int rank)
         assert(start < end);
         assert(rank >= start && rank < end);
 
-        k = start + 1;
-        pivot = a[start];
+        int l = start + 1;
+        int pivot = a[start];
         if (debug) printf("pivot = %d\n", pivot);
+        int i;
         for (i = start + 1; i < end; i++)
         {
             if (a[i] < pivot)
             {
-                if (i != k)
+                if (i != l)
                 {
-                    if (debug) printf("B[%d,%d]<=>(%d,%d) ", i, k, a[i], a[k]);
-                    int temp = a[k];
-                    a[k] = a[i];
+                    if (debug) printf("B[%d,%d]<=>(%d,%d) ", i, l, a[i], a[l]);
+                    int temp = a[l];
+                    a[l] = a[i];
                     a[i] = temp;
-                    if (debug) printf("A[%d,%d]<=>(%d,%d)\n", i, k, a[i], a[k]);
+                    if (debug) printf("A[%d,%d]<=>(%d,%d)\n", i, l, a[i], a[l]);
                 }
-                k++;
+                l++;
             }
         }
 
         if (debug)
         {
-            printf("i = %d, k = %d\n", i, k);
+            printf("i = %d, l = %d\n", i, l);
             dump_partition("loop:", a, start, end);
         }
 
         int temp = a[start];
-        a[start] = a[--k];
-        a[k] = temp;
+        a[start] = a[--l];
+        a[l] = temp;
 
-        assert(k >= start && k < end);
+        assert(l >= start && l < end);
         if (debug) dump_partition("swap:", a, start, end);
 
-        if (rank == k)
+        if (rank == l)
             value = a[rank];
-        else if (rank < k)
-            value = order(a, start, k, rank);
+        else if (rank < l)
+            value = order(a, start, l, rank);
         else
-            value = order(a, k + 1, end, rank);
+            value = order(a, l + 1, end, rank);
     }
 
     if (debug)
@@ -165,12 +165,12 @@ int main(int argc, char **argv)
     for (int i = 0; i < 10; i++)
     {
         enum { X_SIZE = 30 };
-        int x_size = 21 + i;
-        int y[X_SIZE];
-        int x[X_SIZE];
         debug = 0;
+        int x[X_SIZE];
+        int x_size = 21 + i;
         for (int j = 0; j < x_size; j++)
             x[j] = rand() % 50 + 50;
+        int y[X_SIZE];
         for (int j = 0; j < x_size; j++)
         {
             memmove(y, x, sizeof(y));
