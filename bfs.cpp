@@ -1,8 +1,24 @@
 /* SO 21348173 BFS implementation not working properly */
+#include <cassert>
 #include <iostream>
 #include <queue>
 
-class node { public: int x, y, l; };
+class node {
+public:
+    node(int x1 = 0, int y1 = 0, int l1 = 0) : x(x1), y(y1), l(l1) { }
+    int x, y, l;
+};
+
+void push_if_valid(const int map[4][4], std::queue<node> &q, const node &n)
+{
+    if (n.x < 0 || n.x >= 4)
+        return;
+    if (n.y < 0 || n.y >= 4)
+        return;
+    if (map[n.x][n.y] == 1) 
+        return;
+    q.push(n);
+}
 
 int bfs(int bx, int by, int ex, int ey)
 {
@@ -36,13 +52,10 @@ int bfs(int bx, int by, int ex, int ey)
         node top = search_queue.front();
         search_queue.pop();
 
-        if (top.x < 0 || top.x >= 4)
-            continue;
-        if (top.y < 0 || top.y >= 4)
-            continue;
+        assert(top.x >= 0 && top.x < 4);
+        assert(top.y >= 0 && top.y < 4);
+        assert(map[top.x][top.y] == 0);
         if (visited[top.x][top.y])
-            continue;
-        if (map[top.x][top.y] == 1)
             continue;
 
         path.push(top);
@@ -53,25 +66,10 @@ int bfs(int bx, int by, int ex, int ey)
         if (top.x == ex && top.y == ey)
             break;
 
-        node temp;
-
-        temp.l = top.l + 1;
-
-        temp.x = top.x + 1;
-        temp.y = top.y;
-        search_queue.push(temp);
-
-        temp.x = top.x - 1;
-        temp.y = top.y;
-        search_queue.push(temp);
-
-        temp.x = top.x;
-        temp.y = top.y + 1;
-        search_queue.push(temp);
-
-        temp.x = top.x;
-        temp.y = top.y - 1;
-        search_queue.push(temp);
+        push_if_valid(map, search_queue, node(top.x + 1, top.y + 0, top.l + 1));
+        push_if_valid(map, search_queue, node(top.x - 1, top.y + 0, top.l + 1));
+        push_if_valid(map, search_queue, node(top.x + 0, top.y + 1, top.l + 1));
+        push_if_valid(map, search_queue, node(top.x - 0, top.y - 1, top.l + 1));
     }
 
     //result = path.size();
