@@ -9,15 +9,16 @@ public:
     int x, y, l;
 };
 
-void push_if_valid(const int map[4][4], std::queue<node> &q, const node &n)
+int push_if_valid(const int map[4][4], std::queue<node> &q, const node &n)
 {
     if (n.x < 0 || n.x >= 4)
-        return;
+        return 0;
     if (n.y < 0 || n.y >= 4)
-        return;
+        return 0;
     if (map[n.x][n.y] == 1) 
-        return;
+        return 0;
     q.push(n);
+    return 1;
 }
 
 int bfs(int bx, int by, int ex, int ey)
@@ -66,10 +67,13 @@ int bfs(int bx, int by, int ex, int ey)
         if (top.x == ex && top.y == ey)
             break;
 
-        push_if_valid(map, search_queue, node(top.x + 1, top.y + 0, top.l + 1));
-        push_if_valid(map, search_queue, node(top.x - 1, top.y + 0, top.l + 1));
-        push_if_valid(map, search_queue, node(top.x + 0, top.y + 1, top.l + 1));
-        push_if_valid(map, search_queue, node(top.x - 0, top.y - 1, top.l + 1));
+        int n_pushes = 
+            push_if_valid(map, search_queue, node(top.x + 1, top.y + 0, top.l + 1)) +
+            push_if_valid(map, search_queue, node(top.x - 1, top.y + 0, top.l + 1)) +
+            push_if_valid(map, search_queue, node(top.x + 0, top.y + 1, top.l + 1)) +
+            push_if_valid(map, search_queue, node(top.x + 0, top.y - 1, top.l + 1));
+        if (n_pushes == 0)
+            path.pop();
     }
 
     //result = path.size();
