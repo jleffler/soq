@@ -12,7 +12,7 @@ int bfs(int bx, int by, int ex, int ey)
     start.y = by;
     start.l = 1;
     std::queue<node> search_queue;
-    //std::queue<node> path;
+    std::queue<node> path;
     bool visited[4][4];
     int map[4][4] =
     {
@@ -45,7 +45,7 @@ int bfs(int bx, int by, int ex, int ey)
         if (map[top.x][top.y] == 1)
             continue;
 
-        //path.push(top);
+        path.push(top);
         visited[top.x][top.y] = true;
         std::cout << "visit: [" << top.x << "][" << top.y << "] = " << top.l << "\n";
 
@@ -74,14 +74,16 @@ int bfs(int bx, int by, int ex, int ey)
         search_queue.push(temp);
     }
 
-    //std::cout << "path:";
-    //while (!path.empty())
-    //{
-    //    node p = path.front();
-    //    path.pop();
-    //    std::cout << " --> [" << p.x << "][" << p.y << "]";
-    //}
-    //std::cout << std::endl;
+    //result = path.size();
+    char const *pad = "path:";
+    while (!path.empty())
+    {
+        node p = path.front();
+        path.pop();
+        std::cout << pad << " [" << p.x << "][" << p.y << "]";
+        pad = " -->";
+    }
+    std::cout << std::endl;
 
     return result;
 }
