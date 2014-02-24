@@ -17,6 +17,7 @@ static bool cmp_second(const zip_cnt &v1, const zip_cnt &v2)
 int main()
 {
     map<string, int> zip_map;
+
     string text;
     while (cin >> text)
     {
@@ -31,6 +32,8 @@ int main()
             }
         }
     }
+
+    // NB: Sorted in key order
     cout << "Raw:\n";
     for (auto it = zip_map.begin(); it != zip_map.end(); ++it)
         cout << it->first << ": " << zip_map[it->first] << "\n";
