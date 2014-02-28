@@ -40,6 +40,7 @@ int main()
 
     // To sort: convert to vector of pairs, sort vector, print data.
     vector<zip_cnt> zip_vec;
+    zip_vec.reserve(zip_map.size());
     for (auto it = zip_map.begin(); it != zip_map.end(); ++it)
         zip_vec.push_back(*it);
 
