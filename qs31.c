@@ -74,24 +74,24 @@ static inline size_t thin_partition_random(void *base, size_t size,
 void Qsort_r(void *base, size_t num, size_t size, void *thunk, Comparator cmp)
 {
     size_t low = 0;
-    size_t high = num - 1;
+    size_t high = num;
 
     while (low < high)
     {
-        size_t r = thin_partition_random(base, size, low, high, thunk, cmp);
-        size_t l = r - 1;
-        assert(l >= low && high >= r);
-        if (l - low > high - r)
+        size_t p = thin_partition_random(base, size, low, high, thunk, cmp);
+        size_t l = p - 1;
+        assert(l >= low && high >= p);
+        if (l - low > high - p)
         {
-            if (high - r > 1)
-                Qsort_r((char *)base + size * r, high - r + 1, size, thunk, cmp);
+            if (high - p > 1)
+                Qsort_r((char *)base + size * p, high - p + 1, size, thunk, cmp);
             high = l;
         }
         else
         {
             if (l - low > 1)
                 Qsort_r((char *)base + size * low, l - low + 1, size, thunk, cmp);
-            low = r;
+            low = p;
         }
     }
 }
