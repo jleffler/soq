@@ -5,7 +5,7 @@ WFLAG2 = -Wextra
 WFLAG3 = -Wmissing-prototypes 
 WFLAG4 = -Wstrict-prototypes 
 WFLAG5 = -Wold-style-definition
-WFLAG6 =
+WFLAG6 = -Werror
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} 
 SFLAGS = -std=c11
 GFLAGS = -g
