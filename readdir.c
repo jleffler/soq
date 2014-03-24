@@ -1,3 +1,4 @@
+/* SO 4361132 has related code, but answers a different question */
 #include <assert.h>
 #include <dirent.h>
 #include <stdio.h>
