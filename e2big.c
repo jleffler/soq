@@ -70,11 +70,18 @@ static int test_arg_size(int size)
             exit(E_NOT_E2BIG);
         }
         close(0);
-        dup(dev_null);
+        /*
+        ** GCC on Linux generates warnings if you don't pay attention to
+        ** the value returned by dup().
+        */
+        int fd = dup(dev_null);
+        assert(fd == 0);
         close(1);
-        dup(dev_null);
+        fd = dup(dev_null);
+        assert(fd == 1);
         close(2);
-        dup(dev_null);
+        fd = dup(dev_null);
+        assert(fd == 2);
         close(dev_null);
 
         /* Execute ls on big file names -- error is ENAMETOOLONG */
@@ -85,11 +92,13 @@ static int test_arg_size(int size)
         int errnum = errno;
         if (errnum == E2BIG)
         {
-            fprintf(stderr, "%d: got E2BIG (%d: %s) at size %s\n", self, errnum, strerror(errnum),
+            fprintf(stderr, "%d: got E2BIG (%d: %s) at size %s\n",
+                    self, errnum, strerror(errnum),
                     print_kib(size, buffer, sizeof(buffer)));
             exit(E_GOT_E2BIG);
         }
-        fprintf(stderr, "%d: got errno %d (%s) at size %s\n", self, errnum, strerror(errnum),
+        fprintf(stderr, "%d: got errno %d (%s) at size %s\n",
+                self, errnum, strerror(errnum),
                 print_kib(size, buffer, sizeof(buffer)));
         exit(E_NOT_E2BIG);
     }
@@ -101,11 +110,13 @@ static int test_arg_size(int size)
         while ((corpse = waitpid(pid, &status, 0)) != -1)
         {
             if (!WIFEXITED(status))
-                printf("%d: child %d died with exit status 0x%.4X", self, corpse, status);
+                printf("%d: child %d died with exit status 0x%.4X",
+                       self, corpse, status);
             else
             {
                 int statval = WEXITSTATUS(status);
-                printf("%d: child %d died with exit status %d: ", self, corpse, statval);
+                printf("%d: child %d died with exit status %d: ",
+                       self, corpse, statval);
                 switch (statval)
                 {
                 case E_GOT_E2BIG:
@@ -115,8 +126,16 @@ static int test_arg_size(int size)
                 case E_NOT_E2BIG:
                     printf("failed: indeterminate error in child");
                     break;
+                    /*
+                    ** ls on Mac OS X fails with 1 if it fails to find a
+                    ** file.  On Linux, it exits with 1 for 'minor
+                    ** problems' (e.g. cannot access subdirectory).
+                    ** ls on Linux fails with 2 if it fails with 'serious
+                    ** trouble'; (e.g. if it can't find a file)
+                    */
                 case 1:
-                    printf("command exited with status 1 - it worked");
+                case 2:
+                    printf("command exited with status %d - it worked", statval);
                     break;
                 default:
                     printf("unknown: unexpected exit status %d", statval);
@@ -142,9 +161,10 @@ int main(void)
 {
     int env = env_size();
     int lo = 0;
-    int hi = BYTES_PER_MEBIBYTE;
+    int hi = 4 * BYTES_PER_MEBIBYTE;
 
-    /* Binary search -- the kilobyte slop means termination does not have to be accurate */
+    /* Binary search */
+    /* The kilobyte slop means termination does not have to be accurate */
     while (lo + 1 * BYTES_PER_KIBIBYTE < hi)
     {
         int mid = (lo + hi) / 2;
