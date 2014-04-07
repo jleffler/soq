@@ -19,37 +19,32 @@ char isSeparator(char character, char *seps)
 int parse_tokens(char *str, char *seps, char ***tokens)
 {
     char **foundTokens = (char **) calloc(10, sizeof(char *));
+    char **current = foundTokens;
+    char *word = NULL;
     char c;
-    int tokenCount = 0;
-    int tokenLetter = 0;
 
     while ((c = *str++) != '\0')
     {
         if (!isSeparator(c, seps))
         {
-            if (foundTokens[tokenCount] == NULL)
-                foundTokens[tokenCount] = (char *) malloc(30 * sizeof(char));
-            foundTokens[tokenCount][tokenLetter] = c;
-            ++tokenLetter;
+            if (word == NULL)
+            {
+                *current = (char *) malloc(30 * sizeof(char));
+                word = *current++;
+            }
+            *word++ = c;
         }
         else
         {
-            if (foundTokens[tokenCount] != NULL)
-            {
-                foundTokens[tokenCount][tokenLetter] = '\0';
-                ++tokenCount;
-            }
-            tokenLetter = 0;
+            if (word != NULL)
+                *word = '\0';
+            word = NULL;
         }
     }
-    if (foundTokens[tokenCount] != NULL)
-    {
-        foundTokens[tokenCount][tokenLetter] = '\0';
-        ++tokenCount;
-    }
-    foundTokens[tokenCount+1] = NULL;
+    if (word != NULL)
+        *word = '\0';
     *tokens = foundTokens;
-    return tokenCount;
+    return current - foundTokens;
 }
 
 void free_tokens(char **tokens)
@@ -62,6 +57,7 @@ void free_tokens(char **tokens)
 int main(void)
 {
     char **argv;
+
     int argc = parse_tokens("hello,world", ",", &argv);
 
     printf("argc = %d\n", argc);
@@ -69,6 +65,14 @@ int main(void)
         printf("%p = [%s]\n", (void *)argv[i], (argv[i] != 0) ? argv[i] : "<null>");
 
     free_tokens(argv);
+
+    argc = parse_tokens(",abc,,axolotl,,zoological society gardens,,", ",", &argv);
+
+    printf("argc = %d\n", argc);
+    for (int i = 0; i <= argc; i++)
+        printf("%p = [%s]\n", (void *)argv[i], (argv[i] != 0) ? argv[i] : "<null>");
+
+    free_tokens(argv);
+
     return 0;
 }
-
