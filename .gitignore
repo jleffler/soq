@@ -1,6 +1,8 @@
 *.a
+*.bundle
 *.bz2
 *.dSYM
+*.dylib
 *.gz
 *.lz
 *.o
