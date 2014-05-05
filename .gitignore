@@ -48,6 +48,7 @@ matmul89
 matmul99
 mda
 multi-pipe-sort
+pbb
 pipecircle
 piped-merge-sort
 pipeline
