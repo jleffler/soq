@@ -1,6 +1,5 @@
-
 /* Define variables */
-#define HEADER_DEFINING_VARIABLES "file2c.h"
+#define HEADER_DEFINING_VARIABLES "file2d.h"
 #include "externdef.h"
 
 /* Define variables */

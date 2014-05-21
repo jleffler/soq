@@ -7,7 +7,7 @@
 #define FILE8C_H_INCLUDED
 
 #include "external.h"   /* Support macros EXTERN, INITIALIZE */
-#include "file2c.h"     /* struct oddball */
+#include "file2d.h"     /* struct oddball */
 
 #if !defined(DEFINE_VARIABLES) || !defined(FILE8C_H_DEFINITIONS)
 
