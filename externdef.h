@@ -4,8 +4,8 @@
 ** be defined with the name (in quotes - or possibly angle brackets) of
 ** the header to be included that defines variables when the macro
 ** DEFINE_VARIABLES is defined.  See also: external.h (which uses
-** DEFINE_VARIABLES and defines macros EXTERN, INIT_SIMPLE and
-** INIT_COMPLEX appropriately).
+** DEFINE_VARIABLES and defines macros EXTERN and INITIALIZE
+** appropriately).
 **
 ** #define HEADER_DEFINING_VARIABLES "file2c.h"
 ** #include "externdef.h"

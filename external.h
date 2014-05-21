@@ -1,19 +1,15 @@
 /*
-** This header must not contain header guards (like <assert.h> must not.
-** Each time it is invoked, it redefines the three macros EXTERN,
-** INIT_SIMPLE, INIT_COMPLEX based on whether macro DEFINE_VARIABLES is
-** currently defined.
+** This header must not contain header guards (like <assert.h> must not).
+** Each time it is invoked, it redefines the macros EXTERN, INITIALIZE
+** based on whether macro DEFINE_VARIABLES is currently defined.
 */
 #undef EXTERN
-#undef INIT_SIMPLE
-#undef INIT_COMPLEX
+#undef INITIALIZE
 
 #ifdef DEFINE_VARIABLES
-#define EXTERN                  extern
-#define INIT_SIMPLE(x)          /* nothing */
-#define INIT_COMPLEX(x, ...)    /* nothing */
+#define EXTERN              /* nothing */
+#define INITIALIZE(...)     = __VA_ARGS__
 #else
-#define EXTERN                  /* nothing */
-#define INIT_SIMPLE(x)          = x
-#define INIT_COMPLEX(x, ...)    = x, __VA_ARGS__
+#define EXTERN              extern
+#define INITIALIZE(...)     /* nothing */
 #endif /* DEFINE_VARIABLES */
