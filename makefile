@@ -99,7 +99,7 @@ FILES.h = \
 	prog3.h \
 	prog4.h
 
-UNUSED.h = \
+BOGUS.h = \
 	broken_header.h \
 	faulty_header.h \
 	seldom_correct.h
@@ -110,15 +110,21 @@ TARFLAGS = -czf
 TARFILE  = so-1433204.tar.gz
 TAR_LIST = \
 	${ANSWER} \
-	${SOURCE} \
+	${BOGUS.h} \
+	${CHECK} \
 	${FILES.c} \
-	${PROGS.c} \
 	${FILES.h} \
 	${INSERT_CODE} \
 	${MAKEFILE} \
-	${UNUSED.h}
+	${PROGS.c} \
+	${SOURCE}
 
-all: ${PROGS} ${ANSWER} ${TARFILE}
+CHECK = check-references.sh
+
+all: ${CHECK} check ${PROGS} ${ANSWER} ${TARFILE}
+
+check:
+	${SHELL} ${CHECK} ${SOURCE} ${FILES.c} ${FILES.h} ${PROGS.c} ${BOGUS.h}
 
 ${PROG1}: ${PROG1.o}
 	${CC} -o $@ ${CFLAGS} ${PROG1.o} ${LDFLAGS} ${LDLIBS}
