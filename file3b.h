@@ -1,22 +1,10 @@
-/* Standard prologue */
-#if defined(DEFINE_VARIABLES) && !defined(FILE2C_H_DEFINITIONS)
-#undef FILE2C_H_INCLUDED
-#endif
-
-#ifndef FILE2C_H_INCLUDED
-#define FILE2C_H_INCLUDED
-
-#include "external.h"   /* Support macros EXTERN, INITIALIZE */
-#include "file1c.h"     /* Type definition for struct oddball */
-
-/* Global variable declarations / definitions */
-EXTERN int global_variable INITIALIZE(37);
-EXTERN struct oddball oddball_struct INITIALIZE({ 41, 43 });
-
-/* Standard epilogue */
 #ifdef DEFINE_VARIABLES
-#define FILE2C_H_DEFINITIONS
-#undef DEFINE_VARIABLES     /* Safety first */
+#define EXTERN                  /* nothing */
+#define INITIALIZER(...)        = __VA_ARGS__
+#else
+#define EXTERN                  extern
+#define INITIALIZER(...)        /* nothing */
 #endif /* DEFINE_VARIABLES */
 
-#endif /* FILE2C_H_INCLUDED */
+EXTERN int global_variable INITIALIZER(37);
+EXTERN struct { int a; int b; } oddball_struct INITIALIZER({ 41, 43 });

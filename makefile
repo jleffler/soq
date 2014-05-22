@@ -1,3 +1,5 @@
+PERL   = perl
+UNIQ   = uniq
 MKDEP  = mkdep
 CC     = gcc
 RM_FR  = rm -fr --
@@ -51,7 +53,72 @@ PROG9.o = prog8.o file8c.o file9c.o
 
 PROGS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6} ${PROG7} ${PROG8} ${PROG9}
 
-all: ${PROGS}
+INSERT_CODE = insert-code.pl
+
+SOURCE = extern-definitions
+ANSWER = extern-definitions.txt
+
+FILES.c = \
+	file1.c \
+	file10.c \
+	file11.c \
+	file12.c \
+	file1a.c \
+	file1b.c \
+	file2.c \
+	file2a.c \
+	file2b.c \
+	file3c.c \
+	file4c.c \
+	file5c.c \
+	file6c.c \
+	file7c.c \
+	file8c.c \
+	file9c.c
+
+PROGS.c = \
+	prog1.c \
+	prog2.c \
+	prog3.c \
+	prog4.c \
+	prog5.c \
+	prog8.c
+
+FILES.h = \
+	external.h \
+	externdef.h \
+	file1c.h \
+	file2c.h \
+	file2d.h \
+	file3.h \
+	file3a.h \
+	file3b.h \
+	file8c.h \
+	prog1.h \
+	prog2.h \
+	prog3.h \
+	prog4.h
+
+UNUSED.h = \
+	broken_header.h \
+	faulty_header.h \
+	seldom_correct.h
+
+MAKEFILE = makefile
+TAR      = tar
+TARFLAGS = -czf
+TARFILE  = so-1433204.tar.gz
+TAR_LIST = \
+	${ANSWER} \
+	${SOURCE} \
+	${FILES.c} \
+	${PROGS.c} \
+	${FILES.h} \
+	${INSERT_CODE} \
+	${MAKEFILE} \
+	${UNUSED.h}
+
+all: ${PROGS} ${ANSWER} ${TARFILE}
 
 ${PROG1}: ${PROG1.o}
 	${CC} -o $@ ${CFLAGS} ${PROG1.o} ${LDFLAGS} ${LDLIBS}
@@ -81,50 +148,13 @@ ${PROG9}: ${PROG9.o}
 	${CC} -o $@ ${CFLAGS} ${PROG9.o} ${LDFLAGS} ${LDLIBS}
 
 clean:
-	${RM_FR} *.o *.dSYM core a.out ${PROGS}
+	${RM_FR} *.o *.dSYM core a.out ${PROGS} ${ANSWER} ${TARFILE}
 
-FILES.c = \
-	file1.c \
-	file10.c \
-	file11.c \
-	file12.c \
-	file1a.c \
-	file1b.c \
-	file2.c \
-	file2a.c \
-	file2b.c \
-	file3c.c \
-	file4b.c \
-	file4c.c \
-	file5c.c \
-	file6c.c \
-	file7c.c \
-	file8c.c \
-	file9c.c
+${ANSWER}: ${SOURCE} ${FILES.c} ${PROGS.c} ${FILES.h}
+	${PERL} ${INSERT_CODE} ${SOURCE} | ${UNIQ} > ${ANSWER}
 
-PROGS.c = \
-	prog1.c \
-	prog2.c \
-	prog3.c \
-	prog4.c \
-	prog5.c \
-	prog8.c
-
-FILES.h = \
-	external.h \
-	externdef.h \
-	file1c.h \
-	file2c.h \
-	file2d.h \
-	file3.h \
-	file3a.h \
-	file3b.h \
-	file4b.h \
-	file8c.h \
-	prog1.h \
-	prog2.h \
-	prog3.h \
-	prog4.h
+${TARFILE}: ${TAR_LIST}
+	${TAR} ${TARFLAGS} ${TARFILE} ${TAR_LIST}
 
 depend: ${FILES.c} ${FILES.h} ${PROGS.c}
 	${MKDEP} ${FILES.c} ${PROGS.c}
@@ -161,10 +191,6 @@ file3c.o: external.h
 file3c.o: file1c.h
 file3c.o: file2c.h
 file3c.o: file3c.c
-file4b.o: external.h
-file4b.o: file1c.h
-file4b.o: file3b.h
-file4b.o: file4b.c
 file4c.o: external.h
 file4c.o: file1c.h
 file4c.o: file2c.h

@@ -1,6 +1,8 @@
+<!--
 http://stackoverflow.com/questions/1433204
 Q: What are extern variables in C?
 Q: How do I share a variable between source files in C? With extern, but how?
+-->
 
 Using `extern` is only of relevance when the program you're building
 consists of multiple source files linked together, where some of the
@@ -31,52 +33,23 @@ header file (and only one header file) should declare the variable.
 
 ### file3.h
 
-    extern int global_variable;  /* Declaration of the variable */
-
 ### file1.c
-
-    #include "file3.h"  /* Declaration made available here */
-    #include "prog1.h"  /* Function declarations */
-
-    /* Variable defined here */
-    int global_variable = 37;    /* Definition checked against declaration */
-
-    int increment(void) { return global_variable++; }
 
 ### file2.c
 
-    #include "file3.h"
-    #include "prog1.h"
-    #include <stdio.h>
-
-    void use_it(void)
-    {
-        printf("Global variable: %d\n", global_variable++);
-    }
-
 That's the best way to use them.
+
+<hr>
 
 _The next two files complete the source for `prog1`:_
 
 ### prog1.h
 
-    extern void use_it(void);
-    extern int increment(void);
-
 ### prog1.c
 
-    #include "file3.h"
-    #include "prog1.h"
-    #include <stdio.h>
+* `prog1` uses `prog1.c`, `file1.c`, `file2.c`, `file3.h` and `prog1.h`.
 
-    int main(void)
-    {
-        use_it();
-        global_variable += 19;
-        use_it();
-        printf("Increment: %d\n", increment());
-        return 0;
-    }
+<hr>
 
 ## Guidelines
 
@@ -111,27 +84,9 @@ definition of the variable:
 
 ### file10.c
 
-    #include "prog2.h"
-
-    int i;   /* Do not do this in portable code */
-
-    void inc(void) { i++; }
-
 ### file11.c
 
-    #include "prog2.h"
-
-    int i;   /* Do not do this in portable code */
-
-    void dec(void) { i--; }
-
 ### file12.c
-
-    #include "prog2.h"
-
-    int i = 9;   /* Do not do this in portable code */
-
-    void put(void) { printf("i = %d\n", i); }
 
 This technique does not conform to the letter of the C standard and the
 'one definition rule', but the C standard lists it as a common variation
@@ -157,28 +112,17 @@ object, with or without the explicit use of the keyword extern; if the
 definitions disagree, or more than one is initialized, the behavior is
 undefined (6.9.2).
 
+<hr>
+
 _The next two files complete the source for `prog2`:_
 
 ### prog2.h
 
-    extern void dec(void);
-    extern void put(void);
-    extern void inc(void);
-
 ### prog2.c
 
-    #include "prog2.h"
-    #include <stdio.h>
+* `prog2` uses `prog2.c`, `file10.c`, `file11.c`, `file12.c`, `prog2.h`.
 
-    int main(void)
-    {
-        inc();
-        put();
-        dec();
-        put();
-        dec();
-        put();
-    }
+<hr>
 
 ### Warning
 
@@ -195,35 +139,30 @@ may or may not show itself.
 
 ## Violating the guidelines
 
-Note 1: if the header defines the variable without the `extern` keyword:
-
 ### faulty_header.h
 
-    int some_var;    /* Do not do this in a header!!! */
-
-Then each file that includes the header creates a tentative definition
+Note 1: if the header defines the variable without the `extern` keyword,
+then each file that includes the header creates a tentative definition
 of the variable.
-
-Note 2: if the header defines and initializes the variable, then only
-one source file in a given program can use the header:
 
 ### broken_header.h
 
-    int some_var = 13;    /* Only one source file in a program can use this */
+Note 2: if the header defines and initializes the variable, then only
+one source file in a given program can use the header.
+
+### seldom_correct.h
 
 Note 3: if the header defines a static variable (with or without
 initialization), then each source file ends up with its own private
 version of the 'global' variable.
 
-### seldom_correct.h
-
-    static int hidden_global = 3;   /* Each source file gets its own copy  */
-
-When the variable is actually a complex array, this can lead to extreme
-duplication of code.  It can, very occasionally, be a sensible way to
-achieve some effect, but that is rather unusual.
+If the variable is actually a complex array, for example, this can lead
+to extreme duplication of code.  It can, very occasionally, be a
+sensible way to achieve some effect, but that is rather unusual.
 
 <hr>
+
+## Summary
 
 Use the header technique I showed first.  It works reliably and
 everywhere.  Note, in particular, that the header declaring the
@@ -267,54 +206,23 @@ illustrated in `file3.h`:
 
 ### file3a.h
 
-    #ifdef DEFINE_VARIABLES
-    #define EXTERN /* nothing */
-    #else
-    #define EXTERN extern
-    #endif /* DEFINE_VARIABLES */
-
-    EXTERN int global_variable;
-
 ### file1a.c
-
-    #define DEFINE_VARIABLES
-    #include "file3a.h"  /* Variable defined - but not initialized */
-    #include "prog3.h"
-
-    int increment(void) { return global_variable++; }
 
 ### file2a.c
 
-    #include "file3a.h"
-    #include "prog3.h"
-    #include <stdio.h>
-
-    void use_it(void)
-    {
-        printf("Global variable: %d\n", global_variable++);
-    }
+<hr>
 
 _The next two files complete the source for `prog3`:_
 
 ### prog3.h
 
-    extern void use_it(void);
-    extern int increment(void);
-
 ### prog3.c
 
-    #include "file3a.h"
-    #include "prog3.h"
-    #include <stdio.h>
+* `prog3` uses `prog3.c`, `file1a.c`, `file2a.c`, `file3a.h`, `prog3.h`.
 
-    int main(void)
-    {
-        use_it();
-        global_variable += 19;
-        use_it();
-        printf("Increment: %d\n", increment());
-        return 0;
-    }
+<hr>
+
+## Variable initialization
 
 The problem with this scheme as shown is that it does not provide for
 initialization of the global variable.  With C99 or C11 and variable argument
@@ -324,39 +232,12 @@ easy way to handle arbitrarily long initializers.)
 
 ### file3b.h
 
-    #ifdef DEFINE_VARIABLES
-    #define EXTERN                  extern
-    #define INITIALIZER(...)        /* nothing */
-    #else
-    #define EXTERN                  /* nothing */
-    #define INITIALIZER(...)        = __VA_ARGS__
-    #endif /* DEFINE_VARIABLES */
-
-    EXTERN int global_variable INITIALIZER(37);
-    EXTERN struct { int a; int b; } oddball_struct INITIALIZER({ 41, 43 });
-
 <sup>Reverse contents of `#if` and `#else` blocks, fixing bug identified by
 [Denis Kniazhev](http://stackoverflow.com/users/369317/denis-kniazhev)</sup>
 
 ### file1b.c
 
-    #define DEFINE_VARIABLES
-    #include "file3b.h"  /* Variables now defined and initialized */
-
-    int increment(void) { return global_variable++; }
-    int oddball_value(void) { return oddball_struct.a + oddball_struct.b; }
-
 ### file2b.c
-
-    #include "file3b.h"
-    #include <stdio.h>
-
-    void use_them(void)
-    {
-        printf("Global variable: %d\n", global_variable++);
-        oddball_struct.a += global_variable;
-        oddball_struct.b -= global_variable / 2;
-    }
 
 Clearly, the code for the oddball structure is not what you'd normally
 write, but it illustrates the point.  The first argument to the second
@@ -368,36 +249,24 @@ contain commas are very problematic.
 <sup>Correct header `file3b.h` included (instead of `fileba.h`) per
 [Denis Kniazhev](http://stackoverflow.com/users/369317/denis-kniazhev)</sup>
 
+<hr>
+
 _The next two files complete the source for `prog4`:_
 
 ### prog4.h
 
-    extern int increment(void);
-    extern int oddball_value(void);
-    extern void use_them(void);
-
 ### prog4.c
 
-    #include "file3b.h"
-    #include "prog4.h"
-    #include <stdio.h>
+* `prog4` uses `prog4.c`, `file1b.c`, `file2b.c`, `prog4.h`, `file3b.h`.
 
-    int main(void)
-    {
-        use_them();
-        global_variable += 19;
-        use_them();
-        printf("Increment: %d\n", increment());
-        printf("Oddball:   %d\n", oddball_value());
-        return 0;
-    }
+<hr>
 
 ## Header Guards
 
 Any header should be protected against reinclusion, so that type
 definitions (enum, struct or union types, or typedefs generally) do not
 cause problems.  The standard technique is to wrap the body of the
-header in a header guard:
+header in a header guard such as:
 
     #ifndef FILE3B_H_INCLUDED
     #define FILE3B_H_INCLUDED
@@ -451,139 +320,39 @@ The restrictions for this to work are:
 
 ### external.h
 
-    /*
-    ** This header must not contain header guards (like <assert.h> must not).
-    ** Each time it is invoked, it redefines the macros EXTERN and INITIALIZER
-    ** based on whether macro DEFINE_VARIABLES is currently defined.
-    */
-    #undef EXTERN
-    #undef INITIALIZER
-
-    #ifdef DEFINE_VARIABLES
-    #define EXTERN                  /* nothing */
-    #define INITIALIZER(...)        = __VA_ARGS__
-    #else
-    #define EXTERN                  extern
-    #define INITIALIZER(...)        /* nothing */
-    #endif /* DEFINE_VARIABLES */
-
 ### file1c.h
-
-    #ifndef FILE1C_H_INCLUDED
-    #define FILE1C_H_INCLUDED
-
-    struct oddball
-    {
-        int a;
-        int b;
-    };
-
-    extern void use_them(void);
-    extern int increment(void);
-    extern int oddball_value(void);
-
-    #endif /* FILE1C_H_INCLUDED */
 
 ### file2c.h
 
-    /* Standard prologue */
-    #if defined(DEFINE_VARIABLES) && !defined(FILE2C_H_DEFINITIONS)
-    #undef FILE2C_H_INCLUDED
-    #endif
-
-    #ifndef FILE2C_H_INCLUDED
-    #define FILE2C_H_INCLUDED
-
-    #include "external.h"   /* Support macros EXTERN and INITIALIZER */
-    #include "file1c.h"     /* Type definition for struct oddball */
-
-    /* Global variable declarations / definitions */
-    EXTERN int global_variable INITIALIZER(37);
-    EXTERN struct oddball oddball_struct INITIALIZER({ 41, 43 });
-
-    /* Standard epilogue */
-    #ifdef DEFINE_VARIABLES
-    #define FILE2C_H_DEFINITIONS
-    #undef DEFINE_VARIABLES     /* Safety first */
-    #endif /* DEFINE_VARIABLES */
-
-    #endif /* FILE2C_H_INCLUDED */
-
 ### file3c.c
-
-    #define DEFINE_VARIABLES
-    #include "file2c.h"  /* Variables now defined and initialized */
-
-    int increment(void) { return global_variable++; }
-    int oddball_value(void) { return oddball_struct.a + oddball_struct.b; }
 
 ### file4c.c
 
-    #include "file2c.h"
-    #include <stdio.h>
-
-    void use_them(void)
-    {
-        printf("Global variable: %d\n", global_variable++);
-        oddball_struct.a += global_variable;
-        oddball_struct.b -= global_variable / 2;
-    }
-
 ### file5c.c
-
-    #include "file2c.h"     /* Declare variables */
-
-    #define DEFINE_VARIABLES
-    #include "file2c.h"  /* Variables now defined and initialized */
-
-    int increment(void) { return global_variable++; }
-    int oddball_value(void) { return oddball_struct.a + oddball_struct.b; }
 
 ### file6c.c
 
-    #define DEFINE_VARIABLES
-    #include "file2c.h"     /* Variables now defined and initialized */
+<hr>
 
-    #include "file2c.h"     /* Declare variables */
+_The next source file completes the source (provides a main program) for `prog5`, `prog6` and `prog7`:_
 
-    int increment(void) { return global_variable++; }
-    int oddball_value(void) { return oddball_struct.a + oddball_struct.b; }
+### prog5.c
+
+* `prog5` uses `prog5.c`, `file3c.c`, `file4c.c`, `file1c.h`, `file2c.h`, `external.h`.
+* `prog6` uses `prog5.c`, `file5c.c`, `file4c.c`, `file1c.h`, `file2c.h`, `external.h`.
+* `prog7` uses `prog5.c`, `file6c.c`, `file4c.c`, `file1c.h`, `file2c.h`, `external.h`.
+
+<hr>
 
 This scheme avoids most problems.  You only run into a problem if a
 header that defines variables (such as `file2c.h`) is included by
 another header (say `file7c.h`) that defines variables.  There isn't an
 easy way around that other than "don't do it".
 
-You can partially work around the problem by revising file2c.h to:
+You can partially work around the problem by revising `file2c.h` into
+`file2d.h`:
 
-### file2c.h — revised
-
-    /* Standard prologue */
-    #if defined(DEFINE_VARIABLES) && !defined(FILE2C_H_DEFINITIONS)
-    #undef FILE2C_H_INCLUDED
-    #endif
-
-    #ifndef FILE2C_H_INCLUDED
-    #define FILE2C_H_INCLUDED
-
-    #include "external.h"   /* Support macros EXTERN and INITIALIZER */
-    #include "file1c.h"     /* Type definition for struct oddball */
-
-    #if !defined(DEFINE_VARIABLES) || !defined(FILE2C_H_DEFINITIONS)
-
-    /* Global variable declarations / definitions */
-    EXTERN int global_variable           INITIALIZER(37);
-    EXTERN struct oddball oddball_struct INITIALIZER({ 41, 43 });
-
-    #endif /* !DEFINE_VARIABLES || !FILE2C_H_DEFINITIONS */
-
-    /* Standard epilogue */
-    #ifdef DEFINE_VARIABLES
-    #define FILE2C_H_DEFINITIONS
-    #undef DEFINE_VARIABLES         /* See discussion below */
-    #endif /* DEFINE_VARIABLES */
-
-    #endif /* FILE2C_H_INCLUDED */
+### file2d.h
 
 The issue becomes 'should the header include `#undef DEFINE_VARIABLES`?'
 If you omit that from the header and wrap any defining invocation with
@@ -594,83 +363,35 @@ If you omit that from the header and wrap any defining invocation with
     #undef DEFINE_VARIABLES
 
 in the source code (so the headers never alter the value of
-`DEFINE_VARIABLES`, then you should be clean.  It is just a nuisance to
+`DEFINE_VARIABLES`), then you should be clean.  It is just a nuisance to
 have to remember to write the the extra line.  An alternative might be:
 
     #define HEADER_DEFINING_VARIABLES "file2c.h"
     #include "externdef.h"
 
-where `externdef.h` contains:
-
-    #if defined(HEADER_DEFINING_VARIABLES)
-    #define DEFINE_VARIABLES
-    #include HEADER_DEFINING_VARIABLES
-    #undef DEFINE_VARIABLES
-    #undef HEADER_DEFINING_VARIABLES
-    #endif /* HEADER_DEFINING_VARIABLES */
+### externdef.h
 
 This is getting a tad convoluted, but seems to be secure (using the
-revised version of `file2c.h`, and with no `#undef DEFINE_VARIABLES` in
-the `file2c.h`).
+`file2d.h`, with no `#undef DEFINE_VARIABLES` in the `file2d.h`).
 
 ### file7c.c
 
-    /* Declare variables */
-    #include "file2c.h"
-
-    /* Define variables */
-    #define HEADER_DEFINING_VARIABLES "file2c.h"
-    #include "externdef.h"
-
-    /* Declare variables - again */
-    #include "file2c.h"
-
-    /* Define variables - again */
-    #define HEADER_DEFINING_VARIABLES "file2c.h"
-    #include "externdef.h"
-
-    int increment(void) { return global_variable++; }
-    int oddball_value(void) { return oddball_struct.a + oddball_struct.b; }
-
 ### file8c.h
-
-    /* Standard prologue */
-    #if defined(DEFINE_VARIABLES) && !defined(FILE8C_H_DEFINITIONS)
-    #undef FILE8C_H_INCLUDED
-    #endif
-
-    #ifndef FILE8C_H_INCLUDED
-    #define FILE8C_H_INCLUDED
-
-    #include "external.h"   /* Support macros EXTERN and INITIALIZER */
-    #include "file2c.h"     /* struct oddball */
-
-    #if !defined(DEFINE_VARIABLES) || !defined(FILE8C_H_DEFINITIONS)
-
-    /* Global variable declarations / definitions */
-    EXTERN struct oddball another INITIALIZER({ 14, 34 });
-
-    #endif /* !DEFINE_VARIABLES || !FILE8C_H_DEFINITIONS */
-
-    /* Standard epilogue */
-    #ifdef DEFINE_VARIABLES
-    #define FILE8C_H_DEFINITIONS
-    #endif /* DEFINE_VARIABLES */
-
-    #endif /* FILE8C_H_INCLUDED */
 
 ### file8c.c
 
-    /* Define variables */
-    #define HEADER_DEFINING_VARIABLES "file2c.h"
-    #include "externdef.h"
+<hr>
 
-    /* Define variables */
-    #define HEADER_DEFINING_VARIABLES "file8c.h"
-    #include "externdef.h"
+_The next two files complete the source for `prog8` and `prog9`:_
 
-    int increment(void) { return global_variable++; }
-    int oddball_value(void) { return oddball_struct.a + oddball_struct.b; }
+### prog8.c
+
+### file9c.c
+
+* `prog8` uses `prog8.c`, `file7c.c`, `file9c.c`.
+* `prog9` uses `prog8.c`, `file8c.c`, `file9c.c`.
+
+<hr>
 
 However, the problems are relatively unlikely to occur in practice,
 especially if you take the standard advice to
@@ -693,6 +414,14 @@ files with the names `fileNc.[ch]` (plus `external.h` and `externdef.h`)
 shows that it can be made to work.  Clearly, it would not be hard to
 create a header generator script to give you the standardized template
 for a variable defining and declaring header file.
+
+_NB_ These are toy programs with just barely enough code to make them
+marginally interesting.  There is repetition within the examples that
+could be removed, but isn't to simplify the pedagogical explanation.
+(For example: the difference between `prog5.c` and `prog8.c` is the name
+of one of the headers that are included.  It would be possible to
+reorganize the code so that the `main()` function was not repeated, but
+it would conceal more than it revealed.)
 
 
 
