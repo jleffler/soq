@@ -13,8 +13,6 @@
 *.xz
 *~
 .DS_Store
-3-star
-4-star
 ?
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256

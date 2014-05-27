@@ -45,8 +45,6 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #
 
 PROGRAMS = \
-	3-star \
-	4-star \
 	am-pm \
 	arraysize \
 	binary \
