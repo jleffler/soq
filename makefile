@@ -94,8 +94,7 @@ PROGRAMS = \
 	timezeromoves \
 	uint128 \
 	unwrap \
-	visit \
-	zigzag
+	visit
 
 default:
 	@echo "You must specify a target to build"
