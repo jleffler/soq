@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 enum { MAX_CHILD = 2 };
+enum { UP = 1, DOWN = 2 };
 typedef struct Node Node;
 
 struct Node
@@ -30,9 +31,17 @@ static Node data[] =
     { "ABAB", +5, &data[5], {         0,         0, }, },
     { "ABBA", -5, &data[6], {         0,         0, }, },
     { "ABBB", +5, &data[6], {         0,         0, }, },
-
 };
 enum { NUM_NODES = sizeof(data) / sizeof(data[0]) };
+
+static void visit(Node *node, int level, int up_down)
+{
+    for (int i = 0; i < level; i++)
+        printf("  ");
+    printf("%4s: ", up_down == UP ? "UP" : "DOWN");
+    printf(" %5s [%2d] N = %p; P = %p\n", node->name, node->number,
+            (void *)node, (void *)node->parent);
+}
 
 static void print_tree(const char *tag, int level, Node *node)
 {
@@ -40,41 +49,32 @@ static void print_tree(const char *tag, int level, Node *node)
     {
         if (level == 0)
             printf("Tree starting from %s:\n", tag);
-        for (int i = 0; i < level; i++)
-            printf("  ");
-        printf(" %s [%2d] N = %p; P = %p\n", node->name, node->number,
-               (void *)node, (void *)node->parent);
+        visit(node, level, DOWN);
         for (int i = 0; i < MAX_CHILD; i++)
             print_tree(tag, level+1, node->child[i]);
     }
 }
 
-/*
-static void dfs_traversal(const char *tag, int level, Node *node, Node *skip);
-
-static void dfs_traverse(int level, Node *node, Node *skip)
+static void dfs_traverse(int level, int up_down, Node *node, Node *skip)
 {
-    if (node != 0)
+    if (node != 0 && node != skip)
     {
-        for (int i = 0; i < level; i++)
-            printf("  ");
-        if (node != skip)
+        visit(node, level, up_down);
+        for (int i = 0; i < MAX_CHILD; i++)
+            dfs_traverse(level + 1, DOWN, node->child[i], skip);
+        if (node->parent != 0 && up_down == UP)
         {
-            printf(" %s [%2d] L = %d\n", node->name, node->number, level);
-            dfs_traverse(level + 1, node->child, 0);
+            printf("Going up:\n");
+            dfs_traverse(level - 1, UP, node->parent, node);
         }
-        dfs_traversal("Sibling", level, node->sibling, skip);
-        if (node->parent != 0)
-            dfs_traversal("Going up", level - 1, node->parent, node);
     }
 }
 
-static void dfs_traversal(const char *tag, int level, Node *node, Node *skip)
+static void dfs_traversal(const char *tag, int level, int up_down, Node *node, Node *skip)
 {
     printf("DFS starting from %s\n", tag);
-    dfs_traverse(level, node, skip);
+    dfs_traverse(level, up_down, node, skip);
 }
-*/
 
 int main(void)
 {
@@ -84,11 +84,11 @@ int main(void)
     print_tree("root", 0, root);
     print_tree("aaa",  0, aaa);
 
-    /*
-    dfs_traversal("aaa",  0, aaa,  0);
-    dfs_traversal("root", 0, root, 0);
+    dfs_traversal("aaa",  0, UP, aaa,  0);
+    dfs_traversal("root", 0, UP, root, 0);
 
     for (int i = 0; i < NUM_NODES; i++)
-        dfs_traversal(data[i].name, 0, &data[i], 0);
-    */
+        dfs_traversal(data[i].name, 0, UP, &data[i], 0);
+
+    return 0;
 }
