@@ -46,6 +46,7 @@ matmul89
 matmul99
 mda
 multi-pipe-sort
+partition-4
 pbb
 pipecircle
 piped-merge-sort

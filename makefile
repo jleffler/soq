@@ -71,6 +71,7 @@ PROGRAMS = \
 	matmul99 \
 	mda \
 	multiopts \
+	partition-4 \
 	pipecircle \
 	pipesize \
 	prime-factors \
