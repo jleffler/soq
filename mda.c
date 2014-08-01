@@ -55,7 +55,7 @@ static Array *make_array(size_t elem_size, size_t ndims, ...)
 {
     if (ndims == 0 || ndims > MAX_DIMS)
         return(0);
-    Array *a = malloc(sizeof(*a) + ndims * sizeof(Dimension));
+    Array *a = (Array *)malloc(sizeof(*a) + ndims * sizeof(Dimension)); /*=C++=*/
     if (a == 0)
         return(0);
 
@@ -153,7 +153,7 @@ static Array *make_array(size_t elem_size, size_t ndims, ...)
     **
     **  Repeated a total of 4 times
     */
-    char *data = space;
+    char *data = (char *)space; /*=C++=*/
 
     for (size_t i = 0; i < ndims - 1; i++)
     {
@@ -201,7 +201,7 @@ int main(void)
     else
     {
         dump_array_info_pointers(stdout, "After allocation", "array", a);
-        char ***b = a->base;
+        char ***b = (char ***)a->base;
         for (size_t i = 0; i < a->dim[0].number; i++)
         {
             for (size_t j = 0; j < a->dim[1].number; j++)

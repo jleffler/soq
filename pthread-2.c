@@ -12,7 +12,7 @@
 #define NUM_CHAR 1024
 #define BUFFER_SIZE 8
 
-static void err_error(char *fmt, ...)
+static void err_error(const char *fmt, ...)
 {
     int errnum = errno;
     va_list args;

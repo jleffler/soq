@@ -11,10 +11,11 @@ int main(void)
     p_flags |= O_NONBLOCK;
     fcntl(fd[1], F_SETFL, p_flags);
 
-    char buffer[16] = "ABCDEFGHIJKLMNOP";
+    char buffer[17] = "ABCDEFGHIJKLMNOP";   /*=C++=*/
+    size_t bufsiz = sizeof(buffer) - 1;     /*=C++=*/
     size_t nbytes = 0;
-    while (write(fd[1], buffer, sizeof(buffer)) == (ssize_t)sizeof(buffer))
-        nbytes += sizeof(buffer);
+    while (write(fd[1], buffer, bufsiz) == (ssize_t)bufsiz)
+        nbytes += bufsiz;
     printf("PIPE buffer size: %zu bytes\n", nbytes);
 
     return 0;

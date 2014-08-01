@@ -25,7 +25,7 @@ static void add_filename(FileNameArray *names, const char *name)
             fprintf(stderr, "Out of memory\n");
             exit(1);
         }
-        names->filenames = space;
+        names->filenames = (char **)space;  /*=C++=*/
         names->max_filenames = new_num;
     }
     names->filenames[names->num_filenames] = strdup(name);
@@ -60,8 +60,8 @@ static void sort_filenames(FileNameArray *names)
 static void rename_files(const char *dirname, const FileNameArray *names)
 {
     size_t maxlen = strlen(dirname) + names->max_namelen + sizeof("/");
-    char *source = malloc(maxlen);
-    char *target = malloc(maxlen);
+    char *source = (char *)malloc(maxlen);  /*=C++=*/
+    char *target = (char *)malloc(maxlen);  /*=C++=*/
     if (source == 0 || target == 0)
     {
         fprintf(stderr, "Out of memory\n");

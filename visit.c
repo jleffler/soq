@@ -3,6 +3,10 @@
 ** Posted for http://stackoverflow.com/questions/19304085.
 */
 
+#if defined(__cplusplus)
+#error "This code uses VLA and cannot be compiled by strict C++"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -19,7 +23,7 @@ static int num_solutions = 0;
 
 static void prt_fwd_path_r(struct Node *p)
 {
-    char *pad = "";
+    const char *pad = "";
     if (p->prev != NULL)
     {
         prt_fwd_path_r(p->prev);
