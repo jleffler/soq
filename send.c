@@ -6,13 +6,15 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include "stderr.h"
+
+#define WRAPPED_HEADER "stderr.h"
+#include "wraphead.h"
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void)0)
 
 enum { DEBUG = 1 };
 
-static void sendFile(int sock, const char *filename, char *address, int port)
+static void sendFile(int sock, const char *filename, const char *address, int port)
 {
     // Announce who we're sending data to
     if (DEBUG)

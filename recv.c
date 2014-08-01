@@ -5,9 +5,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h> /* sockaddr_in */
 #include <arpa/inet.h>  /* inet_ntoa() */
-#include "stderr.h"
 
-static void receiveFile(int sock, int port, char *filename)
+#define WRAPPED_HEADER "stderr.h"
+#include "wraphead.h"
+
+static void receiveFile(int sock, int port, const char *filename)
 {
     //Keep reading data from the socket
     FILE *fp = fopen(filename, "ab");
