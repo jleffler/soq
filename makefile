@@ -44,10 +44,24 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #	 rangesquash4.pl
 #
 
-PROGRAMS = \
+SCRIPT_PROGRAMS = \
 	am-pm \
-	arraysize \
+	multiopts \
+	rangesquash1 \
+	rangesquash2 \
+	rangesquash3 \
+	rangesquash4 \
+	run-processes
+
+C_ONLY_PROGRAMS = \
 	binary \
+	matmul99 \
+	visit
+
+CXX_ONLY_PROGRAMS =
+
+C_CXX_DUAL_PROGRAMS = \
+	arraysize \
 	bst \
 	cntinv \
 	colourpartition \
@@ -68,9 +82,7 @@ PROGRAMS = \
 	madump \
 	matmake3d \
 	matmul89 \
-	matmul99 \
 	mda \
-	multiopts \
 	partition-4 \
 	pipecircle \
 	pipesize \
@@ -92,13 +104,23 @@ PROGRAMS = \
 	streplace \
 	timezeromoves \
 	uint128 \
-	unwrap \
-	visit
+	unwrap
+
+PROGRAMS = \
+	${SCRIPT_PROGRAMS} \
+	${C_ONLY_PROGRAMS} \
+	${CXX_ONLY_PROGRAMS} \
+	${C_CXX_DUAL_PROGRAMS}
 
 default:
 	@echo "You must specify a target to build"
 
 all: ${PROGRAMS}
+
+script:		${SCRIPT_PROGRAMS}
+c_only:		${C_ONLY_PROGRAMS}
+cxx_only:	${CXX_ONLY_PROGRAMS}
+dual:		${C_CXX_DUAL_PROGRAMS}
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi

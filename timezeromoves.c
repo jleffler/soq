@@ -142,7 +142,9 @@ void shunt_zeroes(int *list, size_t n)
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "timer.h"
+
+#define WRAPPED_HEADER "timer.h"
+#include "wraphead.h"
 
 #define DIM(x)      (sizeof(x)/sizeof(*(x)))
 

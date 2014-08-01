@@ -93,11 +93,12 @@ static int CountInversions2(int arr[], int n)
 
 #include <time.h>
 #include <string.h>
-#include "timer.h"
+#define WRAPPED_HEADER "timer.h"
+#include "wraphead.h"
 
 static int *generate(int n)
 {
-    int *a = malloc(n * sizeof(*a));
+    int *a = (int *)malloc(n * sizeof(*a));    /*=C++=*/
     if (a != 0)
     {
         for (int i = 0; i < n; i++)
@@ -108,7 +109,7 @@ static int *generate(int n)
 
 static int *copy(int *a, int n)
 {
-    int *b = malloc(n * sizeof(*b));
+    int *b = (int *)malloc(n * sizeof(*b));    /*=C++=*/
     if (b != 0)
         memmove(b, a, n * sizeof(*b));
     return b;

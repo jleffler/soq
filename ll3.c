@@ -33,7 +33,7 @@ int main(void)
 
 void insert_node(struct node **phead, int n)
 {
-    struct node *node = malloc(sizeof(*node));
+    struct node *node = (struct node *)malloc(sizeof(*node));   /*=C++=*/
 
     if (node == NULL)
     {

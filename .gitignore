@@ -23,6 +23,7 @@ binary
 bsT
 cmpfltint
 cntinv
+colourpartition
 computist-1
 computist-2
 core
@@ -46,6 +47,7 @@ matmul89
 matmul99
 mda
 multi-pipe-sort
+multiopts
 partition-4
 pbb
 pipecircle
@@ -71,6 +73,7 @@ signals
 sorttest
 streplace
 timer.h
+timezeromoves
 uint128
 unwrap
 visit

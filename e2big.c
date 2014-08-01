@@ -41,11 +41,12 @@ static int test_arg_size(int size)
     {
         int self = getpid();
         printf("Child: %d\n", self);
-        char *args[10] = { "ls" };
+        char ls[] = "ls";
+        char *args[10] = { ls };
         size_t bytes_per_arg = size / 8;
         for (int j = 1; j < 9; j++)
         {
-            args[j] = malloc(bytes_per_arg);
+            args[j] = (char *)malloc(bytes_per_arg);    /*=C++=*/
             if (args[j] == 0)
             {
                 fprintf(stderr, "Failed to allocate argument space at size %s\n",

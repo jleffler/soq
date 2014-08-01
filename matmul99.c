@@ -1,3 +1,7 @@
+#if defined(__cplusplus)
+#error "This code uses VLA and cannot be compiled under C++"
+#endif
+
 #include <stdio.h>
 
 #define N 2

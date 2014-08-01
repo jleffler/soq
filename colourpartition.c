@@ -7,9 +7,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include "range.h"
-#include "stderr.h"
-#include "debug.h"
+
+#define WRAPPED_HEADER "range.h"
+#include "wraphead.h"
+#define WRAPPED_HEADER "stderr.h"
+#include "wraphead.h"
+#define WRAPPED_HEADER "debug.h"
+#include "wraphead.h"
 
 typedef enum { WHITE, BLACK, RED } Colour;
 
@@ -114,7 +118,7 @@ static void trace_colours(FILE *fp, char const *tag, Colour *data, unsigned num,
 
 static Colour *dup_sequence(size_t n, Colour const *a)
 {
-    Colour *d = malloc(n * sizeof(*d));
+    Colour *d = (Colour *)malloc(n * sizeof(*d));   /*=C++=*/
     if (d == 0)
     {
         fprintf(stderr, "Out of memory\n");
@@ -344,7 +348,7 @@ static size_t random_tests(size_t seed, size_t number, size_t maxsize)
     {
         Test t;
         t.size = rand() % maxsize;
-        t.data = malloc(t.size * sizeof(*t.data));
+        t.data = (Colour *)malloc(t.size * sizeof(*t.data));    /*=C++=*/
         if (t.data == 0)
         {
             fprintf(stderr, "Out of memory\n");
@@ -353,7 +357,7 @@ static size_t random_tests(size_t seed, size_t number, size_t maxsize)
         if (verbose)
             printf("Test: %zu (%zu)\n", i, t.size);
         for (size_t j = 0; j < t.size; j++)
-            t.data[j] = rand() % 3;
+            t.data[j] = (Colour)(rand() % 3);
         if (test_sequence(t) == false)
         {
             fail++;

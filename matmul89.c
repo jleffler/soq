@@ -47,7 +47,7 @@ void matrix_print(const char *tag, int m, int n, float *matrix)
     printf("%s (%d x %d):\n", tag, m, n);
     for (i = 0; i < m; i++)
     {
-        char *pad = "[";
+        const char *pad = "[";
         for (j = 0; j < n; j++)
         {
             printf("%s%6.3f", pad, matrix[i*n+j]);
