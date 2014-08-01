@@ -46,6 +46,9 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 
 SCRIPT_PROGRAMS = \
 	am-pm \
+	expand_tilde \
+	filter.stderr \
+	genouterr \
 	multiopts \
 	rangesquash1 \
 	rangesquash2 \
@@ -58,7 +61,11 @@ C_ONLY_PROGRAMS = \
 	matmul99 \
 	visit
 
-CXX_ONLY_PROGRAMS =
+CXX_ONLY_PROGRAMS = \
+	heapprt \
+	map \
+	mppsel \
+	qsel
 
 C_CXX_DUAL_PROGRAMS = \
 	arraysize \
@@ -69,15 +76,12 @@ C_CXX_DUAL_PROGRAMS = \
 	computist-2 \
 	e2big \
 	excel-rc \
-	expand_tilde \
 	factors \
 	fault \
 	fifocircle \
 	fifosize \
-	filter.stderr \
 	gai \
-	genouterr \
-	heapprt \
+	isprime \
 	ll3 \
 	madump \
 	matmake3d \
