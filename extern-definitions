@@ -71,6 +71,8 @@ Rules to be broken by experts only, and only with good reason:
 * A function should never need to declare a variable using `extern`.
 * Avoid global variables whenever possible — use functions instead.
 
+<sup>_If you're not an experienced C programmer, you could (and perhaps should) stop reading here._</sup>
+
 ## Not so good way to define global variables
 
 With some (indeed, many) C compilers, you can get away with what's
@@ -181,6 +183,8 @@ the compiler doesn't care — and ultimately, neither do I as long as
 you're consistent.)
 
 ### End of Original Answer
+
+<sup>_If you're not an experienced C programmer, you probably should stop reading here._</sup>
 
 <hr>
 
