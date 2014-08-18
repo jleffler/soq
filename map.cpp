@@ -4,6 +4,17 @@
 #include <string>
 #include <vector>
 
+/*
+** Sample data:
+** zip: 94303
+** zip: 94301
+** zip: 94303
+** zip: 94306
+** zip: 94301
+** zip: 92010
+** zip: 94301
+*/
+
 using namespace std;
 
 typedef pair<string, int> zip_cnt;
