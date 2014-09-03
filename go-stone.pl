@@ -10,7 +10,7 @@ my $nlines = 0;
 while (my $line = <>)
 {
     chomp $line;
-    die "Incorrect board size" unless length($line) == 9;
+    die "Incorrect board size" unless length($line) == $size;
     die "Invalid data in board" unless $line =~ /^[.XO]+$/;
     my @row;
     my $i = 0;
