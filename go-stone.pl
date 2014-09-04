@@ -5,13 +5,19 @@ use warnings;
 use constant debug => 0;
 
 my $empty = '.';
-my $size = 9;
+my $size = 0;
 my @board;
 
 my $nlines = 0;
 while (my $line = <>)
 {
     chomp $line;
+    if ($size == 0)
+    {
+        $size = length($line);
+        die "Invalid board size ($size)"
+            unless $size % 2 == 1 && $size >= 9 && $size <= 19;
+    }
     die "Incorrect board size" unless length($line) == $size;
     die "Invalid data in board" unless $line =~ /^[.XO]+$/;
     my @row;
