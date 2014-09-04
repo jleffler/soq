@@ -35,9 +35,6 @@ for (my $i = 0; $i < $size; $i++)
     print "\n";
 }
 
-#my($r0, $c0) = (3, 3);
-#die "Empty positions are not dead" if $board[$r0][$c0] eq '.';
-
 sub already_checked
 {
     my($r, $c, @checked) = @_;
@@ -97,9 +94,8 @@ sub check_capture
             if ($board[$r1][$c1] eq $empty)
             {
                 push @tocheck, [ $r1, $c1 ];
-                print "Piece ($r0,$c0) = $piece is not captured (position ($r1,$c1 is empty)\n";
+                print "Piece ($r0,$c0) = $piece is not captured (position ($r1,$c1) is empty)\n";
                 print_group(@checked);
-                #print "--> ($r1,$c1) = $board[$r1][$c1]\n";
                 return 0;
             }
             elsif ($board[$r1][$c1] eq $piece)
@@ -123,7 +119,7 @@ for my $r (0..$size-1)
     {
         if ($board[$r][$c] eq '.')
         {
-            print "Empty position ($r, $c)\n"
+            print "Empty position ($r, $c)\n";
         }
         else
         {
