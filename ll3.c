@@ -1,4 +1,5 @@
 /* http://stackoverflow.com/q/19214293 Unable to modify global variable in C */
+/* Maintain list of integers in sorted order without duplicates */
 #include <stdio.h>
 #include <stdlib.h>
 
