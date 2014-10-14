@@ -19,7 +19,7 @@ int main(void)
     Matrix m;
     int x_dim = 8;
     int y_dim = 6;
-    int extra = 5;
+    int extra = 3;
 
     /* Allocation */
     m.extra = extra;
@@ -52,28 +52,38 @@ int main(void)
     int y_min = -extra;
     int x_max = x_dim + extra;
     int y_max = y_dim + extra;
-    //printf("Initialization:\n");
+    printf("Initialization:\n");
     for (int i = x_min; i < x_max; i++)
     {
+        printf("R%2d:", i);
         for (int j = y_min; j < y_max; j++)
         {
             map[i][j] = i * 100 + j;
-            //printf("[%2d,%2d] = %4d\n", i, j, map[i][j]);
+            printf(" [%2d] = %4d", j, map[i][j]);
         }
+        putchar('\n');
     }
 
     printf("User view:\n");
     for (int i = 0; i < x_dim; i++)
     {
+        printf("R%2d:", i);
         for (int j = 0; j < y_dim; j++)
-            printf("[%2d,%2d] = %4d\n", i, j, map[i][j]);
+        {
+            printf(" [%2d] = %4d", j, map[i][j]);
+        }
+        putchar('\n');
     }
 
     printf("Library view:\n");
     for (int i = x_min; i < x_max; i++)
     {
+        printf("R%2d:", i);
         for (int j = y_min; j < y_max; j++)
-            printf("[%2d,%2d] = %4d\n", i, j, map[i][j]);
+        {
+            printf(" [%2d] = %4d", j, map[i][j]);
+        }
+        putchar('\n');
     }
 
     /* Deallocation */
