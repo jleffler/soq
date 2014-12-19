@@ -169,7 +169,7 @@ static void bake_off(int seed, int count)
         int p4 = isprime1(v);
         int p5 = isprime2(v);
         int p6 = isprime3(v);
-        if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5)
+        if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6)
         {
             printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
                    " IsPrime3() %d; isprime1() %d; isprime2() %d;"
@@ -189,10 +189,10 @@ static void bake_off(int seed, int count)
 static void one_test(int seed)
 {
     printf("Seed; %d\n", seed);
-    enum { COUNT = 1000000 };
+    enum { COUNT = 10000000 };
     bake_off(seed, COUNT);
-    assert(COUNT > 10000);
-    test_primality_tester("IsPrime0", seed, IsPrime0, COUNT / 10000);
+    assert(COUNT > 100000);
+    test_primality_tester("IsPrime0", seed, IsPrime0, COUNT / 100000);
     test_primality_tester("IsPrime1", seed, IsPrime1, COUNT);
     test_primality_tester("IsPrime2", seed, IsPrime2, COUNT);
     test_primality_tester("IsPrime3", seed, IsPrime3, COUNT);
