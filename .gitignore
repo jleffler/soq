@@ -13,6 +13,10 @@
 *.xz
 *~
 .DS_Store
+3dalloc1
+3dalloc2
+3dalloc3
+3dalloc4
 ?
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256
