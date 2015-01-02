@@ -13,6 +13,7 @@
 *.xz
 *~
 .DS_Store
+2da
 3dalloc1
 3dalloc2
 3dalloc3
@@ -24,7 +25,8 @@ a.out
 am-pm
 arraysize
 binary
-bsT
+bst-1
+bst-2
 cmpfltint
 cntinv
 colourpartition
@@ -42,6 +44,9 @@ filter.stderr
 gai
 genouterr
 heapprt
+if
+if-jl
+if-strict
 incunabulum
 isprime
 ll3
