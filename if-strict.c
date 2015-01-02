@@ -61,10 +61,10 @@ static int doex(int earg);
 static int e1(void);
 static int e2(void);
 static int e3(void);
-static int eq(char *a, char *b);
+static int eq(const char *a, const char *b);
 static int expr(void);
-static int tcreat(char *a);
-static int tio(char *a, int f);
+static int tcreat(const char *a);
+static int tio(const char *a, int f);
 
 int main(int argc, char **argv)
 {
@@ -175,7 +175,7 @@ err:
     exit(9);
 }
 
-int tio(char *a, int f)
+int tio(const char *a, int f)
 {
     int fd = open(a, f);
     if (fd >= 0)
@@ -186,12 +186,12 @@ int tio(char *a, int f)
     return(0);
 }
 
-int tcreat(char *a)
+int tcreat(const char *a)
 {
     return(a != 0);
 }
 
-int eq(char *a, char *b)
+int eq(const char *a, const char *b)
 {
     register int i;
 
