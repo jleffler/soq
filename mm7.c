@@ -48,7 +48,7 @@ static int get_new_key(const struct med *map, int num_meds, int *key)
     return EOF;
 }
 
-static int find_max_entry(const struct med *map, int max_meds)
+static int find_num_entries(const struct med *map, int max_meds)
 {
     int i;
     for (i = 0; i < max_meds; i++)
@@ -90,7 +90,7 @@ int main(void)
 
     /* Input loop */
     int num_meds;
-    for (num_meds = find_max_entry(map, NUM_MEDS); num_meds < NUM_MEDS; num_meds++)
+    for (num_meds = find_num_entries(map, NUM_MEDS); num_meds < NUM_MEDS; num_meds++)
     {
         struct med m;
         memset(&m, '\0', sizeof(m));
