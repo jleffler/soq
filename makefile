@@ -46,6 +46,7 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 
 SCRIPT_PROGRAMS = \
 	am-pm \
+	check-rename \
 	expand_tilde \
 	filter.stderr \
 	genouterr \
@@ -58,6 +59,9 @@ SCRIPT_PROGRAMS = \
 
 C_ONLY_PROGRAMS = \
 	binary \
+	if \
+	if-jl \
+	if-strict \
 	matmul99 \
 	visit
 
@@ -65,11 +69,18 @@ CXX_ONLY_PROGRAMS = \
 	heapprt \
 	map \
 	mppsel \
-	qsel
+	qsel \
+	test-rename
 
 C_CXX_DUAL_PROGRAMS = \
+	2da \
+	3dalloc1 \
+	3dalloc2 \
+	3dalloc3 \
+	3dalloc4 \
 	arraysize \
-	bst \
+	bst-1 \
+	bst-2 \
 	cntinv \
 	colourpartition \
 	computist-1 \
@@ -88,6 +99,7 @@ C_CXX_DUAL_PROGRAMS = \
 	matmul89 \
 	mda \
 	partition-4 \
+	pbb \
 	pipecircle \
 	pipesize \
 	prime-factors \
@@ -106,6 +118,7 @@ C_CXX_DUAL_PROGRAMS = \
 	sigchld \
 	signals \
 	streplace \
+	test-fstatat \
 	timezeromoves \
 	uint128 \
 	unwrap

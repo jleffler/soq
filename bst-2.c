@@ -13,9 +13,9 @@ typedef struct BinarySearchTree_t BinarySearchTree;
 
 static void freeTree(BinarySearchTree *root);
 static void dump_tree(BinarySearchTree *root);
-extern char *insertWord(BinarySearchTree **ptree, char *word, char *definition);
+extern char *insertWord(BinarySearchTree **ptree, const char *word, char *definition);
 
-char *insertWord(BinarySearchTree **ptree, char *word, char *definition)
+char *insertWord(BinarySearchTree **ptree, char *word, const char *definition)
 {
     if (*ptree == NULL)
     {
@@ -46,7 +46,7 @@ char *insertWord(BinarySearchTree **ptree, char *word, char *definition)
 
 int main(void)
 {
-    char *word_defs[][2] =
+    const char *word_defs[][2] =
     {
         { "cat", "feline" },
         { "dog", "canine" },
