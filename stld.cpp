@@ -39,12 +39,12 @@ const unsigned char *ld2_le(const unsigned char *buffer, I &rv)
 template <typename I>
 unsigned char *st_be(unsigned char *buffer, I value)
 {
-    for (size_t i = 0; i < sizeof(I); ++i)
+    for (size_t i = sizeof(I); i > 0; --i)
     {
-        *buffer++ = value & 0xFF;
+        buffer[i-1] = value & 0xFF;
         value >>= 8;
     }
-    return buffer;
+    return buffer + sizeof(I);
 }
 
 template <typename I>
@@ -62,8 +62,11 @@ unsigned char *st_le(unsigned char *buffer, I value)
 #include <iostream>
 using namespace std;
 
-void test1(void)
+namespace {
+
+void test_load_1()
 {
+    cout << __func__ << "\n";
     unsigned char data[] = "A1C2E3G4";
 
     uint64_t be64 = ld_be<uint64_t>(data);
@@ -100,8 +103,9 @@ void test1(void)
 ** parameter, so you don't need to specify the type in the call.  Or is
 ** that a disadvantage?
 */
-void test2(void)
+void test_load_2()
 {
+    cout << __func__ << "\n";
     const unsigned char data[] = "@0A1B2C3D4E5F6G7H8I9a1b2c3d4e5f6g7h8i9";
     const unsigned char *ptr = data;
     const unsigned char *begin[8];
@@ -145,8 +149,99 @@ void test2(void)
     cout << "Unused: " << ptr << "\n";
 }
 
+void test_store_1()
+{
+    cout << __func__ << "\n";
+    const unsigned char i_data[] = "@0A1B2C3D4E5F6G7H8I9a1b2c3d4e5f6g7h8i9";
+    const unsigned char *i_ptr = i_data;
+    const unsigned char *i_begin[8];
+    const unsigned char *o_begin[8];
+    int i = 0;
+    int j = 0;
+    unsigned char o_data[sizeof(i_data)];
+    unsigned char *o_ptr = o_data;
+
+    uint64_t be64;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_be(i_ptr, be64);
+    uint64_t le64;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_le(i_ptr, le64);
+    cout << "Data: " << i_begin[0] << ", BE64 = 0x" << hex << be64 << "\n";
+    cout << "Data: " << i_begin[1] << ", LE64 = 0x" << hex << le64 << "\n";
+
+    o_begin[j++] = o_ptr;
+    o_ptr = st_be(o_ptr, be64);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[0] << ", BE64 = 0x" << hex << be64 << "\n";
+    o_begin[j++] = o_ptr;
+    o_ptr = st_le(o_ptr, le64);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[1] << ", LE64 = 0x" << hex << le64 << "\n";
+
+    uint32_t be32;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_be(i_ptr, be32);
+    uint32_t le32;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_le(i_ptr, le32);
+    cout << "Data: " << i_begin[2] << ", BE32 = 0x" << hex << be32 << "\n";
+    cout << "Data: " << i_begin[3] << ", LE32 = 0x" << hex << le32 << "\n";
+
+    o_begin[j++] = o_ptr;
+    o_ptr = st_be(o_ptr, be32);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[2] << ", BE32 = 0x" << hex << be32 << "\n";
+    o_begin[j++] = o_ptr;
+    o_ptr = st_le(o_ptr, le32);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[3] << ", LE32 = 0x" << hex << le32 << "\n";
+
+    uint16_t be16;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_be(i_ptr, be16);
+    uint16_t le16;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_le(i_ptr, le16);
+    cout << "Data: " << i_begin[4] << ", BE16 = 0x" << hex << be16 << "\n";
+    cout << "Data: " << i_begin[5] << ", LE16 = 0x" << hex << le16 << "\n";
+
+    o_begin[j++] = o_ptr;
+    o_ptr = st_be(o_ptr, be16);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[4] << ", BE16 = 0x" << hex << be16 << "\n";
+    o_begin[j++] = o_ptr;
+    o_ptr = st_le(o_ptr, le16);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[5] << ", LE16 = 0x" << hex << le16 << "\n";
+
+    uint8_t be8;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_be(i_ptr, be8);
+    uint8_t le8;
+    i_begin[i++] = i_ptr;
+    i_ptr = ld2_be(i_ptr, le8);
+    cout << "Data: " << i_begin[6] << ", BE08 = 0x" << hex << int(be8) << "\n";
+    cout << "Data: " << i_begin[7] << ", LE08 = 0x" << hex << int(le8) << "\n";
+    cout << "Unused: " << i_ptr << "\n";
+
+    o_begin[j++] = o_ptr;
+    o_ptr = st_be(o_ptr, be8);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[6] << ", BE8 = 0x" << hex << int(be8) << "\n";
+    o_begin[j++] = o_ptr;
+    o_ptr = st_le(o_ptr, le8);
+    *o_ptr = '\0';
+    cout << "Store: " << o_begin[7] << ", LE8 = 0x" << hex << int(le8) << "\n";
+
+    cout << "Result: " << o_data << "\n";
+}
+
+} // Anonymous name space
+
 int main()
 {
-    test1();
-    test2();
+    test_load_1();
+    test_load_2();
+    test_store_1();
 }
