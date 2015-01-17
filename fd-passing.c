@@ -15,7 +15,9 @@ void wyslij(int socket, int fd)  // send fd by socket
     struct msghdr msg = { 0 };
     char buf[CMSG_SPACE(sizeof(fd))];
     memset(buf, '\0', sizeof(buf));
-    struct iovec io = { .iov_base = "ABC", .iov_len = 3 };
+
+    /* On Mac OS X, the struct iovec is needed, even if it points to minimal data */
+    struct iovec io = { .iov_base = "", .iov_len = 0 };
 
     msg.msg_iov = &io;
     msg.msg_iovlen = 1;
@@ -40,7 +42,8 @@ int odbierz(int socket)  // receive fd from socket
 {
     struct msghdr msg = {0};
 
-    char m_buffer[256];
+    /* On Mac OS X, the struct iovec is needed, even if it points to no minimal data */
+    char m_buffer[1];
     struct iovec io = { .iov_base = m_buffer, .iov_len = sizeof(m_buffer) };
     msg.msg_iov = &io;
     msg.msg_iovlen = 1;
