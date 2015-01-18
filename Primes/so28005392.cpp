@@ -39,11 +39,14 @@
 ** Solution:
 **
 ** Generate a list of primes and a list of the number of prime factors.
-** Assume 20 MiB memory is not a problem (don't assume it fits on the stack though).
+** Assume 10 MiB memory is not a problem (don't assume it fits on the
+** stack though).
 **
+** The Sieve of Eratosthenes allows you to calculate the number of
+** unique prime factors on the fly.  As you mark multiples, increment
+** the value (because it's a new prime number you're marking with).
 */
 
-#include <cassert>
 #include <cstdint>
 #include <iostream>
 using namespace std;
@@ -51,40 +54,13 @@ using namespace std;
 namespace {
 
 const int MAX_NUMBER = 10000000;
-const int MAX_PRIMES = 670000;
 
-static uint8_t factors[MAX_NUMBER+1];
-static uint8_t sieve[MAX_NUMBER+1];
-uint32_t primes[MAX_PRIMES];
-int n_primes = 0;
+uint8_t factors[MAX_NUMBER+1];
 
-#if 0
-int num_unique_prime_factors(int n)
+inline void mark_multiples(int n)
 {
-    int count = 0;
-    //cout << "-->> " << __func__ << ": n = " << n << "\n";
-    for (int i = 0; n > 1 && i < n_primes; i++)
+    for (int i = n; i <= MAX_NUMBER; i += n)
     {
-        //cout << __func__ << ": p[" << i << "] = " << primes[i] << ", n = " << n << "\n";
-        if (n % primes[i] == 0)
-        {
-            count++;
-            do {
-                n /= primes[i];
-            } while (n % primes[i] == 0);
-        }
-        //cout << __func__ << ": count = " << count << ", n = " << n << "\n";
-    }
-    //cout << "<<-- " << __func__ << ": count = " << count << "\n";
-    return count;
-}
-#endif
-
-static inline void mark_multiples(int n)
-{
-    for (int i = n + n; i <= MAX_NUMBER; i += n)
-    {
-        sieve[i] = 1;
         factors[i]++;
     }
 }
@@ -95,20 +71,9 @@ void build_tables()
     factors[1] = 1;
     for (int i = 2; i <= MAX_NUMBER; ++i)
     {
-        if (i % 100000 == 0) cerr << "." << flush;
-        if (i % 1000000 == 0) cerr << "\n";
-        if (sieve[i] == 0)
-        {
-            primes[n_primes++] = i;
+        if (factors[i] == 0)
             mark_multiples(i);
-            factors[i] = 1;
-        }
-        #if 0
-        else
-            factors[i] = num_unique_prime_factors(i);
-        #endif
     }
-    assert(n_primes < MAX_PRIMES);
 }
 
 int factor_count(int a, int b, int c)
