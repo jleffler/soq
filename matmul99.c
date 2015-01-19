@@ -1,3 +1,4 @@
+/* SO 17192011 */
 #if defined(__cplusplus)
 #error "This code uses VLA and cannot be compiled under C++"
 #endif
@@ -11,6 +12,7 @@ static float result[1][N];
 
 void matrix_multiply(int m, int p, int n, float matrix1[m][p], float matrix2[p][n], float output[m][n]);
 void matrix_print(const char *tag, int m, int n, float matrix[m][n]);
+void matrix_zero(int m, int n, float matrix[m][n]);
 
 int main(void)
 {
@@ -20,11 +22,16 @@ int main(void)
     matrix_print("m3", 1, N, result);
 }
 
-void matrix_multiply(int m, int p, int n, float matrix1[m][p], float matrix2[p][n], float output[m][n])
+void matrix_zero(int m, int n, float matrix[m][n])
 {
     for (int i = 0; i < m; i++)
         for (int j = 0; j < n; j++)
-            output[i][j] = 0.0;
+            matrix[i][j] = 0.0;
+}
+
+void matrix_multiply(int m, int p, int n, float matrix1[m][p], float matrix2[p][n], float output[m][n])
+{
+    matrix_zero(m, n, output);
 
     for (int i = 0; i < m; i++)
         for (int j = 0; j < p; j++)
