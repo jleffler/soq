@@ -82,6 +82,7 @@ sigalrm
 sigchld
 signals
 sorttest
+stld
 streplace
 test-fstatat
 test-rename
