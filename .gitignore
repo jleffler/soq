@@ -28,6 +28,7 @@ binary
 bst-1
 bst-2
 check-rename
+circular-dll
 cmpfltint
 cntinv
 colourpartition
