@@ -41,6 +41,7 @@ excel-rc
 expand_tilde
 factors
 fault
+fd-passing
 fifocircle
 fifosize
 filter.stderr
