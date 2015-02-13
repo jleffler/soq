@@ -16,6 +16,8 @@
 3-star
 4-star
 ?
+MD5
+Primes
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256
 a.out
@@ -28,6 +30,8 @@ cntinv
 computist-1
 computist-2
 core
+cscope.out
+data
 e2big
 excel-rc
 expand_tilde
@@ -65,9 +69,11 @@ regress
 roundup
 scan
 send
+shlibs
 sigalrm
 sigchld
 signals
+so.28464770
 sorttest
 streplace
 timer.h
