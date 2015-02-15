@@ -19,7 +19,8 @@ LDFLAG1 = -L.
 LDLIB1  = -lrary1
 LDLIB2  = -lrary2
 LDFLAGS = ${LDFLAG1}
-LDLIBS  = ${LDLIB1} ${LDLIB2}
+LDLIBS1 = ${LDLIB1} ${LDLIB2}
+LDLIBS2 = ${LDLIB2} ${LDLIB1}
 
 CFLAGS  = ${OFLAGS} ${GFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
@@ -32,12 +33,20 @@ LIB1.o  = lib1a.o lib1b.o
 LIB2.o  = lib2a.o lib2b.o
 TEST1.o = test1.o
 
-PROGRAM = test1
+PROGRAM1 = test1
+PROGRAM2 = test2
+PROGRAMS = ${PROGRAM1} ${PROGRAM2}
 
-all: ${PROGRAM}
+all: ${PROGRAMS}
+	test1 | tee test1.out
+	test2 | tee test2.out
+	diff -u test1.out test2.out || true
 
-${PROGRAM}: ${TEST1.o} ${LIBRARY1} ${LIBRARY2}
-	${CC} ${CFLAGS} -o $@ ${TEST1.o} ${LDFLAGS} ${LDLIBS}
+${PROGRAM1}: ${TEST1.o} ${LIBRARY1} ${LIBRARY2}
+	${CC} ${CFLAGS} -o $@ ${TEST1.o} ${LDFLAGS} ${LDLIBS1}
+
+${PROGRAM2}: ${TEST1.o} ${LIBRARY1} ${LIBRARY2}
+	${CC} ${CFLAGS} -o $@ ${TEST1.o} ${LDFLAGS} ${LDLIBS2}
 
 ${LIBRARY1}: ${LIB1.o} ${LIBRARY2}
 	${CC} ${CFLAGS} ${LNKSHLIB} -o $@ ${LIB1.o} ${LDFLAGS} ${LDLIB2}
