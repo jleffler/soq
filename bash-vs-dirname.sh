@@ -1,3 +1,8 @@
+#!/bin/bash
+#
+# Demonstrate differences between basename and dirname commands and Bash
+# surrogates using pure string manipulation
+
 doit() {
     strings=( "[[$1]]"
               "[[$(basename "$1")]]"
