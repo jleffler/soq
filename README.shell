@@ -1,0 +1,10 @@
+The branch 'shell' is intended for shell scripts.
+
+bash-vs-dirname.sh
+delta-days.sh
+expand_tilde.sh
+filter.stderr.sh
+genouterr.sh
+multiopts.sh
+so-18390259.sh
+
