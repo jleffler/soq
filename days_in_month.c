@@ -30,15 +30,15 @@ static inline int new_dim(int mm, int yyyy)
     //printf("(mm == 2) * leapyear(yyyy) = %d:  ", ((mm == 2) * leapyear(yyyy)));
     return (28 + (mm + (mm/8)) % 2 + 2 % mm + 2 * (1/mm) + ((mm == 2) * leapyear(yyyy)));
 }
- 
+
 static inline int alt_dim(int mm, int yyyy)
 {
-    printf("yyyy = %4d mm = %2d; ", yyyy, mm);
-    printf("(mm + (mm/8)) %% 2 = %d; ", (mm + (mm/8)) % 2);
-    printf("2 %% mm = %d; ", 2 % mm);
-    printf("2 * (1/mm) = %d; ", 2 * (1/mm));
-    printf("(1 - 1/mm) * (1 - ((2 %% mm) / 2)) * leapyear(yyyy) = %d:  ",
-            (1 - 1/mm) * (1 - ((2 % mm) / 2)) * leapyear(yyyy));
+    //printf("yyyy = %4d mm = %2d; ", yyyy, mm);
+    //printf("(mm + (mm/8)) %% 2 = %d; ", (mm + (mm/8)) % 2);
+    //printf("2 %% mm = %d; ", 2 % mm);
+    //printf("2 * (1/mm) = %d; ", 2 * (1/mm));
+    //printf("(1 - 1/mm) * (1 - ((2 %% mm) / 2)) * leapyear(yyyy) = %d:  ",
+    //        (1 - 1/mm) * (1 - ((2 % mm) / 2)) * leapyear(yyyy));
     return (28 + (mm + (mm/8)) % 2 + 2 % mm + 2 * (1/mm) +
             (1 - 1/mm) * (1 - ((2 % mm) / 2)) * leapyear(yyyy));
 }
