@@ -74,6 +74,7 @@ static PFP_Errno check_consistency(PrintFormat *pf, size_t pf_size)
     for (size_t i = 0; i < max_indexes; i++)
         indexes[i] = 0;
     size_t max_sofar = 0;
+
     for (size_t i = 0; i < pf_size; i++)
     {
         if (pf[i].conv_num <= 0 || (size_t)pf[i].conv_num > max_indexes)
@@ -98,6 +99,7 @@ static PFP_Errno check_consistency(PrintFormat *pf, size_t pf_size)
                 max_sofar = pf[i].prec_num;
         }
     }
+
     for (size_t i = 1; i <= max_sofar; i++)
     {
         if (indexes[i] == 0)
@@ -241,6 +243,11 @@ static const p1_test_case p1_tests[] =
     },
 };
 
+/*
+** Match: %1$*2$.*3$d and %1$*3$.*2$d OK
+** Match: %1$10.*2$d and %1$*2$.3d OK
+*/
+
 /* Group of integer formats and double formats */
 static char * const format_group[] = { "diouxX", "faAeEgG", 0 };
 
@@ -323,10 +330,10 @@ static void p1_tester(const void *data)
         pt_pass("Compatible: <<%s>> and <<%s>> are complex but compatible\n",
                 test->format1, test->format2);
     else if (simple_equivalent(pf1, pf2, nf1) && test->status == 0)
-        pt_fail("Test error: <<%s>> and <<%s>> are simply compatible yet test expects incompatible\n",
+        pt_fail("Test error: test says <<%s>> and <<%s>> are simply compatible yet test expects incompatible\n",
                 test->format1, test->format2);
     else
-        pt_fail("Test error: <<%s>> and <<%s>> are complex but compatible, yet test expects incompatible\n",
+        pt_fail("Test error: test says <<%s>> and <<%s>> are complex but compatible, yet test expects incompatible\n",
                 test->format1, test->format2);
 }
 
