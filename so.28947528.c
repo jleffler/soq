@@ -26,20 +26,15 @@ extern const char jlss_id_so_28947528_c[];
 const char jlss_id_so_28947528_c[] = "@(#)$Id$";
 #endif /* lint */
 
-#if 0
-static inline size_t check_number(size_t *indexes, size_t max_indexes, size_t value, size_t max_sofar)
+static inline PFP_Errno check_number(size_t *indexes, size_t max_indexes, size_t value, size_t *max_sofar)
 {
     if (value == 0 || value >= max_indexes)
         return PFE_DollarOverflow;  /* Sub-optimal error */
     indexes[value]++;
-    if (value > max_sofar)
-        max_sofar = value;
-    return max_sofar;
+    if (value > *max_sofar)
+        *max_sofar = value;
+    return PFE_NoError;
 }
-        max_sofar = check_number(indexes, max_indexes, pf[i].conv_num, max_sofar);
-        max_sofar = check_number(indexes, max_indexes, pf[i].width_num, max_sofar);
-        max_sofar = check_number(indexes, max_indexes, pf[i].prec_num, max_sofar);
-#endif /* 0 */
 
 static PFP_Errno check_consistency(PrintFormat *pf, size_t pf_size)
 {
@@ -77,27 +72,13 @@ static PFP_Errno check_consistency(PrintFormat *pf, size_t pf_size)
 
     for (size_t i = 0; i < pf_size; i++)
     {
-        if (pf[i].conv_num <= 0 || (size_t)pf[i].conv_num > max_indexes)
-            return PFE_DollarOverflow;      /* Sub-optimal error */
-        indexes[pf[i].conv_num]++;
-        if ((size_t)pf[i].conv_num > max_sofar)
-            max_sofar = pf[i].conv_num;
-        if (pf[i].width == FWP_Star)
-        {
-            if (pf[i].width_num <= 0 || (size_t)pf[i].width_num > max_indexes)
-                return PFE_DollarOverflow;  /* Sub-optimal error */
-            indexes[pf[i].width_num]++;
-            if ((size_t)pf[i].width_num > max_sofar)
-                max_sofar = pf[i].width_num;
-        }
-        if (pf[i].precision == FWP_Star)
-        {
-            if (pf[i].prec_num <= 0 || (size_t)pf[i].prec_num > max_indexes)
-                return PFE_DollarOverflow;  /* Sub-optimal error */
-            indexes[pf[i].prec_num]++;
-            if ((size_t)pf[i].prec_num > max_sofar)
-                max_sofar = pf[i].prec_num;
-        }
+        PFP_Errno err = check_number(indexes, max_indexes, pf[i].conv_num, &max_sofar);
+        if (err == PFE_NoError && pf[i].width == FWP_Star)
+            err = check_number(indexes, max_indexes, pf[i].width_num, &max_sofar);
+        if (err == PFE_NoError && pf[i].precision == FWP_Star)
+            err = check_number(indexes, max_indexes, pf[i].prec_num, &max_sofar);
+        if (err != PFE_NoError)
+            return err;
     }
 
     for (size_t i = 1; i <= max_sofar; i++)
