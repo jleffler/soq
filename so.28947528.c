@@ -58,12 +58,15 @@ static PFP_Errno check_consistency(PrintFormat *pf, size_t pf_size)
             prec_stars++;
     }
 
+    /* No conversions use n$ */
     if (ndollar_count == 0 && ndollar_width == 0 && ndollar_prec == 0)
         return PFE_NoError;
 
+    /* Some conversions use n$, others do not */
     if (ndollar_count != pf_size || ndollar_width != width_stars || ndollar_prec != prec_stars)
         return PFE_MissingNDollar;
 
+    /* All values of n$ from 1 to some maximum must be used (no gaps) */
     size_t max_indexes = 3 * pf_size + 1;
     size_t indexes[max_indexes];
     for (size_t i = 0; i < max_indexes; i++)
@@ -86,6 +89,8 @@ static PFP_Errno check_consistency(PrintFormat *pf, size_t pf_size)
         if (indexes[i] == 0)
             return PFE_MissingNDollar;      /* Sub-optimal error */
     }
+
+    /* So far, so good */
     return PFE_NoError;
 }
 

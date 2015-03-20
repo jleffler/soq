@@ -47,6 +47,7 @@ fifosize
 filter.stderr
 gai
 genouterr
+genprintfmt
 heapprt
 if
 if-jl
@@ -84,6 +85,7 @@ send
 sigalrm
 sigchld
 signals
+so.28947528
 sorttest
 stld
 streplace
