@@ -1,3 +1,4 @@
+/* SO 19200574 */
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
