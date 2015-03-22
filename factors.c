@@ -4,7 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int numberDivisors(int n)
+/*
+** This algorithm is horribly inefficient for large numbers because it
+** recomputes primes for each number that it factors.
+*/
+
+static void list_divisors(int n)
 {
     int lim = (int)floor(sqrt((double)n));
     int *primes = (int *)calloc(n, sizeof(int));
@@ -14,7 +19,6 @@ static int numberDivisors(int n)
 
     if (primes && divisors)
     {
-        printf("Processing %d\n", n);
         for (i = 0; i < n; i++)
         {
             primes[i] = 1;
@@ -50,17 +54,17 @@ static int numberDivisors(int n)
             }
         }
 
-        printf("  Divisor: %d\n", 1);
+        printf("%d: 1", n);
         for (i = 2; i < n; i++)
         {
             if (divisors[i])
             {
-                printf("  Divisor: %d\n", i);
+                printf(",%d", i);
                 ctr++;
             }
         }
-        printf("  Divisor: %d\n", n);
         ctr += 2;   /* For 1 and n, of course */
+        printf(",%d (%d factors)\n", n, ctr);
     }
     else
     {
@@ -68,7 +72,6 @@ static int numberDivisors(int n)
     }
     free(primes);
     free(divisors);
-    return ctr;
 }
 
 int main(int argc, char * *argv)
@@ -91,10 +94,7 @@ int main(int argc, char * *argv)
     }
     printf("Range = %d:%d\n", min, max);
     for (int i = min; i <= max; i++)
-    {
-        int ctr = numberDivisors(i);
-        printf("Number %6d has %3d divisors\n", i, ctr);
-    }
+        list_divisors(i);
     return 0;
 }
 
