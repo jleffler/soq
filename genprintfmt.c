@@ -47,7 +47,9 @@ static void print_format_initializer(const char *name, const PrintFormat *pf)
 {
     char buff1[12];
     char buff2[12];
-    printf("\nstatic PrintFormat %s =\n{\n", name);
+    int  fmtlen = pf->end - pf->start + 1;
+    printf("\nstatic PrintFormat %s =\n", name);
+    printf("{    /* \"%*.*s\" */\n", fmtlen, fmtlen, pf->start);
     printf("    .start = 0, .end = 0, .error = PFE_NoError,\n");
     printf("    .width = %s, .precision = %s,\n",
            pw_value(pf->width, buff1), pw_value(pf->precision, buff2));

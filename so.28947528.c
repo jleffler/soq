@@ -10,10 +10,11 @@
 
 /*TABSTOP=4*/
 
-/* -- Include Files */
-
 #include "posixver.h"
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "stderr.h"
@@ -123,115 +124,9 @@ static size_t scan_format(const char *format, PrintFormat *pf, size_t pf_size)
     return i;
 }
 
-/* -- PHASE 1 TESTING -- */
-
-/* -- Test for compatibility of format strings -- */
-typedef struct p1_test_case
-{
-    const char        *format1;
-    const char        *format2;
-    const PrintFormat *pf1[2];
-    const PrintFormat *pf2[2];
-    size_t             num1;
-    size_t             num2;
-    int                status;
-} p1_test_case;
-
-#if 0
-    const char *start;          /* Pointer to % symbol */
-    const char *end;            /* Pointer to conversion specifier */
-    PFP_Errno   error;          /* Conversion error number */
-    short       width;          /* Field width (FWP_None for none, FWP_Star for *) */
-    short       precision;      /* Field precision (FWP_None for none, FWP_Star for *) */
-    short       conv_num;       /* n of %n$ for value (0 for none) */
-    short       width_num;      /* n of *n$ for width (0 for none) */
-    short       prec_num;       /* n of *n$ for precision (0 for none) */
-    char        flags[7];       /* [+-0# '] */
-    char        modifier[3];    /* hh|h|l|ll|j|z|t|L */
-    char        convspec;       /* [diouxXfFeEgGAascpnCS] */
-#endif
-
-static PrintFormat pf_d =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_None, .precision = FWP_None,
-    .conv_num = 0, .width_num = 0, .prec_num = 0,
-    .flags = "", .modifier = "", .convspec = 'd'
-};
-
-static PrintFormat pf_f =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_None, .precision = FWP_None,
-    .conv_num = 0, .width_num = 0, .prec_num = 0,
-    .flags = "", .modifier = "", .convspec = 'f'
-};
-
-static PrintFormat pf_1_d =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_None, .precision = FWP_None,
-    .conv_num = 1, .width_num = 0, .prec_num = 0,
-    .flags = "", .modifier = "", .convspec = 'd'
-};
-
-static PrintFormat pf_2_f =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_None, .precision = FWP_None,
-    .conv_num = 2, .width_num = 0, .prec_num = 0,
-    .flags = "", .modifier = "", .convspec = 'f'
-};
-
-static PrintFormat pf_6_e =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_Star, .precision = FWP_Star,
-    .conv_num = 6, .width_num = 4, .prec_num = 5,
-    .flags = "-", .modifier = "L", .convspec = 'e'
-};
-
-static PrintFormat pf_3_d =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_Star, .precision = FWP_Star,
-    .conv_num = 3, .width_num = 1, .prec_num = 2,
-    .flags = "+", .modifier = "ll", .convspec = 'd'
-};
-
-static PrintFormat pf_6_A =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_Star, .precision = FWP_Star,
-    .conv_num = 6, .width_num = 4, .prec_num = 5,
-    .flags = "-", .modifier = "L", .convspec = 'A'
-};
-
-static PrintFormat pf_3_X =
-{
-    .start = 0, .end = 0, .error = PFE_NoError,
-    .width = FWP_Star, .precision = FWP_Star,
-    .conv_num = 3, .width_num = 1, .prec_num = 2,
-    .flags = "+", .modifier = "ll", .convspec = 'X'
-};
-
-static const p1_test_case p1_tests[] =
-{
-    { "Something %d", "Something else %d",    { &pf_d, 0 }, { &pf_d, 0 }, 1, 1, 1 },
-    { "Something %d", "Something else %f",    { &pf_d, 0 }, { &pf_f, 0 }, 1, 1, 0 },
-    { "Something %d", "Something %d else %d", { &pf_d, 0 }, { &pf_d, &pf_d }, 1, 2, 0 },
-    { "Something %d and %f", "Something %2$f and %1$d with more",
-      { &pf_d, &pf_f }, { &pf_2_f, &pf_1_d }, 2, 2, 1
-    },
-    { "Something %3$+*1$.*2$lld and %6$-*4$.*5$Le",
-      "Anything %4$*5$.*6$LA or %3$*1$.*2$llX and more",
-      { &pf_3_d, &pf_6_e }, { &pf_6_A, &pf_3_X }, 2, 2, 1
-    },
-};
-
 /*
-** Match: %1$*2$.*3$d and %1$*3$.*2$d OK
-** Match: %1$10.*2$d and %1$*2$.3d OK
+** Match: %1$*2$.*3$d and %1$*3$.*2$d OK, or not OK?
+** Match: %1$10.*2$d and %1$*2$.3d OK, or not OK?
 */
 
 /* Group of integer formats and double formats */
@@ -275,15 +170,203 @@ static int simple_equivalent(PrintFormat *pf1, PrintFormat *pf2, size_t num)
     return 1;
 }
 
-static int complex_equivalent(PrintFormat *pf1, PrintFormat *pf2, size_t num)
+static bool complex_equivalent(PrintFormat *pf1, PrintFormat *pf2, size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
-        if (&pf1[i] != &pf2[i])
-            return 0;
+        bool matched = false;
+        for (size_t j = 0; j < num; j++)
+        {
+            if (similar_format(&pf1[i], &pf2[j]))
+            {
+                matched = true;
+                break;
+            }
+        }
+        if (!matched)
+            return false;
     }
-    return 1;
+    return true;
 }
+
+static PrintFormat *dup_pflist(PrintFormat *old_list, size_t num)
+{
+    PrintFormat *new_list = malloc(num * sizeof(*new_list));
+    assert(new_list != 0);
+    if (new_list != 0)
+        memmove(new_list, old_list, num * sizeof(*new_list));
+    return new_list;
+}
+
+static void fix_pflist(PrintFormat *list, size_t num)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < num; i++)
+    {
+        if (list[i].width_num == FWP_Star)
+            list[i].width_num = ++count;
+        if (list[i].prec_num == FWP_Star)
+            list[i].prec_num = ++count;
+        list[i].conv_num = ++count;
+    }
+}
+
+static int formats_equivalent(PrintFormat *pf1, PrintFormat *pf2, size_t num)
+{
+    if (simple_equivalent(pf1, pf2, num))
+        return 1;
+    /* No numbered fields */
+    if (pf1[0].conv_num == 0 && pf2[0].conv_num == 0)
+        return 0;
+    /* Convert list with unnumbered fields to numbered fields (if any) */
+    bool free_pf1 = false;
+    bool free_pf2 = false;
+    if (pf1[0].conv_num == 0)
+    {
+        pf1 = dup_pflist(pf1, num);
+        fix_pflist(pf1, num);
+        free_pf1 = true;
+    }
+    if (pf2[0].conv_num == 0)
+    {
+        pf2 = dup_pflist(pf2, num);
+        fix_pflist(pf2, num);
+        free_pf2 = true;
+    }
+    assert(!free_pf1 || !free_pf2);
+    bool rc = complex_equivalent(pf1, pf2, num);
+    if (free_pf1)
+        free(pf1);
+    if (free_pf2)
+        free(pf2);
+    return rc;
+}
+
+/* -- PHASE 1 TESTING -- */
+
+/* -- Test for compatibility of format strings -- */
+typedef struct p1_test_case
+{
+    const char        *format1;
+    const char        *format2;
+    const PrintFormat *pf1[2];
+    const PrintFormat *pf2[2];
+    size_t             num1;
+    size_t             num2;
+    int                status;
+} p1_test_case;
+
+#if 0
+    const char *start;          /* Pointer to % symbol */
+    const char *end;            /* Pointer to conversion specifier */
+    PFP_Errno   error;          /* Conversion error number */
+    short       width;          /* Field width (FWP_None for none, FWP_Star for *) */
+    short       precision;      /* Field precision (FWP_None for none, FWP_Star for *) */
+    short       conv_num;       /* n of %n$ for value (0 for none) */
+    short       width_num;      /* n of *n$ for width (0 for none) */
+    short       prec_num;       /* n of *n$ for precision (0 for none) */
+    char        flags[7];       /* [+-0# '] */
+    char        modifier[3];    /* hh|h|l|ll|j|z|t|L */
+    char        convspec;       /* [diouxXfFeEgGAascpnCS] */
+#endif
+
+static PrintFormat pf_d =
+{   /* "%d" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 0, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'd'
+};
+
+static PrintFormat pf_f =
+{
+    /* "%f" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 0, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'f'
+};
+
+static PrintFormat pf_1_d =
+{
+    /* "%1$d" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 1, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'd'
+};
+
+static PrintFormat pf_2_f =
+{
+    /* "%2$f" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 2, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'f'
+};
+
+static PrintFormat pf_6_e =
+{
+    /* "%6$-*4$.*5$Le" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_Star, .precision = FWP_Star,
+    .conv_num = 6, .width_num = 4, .prec_num = 5,
+    .flags = "-", .modifier = "L", .convspec = 'e'
+};
+
+static PrintFormat pf_3_d =
+{
+    /* "%3$+*1$.*2$lld" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_Star, .precision = FWP_Star,
+    .conv_num = 3, .width_num = 1, .prec_num = 2,
+    .flags = "+", .modifier = "ll", .convspec = 'd'
+};
+
+static PrintFormat pf_4_A =
+{
+    /* "%4$-*5$.*6$LA" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_Star, .precision = FWP_Star,
+    .conv_num = 4, .width_num = 5, .prec_num = 6,
+    .flags = "-", .modifier = "L", .convspec = 'A'
+};
+
+static PrintFormat pf_3_X =
+{
+    /* "%3$*1$.*2$llX" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_Star, .precision = FWP_Star,
+    .conv_num = 3, .width_num = 1, .prec_num = 2,
+    .flags = "+", .modifier = "ll", .convspec = 'X'
+};
+
+static PrintFormat pf_6_A =
+{
+    /* "%6$-*4$.*5$LA" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_Star, .precision = FWP_Star,
+    .conv_num = 6, .width_num = 4, .prec_num = 5,
+    .flags = "-", .modifier = "L", .convspec = 'A'
+};
+
+static const p1_test_case p1_tests[] =
+{
+    { "Something %d", "Something else %d",    { &pf_d, 0 }, { &pf_d, 0 }, 1, 1, 1 },
+    { "Something %d", "Something else %f",    { &pf_d, 0 }, { &pf_f, 0 }, 1, 1, 0 },
+    { "Something %d", "Something %d else %d", { &pf_d, 0 }, { &pf_d, &pf_d }, 1, 2, 0 },
+    { "Something %d and %f", "Something %2$f and %1$d with more",
+      { &pf_d, &pf_f }, { &pf_2_f, &pf_1_d }, 2, 2, 1
+    },
+    { "Something %3$+*1$.*2$lld and %6$-*4$.*5$Le",
+      "Anything %4$*5$.*6$LA or %3$*1$.*2$llX and more",
+      { &pf_3_d, &pf_6_e }, { &pf_4_A, &pf_3_X }, 2, 2, 0
+    },
+    { "Something %3$+*1$.*2$lld and %6$-*4$.*5$Le",
+      "Anything %6$*4$.*5$LA or %3$*1$.*2$llX and more",
+      { &pf_3_d, &pf_6_e }, { &pf_6_A, &pf_3_X }, 2, 2, 1
+    },
+};
 
 static void p1_tester(const void *data)
 {
@@ -294,6 +377,7 @@ static void p1_tester(const void *data)
 
     size_t nf1 = scan_format(test->format1, pf1, MAX_CONVSPECS);
     size_t nf2 = scan_format(test->format2, pf2, MAX_CONVSPECS);
+    int rc;
 
     if (nf1 != test->num1)
         pt_fail("Incorrect number of format strings recognized: wanted %zu, actual %zu (format [[%s]])\n",
@@ -309,17 +393,19 @@ static void p1_tester(const void *data)
         pt_fail("Test error: number of conversion specifications differ (%zu vs %zu)"
                 " but the result is supposed to be compatible (which is wrong!)\n",
                 nf1, nf2);
-    else if (simple_equivalent(pf1, pf2, nf1) && test->status == 1)
-        pt_pass("Compatible: <<%s>> and <<%s>> are simply compatible\n",
+    else if ((rc = formats_equivalent(pf1, pf2, nf1)) && test->status == 1)
+        pt_pass("Compatible: <<%s>> and <<%s>> are compatible\n",
                 test->format1, test->format2);
-    else if (complex_equivalent(pf1, pf2, nf1) && test->status == 1)
-        pt_pass("Compatible: <<%s>> and <<%s>> are complex but compatible\n",
+    else if (rc == 0 && test->status == 0)
+        pt_pass("Incompatible: <<%s>> and <<%s>> are incompatible\n", test->format1, test->format2);
+    else if (rc == 0 && test->status == 1)
+        pt_fail("Incompatible: <<%s>> and <<%s>> are deemed incompatible but should be compatible\n",
                 test->format1, test->format2);
-    else if (simple_equivalent(pf1, pf2, nf1) && test->status == 0)
-        pt_fail("Test error: test says <<%s>> and <<%s>> are simply compatible yet test expects incompatible\n",
+    else if (rc == 1 && test->status == 0)
+        pt_fail("Compatible: <<%s>> and <<%s>> are deemed compatible but should be incompatible\n",
                 test->format1, test->format2);
     else
-        pt_fail("Test error: test says <<%s>> and <<%s>> are complex but compatible, yet test expects incompatible\n",
+        pt_fail("Test error: <<%s>> and <<%s>> -- can't happen\n",
                 test->format1, test->format2);
 }
 
