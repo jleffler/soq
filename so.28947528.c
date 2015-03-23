@@ -124,11 +124,6 @@ static size_t scan_format(const char *format, PrintFormat *pf, size_t pf_size)
     return i;
 }
 
-/*
-** Match: %1$*2$.*3$d and %1$*3$.*2$d OK, or not OK?
-** Match: %1$10.*2$d and %1$*2$.3d OK, or not OK?
-*/
-
 /* Group of integer formats and double formats */
 static char * const format_group[] = { "diouxX", "faAeEgG", 0 };
 
@@ -244,13 +239,15 @@ static int formats_equivalent(PrintFormat *pf1, PrintFormat *pf2, size_t num)
 
 /* -- PHASE 1 TESTING -- */
 
+enum { MAX_CONVSPECS = 4 };
+
 /* -- Test for compatibility of format strings -- */
 typedef struct p1_test_case
 {
     const char        *format1;
     const char        *format2;
-    const PrintFormat *pf1[2];
-    const PrintFormat *pf2[2];
+    const PrintFormat *pf1[MAX_CONVSPECS];
+    const PrintFormat *pf2[MAX_CONVSPECS];
     size_t             num1;
     size_t             num2;
     int                status;
@@ -269,6 +266,11 @@ typedef struct p1_test_case
     char        modifier[3];    /* hh|h|l|ll|j|z|t|L */
     char        convspec;       /* [diouxXfFeEgGAascpnCS] */
 #endif
+
+/*
+** Match: %1$*2$.*3$d and %1$*3$.*2$d -- OK, or not OK? Types OK; semantics not OK.
+** Match: %1$10.*2$d and %1$*2$.3d    -- OK, or not OK? Types OK; semantics not OK.
+*/
 
 static PrintFormat pf_d =
 {   /* "%d" */
@@ -350,27 +352,67 @@ static PrintFormat pf_6_A =
     .flags = "-", .modifier = "L", .convspec = 'A'
 };
 
+static PrintFormat pf_10 =
+{    /* "%1$d" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 1, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'd',
+};
+
+static PrintFormat pf_11 =
+{    /* "%2$d" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 2, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'd',
+};
+
+static PrintFormat pf_12 =
+{    /* "%3$d" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 3, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'd',
+};
+
+static PrintFormat pf_13 =
+{    /* "%4$d" */
+    .start = 0, .end = 0, .error = PFE_NoError,
+    .width = FWP_None, .precision = FWP_None,
+    .conv_num = 4, .width_num = 0, .prec_num = 0,
+    .flags = "", .modifier = "", .convspec = 'd',
+};
+
 static const p1_test_case p1_tests[] =
 {
-    { "Something %d", "Something else %d",    { &pf_d, 0 }, { &pf_d, 0 }, 1, 1, 1 },
-    { "Something %d", "Something else %f",    { &pf_d, 0 }, { &pf_f, 0 }, 1, 1, 0 },
-    { "Something %d", "Something %d else %d", { &pf_d, 0 }, { &pf_d, &pf_d }, 1, 2, 0 },
+    { "Something %d", "Something else %d",
+      { &pf_d, 0, 0, 0, }, { &pf_d, 0, 0, 0, }, 1, 1, 1 },
+    { "Something %d", "Something else %f",
+      { &pf_d, 0, 0, 0, }, { &pf_f, 0, 0, 0, }, 1, 1, 0 },
+    { "Something %d", "Something %d else %d",
+      { &pf_d, 0, 0, 0, }, { &pf_d, &pf_d, 0, 0, }, 1, 2, 0 },
     { "Something %d and %f", "Something %2$f and %1$d with more",
-      { &pf_d, &pf_f }, { &pf_2_f, &pf_1_d }, 2, 2, 1
+      { &pf_d, &pf_f, 0, 0, }, { &pf_2_f, &pf_1_d, 0, 0, }, 2, 2, 1
     },
     { "Something %3$+*1$.*2$lld and %6$-*4$.*5$Le",
       "Anything %4$*5$.*6$LA or %3$*1$.*2$llX and more",
-      { &pf_3_d, &pf_6_e }, { &pf_4_A, &pf_3_X }, 2, 2, 0
+      { &pf_3_d, &pf_6_e, 0, 0, }, { &pf_4_A, &pf_3_X, 0, 0, }, 2, 2, 0
     },
     { "Something %3$+*1$.*2$lld and %6$-*4$.*5$Le",
       "Anything %6$*4$.*5$LA or %3$*1$.*2$llX and more",
-      { &pf_3_d, &pf_6_e }, { &pf_6_A, &pf_3_X }, 2, 2, 1
+      { &pf_3_d, &pf_6_e, 0, 0, }, { &pf_6_A, &pf_3_X, 0, 0, }, 2, 2, 1
+    },
+    { "W = %4$d, X = %1$d, Y = %2$d, Z = %3$d",
+      "W = %1$d, X = %3$d, Y = %4$d, Z = %2$d",
+      { &pf_13, &pf_10, &pf_11, &pf_12 },
+      { &pf_10, &pf_12, &pf_13, &pf_11 },
+      4, 4, 1
     },
 };
 
 static void p1_tester(const void *data)
 {
-    enum { MAX_CONVSPECS = 2 };
     const p1_test_case *test = (const p1_test_case *)data;
     PrintFormat pf1[MAX_CONVSPECS];
     PrintFormat pf2[MAX_CONVSPECS];
@@ -380,11 +422,13 @@ static void p1_tester(const void *data)
     int rc;
 
     if (nf1 != test->num1)
-        pt_fail("Incorrect number of format strings recognized: wanted %zu, actual %zu (format [[%s]])\n",
-            test->num1, nf1, test->format1);
-    else if (nf1 != test->num1)
-        pt_fail("Incorrect number of format strings recognized: wanted %zu, actual %zu (format [[%s]])\n",
-            test->num2, nf2, test->format2);
+        pt_fail("Test error: incorrect number of format strings recognized: "
+                "wanted %zu, actual %zu (format [[%s]])\n",
+                test->num1, nf1, test->format1);
+    else if (nf2 != test->num2)
+        pt_fail("Test error: incorrect number of format strings recognized: "
+                "wanted %zu, actual %zu (format [[%s]])\n",
+                test->num2, nf2, test->format2);
     else if (nf1 != nf2 && test->status == 0)
         pt_pass("Incompatible: <<%s>> and <<%s>> - "
                 "number of conversion specifications don't match (%zu vs %zu)\n",
@@ -405,8 +449,8 @@ static void p1_tester(const void *data)
         pt_fail("Compatible: <<%s>> and <<%s>> are deemed compatible but should be incompatible\n",
                 test->format1, test->format2);
     else
-        pt_fail("Test error: <<%s>> and <<%s>> -- can't happen\n",
-                test->format1, test->format2);
+        pt_fail("Test error: <<%s>> and <<%s>> (rc = %d, status = %d) -- can't happen\n",
+                test->format1, test->format2, rc, test->status);
 }
 
 /* -- Phased Test Infrastructure -- */
