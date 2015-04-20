@@ -28,12 +28,10 @@ const char jlss_id_prompt_h[] = "@(#)$Id$";
 #include <stdarg.h>
 #include <stdio.h>
 
-extern int vfprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
-                            int maxtries, const char *prompt, va_list args);
 extern int fprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
-                           const char *prompt, ...);
-extern int prompt_for_int(int *retval, int minval, int maxval,
-                          const char *prompt, ...);
+                           int maxtries, const char *prompt, const char *err_range,
+                           const char *err_invalid);
+extern int prompt_for_int(int *retval, int minval, int maxval);
 
 #ifdef __cplusplus
 }

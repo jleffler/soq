@@ -32,21 +32,21 @@ const char jlss_id_prompt_c[] = "@(#)$Id$";
 ** And when either is a terminal?
 */
 
-/*const char *err_range;*/
-/*const char *err_invalid;*/
 
-int vfprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
-                     int maxtries, const char *prompt, va_list args)
+int fprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
+                     int maxtries, const char *prompt, const char *err_range,
+                     const char *err_invalid)
 {
     assert(minval < maxval);
     assert(retval != 0);
     assert(prompt != 0);
+    assert(err_range != 0);
+    assert(err_invalid != 0);
     assert(maxtries > 0);
     assert(in != 0);
     assert(out != 0);
 
     /*
-    ** Format prompt string.
     ** Prompt for value.
     ** Scan a value.
     ** If EOF, return EOF.
@@ -55,17 +55,9 @@ int vfprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
     ** If no value, print error message, scan to end of line and try again.
     ** NB: Count retries and limit to maxtries, returning EOF.
     */
-    va_list copy;
-    va_copy(copy, args);
-    int len = vsnprintf(0, 0, prompt, copy) + 1;
-    va_end(copy);
-    char msg[len];
-    vsnprintf(msg, len, prompt, args);
-    va_end(args);
-    /* Alternative: demand formatted prompt string - probably a good idea */
 
     int retries = 0;
-    while (fprintf(out, "%s: ", msg) > 0 && fflush(out) == 0)
+    while (fprintf(out, "%s: ", prompt) > 0 && fflush(out) == 0)
     {
         int rc = fscanf(in, "%d", retval);
         if (rc < 0)
@@ -74,15 +66,13 @@ int vfprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
         {
             if (*retval >= minval && *retval <= maxval)
                 return 0;
-            /* Alternative: demand a formatted out of range message - probably a good idea */
-            fprintf(out, "Please enter an integer in the range [%d..%d]\n", minval, maxval);
+            fprintf(out, "%s\n", err_range);
         }
         else
         {
             assert(rc == 0);
             int c;
-            /* Alternative: demand a formatted not an integer message - probably a good idea */
-            fprintf(out, "That was not an integer in the range [%d..%d]\n", minval, maxval);
+            fprintf(out, "%s\n", err_invalid);
             while ((c = getc(in)) != EOF && c != '\n')
                 ;
             if (c == EOF)
@@ -96,24 +86,19 @@ int vfprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
     return EOF;
 }
 
-int fprompt_for_int(FILE *in, FILE *out, int *retval, int minval, int maxval,
-                    const char *prompt, ...)
+int prompt_for_int(int *retval, int minval, int maxval)
 {
-    va_list args;
-    va_start(args, prompt);
-    int rc = vfprompt_for_int(in, out, retval, minval, maxval, DEF_RETRIES,
-                              prompt, args);
-    va_end(args);
-    return rc;
-}
-
-int prompt_for_int(int *retval, int minval, int maxval, const char *prompt, ...)
-{
-    va_list args;
-    va_start(args, prompt);
-    int rc = vfprompt_for_int(stdin, stdout, retval, minval, maxval,
-                              DEF_RETRIES, prompt, args);
-    va_end(args);
+    char msg_input[64];
+    char err_range[64];
+    char err_inval[64];
+    snprintf(msg_input, sizeof(msg_input), "Please enter an integer [%d..%d]",
+             minval, maxval);
+    snprintf(err_range, sizeof(err_range), "That value was not in the range [%d..%d]",
+             minval, maxval);
+    snprintf(err_inval, sizeof(err_inval), "That was not an integer in the range [%d..%d]",
+             minval, maxval);
+    int rc = fprompt_for_int(stdin, stdout, retval, minval, maxval,
+                             DEF_RETRIES, msg_input, err_range, err_inval);
     return rc;
 }
 
@@ -127,8 +112,7 @@ int main(void)
 
     for (int i = 0; i < 7; i++)
     {
-        if (prompt_for_int(&value, min, max,
-                          "Enter a 2-digit integer [%d..%d]", min, max) == 0)
+        if (prompt_for_int(&value, min, max) == 0)
             printf("Entered value was: %3d\n", value);
         min = min * 10 - 9;
         max = max * 10 + 9;
