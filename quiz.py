@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
 questions = [
-    {   'question': "What is the Zeroth Law of Thermodynamics?", },
 
     {   'question': "Who is the current Prime Minister of Canada?",
         'correct': "b",
         'options': [
-        "a) Jean Chretien",
-        "b) Stephen Harper",
-        "c) Cam Guthrie",
-        "d) Dalton McGuinty",
-        "e) Steve Jobs",
+            "a) Jean Chretien",
+            "b) Stephen Harper",
+            "c) Cam Guthrie",
+            "d) Dalton McGuinty",
+            "e) Steve Jobs",
         ],
     },
 
@@ -75,7 +74,7 @@ def ask_question(qnum, qinfo):
             fitb = "(Fill in the blank)"
             prompt = "Enter your answer: "
         print("\nQUESTION", qnum, ":", fitb, qinfo['question'])
-        if questions[qnum].get('options'):
+        if qinfo.get('options'):
             for opt in qinfo['options']:
                 print(" ", opt)
         answer = get_answer(prompt)
@@ -95,7 +94,7 @@ def right_wrong(tag, qnos):
     if len(qnos) > 0:
         print("You got these questions", tag, ":")
         for n in range(len(qnos)):
-            print(" ", qnos[n], ": ", questions[qnos[n]]['question'])
+            print(" ", qnos[n], ": ", questions[qnos[n]-1]['question'])
 
 quiz = "'So You Think You Can Civics'"
 cont = ""
@@ -109,9 +108,9 @@ while cont != "n":
     print("This quiz will test your knowledge on basic civics topics.")
     print("Let's see if you were paying attention in civics class!")
 
-    num_q = len(questions) - 1
-    for qnum in range(1, len(questions)):
-        score += ask_question(qnum, questions[qnum])
+    num_q = len(questions)
+    for qnum in range(num_q):
+        score += ask_question(qnum + 1, questions[qnum])
 
     print("")
     print("Your score is: ", score, "/", num_q)
