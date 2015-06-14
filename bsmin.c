@@ -8,16 +8,34 @@
 #include <assert.h>
 #include <stdio.h>
 
+#if defined(EVALUATE)
+static int RETURN(int rv, const char *fn, int ctr)
+{
+    printf("%s: %d\n", fn, ctr);
+    return rv;
+}
+#else
+#define RETURN(rv, fn, ctr) (rv)
+#endif
+
 static
 int bsearchm(const int *A, int n, int v)
 {
     int lo = 0;
     int hi = n - 1;
 
+#if defined(EVALUATE)
+    int counter = 0;
+#endif
+
+    if (A[lo] == v)
+        return RETURN(lo, __func__, counter);
+        //return lo;
     while (lo <= hi)
     {
-        if (A[lo] == v)
-            return lo;
+#if defined(EVALUATE)
+        counter++;
+#endif
         int mid = (lo + hi) / 2;
         //printf("  v = %d, lo = %d, hi = %d, mid = %d, A[%d] = %d\n",
         //       v, lo, hi, mid, mid, A[mid]);
@@ -26,14 +44,16 @@ int bsearchm(const int *A, int n, int v)
         else if (A[mid] < v)
             lo = mid + 1;
         else if (mid == lo)
-            return lo;
+            return RETURN(lo, __func__, counter);
+            //return lo;
         else if (mid == hi)
-            lo = lo + 1;
+            lo++;
         else
-            hi = hi - 1;
+            hi--;
     }
 
-    return -1;
+    return RETURN(-1, __func__, counter);
+    //return -1;
 }
 
 /*
@@ -48,9 +68,16 @@ int bsearchf(const int *x, int n, int t)
     int l = -1;
     int u = n;
 
+#if defined(EVALUATE)
+    int counter = 0;
+#endif
+
     assert(n >= 0);
     while (l + 1 != u)
     {
+#if defined(EVALUATE)
+        counter++;
+#endif
         /* Invariant: x[l] < t && x[u] >= t && l < u */
         int m = (l + u) / 2;
         //printf("  t = %d, l = %d, u = %d, m = %d, x[%d] = %d\n",
@@ -61,9 +88,11 @@ int bsearchf(const int *x, int n, int t)
             u = m;
     }
     if (u >= n || x[u] != t)
-        return -1;
+        return RETURN(-1, __func__, counter);
+        //return -1;
     assert(u >= 0 && u < n);
-    return u;
+    return RETURN(u, __func__, counter);;
+    //return u;
 }
 
 int main(void)
