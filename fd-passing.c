@@ -9,6 +9,8 @@
 #include <time.h>
 #include <unistd.h>
 
+/* Polish: odbierz = receive; wyslij = send */
+
 static
 void wyslij(int socket, int fd)  // send fd by socket
 {
@@ -88,6 +90,7 @@ int main(int argc, char **argv)
         if (fd < 0)
             err_syserr("Failed to open file %s for reading\n", filename);
 
+        err_remark("File descriptor: %d\n", fd);
         /* Read some data to demonstrate that file offset is passed */
         char buffer[32];
         int nbytes = read(fd, buffer, sizeof(buffer));
@@ -95,8 +98,10 @@ int main(int argc, char **argv)
             err_remark("Parent read: [[%.*s]]\n", nbytes, buffer);
 
         wyslij(sock, fd);
+        err_remark("Sent to child (PID %d)\n", pid);
 
         close(fd);
+        err_remark("File closed\n");
         nanosleep(&(struct timespec){ .tv_sec = 1, .tv_nsec = 500000000}, 0);
         err_remark("Parent exits\n");
     }
@@ -108,13 +113,14 @@ int main(int argc, char **argv)
 
         nanosleep(&(struct timespec){ .tv_sec = 0, .tv_nsec = 500000000}, 0);
 
+        err_remark("Getting file descriptor\n");
         int fd = odbierz(sock);
-        printf("Read %d!\n", fd);
+        err_remark("File descriptor is %d!\n", fd);
         char buffer[256];
         ssize_t nbytes;
         while ((nbytes = read(fd, buffer, sizeof(buffer))) > 0)
             write(1, buffer, nbytes);
-        printf("Done!\n");
+        err_remark("Done!\n");
         close(fd);
     }
     return 0;

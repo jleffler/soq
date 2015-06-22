@@ -8,54 +8,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-#if defined(EVALUATE)
-static int RETURN(int rv, const char *fn, int ctr)
-{
-    printf("%s: %d\n", fn, ctr);
-    return rv;
-}
-#else
-#define RETURN(rv, fn, ctr) (rv)
-#endif
-
-static
-int bsearchm(const int *A, int n, int v)
-{
-    int lo = 0;
-    int hi = n - 1;
-
-#if defined(EVALUATE)
-    int counter = 0;
-#endif
-
-    if (A[lo] == v)
-        return RETURN(lo, __func__, counter);
-        //return lo;
-    while (lo <= hi)
-    {
-#if defined(EVALUATE)
-        counter++;
-#endif
-        int mid = (lo + hi) / 2;
-        //printf("  v = %d, lo = %d, hi = %d, mid = %d, A[%d] = %d\n",
-        //       v, lo, hi, mid, mid, A[mid]);
-        if (A[mid] > v)
-            hi = mid - 1;
-        else if (A[mid] < v)
-            lo = mid + 1;
-        else if (mid == lo)
-            return RETURN(lo, __func__, counter);
-            //return lo;
-        else if (mid == hi)
-            lo++;
-        else
-            hi--;
-    }
-
-    return RETURN(-1, __func__, counter);
-    //return -1;
-}
-
 /*
 ** From J Bentley "Programming Pearls, 2nd Edition", Section 9.3
 ** Locate the first occurrence of t in x[0..n-1].
@@ -68,16 +20,9 @@ int bsearchf(const int *x, int n, int t)
     int l = -1;
     int u = n;
 
-#if defined(EVALUATE)
-    int counter = 0;
-#endif
-
     assert(n >= 0);
     while (l + 1 != u)
     {
-#if defined(EVALUATE)
-        counter++;
-#endif
         /* Invariant: x[l] < t && x[u] >= t && l < u */
         int m = (l + u) / 2;
         //printf("  t = %d, l = %d, u = %d, m = %d, x[%d] = %d\n",
@@ -88,11 +33,9 @@ int bsearchf(const int *x, int n, int t)
             u = m;
     }
     if (u >= n || x[u] != t)
-        return RETURN(-1, __func__, counter);
-        //return -1;
+        return -1;
     assert(u >= 0 && u < n);
-    return RETURN(u, __func__, counter);;
-    //return u;
+    return u;
 }
 
 int main(void)
@@ -127,20 +70,16 @@ int main(void)
             /* For every value from 1 less than the minimum to one more than the maximum */
             for (int i = lo; i < hi; i++)
             {
-                int r1 = bsearchm(base, k, i);
-                int r2 = bsearchf(base, k, i);
-                printf("V = %2d, R1 = %2d, C1 = %2d : R2 = %2d, C2 = %2d : %s\n",
-                        i,
-                        r1, (r1 < 0) ? -1 : base[r1],
-                        r2, (r2 < 0) ? -1 : base[r2],
-                        (r1 < 0) ? "missing" : "found");
-                assert(r1 == r2);
-                if (r1 == -1)
+                int r = bsearchf(base, k, i);
+                printf("V = %2d, : R = %2d, C = %2d : %s\n",
+                        i, r, (r < 0) ? -1 : base[r],
+                        (r < 0) ? "missing" : "found");
+                if (r == -1)
                 {
                     for (int n = 0; n < k; n++)
                         assert(base[n] != i);
                 }
-                assert(r1 == -1 || (base[r1] == i && (r1 == 0 || base[r1-1] < i)));
+                assert(r == -1 || (base[r] == i && (r == 0 || base[r-1] < i)));
             }
         }
     }
