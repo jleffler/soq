@@ -305,3 +305,20 @@
    fun:map_images_nolock
    fun:map_images
 }
+{
+   Mac-OS-X-Yosemite-System-Leak.018
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc_zone_calloc
+   fun:NXHashInsert
+   fun:_NXHashRehashToCapacity
+   fun:NXHashInsert
+   fun:NXCreateMapTableFromZone
+   fun:_ZL15remappedClassesa
+   fun:_ZL10remapClassP10objc_class
+   fun:_Z9readClassP10objc_classbb
+   fun:_read_images
+   fun:map_images_nolock
+   fun:map_images
+   fun:_ZN4dyldL18notifyBatchPartialE17dyld_image_statesbPFPKcS0_jPK15dyld_image_infoE
+}
