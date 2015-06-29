@@ -86,6 +86,7 @@ regress
 roundup
 scan
 send
+sets
 sigalrm
 sigchld
 signals
