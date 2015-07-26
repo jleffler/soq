@@ -1,0 +1,34 @@
+Number of prime numbers up to:
+            10             4
+           100            25
+         1,000           168
+        10,000          1229
+       100,000          9592
+     1,000,000         78498
+    10,000,000        664579
+   100,000,000       5761455
+ 1,000,000,000      50847534
+10,000,000,000     455052511
+
+There are 54 8-bit primes, 6542 16-bit primes, 1077871 24-bit primes,
+and 203280221 32-bit primes (all unsigned, of course).
+
+No decade contains more than 4 primes (and, apart from the first decade,
+the four primes end 1, 3, 7, 9).
+
+Prime decades up to 10,000:
+   0         2,    3,    5,    7
+  10        11,   13,   17,   19
+ 100       101,  103,  107,  109
+ 190       191,  193,  197,  199
+ 820       821,  823,  827,  829
+1480      1481, 1483, 1487, 1489
+1870      1871, 1873, 1877, 1879
+2080      2081, 2083, 2087, 2089
+3250      3251, 3253, 3257, 3259
+3460      3461, 3463, 3467, 3469
+5650      5651, 5653, 5657, 5659
+9430      9431, 9433, 9437, 9439
+
+There are 28388 prime decades up to 1,000,000,000 (the last starts with
+9999861791).
