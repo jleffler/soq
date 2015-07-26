@@ -3,7 +3,9 @@
 #include <math.h>
 #include <inttypes.h>
 
-#define MAX_PRIME 10000000000ULL
+/* 1E10 ie OK; 1E12 is too much */
+//#define MAX_PRIME 1000_000_000_000ULL
+#define MAX_PRIME (100000ULL * 100000ULL)
 static uint64_t sieve[MAX_PRIME/(64 * 2)];
 
 static void set_mark(uint64_t i)

@@ -11,6 +11,7 @@
 *.tar
 *.tgz
 *.xz
+*.zip
 *~
 .DS_Store
 2da
@@ -83,6 +84,7 @@ quiz
 readdir
 recv
 regress
+revlist
 roundup
 scan
 send
