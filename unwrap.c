@@ -1,3 +1,4 @@
+/* SO 9187614 */
 #include <stdio.h>
 
 /* "unwrapper": */
@@ -10,8 +11,7 @@ struct b { struct a a; int b; };
 #define WRAP(NAME, ELEMS) static const char *NAME[] = { UNWRAP ELEMS }
 #define ARRAY(type, name, initializer) static const type name[] = { UNWRAP initializer }
 
-int
-main (void)
+int main(void)
 {
     WRAP (some_test, ("a", "b", "c"));
     ARRAY(char, another, ('a', 'b', 'c'));
