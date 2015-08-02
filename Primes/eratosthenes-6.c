@@ -30,14 +30,16 @@ static uint64_t min_u64(uint64_t x, uint64_t y) { return (x < y) ? x : y; }
 
 static void set_mark(uint64_t *sieve, uint64_t i)
 {
-    uint64_t x = 1ULL << (i % 64);
+    assert((i & 1) == 1);
+    uint64_t x = 1ULL << ((i >>= 1) % 64);
     uint64_t y = i / 64;
     sieve[y] |= x;
 }
 
 static int is_marked(uint64_t *sieve, uint64_t i)
 {
-    uint64_t x = 1ULL << (i % 64);
+    assert((i & 1) == 1);
+    uint64_t x = 1ULL << ((i >>= 1) % 64);
     uint64_t y = i / 64;
     return (sieve[y] & x) == 0;
 }
@@ -45,10 +47,11 @@ static int is_marked(uint64_t *sieve, uint64_t i)
 static void set_range_mark(uint64_t *sieve, uint64_t b, uint64_t i)
 {
     assert(sieve != 0);
+    printf("SRM: b = %" PRIu64 ", i = %" PRIu64 "\n", b, i);
     assert(b <= i);
     assert(i % 2 == 1);
-    uint64_t x = 1ULL << ((i - b) % 64);
-    uint64_t y = (i - b) / 64;
+    uint64_t x = 1ULL << (((i - b) / 2) % 64);
+    uint64_t y = (i - b) / (2 * 64);
     sieve[y] |= x;
 }
 
@@ -56,25 +59,81 @@ static int is_range_marked(uint64_t *sieve, uint64_t b, uint64_t i)
 {
     assert(sieve != 0);
     assert(b <= i);
-    //assert(i % 2 == 1);
-    uint64_t x = 1ULL << ((i - b) % 64);
-    uint64_t y = (i - b) / 64;
+    assert(i % 2 == 1);
+    if (i == 379 || i == 383 || i == 397)
+    {
+        printf(" - IRM: i = %" PRIu64 ", (i-b) %" PRIu64 ", (i-b)/2 %" PRIu64, i, (i-b), (i-b)/2);
+        printf(", ((i-b)/2)%%64 %" PRIu64, ((i-b)/2)%64);
+        uint64_t x = 1ULL << (((i - b) / 2) % 64);
+        uint64_t y = (i - b) / (2 * 64);
+        int r = (sieve[y] & x) == 0;
+        printf(": x %" PRIu64 ", y %" PRIu64 ", r = %d\n", x, y, r);
+    }
+    uint64_t x = 1ULL << (((i - b) / 2) % 64);
+    uint64_t y = (i - b) / (2 * 64);
     return (sieve[y] & x) == 0;
 }
 
 static uint64_t first_multiple_in_range(uint64_t base, uint64_t val)
 {
+    printf("FMR: b = %" PRIu64 ", v = %" PRIu64, base, val);
+    uint64_t begin = base / val + 1;
+    printf(", r = %" PRIu64 "\n", begin * val);
+    return begin * val;
+}
+
+static uint64_t first_odd_multiple_in_range(uint64_t base, uint64_t val)
+{
     assert(val % 2 == 1);
-    uint64_t begin = base / val;
-    if (begin % 2 == 0)
+    printf("FOM: b = %" PRIu64 ", v = %" PRIu64, base, val);
+    uint64_t begin = base / val + 1;
+    if (begin == 1)
+        begin = 3;
+    else if (begin % 2 == 0)
         begin++;
+    printf(", r = %" PRIu64 "\n", begin * val);
     return begin * val;
 }
 
 static void mark_odd_multiples(uint64_t *range, uint64_t base, uint64_t limit, uint64_t val)
 {
-    for (uint64_t j = first_multiple_in_range(base, val); j < limit; j += 2 * val)
+    for (uint64_t j = first_odd_multiple_in_range(base, val); j < limit; j += 2 * val)
         set_range_mark(range, base, j);
+}
+
+static uint64_t *basic_sieve(uint64_t sqrt_max)
+{
+    size_t    space = (sqrt_max + 127) / 128;
+    uint64_t *sieve = calloc(space, sizeof(uint64_t));
+
+    if (sieve == 0)
+    {
+        fprintf(stderr, "Failed to allocate enough space (%zu bytes)\n", space * sizeof(uint64_t));
+        exit(1);
+    }
+
+    printf("P 2\n");
+    printf("P 3\n");
+    for (uint64_t j = 3 * (3); j < sqrt_max; j += 2 * (3))
+        set_mark(sieve, j);
+
+    for (uint64_t i = 6; i <= sqrt_max; i += 6)
+    {
+        if (!is_marked(sieve, (i - 1)) == 0)
+        {
+            printf("P %" PRIu64 "\n", i - 1);
+            for (uint64_t j = 3 * (i - 1); j < sqrt_max; j += 2 * (i - 1))
+                set_mark(sieve, j);
+        }
+        if ((i + 1) <= sqrt_max && !is_marked(sieve, (i + 1)) == 0)
+        {
+            printf("P %" PRIu64 "\n", i + 1);
+            for (uint64_t j = 3 * (i + 1); j < sqrt_max; j += 2 * (i + 1))
+                set_mark(sieve, j);
+        }
+    }
+    putchar('\n');
+    return sieve;
 }
 
 int main(int argc, char **argv)
@@ -94,42 +153,7 @@ int main(int argc, char **argv)
     uint64_t sqrt_max = isqrt_64(max);
     printf("Max %" PRIu64 "; Sqrt %" PRIu64 "\n", max, sqrt_max);
 
-    //if ((sieve = calloc(MAX_PRIME / (64 * 2), sizeof(uint64_t))) == 0)
-    size_t    space = (sqrt_max + 127) / 128;
-    uint64_t *sieve = calloc(space, sizeof(uint64_t));
-    if (sieve == 0)
-    {
-        fprintf(stderr, "Failed to allocate enough space (%zu bytes)\n", space * sizeof(uint64_t));
-        exit(1);
-    }
-
-    printf("P 2\n");
-    printf("P 3\n");
-    for (uint64_t j = 3 * (3); j < sqrt_max; j += 2 * (3))
-        set_mark(sieve, j / 2);
-
-    for (uint64_t i = 6; i <= sqrt_max; i += 6)
-    {
-        if (!is_marked(sieve, (i - 1) / 2) == 0)
-        {
-            printf("P %" PRIu64 "\n", i - 1);
-            for (uint64_t j = 3 * (i - 1); j < sqrt_max; j += 2 * (i - 1))
-                set_mark(sieve, j / 2);
-        }
-        if (!is_marked(sieve, (i + 1) / 2) == 0)
-        {
-            printf("P %" PRIu64 "\n", i + 1);
-            for (uint64_t j = 3 * (i + 1); j < sqrt_max; j += 2 * (i + 1))
-                set_mark(sieve, j / 2);
-        }
-    }
-    putchar('\n');
-
-    if (argc > 1)
-    {
-        free(sieve);
-        return(0);
-    }
+    uint64_t *sieve = basic_sieve(sqrt_max);
 
     /*
     ** Basic set of primes up to (square root of maximum)  + 1 established.
@@ -137,48 +161,59 @@ int main(int argc, char **argv)
     ** Zero all the values.  Mark the non-primes.  Then deal with the primes.
     */
     enum { MAX_CHUNK = 10000 };  // Chunk size is somewhat arbitrary, but less than MAX_PRIME
-    uint64_t sum = 5;
-    uint64_t cnt = 2;
-    size_t   rsize = min_u64(MAX_CHUNK, max / 4) / (64 * 2);
-    uint64_t *range = malloc(rsize * sizeof(uint64_t));
+    uint64_t sum = 2 + 3;        // Special case for primes 2 and 3
+    uint64_t cnt = 2;            // Special case for primes 2 and 3
 
-    for (uint64_t base = 0; base < max; base += rsize)
+    uint64_t csize = min_u64(MAX_CHUNK, max / 4);
+    size_t   rsize = (csize + (64*2 - 1)) / (64 * 2);
+    size_t   msize = rsize * sizeof(uint64_t);
+    uint64_t *range = malloc(msize);
+    printf("csize %" PRIu64 ", rsize = %zu, msize = %zu\n", csize, rsize, msize);
+
+    for (uint64_t base = 0; base < max; base += csize)
     {
-        printf("Range: %" PRIu64 "-%zu\n", base, rsize);
+        uint64_t limit = min_u64(base + csize, max);
+        printf("Range: %" PRIu64 "-%" PRIu64 "\n", base, limit);
         /* Zero all the values */
-        memset(range, '\0', rsize * sizeof(uint64_t));
-        uint64_t limit = min_u64(base + MAX_CHUNK, max);
+        memset(range, '\0', msize);
 
         /* Mark the non-primes */
         /* Mark multiples of 3 as non-prime */
-        for (uint64_t begin = first_multiple_in_range(base, 3); begin < limit; begin += 2 * 3)
+        printf("M 3\n");
+        for (uint64_t begin = first_odd_multiple_in_range(base, 3); begin < limit; begin += 2 * 3)
             set_range_mark(range, base, begin);
 
         /* Mark multiples of bigger primes as non-prime */
-        uint64_t i;
-        for (i = 6; i <= sqrt_max; i += 6)
+        for (uint64_t i = 6; i <= sqrt_max; i += 6)
         {
-            if (!is_marked(sieve, (i - 1)/2))
+            printf("T %" PRIu64 "\n", i-1);
+            if (is_marked(sieve, i - 1))
+                printf("M %" PRIu64 "\n", i-1),
                 mark_odd_multiples(range, base, limit, i - 1);
-            if (!is_marked(sieve, (i + 1)/2))
+            printf("T %" PRIu64 "\n", i+1);
+            if ((i + 1) <= sqrt_max && is_marked(sieve, i + 1))
+                printf("M %" PRIu64 "\n", i+1),
                 mark_odd_multiples(range, base, limit, i + 1);
         }
+        printf("F\n");
 
         /* Process the primes */
-        for ( ; i < max; i += 6)
+        for (uint64_t i = first_multiple_in_range(base, 6); i < limit; i += 6)
         {
-            if (!is_range_marked(range, base, (i - 1) / 2) == 0)
+            printf("I %" PRIu64, i);
+            if (!is_range_marked(range, base, i - 1) == 0)
             {
                 sum += i - 1;
                 cnt++;
-                printf("P %" PRIu64 "\n", i - 1);
+                printf(" P %" PRIu64, i - 1);
             }
-            if (!is_range_marked(range, base, (i + 1) / 2) == 0)
+            if (!is_range_marked(range, base, i + 1) == 0)
             {
                 sum += i + 1;
                 cnt++;
-                printf("P %" PRIu64 "\n", i + 1);
+                printf(" P %" PRIu64, i + 1);
             }
+            putchar('\n');
         }
     }
 
