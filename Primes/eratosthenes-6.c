@@ -47,7 +47,7 @@ static int is_marked(uint64_t *sieve, uint64_t i)
 static void set_range_mark(uint64_t *sieve, uint64_t b, uint64_t i)
 {
     assert(sieve != 0);
-    printf("SRM: b = %" PRIu64 ", i = %" PRIu64 "\n", b, i);
+    //printf("SRM: b = %" PRIu64 ", i = %" PRIu64 "\n", b, i);
     assert(b <= i);
     assert(i % 2 == 1);
     uint64_t x = 1ULL << (((i - b) / 2) % 64);
@@ -60,15 +60,6 @@ static int is_range_marked(uint64_t *sieve, uint64_t b, uint64_t i)
     assert(sieve != 0);
     assert(b <= i);
     assert(i % 2 == 1);
-    if (i == 379 || i == 383 || i == 397)
-    {
-        printf(" - IRM: i = %" PRIu64 ", (i-b) %" PRIu64 ", (i-b)/2 %" PRIu64, i, (i-b), (i-b)/2);
-        printf(", ((i-b)/2)%%64 %" PRIu64, ((i-b)/2)%64);
-        uint64_t x = 1ULL << (((i - b) / 2) % 64);
-        uint64_t y = (i - b) / (2 * 64);
-        int r = (sieve[y] & x) == 0;
-        printf(": x %" PRIu64 ", y %" PRIu64 ", r = %d\n", x, y, r);
-    }
     uint64_t x = 1ULL << (((i - b) / 2) % 64);
     uint64_t y = (i - b) / (2 * 64);
     return (sieve[y] & x) == 0;
@@ -80,7 +71,6 @@ static uint64_t first_multiple_in_range(uint64_t base, uint64_t val)
     uint64_t begin = (base + val - 1) / val;
     if (begin == 0 && base == 0)    // Avoid treating 1 as a prime
         begin++;
-    //uint64_t begin = base / val + 1;
     printf(", r = %" PRIu64 "\n", begin * val);
     return begin * val;
 }
@@ -196,20 +186,20 @@ int main(int argc, char **argv)
 
         /* Mark the non-primes */
         /* Mark multiples of 3 as non-prime */
-        printf("M 3\n");
+        //printf("M 3\n");
         for (uint64_t begin = first_odd_multiple_in_range(base, 3); begin < limit; begin += 2 * 3)
             set_range_mark(range, base, begin);
 
         /* Mark multiples of bigger primes as non-prime */
         for (uint64_t i = 6; i <= sqrt_max; i += 6)
         {
-            printf("T %" PRIu64 "\n", i-1);
+            //printf("T %" PRIu64 "\n", i-1);
             if (is_marked(sieve, i - 1))
-                printf("M %" PRIu64 "\n", i-1),
+                //printf("M %" PRIu64 "\n", i-1),
                 mark_odd_multiples(range, base, limit, i - 1);
-            printf("T %" PRIu64 "\n", i+1);
+            //printf("T %" PRIu64 "\n", i+1);
             if ((i + 1) <= sqrt_max && is_marked(sieve, i + 1))
-                printf("M %" PRIu64 "\n", i+1),
+                //printf("M %" PRIu64 "\n", i+1),
                 mark_odd_multiples(range, base, limit, i + 1);
         }
         printf("F\n");
@@ -240,6 +230,17 @@ int main(int argc, char **argv)
             {
                 apply(i + 1, &info);
                 printf(" P %" PRIu64, i + 1);
+            }
+            putchar('\n');
+        }
+
+        if (i == limit)
+        {
+            printf("I %" PRIu64, i);
+            if (!is_range_marked(range, base, i - 1) == 0)
+            {
+                apply(i - 1, &info);
+                printf(" P %" PRIu64, i - 1);
             }
             putchar('\n');
         }
