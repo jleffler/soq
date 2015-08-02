@@ -86,6 +86,7 @@ revlist
 roundup
 scan
 script.awk
+script.sed
 script.sh
 send
 sets
