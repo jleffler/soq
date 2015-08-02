@@ -77,7 +77,10 @@ static int is_range_marked(uint64_t *sieve, uint64_t b, uint64_t i)
 static uint64_t first_multiple_in_range(uint64_t base, uint64_t val)
 {
     printf("FMR: b = %" PRIu64 ", v = %" PRIu64, base, val);
-    uint64_t begin = base / val + 1;
+    uint64_t begin = (base + val - 1) / val;
+    if (begin == 0 && base == 0)    // Avoid treating 1 as a prime
+        begin++;
+    //uint64_t begin = base / val + 1;
     printf(", r = %" PRIu64 "\n", begin * val);
     return begin * val;
 }
@@ -136,6 +139,18 @@ static uint64_t *basic_sieve(uint64_t sqrt_max)
     return sieve;
 }
 
+struct prime_info
+{
+    uint64_t    sum;
+    uint64_t    count;
+};
+
+static void apply(uint64_t prime, struct prime_info *data)
+{
+    data->sum += prime;
+    data->count++;
+}
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
@@ -161,8 +176,10 @@ int main(int argc, char **argv)
     ** Zero all the values.  Mark the non-primes.  Then deal with the primes.
     */
     enum { MAX_CHUNK = 10000 };  // Chunk size is somewhat arbitrary, but less than MAX_PRIME
-    uint64_t sum = 2 + 3;        // Special case for primes 2 and 3
-    uint64_t cnt = 2;            // Special case for primes 2 and 3
+
+    struct prime_info info = { .sum = 0, .count = 0 };
+    apply(2, &info);            // 2 is prime
+    apply(3, &info);            // 3 is prime
 
     uint64_t csize = min_u64(MAX_CHUNK, max / 4);
     size_t   rsize = (csize + (64*2 - 1)) / (64 * 2);
@@ -198,27 +215,38 @@ int main(int argc, char **argv)
         printf("F\n");
 
         /* Process the primes */
-        for (uint64_t i = first_multiple_in_range(base, 6); i < limit; i += 6)
+        uint64_t i = first_multiple_in_range(base, 6);
+        if (i == base)
+        {
+            printf("I %" PRIu64, i);
+            if (!is_range_marked(range, base, i + 1) == 0)
+            {
+                apply(i + 1, &info);
+                printf(" P %" PRIu64, i + 1);
+            }
+            putchar('\n');
+            i += 6;
+        }
+
+        for ( ; i < limit; i += 6)
         {
             printf("I %" PRIu64, i);
             if (!is_range_marked(range, base, i - 1) == 0)
             {
-                sum += i - 1;
-                cnt++;
+                apply(i - 1, &info);
                 printf(" P %" PRIu64, i - 1);
             }
             if (!is_range_marked(range, base, i + 1) == 0)
             {
-                sum += i + 1;
-                cnt++;
+                apply(i + 1, &info);
                 printf(" P %" PRIu64, i + 1);
             }
             putchar('\n');
         }
     }
 
-    printf("Sum   of primes to %" PRIu64 " = %" PRIu64 "\n", max, sum);
-    printf("Count of primes to %" PRIu64 " = %" PRIu64 "\n", max, cnt);
+    printf("Sum   of primes to %" PRIu64 " = %" PRIu64 "\n", max, info.sum);
+    printf("Count of primes to %" PRIu64 " = %" PRIu64 "\n", max, info.count);
 
     free(range);
     free(sieve);
