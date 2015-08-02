@@ -171,7 +171,9 @@ int main(int argc, char **argv)
     apply(2, &info);            // 2 is prime
     apply(3, &info);            // 3 is prime
 
-    uint64_t csize = min_u64(MAX_CHUNK, max / 4);
+    uint64_t csize = min_u64(MAX_CHUNK, (max + 3) / 4);
+    if ((csize & 1) == 1)
+        csize++;
     size_t   rsize = (csize + (64*2 - 1)) / (64 * 2);
     size_t   msize = rsize * sizeof(uint64_t);
     uint64_t *range = malloc(msize);
