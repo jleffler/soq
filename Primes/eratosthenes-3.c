@@ -47,12 +47,12 @@ int main(int argc, char **argv)
             sum += i;
             cnt++;
             //printf("%d\n", i);
-            for (int j = i + i + i; j < max; j += i + i)
+            for (int j = i + i + i; j <= max; j += i + i)
                 set_mark(j / 2);
         }
     }
 
-    for ( ; i < max; i += 2)
+    for ( ; i <= max; i += 2)
     {
         if (!is_marked(i / 2) == 0)
         {

@@ -33,12 +33,12 @@ int main(int argc, char **argv)
             sum += i;
             cnt++;
             printf("%d\n", i);
-            for (int j = i + i + i; j < max; j += i + i)
+            for (int j = i + i + i; j <= max; j += i + i)
                 sieve[j/2] = 1;
         }
     }
 
-    for ( ; i < max; i += 2)
+    for ( ; i <= max; i += 2)
     {
         if (sieve[i/2] == 0)
         {
