@@ -1,3 +1,5 @@
+/* Sieve of Eratosthenes */
+/* 8 bits per flag - odd numbers after 2 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
