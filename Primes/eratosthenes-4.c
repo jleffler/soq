@@ -36,16 +36,17 @@ int main(int argc, char **argv)
         max = MAX_PRIME;
         printf("Reset max to %d\n", max);
     }
+
     if (max >= 2)
     {
 
         sum = 2;
         cnt = 1;
-        printf("2\n");
+        //printf("2\n");
 
         if (max >= 3)
         {
-            printf("3\n");
+            //printf("3\n");
             sum += 3;
             cnt++;
         }
@@ -59,7 +60,7 @@ int main(int argc, char **argv)
             {
                 sum += i - 1;
                 cnt++;
-                printf("%d\n", i - 1);
+                //printf("%d\n", i - 1);
                 for (int j = 3 * (i - 1); j <= max; j += 2 * (i - 1))
                     set_mark(j / 2);
             }
@@ -67,7 +68,7 @@ int main(int argc, char **argv)
             {
                 sum += i + 1;
                 cnt++;
-                printf("%d\n", i + 1);
+                //printf("%d\n", i + 1);
                 for (int j = 3 * (i + 1); j <= max; j += 2 * (i + 1))
                     set_mark(j / 2);
             }
