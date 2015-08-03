@@ -51,18 +51,18 @@ int main(int argc, char **argv)
         cnt++;
     }
 
-    for (uint64_t j = 3 * (3); j < max; j += 2 * (3))
+    for (uint64_t j = 3 * (3); j <= max; j += 2 * (3))
         set_mark(j / 2);
     uint64_t sqrt_max = sqrt(max);
 
-    for (i = 6; i <= sqrt_max; i += 6)
+    for (i = 6; (i - 1) <= sqrt_max; i += 6)
     {
         if (!is_marked((i - 1) / 2) == 0)
         {
             sum += i - 1;
             cnt++;
             //printf("%" PRIu64 "\n", i - 1);
-            for (uint64_t j = 3 * (i - 1); j < max; j += 2 * (i - 1))
+            for (uint64_t j = 3 * (i - 1); j <= max; j += 2 * (i - 1))
                 set_mark(j / 2);
         }
         if (!is_marked((i + 1) / 2) == 0)
@@ -70,12 +70,12 @@ int main(int argc, char **argv)
             sum += i + 1;
             cnt++;
             //printf("%" PRIu64 "\n", i + 1);
-            for (uint64_t j = 3 * (i + 1); j < max; j += 2 * (i + 1))
+            for (uint64_t j = 3 * (i + 1); j <= max; j += 2 * (i + 1))
                 set_mark(j / 2);
         }
     }
 
-    for ( ; i - 1 <= max; i += 6)
+    for ( ; (i - 1) <= max; i += 6)
     {
         if (!is_marked((i - 1) / 2) == 0)
         {
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
             cnt++;
             //printf("%" PRIu64 "\n", i - 1);
         }
-        if (i + 1 <= max && !is_marked((i + 1) / 2) == 0)
+        if ((i + 1) <= max && !is_marked((i + 1) / 2) == 0)
         {
             sum += i + 1;
             cnt++;

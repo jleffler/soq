@@ -52,6 +52,7 @@ int main(int argc, char **argv)
         }
         for (int j = 3 * (3); j <= max; j += 2 * (3))
             set_mark(j / 2);
+
         int sqrt_max = sqrt(max);
 
         for (i = 6; (i - 1) <= sqrt_max; i += 6)
