@@ -1,5 +1,6 @@
 *.dSYM
 *.o
+*.out
 eratosthenes-1
 eratosthenes-2
 eratosthenes-3

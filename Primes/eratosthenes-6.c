@@ -15,6 +15,11 @@
 ** tradition, but formalizes it.
 */
 
+/*
+** Currently, this is mostly a piece of spaghetti.
+*/
+
+#include "debug.h"
 #include "isqrt.h"
 #include "stderr.h"
 #include <assert.h>
@@ -23,6 +28,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+#if defined(DEBUG)
+#define DEBUG_OPT "d:"
+#define DEBUG_USE "[-d level]"
+#define DEBUG_HLP "  -d level  Enable debugging at level (0-4)\n"
+#else
+#define DEBUG_OPT ""
+#define DEBUG_USE ""
+#define DEBUG_HLP ""
+#endif /* DEBUG */
+
+static const char optstr[] = "hVu:" DEBUG_OPT;
+static const char usestr[] = "[-hV]" DEBUG_USE "[-u] upper";
+static const char hlpstr[] =
+    DEBUG_HLP
+    "  -h        Print this help message and exit\n"
+    "  -u upper  Upper bound on range\n"
+    "  -V        Print version information and exit\n"
+    ;
 
 #define MAX_PRIME 1000000ULL
 
@@ -47,7 +72,7 @@ static int is_marked(uint64_t *sieve, uint64_t i)
 static void set_range_mark(uint64_t *sieve, uint64_t b, uint64_t i)
 {
     assert(sieve != 0);
-    //printf("SRM: b = %" PRIu64 ", i = %" PRIu64 "\n", b, i);
+    DB_TRACE(4, "SRM: b = %" PRIu64 ", i = %" PRIu64 "\n", b, i);
     assert(b <= i);
     assert(i % 2 == 1);
     uint64_t x = 1ULL << (((i - b) / 2) % 64);
@@ -67,30 +92,30 @@ static int is_range_marked(uint64_t *sieve, uint64_t b, uint64_t i)
 
 static uint64_t first_multiple_in_range(uint64_t base, uint64_t val)
 {
-    printf("FMR: b = %" PRIu64 ", v = %" PRIu64, base, val);
+    DB_TRACE(3, "FMR: b = %" PRIu64 ", v = %" PRIu64, base, val);
     uint64_t begin = (base + val - 1) / val;
     if (begin == 0 && base == 0)    // Avoid treating 1 as a prime
         begin++;
-    printf(", r = %" PRIu64 "\n", begin * val);
+    DB_TRACE(3, ", r = %" PRIu64 "\n", begin * val);
     return begin * val;
 }
 
 static uint64_t first_odd_multiple_in_range(uint64_t base, uint64_t val)
 {
     assert(val % 2 == 1);
-    printf("FOM: b = %" PRIu64 ", v = %" PRIu64, base, val);
+    DB_TRACE(3, "FOM: b = %" PRIu64 ", v = %" PRIu64, base, val);
     uint64_t begin = base / val + 1;
     if (begin == 1)
         begin = 3;
     else if (begin % 2 == 0)
         begin++;
-    printf(", r = %" PRIu64 "\n", begin * val);
+    DB_TRACE(3, ", r = %" PRIu64 "\n", begin * val);
     return begin * val;
 }
 
 static void mark_odd_multiples(uint64_t *range, uint64_t base, uint64_t limit, uint64_t val)
 {
-    for (uint64_t j = first_odd_multiple_in_range(base, val); j < limit; j += 2 * val)
+    for (uint64_t j = first_odd_multiple_in_range(base, val); j <= limit; j += 2 * val)
         set_range_mark(range, base, j);
 }
 
@@ -105,27 +130,27 @@ static uint64_t *basic_sieve(uint64_t sqrt_max)
         exit(1);
     }
 
-    printf("P 2\n");
-    printf("P 3\n");
-    for (uint64_t j = 3 * (3); j < sqrt_max; j += 2 * (3))
+    DB_TRACE(2, "P 2\n");
+    DB_TRACE(2, "P 3\n");
+    for (uint64_t j = 3 * (3); j <= sqrt_max; j += 2 * (3))
         set_mark(sieve, j);
 
     for (uint64_t i = 6; i <= sqrt_max; i += 6)
     {
         if (!is_marked(sieve, (i - 1)) == 0)
         {
-            printf("P %" PRIu64 "\n", i - 1);
+            DB_TRACE(2, "P %" PRIu64 "\n", i - 1);
             for (uint64_t j = 3 * (i - 1); j < sqrt_max; j += 2 * (i - 1))
                 set_mark(sieve, j);
         }
         if ((i + 1) <= sqrt_max && !is_marked(sieve, (i + 1)) == 0)
         {
-            printf("P %" PRIu64 "\n", i + 1);
+            DB_TRACE(2, "P %" PRIu64 "\n", i + 1);
             for (uint64_t j = 3 * (i + 1); j < sqrt_max; j += 2 * (i + 1))
                 set_mark(sieve, j);
         }
     }
-    putchar('\n');
+    DB_TRACE(2, "\n");
     return sieve;
 }
 
@@ -146,9 +171,35 @@ int main(int argc, char **argv)
     err_setarg0(argv[0]);
 
     uint64_t max = MAX_PRIME;
+    int opt;
 
-    if (argc > 1)
-        max = strtoull(argv[1], 0, 0);
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'd':
+            db_setdebug(atoi(optarg));
+            break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'V':
+            err_version("ERATOSTHENES-6", &"@(#)$Revision$ ($Date$)"[4]);
+            /*NOTREACHED*/
+        case 'u':
+            max = strtoull(optarg, 0, 0);
+            break;
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
+
+    if (argc > optind + 1)
+        err_usage(usestr);
+    else if (argc == optind + 1)
+        max = strtoull(argv[optind], 0, 0);
+
     if (max > MAX_PRIME)
     {
         max = MAX_PRIME;
@@ -156,7 +207,7 @@ int main(int argc, char **argv)
     }
 
     uint64_t sqrt_max = isqrt_64(max);
-    printf("Max %" PRIu64 "; Sqrt %" PRIu64 "\n", max, sqrt_max);
+    DB_TRACE(1, "Max %" PRIu64 "; Sqrt %" PRIu64 "\n", max, sqrt_max);
 
     uint64_t *sieve = basic_sieve(sqrt_max);
 
@@ -166,85 +217,98 @@ int main(int argc, char **argv)
     ** Zero all the values.  Mark the non-primes.  Then deal with the primes.
     */
     enum { MAX_CHUNK = 10000 };  // Chunk size is somewhat arbitrary, but less than MAX_PRIME
+    enum { MIN_CHUNK = 100 };    // Too small and it makes no sense to segment
 
     struct prime_info info = { .sum = 0, .count = 0 };
-    apply(2, &info);            // 2 is prime
-    apply(3, &info);            // 3 is prime
+    if (max >= 2)
+        apply(2, &info);            // 2 is prime
+    if (max >= 3)
+        apply(3, &info);            // 3 is prime
 
     uint64_t csize = min_u64(MAX_CHUNK, (max + 3) / 4);
+    if (max < MIN_CHUNK)
+    {
+        DB_TRACE(1, "Maximum number less than %d: just one chunk\n", MIN_CHUNK);
+        csize = MIN_CHUNK;
+    }
+
     if ((csize & 1) == 1)
         csize++;
     size_t   rsize = (csize + (64*2 - 1)) / (64 * 2);
     size_t   msize = rsize * sizeof(uint64_t);
     uint64_t *range = malloc(msize);
-    printf("csize %" PRIu64 ", rsize = %zu, msize = %zu\n", csize, rsize, msize);
+    DB_TRACE(1, "csize %" PRIu64 ", rsize = %zu, msize = %zu\n", csize, rsize, msize);
 
-    for (uint64_t base = 0; base < max; base += csize)
+    for (uint64_t base = 0; base <= max; base += csize)
     {
         uint64_t limit = min_u64(base + csize, max);
-        printf("Range: %" PRIu64 "-%" PRIu64 "\n", base, limit);
+        DB_TRACE(1, "Range: %" PRIu64 "-%" PRIu64 "\n", base, limit);
         /* Zero all the values */
         memset(range, '\0', msize);
 
         /* Mark the non-primes */
         /* Mark multiples of 3 as non-prime */
-        //printf("M 3\n");
+        DB_TRACE(2, "M 3\n");
         for (uint64_t begin = first_odd_multiple_in_range(base, 3); begin < limit; begin += 2 * 3)
             set_range_mark(range, base, begin);
 
         /* Mark multiples of bigger primes as non-prime */
-        for (uint64_t i = 6; i <= sqrt_max; i += 6)
+        for (uint64_t i = 6; (i - 1) <= sqrt_max; i += 6)
         {
-            //printf("T %" PRIu64 "\n", i-1);
+            DB_TRACE(2, "T %" PRIu64 "\n", i-1);
             if (is_marked(sieve, i - 1))
-                //printf("M %" PRIu64 "\n", i-1),
+            {
+                DB_TRACE(2, "M %" PRIu64 "\n", i-1);
                 mark_odd_multiples(range, base, limit, i - 1);
-            //printf("T %" PRIu64 "\n", i+1);
+            }
+            DB_TRACE(2, "T %" PRIu64 "\n", i+1);
             if ((i + 1) <= sqrt_max && is_marked(sieve, i + 1))
-                //printf("M %" PRIu64 "\n", i+1),
+            {
+                DB_TRACE(2, "M %" PRIu64 "\n", i+1);
                 mark_odd_multiples(range, base, limit, i + 1);
+            }
         }
-        printf("F\n");
+        DB_TRACE(2, "F\n");
 
         /* Process the primes */
         uint64_t i = first_multiple_in_range(base, 6);
         if (i == base)
         {
-            printf("I %" PRIu64, i);
-            if (!is_range_marked(range, base, i + 1) == 0)
+            DB_TRACE(2, "I1 = %" PRIu64, i);
+            if ((i + 1) <= limit &&!is_range_marked(range, base, i + 1) == 0)
             {
                 apply(i + 1, &info);
-                printf(" P %" PRIu64, i + 1);
+                DB_TRACE(2, " P %" PRIu64, i + 1);
             }
-            putchar('\n');
+            DB_TRACE(2, "\n");
             i += 6;
         }
 
-        for ( ; i < limit; i += 6)
+        for ( ; (i - 1) <= limit; i += 6)
         {
-            printf("I %" PRIu64, i);
+            DB_TRACE(2, "I2 = %" PRIu64, i);
             if (!is_range_marked(range, base, i - 1) == 0)
             {
                 apply(i - 1, &info);
-                printf(" P %" PRIu64, i - 1);
+                DB_TRACE(2, " P %" PRIu64, i - 1);
             }
-            if (!is_range_marked(range, base, i + 1) == 0)
+            if ((i + 1) <= limit && !is_range_marked(range, base, i + 1) == 0)
             {
                 apply(i + 1, &info);
-                printf(" P %" PRIu64, i + 1);
+                DB_TRACE(2, " P %" PRIu64, i + 1);
             }
-            putchar('\n');
+            DB_TRACE(2, "\n");
         }
 
         if (i == limit)
         {
-            printf("I %" PRIu64, i);
+            DB_TRACE(2, "I3 = %" PRIu64, i);
             if (!is_range_marked(range, base, i - 1) == 0)
             {
                 apply(i - 1, &info);
-                printf(" P %" PRIu64, i - 1);
+                DB_TRACE(2, " P %" PRIu64, i - 1);
             }
-            putchar('\n');
+            DB_TRACE(2, "\n");
         }
     }
 
