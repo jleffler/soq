@@ -1,3 +1,5 @@
+/* Sieve of Eratosthenes */
+/* 64-bits per flag - multiples of 6, +/- 1 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -24,8 +26,8 @@ int main(int argc, char **argv)
 {
     int i;
     int max = MAX_PRIME;
-    uint64_t sum = 5;
-    uint64_t cnt = 2;
+    uint64_t sum = 0;
+    uint64_t cnt = 0;
 
     if (argc > 1)
         max = atoi(argv[1]);
@@ -34,46 +36,57 @@ int main(int argc, char **argv)
         max = MAX_PRIME;
         printf("Reset max to %d\n", max);
     }
-
-    //printf("2\n");
-    //printf("3\n");
-    for (int j = 3 * (3); j < max; j += 2 * (3))
-        set_mark(j / 2);
-    int sqrt_max = sqrt(max);
-
-    for (i = 6; i <= sqrt_max; i += 6)
+    if (max >= 2)
     {
-        if (!is_marked((i - 1) / 2) == 0)
-        {
-            sum += i - 1;
-            cnt++;
-            //printf("%d\n", i - 1);
-            for (int j = 3 * (i - 1); j < max; j += 2 * (i - 1))
-                set_mark(j / 2);
-        }
-        if (!is_marked((i + 1) / 2) == 0)
-        {
-            sum += i + 1;
-            cnt++;
-            //printf("%d\n", i + 1);
-            for (int j = 3 * (i + 1); j < max; j += 2 * (i + 1))
-                set_mark(j / 2);
-        }
-    }
 
-    for ( ; i < max; i += 6)
-    {
-        if (!is_marked((i - 1) / 2) == 0)
+        sum = 2;
+        cnt = 1;
+        printf("2\n");
+
+        if (max >= 3)
         {
-            sum += i - 1;
+            printf("3\n");
+            sum += 3;
             cnt++;
-            //printf("%d\n", i - 1);
         }
-        if (!is_marked((i + 1) / 2) == 0)
+        for (int j = 3 * (3); j <= max; j += 2 * (3))
+            set_mark(j / 2);
+        int sqrt_max = sqrt(max);
+
+        for (i = 6; (i - 1) <= sqrt_max; i += 6)
         {
-            sum += i + 1;
-            cnt++;
-            //printf("%d\n", i + 1);
+            if (!is_marked((i - 1) / 2) == 0)
+            {
+                sum += i - 1;
+                cnt++;
+                printf("%d\n", i - 1);
+                for (int j = 3 * (i - 1); j <= max; j += 2 * (i - 1))
+                    set_mark(j / 2);
+            }
+            if (!is_marked((i + 1) / 2) == 0)
+            {
+                sum += i + 1;
+                cnt++;
+                printf("%d\n", i + 1);
+                for (int j = 3 * (i + 1); j <= max; j += 2 * (i + 1))
+                    set_mark(j / 2);
+            }
+        }
+
+        for ( ; (i - 1) <= max; i += 6)
+        {
+            if (!is_marked((i - 1) / 2) == 0)
+            {
+                sum += i - 1;
+                cnt++;
+                printf("%d\n", i - 1);
+            }
+            if ((i + 1) <= max && !is_marked((i + 1) / 2) == 0)
+            {
+                sum += i + 1;
+                cnt++;
+                printf("%d\n", i + 1);
+            }
         }
     }
 
