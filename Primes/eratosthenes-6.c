@@ -49,7 +49,8 @@ static const char hlpstr[] =
     "  -V        Print version information and exit\n"
     ;
 
-#define MAX_PRIME 1000000ULL
+//#define MAX_PRIME 1000_000_000_000ULL
+#define MAX_PRIME (1000000ULL * 1000000ULL)
 
 static uint64_t min_u64(uint64_t x, uint64_t y) { return (x < y) ? x : y; }
 
@@ -213,11 +214,12 @@ int main(int argc, char **argv)
 
     /*
     ** Basic set of primes up to (square root of maximum)  + 1 established.
-    ** Now, for convenient sized chunks between that and the actual maximum:
+    ** Now, for convenient sized segment between that and the actual maximum:
     ** Zero all the values.  Mark the non-primes.  Then deal with the primes.
     */
-    enum { MAX_CHUNK = 10000 };  // Chunk size is somewhat arbitrary, but less than MAX_PRIME
-    enum { MIN_CHUNK = 100 };    // Too small and it makes no sense to segment
+    enum { MAX_SEGMENT = 10000000 };  // Segment size is arbitrary, but less than MAX_PRIME
+    enum { MIN_SEGMENT = 10000 };     // Too small and it makes no sense to segment
+    /* NB: make sure that testing works both above and below MIN_SEGMENT */
 
     struct prime_info info = { .sum = 0, .count = 0 };
     if (max >= 2)
@@ -225,11 +227,11 @@ int main(int argc, char **argv)
     if (max >= 3)
         apply(3, &info);            // 3 is prime
 
-    uint64_t csize = min_u64(MAX_CHUNK, (max + 3) / 4);
-    if (max < MIN_CHUNK)
+    uint64_t csize = min_u64(MAX_SEGMENT, (max + 3) / 4);
+    if (max < MIN_SEGMENT)
     {
-        DB_TRACE(1, "Maximum number less than %d: just one chunk\n", MIN_CHUNK);
-        csize = MIN_CHUNK;
+        DB_TRACE(1, "Maximum number less than %d: just one segment\n", MIN_SEGMENT);
+        csize = MIN_SEGMENT;
     }
 
     if ((csize & 1) == 1)
