@@ -19,9 +19,15 @@
 ** Currently, this is mostly a piece of spaghetti.
 */
 
-#include "debug.h"
+//#include "debug.h"
+#define WRAPPED_HEADER "debug.h"
+#include "wraphead.h"
+
+#define WRAPPED_HEADER "stderr.h"
+#include "wraphead.h"
+//#include "stderr.h"
+
 #include "isqrt.h"
-#include "stderr.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <math.h>
@@ -123,7 +129,7 @@ static void mark_odd_multiples(uint64_t *range, uint64_t base, uint64_t limit, u
 static uint64_t *basic_sieve(uint64_t sqrt_max)
 {
     size_t    space = (sqrt_max + 127) / 128;
-    uint64_t *sieve = calloc(space, sizeof(uint64_t));
+    uint64_t *sieve = (uint64_t *)calloc(space, sizeof(uint64_t));  /*=C++=*/
 
     if (sieve == 0)
     {
@@ -157,13 +163,19 @@ static uint64_t *basic_sieve(uint64_t sqrt_max)
 
 struct prime_info
 {
-    uint64_t    sum;
+    uint64_t    sum0;
+    uint64_t    sum1;
     uint64_t    count;
 };
 
 static void apply(uint64_t prime, struct prime_info *data)
 {
-    data->sum += prime;
+    if (UINT64_MAX - data->sum0 < prime)
+    {
+        data->sum1++;
+        data->sum0 = prime - (UINT64_MAX - data->sum0);
+    }
+    data->sum0 += prime;
     data->count++;
 }
 
@@ -221,7 +233,7 @@ int main(int argc, char **argv)
     enum { MIN_SEGMENT = 10000 };     // Too small and it makes no sense to segment
     /* NB: make sure that testing works both above and below MIN_SEGMENT */
 
-    struct prime_info info = { .sum = 0, .count = 0 };
+    struct prime_info info = { .sum0 = 0, .sum1 = 0, .count = 0 };
     if (max >= 2)
         apply(2, &info);            // 2 is prime
     if (max >= 3)
@@ -238,7 +250,7 @@ int main(int argc, char **argv)
         csize++;
     size_t   rsize = (csize + (64*2 - 1)) / (64 * 2);
     size_t   msize = rsize * sizeof(uint64_t);
-    uint64_t *range = malloc(msize);
+    uint64_t *range = (uint64_t *)malloc(msize);    /*=C++=*/
     DB_TRACE(1, "csize %" PRIu64 ", rsize = %zu, msize = %zu\n", csize, rsize, msize);
 
     for (uint64_t base = 0; base <= max; base += csize)
@@ -314,7 +326,9 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("Sum   of primes to %" PRIu64 " = %" PRIu64 "\n", max, info.sum);
+    if (info.sum1 > 0)
+        printf("High order value of sum: %" PRIu64 "\n", info.sum1);
+    printf("Sum   of primes to %" PRIu64 " = %" PRIu64 "\n", max, info.sum0);
     printf("Count of primes to %" PRIu64 " = %" PRIu64 "\n", max, info.count);
 
     free(range);

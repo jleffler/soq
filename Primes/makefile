@@ -43,7 +43,10 @@ C_CXX_DUAL_PROGRAMS = \
 	eratosthenes-2 \
 	eratosthenes-3 \
 	eratosthenes-4 \
-	eratosthenes-5
+	eratosthenes-5 \
+	eratosthenes-6
+
+C_CXX_PROGRAMS = ${C_CXX_DUAL_PROGRAMS:=-cxx}
 
 PROGRAMS = \
 	${CXX_ONLY_PROGRAMS} \
@@ -53,7 +56,18 @@ all: ${PROGRAMS}
 
 cxx_only:	${CXX_ONLY_PROGRAMS}
 dual:		${C_CXX_DUAL_PROGRAMS}
+dual_cxx:	${C_CXX_PROGRAMS}
+
+C_CXX_SOURCE = ${C_CXX_PROGRAMS:=.cpp}
+
+LN_S = ln -s
+RM_F = rm -f
+
+${C_CXX_SOURCE}: ${@:-cxx.cpp=.c}
+	${LN_S} ${@:-cxx.cpp=.c} $@
 
 clean:
 	${RM_FR} *.o *.dSYM core a.out
-	${RM_FR} ${PROGRAMS}
+	${RM_F} ${PROGRAMS}
+	${RM_F} ${C_CXX_PROGRAMS}
+	${RM_F} ${C_CXX_SOURCE}
