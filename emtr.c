@@ -38,7 +38,7 @@ static char *strtok_f(char *str, char const *delims, char **ptr)
 /* Raw test of splitter functions */
 static void parsePostData1(const char *s, const char *t, Splitter splitter)
 {
-    static char tCpy[512];
+    char tCpy[512];
     strcpy(tCpy, t);
     char *ptr;
     char *pch = splitter(tCpy, "=&", &ptr);
@@ -54,7 +54,7 @@ static void parsePostData1(const char *s, const char *t, Splitter splitter)
 /* Fixed version of parsePostData() from SO 30294129 */
 static char *parsePostData2(const char *s, const char *t, Splitter splitter)
 {
-    static char tCpy[512];
+    char tCpy[512];
     strcpy(tCpy, t);
     char *ptr;
     char *pch = splitter(tCpy, "=&", &ptr);

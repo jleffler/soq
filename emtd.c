@@ -70,7 +70,7 @@ static char *strtok_dm(char *str, char const *delims, char **ptr, char *sep)
 /* Raw test of splitter functions */
 static void parsePostData1(const char *s, const char *t, Splitter splitter)
 {
-    static char tCpy[512];
+    char tCpy[512];
     strcpy(tCpy, t);
     printf("Source: [[%s]]\n", t);
     char *ptr;
@@ -88,7 +88,7 @@ static void parsePostData1(const char *s, const char *t, Splitter splitter)
 /* Fixed version of parsePostData() from SO 30294129 */
 static char *parsePostData2(const char *s, const char *t, Splitter splitter)
 {
-    static char tCpy[512];
+    char tCpy[512];
     strcpy(tCpy, t);
     printf("Source: [[%s]]\n", t);
     char *ptr;
