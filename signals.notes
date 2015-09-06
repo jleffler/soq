@@ -4,6 +4,12 @@ Notes on Signal Management Functions
 POSIX has a plethora of signal-related functions.
 
 [`sigaction()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaction.html)
+
+sigaction(signum, NULL, &oact) returns current action for signal.
+sigaction(signum, &nact, NULL) sets new signal handling.
+sigaction(signum, &nact, &oact) sets and returns.
+
+
 [`sigpending()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigpending.html)
 [`pthread_sigmask()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_sigmask.html)
 [`sigprocmask()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigprocmask.html)
