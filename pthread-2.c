@@ -24,7 +24,6 @@ static void err_error(const char *fmt, ...)
     pthread_exit(0);
 }
 
-
 typedef struct {
     pthread_mutex_t mutex;
     sem_t full;

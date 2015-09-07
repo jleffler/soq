@@ -142,10 +142,10 @@ static void test_ops(void)
 
     if (s1 == 0 || s2 == 0 || s3  == 0)
         err_syserr("Out of memory\n");
-    
+
     load_set(s1, 1, 3, 4, 6);
     dump_set("S1", s1);
-    
+
     load_set(s2, 2, 5, 7, 9);
     dump_set("S2", s2);
 

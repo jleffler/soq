@@ -50,7 +50,7 @@ static B_t compute_B(void)
         if (b == result.f)
         {
             b = result.f - 1;
-            assert (b != result.f);
+            assert(b != result.f);
             return result;
         }
         result.f *= 2;

@@ -76,7 +76,7 @@ static void worker(int id)
         err_error("failed to open FIFO %s for read & write", PIPE_NAME);
     print("Worker %d: fd %d\n", id, fd);
 
-    for (j = 0 ; j < M; j++)
+    for (j = 0; j < M; j++)
     {
         int nmarker;
         print("waiting for %d\n", id);
@@ -84,7 +84,7 @@ static void worker(int id)
         if (read(fd, &nmarker, sizeof(int)) != sizeof(int))
             err_error("short read from FIFO");
         print("Got %d from FIFO\n", nmarker);
-        nmarker = nmarker + 1 ;
+        nmarker = nmarker + 1;
         if (write(fd, &nmarker, sizeof(nmarker)) != sizeof(nmarker))
             err_error("short write to FIFO");
         print("Wrote %d to FIFO\n", nmarker);
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
     }
 
     print("Master: about to loop\n");
-    for (i = 0 ; i < (M*N); i++)
+    for (i = 0; i < (M*N); i++)
     {
         print("posting to %d\n", i%N);
         semPost(semid, i%N);

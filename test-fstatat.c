@@ -49,7 +49,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "fstatat(\"%s\") failed (%d: %s)\n",
                         dirp->d_name, errno, strerror(errno));
                 continue;
-            }   
+            }
             printf("%-20s %s\n", "File name:", dirp->d_name);
         }
         closedir(dp);

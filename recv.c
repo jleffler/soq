@@ -23,7 +23,7 @@ static void receiveFile(int sock, int port, const char *filename)
         struct sockaddr_storage addr;
         struct sockaddr_in *client_addr = (struct sockaddr_in *)&addr;
         memset(recvData, 0, sizeof(recvData));
-        socklen_t addr_len = sizeof (struct sockaddr_storage);
+        socklen_t addr_len = sizeof(struct sockaddr_storage);
         int bytesRead = recvfrom(sock, recvData, sizeof(recvData), 0,
                 (struct sockaddr *) &client_addr, &addr_len);
         if (bytesRead < 0)

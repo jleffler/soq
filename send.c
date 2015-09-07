@@ -58,7 +58,7 @@ static void sendFile(int sock, const char *filename, const char *address, int po
         server_addr.sin_addr = *((struct in_addr *) recvr->h_addr_list[0]);
         bzero(&(server_addr.sin_zero), 8);
 
-        if(DEBUG) {
+        if (DEBUG) {
             char tempData[1201];
             strncpy(tempData, sendData, 1200);
             tempData[1200] ='\0';
@@ -66,7 +66,7 @@ static void sendFile(int sock, const char *filename, const char *address, int po
         }
 
         if (sendto(sock, sendData, dataSize, 0,
-                (struct sockaddr *) &server_addr, sizeof (struct sockaddr)) < 0)
+                (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0)
             err_syserr("Failed to send %d bytes\n", dataSize);
         dataSize = 0;
     }

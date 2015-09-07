@@ -19,12 +19,12 @@ void list_compact(int *arr, size_t cnt)
     }
     if (pos == cnt) return;
 
-    for(dst= pos; ++pos < cnt; ) {
+    for (dst= pos; ++pos < cnt; ) {
         /* Skip blanks; find start of filled area */
         if ( !arr[pos] ) continue;
 
         /* Find end of filled area */
-        for(src = pos; ++pos < cnt; ) {
+        for (src = pos; ++pos < cnt; ) {
             if ( !arr[pos] ) break;
         }
         if (pos > src) {
@@ -68,7 +68,7 @@ void shufflezeroes(int *list, size_t n)
             break;
         memmove(&(list[i]), &(list[j]), sizeof(int) * (z - j));
         size_t s = z - j + i;
-        for(j = s; j < z; ++j)
+        for (j = s; j < z; ++j)
             list[j] = 0;
         i = s - 1;
     }
@@ -76,14 +76,14 @@ void shufflezeroes(int *list, size_t n)
 
 static int nextZero(int* list, size_t start, size_t n){
    size_t i = start;
-   while(i < n && list[i])
+   while (i < n && list[i])
         i++;
    return i;
 }
 
 static int nextNonZero(int* list, size_t start, size_t n){
    size_t i = start;
-   while(i < n && !list[i])
+   while (i < n && !list[i])
         i++;
    return i;
 }
@@ -91,10 +91,10 @@ static int nextNonZero(int* list, size_t start, size_t n){
 void pushbackzeros(int* list, size_t n){
     size_t i = 0;
     size_t j = 0;
-    while(i < n && j < n){
+    while (i < n && j < n){
          i = nextZero(list,i, n);
          j = nextNonZero(list,i, n);
-         if(i >= n || j >=n)
+         if (i >= n || j >=n)
              return;
          list[i] = list[j];
          list[j] = 0;
@@ -105,10 +105,10 @@ void pushbackzeros(int* list, size_t n){
 void pushbackzeros2(int* list, size_t n){
     size_t i = 0;
     size_t j = 0;
-    while(i < n && j < n){
+    while (i < n && j < n){
          i = nextZero(list, i, n);
          j = nextNonZero(list, MAX(i,j), n);
-         if(i >= n || j >=n)
+         if (i >= n || j >=n)
              return;
          list[i] = list[j];
          list[j] = 0;

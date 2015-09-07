@@ -9,7 +9,6 @@
 #define NUM_CHAR 1024
 #define BUFFER_SIZE 8
 
-
 typedef struct {
     pthread_mutex_t mutex;
     sem_t full;

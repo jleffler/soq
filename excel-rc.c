@@ -87,7 +87,6 @@ int main(void)
     else
         printf("!! FAIL !! %d out of %d failed\n", (NUM_TESTS - pass), NUM_TESTS);
 
-
     return (pass == NUM_TESTS) ? 0 : 1;
 }
 
