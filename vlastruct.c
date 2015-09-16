@@ -55,12 +55,12 @@ static void mat_free(Matrix *m)
 static double variant1(int nr, int nc, int r, int c)
 {
     assert(nr != 0);
-    return (r * (nc + 1)) + c + 1;
+    return (r * nc) + c + 1;
 }
 
 static double variant2(int nr, int nc, int r, int c)
 {
-    return ((nr - r) * (nc + 1)) + (nc - c) + 1;
+    return ((nr - r) * nc) + (nc - c) + 1;
 }
 
 typedef double (*Initializer)(int nr, int nc, int r, int c);
@@ -68,14 +68,17 @@ typedef double (*Initializer)(int nr, int nc, int r, int c);
 static void mat_init(Matrix *m, Initializer init)
 {
     assert(m != 0 && m->nr > 0 && m->nc > 0 && m->data != 0);
+    printf("Set: [%dx%d]\n", m->nr, m->nc);
     for (int i = 0; i < m->nr; i++)
     {
+        printf("[%d]:", i);
         for (int j = 0; j < m->nc; j++)
         {
             double v = init(m->nr, m->nc, i, j);
             set(m, i, j, v);
-            printf("Set: [%d,%d] = %4.1f\n", i, j, v);
+            printf(" %6.1f", v);
         }
+        putchar('\n');
     }
 }
 
@@ -94,10 +97,12 @@ static void mat_dump(const char *tag, Matrix *m)
 {
     assert(m != 0 && m->nr > 0 && m->nc > 0 && m->data != 0);
     printf("Matrix %s: %dx%d\n", tag, m->nr, m->nc);
-    for (int j = 0; j < m->nc; j++)
+    for (int i = 0; i < m->nr; i++)
     {
-        for (int i = 0; i < m->nr; i++)
-            printf("Get: [%d,%d] = %4.1f\n", i, j, get(m, i, j));
+        printf("[%d]:", i);
+        for (int j = 0; j < m->nc; j++)
+            printf(" %6.1f", get(m, i, j));
+        putchar('\n');
     }
 }
 
