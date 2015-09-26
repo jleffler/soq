@@ -1,3 +1,6 @@
+# To suppress JL-specific options:
+# LDLIBS= LDFLAGS= IFLAGS=
+
 CC     = gcc #/usr/bin/gcc
 RM_FR  = rm -fr --
 WFLAG1 = -Wall
@@ -27,8 +30,9 @@ GXXFLAGS = -g
 
 LDFLAG1 = -L${HOME}/lib/64
 LDLIB1  = -ljl
+LDLIB2  = #-lcs50
 LDFLAGS = ${LDFLAG1}
-LDLIBS  = ${LDLIB1}
+LDLIBS  = ${LDLIB1} ${LDLIB2}
 
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
