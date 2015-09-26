@@ -1,6 +1,8 @@
 #ifndef RATIONAL_H_INCLUDED
 #define RATIONAL_H_INCLUDED
 
+#include <stddef.h>     // size_t
+
 typedef struct RationalInt
 {
     int     numerator;
@@ -8,17 +10,37 @@ typedef struct RationalInt
 } RationalInt;
 
 extern RationalInt ri_new(int numerator, int denominator);
-extern RationalInt ri_add(RationalInt v1, RationalInt v2);
-extern RationalInt ri_sub(RationalInt v1, RationalInt v2);
-extern RationalInt ri_mul(RationalInt v1, RationalInt v2);
-extern RationalInt ri_div(RationalInt v1, RationalInt v2);
+extern RationalInt ri_add(RationalInt lhs, RationalInt rhs);
+extern RationalInt ri_sub(RationalInt lhs, RationalInt rhs);
+extern RationalInt ri_mul(RationalInt lhs, RationalInt rhs);
+extern RationalInt ri_div(RationalInt lhs, RationalInt rhs);
+extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
+extern int ri_cmp(RationalInt lhs, RationalInt rhs);
 
 #endif /* RATIONAL_H_INCLUDED */
 
-#include "gcd.h"
+/*
+** Storage rules:
+** 1. Denominator is never zero.
+** 2. Denominator stores the sign and is not INT_MIN (2's complement assumed).
+** 3. Numerator is never negative.
+** 4. gcd(numerator, denominator) == 1 unless numerator == 0.
+*/
+
+#include "gcd.h"        // add gcd_ll?
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
+
+static inline int iabs(int x) { return (x < 0) ? -x : x; }
+static inline int signum(int x) { return (x > 0) ? +1 : (x < 0) ? -1 : 0; }
+
+static void ri_chk(RationalInt val)
+{
+    assert(val.denominator != 0 && val.denominator != INT_MIN);
+    assert(val.numerator >= 0);
+    assert(val.numerator == 0 || gcd(iabs(val.numerator), iabs(val.denominator)) == 1);
+}
 
 static long long gcd_ll(long long x, long long y)
 {
@@ -46,18 +68,22 @@ RationalInt ri_new(int numerator, int denominator)
     }
     else
     {
-        int dv = gcd(numerator, denominator);
-        assert(numerator == 0 || dv != 0);
-        ri.numerator = numerator / dv;
-        ri.denominator = denominator / dv;
+        int sign = 1 - 2 * ((numerator < 0 && denominator > 0) || (numerator > 0 && denominator < 0));
+        assert(sign == +1 || sign == -1);
+        int dv = gcd(iabs(numerator), iabs(denominator));
+        assert(dv != 0);
+        ri.numerator = iabs(numerator) / dv;
+        ri.denominator = sign * iabs(denominator) / dv;
     }
     return ri;
 }
 
-RationalInt ri_add(RationalInt v1, RationalInt v2)
+RationalInt ri_add(RationalInt lhs, RationalInt rhs)
 {
-    long long rn = v1.numerator * v2.denominator + v2.numerator * v1.denominator;
-    long long rd = v1.denominator * v2.denominator;
+    long long rn = lhs.numerator * rhs.denominator + rhs.numerator * lhs.denominator;
+    if (rn == 0)
+        return ri_new(0, 1);
+    long long rd = lhs.denominator * rhs.denominator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -66,10 +92,12 @@ RationalInt ri_add(RationalInt v1, RationalInt v2)
     return ri_new(nr, dr);
 }
 
-RationalInt ri_sub(RationalInt v1, RationalInt v2)
+RationalInt ri_sub(RationalInt lhs, RationalInt rhs)
 {
-    long long rn = v1.numerator * v2.denominator - v2.numerator * v1.denominator;
-    long long rd = v1.denominator * v2.denominator;
+    long long rn = lhs.numerator * rhs.denominator - rhs.numerator * lhs.denominator;
+    if (rn == 0)
+        return ri_new(0, 1);
+    long long rd = lhs.denominator * rhs.denominator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -78,10 +106,12 @@ RationalInt ri_sub(RationalInt v1, RationalInt v2)
     return ri_new(nr, dr);
 }
 
-RationalInt ri_mul(RationalInt v1, RationalInt v2)
+RationalInt ri_mul(RationalInt lhs, RationalInt rhs)
 {
-    long long rn = v1.numerator * v2.numerator;
-    long long rd = v1.denominator * v2.denominator;
+    long long rn = lhs.numerator * rhs.numerator;
+    if (rn == 0)
+        return ri_new(0, 1);
+    long long rd = lhs.denominator * rhs.denominator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -90,17 +120,56 @@ RationalInt ri_mul(RationalInt v1, RationalInt v2)
     return ri_new(nr, dr);
 }
 
-RationalInt ri_div(RationalInt v1, RationalInt v2)
+RationalInt ri_div(RationalInt lhs, RationalInt rhs)
 {
-    assert(v2.numerator != 0);
-    long long rn = v1.numerator * v2.denominator;
-    long long rd = v1.denominator * v2.numerator;
+    assert(rhs.numerator != 0);
+    if (lhs.numerator == 0)
+        return ri_new(0, 1);
+    long long rn = lhs.numerator * rhs.denominator;
+    long long rd = lhs.denominator * rhs.numerator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
     assert(nr <= INT_MAX && nr >= INT_MIN);
     assert(dr <= INT_MAX && dr >= INT_MIN);
     return ri_new(nr, dr);
+}
+
+char *ri_fmt(RationalInt val, char *buffer, size_t buflen)
+{
+    assert(buflen > 0 && buffer != 0);
+    ri_chk(val);
+    if (buflen > 0 && buffer != 0)
+    {
+        char sign = (val.denominator < 0) ? '-' : '+';
+        int len = snprintf(buffer, buflen, "[%c%d/%d]",
+                           sign, iabs(val.numerator), iabs(val.denominator));
+        if (len < 5 || (size_t)len >= buflen)  // 5 = strlen("[1/1]")
+            *buffer = '\0';
+    }
+    return buffer;
+}
+
+int ri_cmp(RationalInt lhs, RationalInt rhs)
+{
+    if (lhs.denominator == rhs.denominator &&
+        lhs.numerator == rhs.numerator)
+        return 0;
+    if (signum(lhs.denominator) != signum(rhs.denominator))
+    {
+        /* Different signs - but one could be zero */
+        if (signum(lhs.denominator) < signum(rhs.denominator))
+            return -1;
+        else
+            return +1;
+    }
+    long long v1 = lhs.numerator * iabs(rhs.denominator);
+    long long v2 = rhs.numerator * iabs(lhs.denominator);
+    assert(v1 != v2);
+    if (v1 < v2)
+        return -1;
+    else
+        return +1;
 }
 
 #define TEST    // Temporary
@@ -115,35 +184,122 @@ typedef struct p1_test_case
 {
     int i_num;
     int i_den;
-    int o_num;
-    int o_den;
+    RationalInt res;
 } p1_test_case;
 
 static const p1_test_case p1_tests[] =
 {
-    { .i_num =  1, .i_den =  1, .o_num =  1, .o_den =  1 },
-    { .i_num =  0, .i_den =  1, .o_num =  0, .o_den =  1 },
-    { .i_num =  2, .i_den =  2, .o_num =  1, .o_den =  1 },
-    { .i_num =  1, .i_den =  2, .o_num =  1, .o_den =  2 },
-    { .i_num = 15, .i_den =  3, .o_num =  5, .o_den =  1 },
-    { .i_num = 28, .i_den =  6, .o_num = 14, .o_den =  3 },
-    { .i_num =  6, .i_den = 28, .o_num =  3, .o_den = 14 },
+    { .i_num =  1, .i_den =  1, .res = {  1,   1 } },
+    { .i_num =  0, .i_den =  1, .res = {  0,   1 } },
+    { .i_num =  2, .i_den =  2, .res = {  1,   1 } },
+    { .i_num =  1, .i_den =  2, .res = {  1,   2 } },
+    { .i_num = 15, .i_den =  3, .res = {  5,   1 } },
+    { .i_num = 28, .i_den =  6, .res = { 14,   3 } },
+    { .i_num =  6, .i_den = 28, .res = {  3,  14 } },
+    { .i_num = +6, .i_den = +8, .res = {  3,  +4 } },
+    { .i_num = +6, .i_den = -8, .res = {  3,  -4 } },
+    { .i_num = -6, .i_den = +8, .res = {  3,  -4 } },
+    { .i_num = -6, .i_den = -8, .res = {  3,  +4 } },
 };
 
 static void p1_tester(const void *data)
 {
     const p1_test_case *test = (const p1_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
 
     RationalInt ri = ri_new(test->i_num, test->i_den);
 
-    if (ri.denominator != test->o_den ||
-        ri.numerator != test->o_num)
-        pt_fail("ri_new(%d, %d) - unexpected result [%d/%d] (instead of [%d/%d])\n",
-                test->i_num, test->i_den, ri.numerator, ri.denominator,
-                test->o_num, test->o_den);
+    if (ri.denominator != test->res.denominator ||
+        ri.numerator != test->res.numerator)
+        pt_fail("ri_new(%d, %d) - unexpected result %s (instead of %s)\n",
+                test->i_num, test->i_den, ri_fmt(ri, buffer1, sizeof(buffer1)),
+                ri_fmt(test->res, buffer2, sizeof(buffer2)));
     else
-        pt_pass("ri_new(%d, %d) - [%d/%d]\n",
-                test->i_num, test->i_den, test->o_num, test->o_den);
+        pt_pass("ri_new(%d, %d) - %s\n", test->i_num, test->i_den,
+                ri_fmt(test->res, buffer2, sizeof(buffer2)));
+}
+
+/* -- PHASE 2 TESTING -- */
+
+/* -- ri_cmp -- */
+typedef struct p2_test_case
+{
+    RationalInt lhs;
+    RationalInt rhs;
+    int         res;
+} p2_test_case;
+
+static const p2_test_case p2_tests[] =
+{
+    { {  0,  +1 }, {  0,  +1 },  0 },
+    { {  1,  +1 }, {  0,  +1 }, +1 },
+    { {  0,  +1 }, {  1,  +1 }, -1 },
+    { {  0,  +1 }, {  1,  -1 }, +1 },
+    { {  1,  -1 }, {  1,  +1 }, -1 },
+    { {  1,  +1 }, {  1,  -1 }, +1 },
+    { {  9, +10 }, {  1,  +1 }, -1 },
+    { { 11, +10 }, {  1,  +1 }, +1 },
+    { {  9, +10 }, { 19, +20 }, -1 },
+    { {  9, +10 }, { 17, +20 }, +1 },
+};
+
+static void p2_tester(const void *data)
+{
+    const p2_test_case *test = (const p2_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+
+    int rc = ri_cmp(test->lhs, test->rhs);
+    if (rc != test->res)
+        pt_fail("unexpected result (%s <=> %s) gave %+d instead of %+d\n",
+                 ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                 ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                 rc, test->res);
+    else
+        pt_pass("(%s <=> %s) = %+d\n",
+                 ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                 ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                 test->res);
+}
+
+/* -- PHASE 3 TESTING -- */
+
+/* -- ri_add -- */
+typedef struct p3_test_case
+{
+    RationalInt lhs;
+    RationalInt rhs;
+    RationalInt res;
+} p3_test_case;
+
+static const p3_test_case p3_tests[] =
+{
+    { { 0, 1 }, { 0, 1 }, { 0, 1 } },
+};
+
+static void p3_tester(const void *data)
+{
+    const p3_test_case *test = (const p3_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    char buffer3[32];
+    char buffer4[32];
+
+    RationalInt res = ri_add(test->lhs, test->rhs);
+    int rc = ri_cmp(test->res, res);
+    if (rc != 0)
+        pt_fail("unexpected result for %s + %s (%s vs %s: %d)\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->lhs, buffer2, sizeof(buffer2)),
+                ri_fmt(test->lhs, buffer3, sizeof(buffer3)),
+                ri_fmt(test->lhs, buffer4, sizeof(buffer4)),
+                rc);
+    else
+        pt_pass("%s + %s = %s\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->lhs, buffer2, sizeof(buffer2)),
+                ri_fmt(test->lhs, buffer3, sizeof(buffer3)));
 }
 
 /* -- Phased Test Infrastructure -- */
@@ -151,6 +307,8 @@ static void p1_tester(const void *data)
 static pt_auto_phase phases[] =
 {
     { p1_tester, PT_ARRAYINFO(p1_tests), 0, "ri_new" },
+    { p2_tester, PT_ARRAYINFO(p2_tests), 0, "ri_cmp" },
+    { p3_tester, PT_ARRAYINFO(p3_tests), 0, "ri_add" },
 };
 
 int main(int argc, char **argv)

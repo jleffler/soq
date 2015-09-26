@@ -38,6 +38,7 @@ colourpartition
 computist-1
 computist-2
 core
+cs50.h
 cscope.out
 data
 e2big
@@ -82,6 +83,7 @@ q7
 qs37
 quine
 quiz
+rational
 readdir
 recv
 regress
