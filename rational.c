@@ -275,7 +275,15 @@ typedef struct p3_test_case
 
 static const p3_test_case p3_tests[] =
 {
-    { { 0, 1 }, { 0, 1 }, { 0, 1 } },
+    { {  0,  1 }, {  0,  1 }, {    0,   1 } },
+    { {  1,  1 }, {  0,  1 }, {    1,   1 } },
+    { {  1,  1 }, {  1,  1 }, {    2,   1 } },
+    { {  1,  1 }, {  1, -1 }, {    0,   1 } },
+    { { 23, 31 }, { 37, 19 }, { 1584, 589 } },
+    { { 14, -9 }, { 12, -7 }, {  206, -63 } },
+    { { 14, -9 }, { 12, +7 }, {   10, +63 } },
+    { { 14, +9 }, { 12, -7 }, {   10, -63 } },
+    { { 14, +9 }, { 12, +7 }, {  206, +63 } },
 };
 
 static void p3_tester(const void *data)
@@ -289,17 +297,163 @@ static void p3_tester(const void *data)
     RationalInt res = ri_add(test->lhs, test->rhs);
     int rc = ri_cmp(test->res, res);
     if (rc != 0)
-        pt_fail("unexpected result for %s + %s (%s vs %s: %d)\n",
+        pt_fail("unexpected result for %s + %s (actual %s vs wanted %s: %d)\n",
                 ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
-                ri_fmt(test->lhs, buffer2, sizeof(buffer2)),
-                ri_fmt(test->lhs, buffer3, sizeof(buffer3)),
-                ri_fmt(test->lhs, buffer4, sizeof(buffer4)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(res,       buffer3, sizeof(buffer3)),
+                ri_fmt(test->res, buffer4, sizeof(buffer4)),
                 rc);
     else
         pt_pass("%s + %s = %s\n",
                 ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
-                ri_fmt(test->lhs, buffer2, sizeof(buffer2)),
-                ri_fmt(test->lhs, buffer3, sizeof(buffer3)));
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(test->res, buffer3, sizeof(buffer3)));
+}
+
+/* -- PHASE 4 TESTING -- */
+
+/* -- ri_sub -- */
+typedef struct p4_test_case
+{
+    RationalInt lhs;
+    RationalInt rhs;
+    RationalInt res;
+} p4_test_case;
+
+static const p4_test_case p4_tests[] =
+{
+    { {  0,  1 }, {  0,  1 }, {    0,    1 } },
+    { {  1,  1 }, {  0,  1 }, {    1,    1 } },
+    { {  1,  1 }, {  1,  1 }, {    0,    1 } },
+    { {  1, -1 }, {  1,  1 }, {    2,   -1 } },
+    { {  1, -1 }, {  2, -1 }, {    1,    1 } },
+    { {  1,  1 }, {  1, -1 }, {    2,    1 } },
+    { { 23, 31 }, { 37, 19 }, {  710, -589 } },
+    { { 14, -9 }, { 12, -7 }, {   10,  +63 } },
+    { { 14, -9 }, { 12, +7 }, {  206,  -63 } },
+    { { 14, +9 }, { 12, -7 }, {  206,  +63 } },
+    { { 14, +9 }, { 12, +7 }, {   10,  -63 } },
+};
+
+static void p4_tester(const void *data)
+{
+    const p4_test_case *test = (const p4_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    char buffer3[32];
+    char buffer4[32];
+
+    RationalInt res = ri_sub(test->lhs, test->rhs);
+    int rc = ri_cmp(test->res, res);
+    if (rc != 0)
+        pt_fail("unexpected result for %s - %s (actual %s vs wanted %s: %d)\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(res,       buffer3, sizeof(buffer3)),
+                ri_fmt(test->res, buffer4, sizeof(buffer4)),
+                rc);
+    else
+        pt_pass("%s - %s = %s\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(test->res, buffer3, sizeof(buffer3)));
+}
+
+/* -- PHASE 5 TESTING -- */
+
+/* -- ri_mul -- */
+typedef struct p5_test_case
+{
+    RationalInt lhs;
+    RationalInt rhs;
+    RationalInt res;
+} p5_test_case;
+
+static const p5_test_case p5_tests[] =
+{
+    { {  0,  1 }, {  0,  1 }, {    0,    1 } },
+    { {  1,  1 }, {  0,  1 }, {    0,    1 } },
+    { {  1,  1 }, {  1,  1 }, {    1,    1 } },
+    { {  1, -1 }, {  1,  1 }, {    1,   -1 } },
+    { {  1, -1 }, {  2, -1 }, {    2,    1 } },
+    { {  1,  1 }, {  1, -1 }, {    1,   -1 } },
+    { { 23, 31 }, { 37, 19 }, {  851,  589 } },
+    { { 14, -9 }, { 12, -7 }, {    8,   +3 } },
+    { { 14, -9 }, { 12, +7 }, {    8,   -3 } },
+    { { 14, +9 }, { 12, -7 }, {    8,   -3 } },
+    { { 14, +9 }, { 12, +7 }, {    8,   +3 } },
+};
+
+static void p5_tester(const void *data)
+{
+    const p5_test_case *test = (const p5_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    char buffer3[32];
+    char buffer4[32];
+
+    RationalInt res = ri_mul(test->lhs, test->rhs);
+    int rc = ri_cmp(test->res, res);
+    if (rc != 0)
+        pt_fail("unexpected result for %s * %s (actual %s vs wanted %s: %d)\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(res,       buffer3, sizeof(buffer3)),
+                ri_fmt(test->res, buffer4, sizeof(buffer4)),
+                rc);
+    else
+        pt_pass("%s * %s = %s\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(test->res, buffer3, sizeof(buffer3)));
+}
+
+/* -- PHASE 6 TESTING -- */
+
+/* -- ri_div -- */
+typedef struct p6_test_case
+{
+    RationalInt lhs;
+    RationalInt rhs;
+    RationalInt res;
+} p6_test_case;
+
+static const p6_test_case p6_tests[] =
+{
+    { {  0,  1 }, {  1,  1 }, {    0,    1 } },
+    { {  1,  1 }, {  1,  1 }, {    1,    1 } },
+    { {  1, -1 }, {  1,  1 }, {    1,   -1 } },
+    { {  1, -1 }, {  2, -1 }, {    1,    2 } },
+    { {  1,  1 }, {  1, -1 }, {    1,   -1 } },
+    { { 23, 31 }, { 37, 19 }, {  437, 1147 } },
+    { { 14, -9 }, { 12, -7 }, {   49,  +54 } },
+    { { 14, -9 }, { 12, +7 }, {   49,  -54 } },
+    { { 14, +9 }, { 12, -7 }, {   49,  -54 } },
+    { { 14, +9 }, { 12, +7 }, {   49,  +54 } },
+};
+
+static void p6_tester(const void *data)
+{
+    const p6_test_case *test = (const p6_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    char buffer3[32];
+    char buffer4[32];
+
+    RationalInt res = ri_div(test->lhs, test->rhs);
+    int rc = ri_cmp(test->res, res);
+    if (rc != 0)
+        pt_fail("unexpected result for %s / %s (actual %s vs wanted %s: %d)\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(res,       buffer3, sizeof(buffer3)),
+                ri_fmt(test->res, buffer4, sizeof(buffer4)),
+                rc);
+    else
+        pt_pass("%s / %s = %s\n",
+                ri_fmt(test->lhs, buffer1, sizeof(buffer1)),
+                ri_fmt(test->rhs, buffer2, sizeof(buffer2)),
+                ri_fmt(test->res, buffer3, sizeof(buffer3)));
 }
 
 /* -- Phased Test Infrastructure -- */
@@ -309,6 +463,9 @@ static pt_auto_phase phases[] =
     { p1_tester, PT_ARRAYINFO(p1_tests), 0, "ri_new" },
     { p2_tester, PT_ARRAYINFO(p2_tests), 0, "ri_cmp" },
     { p3_tester, PT_ARRAYINFO(p3_tests), 0, "ri_add" },
+    { p4_tester, PT_ARRAYINFO(p4_tests), 0, "ri_sub" },
+    { p5_tester, PT_ARRAYINFO(p5_tests), 0, "ri_mul" },
+    { p6_tester, PT_ARRAYINFO(p6_tests), 0, "ri_div" },
 };
 
 int main(int argc, char **argv)
