@@ -21,6 +21,8 @@ extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
 extern RationalInt ri_integer(RationalInt val);
 extern RationalInt ri_fraction(RationalInt val);
 
+extern RationalInt ri_mod(RationalInt lhs, RationalInt rhs);
+
 #endif /* RATIONAL_H_INCLUDED */
 
 /*
@@ -222,6 +224,16 @@ RationalInt ri_fraction(RationalInt val)
     return ri;
 }
 
+RationalInt ri_mod(RationalInt lhs, RationalInt rhs)
+{
+    assert(rhs.numerator != 0);
+    RationalInt rd = ri_div(lhs, rhs);
+    RationalInt ri = ri_integer(rd);
+    RationalInt rm = ri_mul(ri, rhs);
+    RationalInt rv = ri_sub(lhs, rm);
+    return rv;
+}
+
 #define TEST    // Temporary
 #if defined(TEST)
 
@@ -322,7 +334,7 @@ typedef struct BinaryOp
     char         *op_name;
 } BinaryOp;
 
-enum { OP_ADD, OP_SUB, OP_MUL, OP_DIV };  // OP_MOD, OP_POW, ...
+enum { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD };
 
 static const BinaryOp ri_ops[] =
 {
@@ -330,6 +342,7 @@ static const BinaryOp ri_ops[] =
     [OP_SUB] = { ri_sub, "-" },
     [OP_MUL] = { ri_mul, "*" },
     [OP_DIV] = { ri_div, "/" },
+    [OP_MOD] = { ri_mod, "%" },
 };
 
 typedef struct p3_test_case
@@ -387,6 +400,24 @@ static const p3_test_case p3_tests[] =
     { &ri_ops[OP_DIV], { 14, -9 }, { 12, +7 }, {   49,  -54 } },
     { &ri_ops[OP_DIV], { 14, +9 }, { 12, -7 }, {   49,  -54 } },
     { &ri_ops[OP_DIV], { 14, +9 }, { 12, +7 }, {   49,  +54 } },
+
+    { &ri_ops[OP_MOD], {  0,  +1 }, {  1,  +1 }, {    0,     1 } },
+    { &ri_ops[OP_MOD], {  1,  +1 }, {  1,  +1 }, {    0,     1 } },
+    { &ri_ops[OP_MOD], {  1,  -1 }, {  1,  +1 }, {    0,     1 } },
+    { &ri_ops[OP_MOD], {  1,  -1 }, {  2,  -1 }, {    1,    -1 } },
+    { &ri_ops[OP_MOD], {  1,  +1 }, {  1,  -1 }, {    0,     1 } },
+    { &ri_ops[OP_MOD], { 23, +31 }, { 37, +19 }, {   23,   +31 } },
+    { &ri_ops[OP_MOD], { 63, +31 }, { 37, +19 }, {   50,  +589 } },
+    { &ri_ops[OP_MOD], { 91, +23 }, { 37, +19 }, {   27,  +437 } },
+    { &ri_ops[OP_MOD], { 23, +31 }, { 19, +37 }, {  262, +1147 } },
+    { &ri_ops[OP_MOD], { 14,  -9 }, { 10,  -7 }, {    8,   -63 } },
+    { &ri_ops[OP_MOD], { 14,  -9 }, { 10,  +7 }, {    8,   -63 } },
+    { &ri_ops[OP_MOD], { 14,  +9 }, { 10,  -7 }, {    8,   +63 } },
+    { &ri_ops[OP_MOD], { 14,  +9 }, { 10,  +7 }, {    8,   +63 } },
+    { &ri_ops[OP_MOD], {  9, -11 }, {  2,  -7 }, {   19,   -77 } },
+    { &ri_ops[OP_MOD], {  9, -11 }, {  2,  +7 }, {   19,   -77 } },
+    { &ri_ops[OP_MOD], {  9, +11 }, {  2,  -7 }, {   19,   +77 } },
+    { &ri_ops[OP_MOD], {  9, +11 }, {  2,  +7 }, {   19,   +77 } },
 
 };
 
@@ -471,6 +502,62 @@ static void p4_tester(const void *data)
                 ri_fmtproper(rf,           buffer4, sizeof(buffer4)));
 }
 
+/* -- PHASE 5 TESTING -- */
+
+/* -- Check modulus -- */
+typedef struct p5_test_case
+{
+    RationalInt lhs;
+    RationalInt rhs;
+    RationalInt mod;
+} p5_test_case;
+
+static const p5_test_case p5_tests[] =
+{
+    { { 23, +31 }, { 37, +19 }, {   23,   +31 } },
+    { { 63, +31 }, { 37, +19 }, {   50,  +589 } },
+    { { 91, +23 }, { 37, +19 }, {   27,  +437 } },
+    { { 23, +31 }, { 19, +37 }, {  262, +1147 } },
+    { { 14,  -9 }, { 10,  -7 }, {    8,   -63 } },
+    { {  9, -11 }, {  2,  -7 }, {   19,   -77 } },
+};
+
+static void p5_tester(const void *data)
+{
+    const p5_test_case *test = (const p5_test_case *)data;
+    RationalInt dv = ri_div(test->lhs, test->rhs);
+    RationalInt in = ri_integer(dv);
+    RationalInt mv = ri_mod(test->lhs, test->rhs);
+    RationalInt rv = ri_add(ri_mul(in, test->rhs), mv);
+    char buffer[10][32];
+
+    if (ri_cmp(mv, test->mod) != 0 || ri_cmp(rv, test->lhs) != 0)
+    {
+        pt_fail("%s %% %s = %s but %s / %s = %s and %s * %s + %s != %s\n",
+                ri_fmtproper(test->lhs, buffer[0], sizeof(buffer[0])),
+                ri_fmtproper(test->rhs, buffer[1], sizeof(buffer[1])),
+                ri_fmtproper(test->mod, buffer[2], sizeof(buffer[2])),
+                ri_fmtproper(test->lhs, buffer[3], sizeof(buffer[3])),
+                ri_fmtproper(test->rhs, buffer[4], sizeof(buffer[4])),
+                ri_fmtproper(dv,        buffer[5], sizeof(buffer[5])),
+                ri_fmtproper(in,        buffer[6], sizeof(buffer[6])),
+                ri_fmtproper(test->rhs, buffer[7], sizeof(buffer[7])),
+                ri_fmtproper(test->mod, buffer[8], sizeof(buffer[8])),
+                ri_fmtproper(test->lhs, buffer[9], sizeof(buffer[9])));
+    }
+    else
+    {
+        pt_pass("%s %% %s = %s and %s * %s + %s = %s\n",
+                ri_fmtproper(test->lhs, buffer[0], sizeof(buffer[0])),
+                ri_fmtproper(test->rhs, buffer[1], sizeof(buffer[1])),
+                ri_fmtproper(test->mod, buffer[2], sizeof(buffer[2])),
+                ri_fmtproper(test->rhs, buffer[3], sizeof(buffer[3])),
+                ri_fmtproper(in,        buffer[4], sizeof(buffer[4])),
+                ri_fmtproper(test->mod, buffer[5], sizeof(buffer[5])),
+                ri_fmtproper(test->lhs, buffer[6], sizeof(buffer[6])));
+    }
+}
+
 /* -- Phased Test Infrastructure -- */
 
 static pt_auto_phase phases[] =
@@ -479,6 +566,7 @@ static pt_auto_phase phases[] =
     { p2_tester, PT_ARRAYINFO(p2_tests), 0, "ri_cmp" },
     { p3_tester, PT_ARRAYINFO(p3_tests), 0, "Rational Binary Operators" },
     { p4_tester, PT_ARRAYINFO(p4_tests), 0, "Fraction and Integer" },
+    { p5_tester, PT_ARRAYINFO(p5_tests), 0, "Check modulus" },
 };
 
 int main(int argc, char **argv)
