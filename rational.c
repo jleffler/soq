@@ -22,6 +22,8 @@ extern RationalInt ri_integer(RationalInt val);
 extern RationalInt ri_fraction(RationalInt val);
 
 extern RationalInt ri_mod(RationalInt lhs, RationalInt rhs);
+extern RationalInt ri_rec(RationalInt val);     // Reciprocal
+extern RationalInt ri_pow(RationalInt base, RationalInt power);
 
 #endif /* RATIONAL_H_INCLUDED */
 
@@ -232,6 +234,47 @@ RationalInt ri_mod(RationalInt lhs, RationalInt rhs)
     RationalInt rm = ri_mul(ri, rhs);
     RationalInt rv = ri_sub(lhs, rm);
     return rv;
+}
+
+RationalInt ri_rec(RationalInt val)
+{
+    assert(val.numerator != 0);
+    return ri_new(val.denominator, val.numerator);
+}
+
+RationalInt ri_pow(RationalInt base, RationalInt power)
+{
+    assert(power.denominator == +1 || power.denominator == -1);
+    if (base.numerator == 0)
+        return ri_new(0, 1);
+    if (power.numerator == 0)
+        return ri_new(1, 1);
+    //char buffer[32];
+    //printf("-->> %s", ri_fmtproper(base, buffer, sizeof(buffer)));
+    //printf(" ^ %s\n", ri_fmtproper(power, buffer, sizeof(buffer)));
+    RationalInt factor = base;
+    RationalInt result = ri_new(1, 1);
+    for (int i = power.numerator; i != 0; i >>= 1)
+    {
+        //printf("i = %d", i);
+        if (i & 1)
+        {
+            result = ri_mul(result, factor);
+            //printf("; result so far: %s", ri_fmtproper(result, buffer, sizeof(buffer)));
+        }
+        factor = ri_mul(factor, factor);
+        //printf("; factor: %s\n", ri_fmtproper(factor, buffer, sizeof(buffer)));
+    }
+
+    if (power.denominator < 0)
+    {
+        result = ri_rec(result);
+        //printf("reciprocal: %s\n", ri_fmtproper(result, buffer, sizeof(buffer)));
+    }
+
+
+    //printf("<<-- result: %s\n", ri_fmtproper(result, buffer, sizeof(buffer)));
+    return result;
 }
 
 #define TEST    // Temporary
@@ -558,6 +601,60 @@ static void p5_tester(const void *data)
     }
 }
 
+/* -- PHASE 6 TESTING -- */
+
+/* -- Powers and Reciprocals -- */
+typedef struct p6_test_case
+{
+    RationalInt base;
+    RationalInt power;
+    RationalInt result;
+} p6_test_case;
+
+static const p6_test_case p6_tests[] =
+{
+    { { 0, 1 }, {  0, +1 }, {          0,          +1 } },
+    { { 0, 1 }, {  5, +1 }, {          0,          +1 } },
+    { { 1, 1 }, {  0, +1 }, {          1,          +1 } },
+    { { 2, 1 }, {  0, +1 }, {          1,          +1 } },
+    { { 3, 2 }, {  0, +1 }, {          1,          +1 } },
+    { { 2, 1 }, {  1, +1 }, {          2,          +1 } },
+    { { 3, 1 }, {  1, +1 }, {          3,          +1 } },
+    { { 5, 2 }, {  1, +1 }, {          5,          +2 } },
+    { { 2, 1 }, {  2, +1 }, {          4,          +1 } },
+    { { 2, 1 }, {  3, +1 }, {          8,          +1 } },
+    { { 2, 1 }, { 10, +1 }, {       1024,          +1 } },
+    { { 2, 1 }, { 30, +1 }, { 1073741824,          +1 } },
+    { { 2, 1 }, { 30, -1 }, {          1, +1073741824 } },
+    { { 5, 2 }, {  2, +1 }, {         25,          +4 } },
+    { { 5, 2 }, {  2, -1 }, {          4,         +25 } },
+};
+
+static void p6_tester(const void *data)
+{
+    const p6_test_case *test = (const p6_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    char buffer3[32];
+    char buffer4[32];
+
+    RationalInt result = ri_pow(test->base, test->power);
+
+    int rc = ri_cmp(result, test->result);
+    if (rc != 0)
+        pt_fail("unexpected result: %s ^ %s = (actual %s vs wanted %s) %d\n",
+                 ri_fmtproper(test->base,   buffer1, sizeof(buffer1)),
+                 ri_fmtproper(test->power,  buffer2, sizeof(buffer2)),
+                 ri_fmtproper(result,       buffer3, sizeof(buffer3)),
+                 ri_fmtproper(test->result, buffer4, sizeof(buffer4)),
+                 rc);
+    else
+        pt_pass("%s ^ %s = %s\n",
+                 ri_fmtproper(test->base,   buffer1, sizeof(buffer1)),
+                 ri_fmtproper(test->power,  buffer2, sizeof(buffer2)),
+                 ri_fmtproper(result,       buffer3, sizeof(buffer3)));
+}
+
 /* -- Phased Test Infrastructure -- */
 
 static pt_auto_phase phases[] =
@@ -567,6 +664,7 @@ static pt_auto_phase phases[] =
     { p3_tester, PT_ARRAYINFO(p3_tests), 0, "Rational Binary Operators" },
     { p4_tester, PT_ARRAYINFO(p4_tests), 0, "Fraction and Integer" },
     { p5_tester, PT_ARRAYINFO(p5_tests), 0, "Check modulus" },
+    { p6_tester, PT_ARRAYINFO(p6_tests), 0, "Powers and Reciprocals" },
 };
 
 int main(int argc, char **argv)
