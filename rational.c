@@ -17,6 +17,10 @@ extern RationalInt ri_div(RationalInt lhs, RationalInt rhs);
 extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
 extern int ri_cmp(RationalInt lhs, RationalInt rhs);
 
+extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
+extern RationalInt ri_integer(RationalInt val);
+extern RationalInt ri_fraction(RationalInt val);
+
 #endif /* RATIONAL_H_INCLUDED */
 
 /*
@@ -142,9 +146,13 @@ char *ri_fmt(RationalInt val, char *buffer, size_t buflen)
     if (buflen > 0 && buffer != 0)
     {
         char sign = (val.denominator < 0) ? '-' : '+';
-        int len = snprintf(buffer, buflen, "[%c%d/%d]",
+        int len;
+        if (iabs(val.denominator) == 1)
+            len = snprintf(buffer, buflen, "[%c%d]", sign, val.numerator);
+        else
+            len = snprintf(buffer, buflen, "[%c%d/%d]",
                            sign, iabs(val.numerator), iabs(val.denominator));
-        if (len < 5 || (size_t)len >= buflen)  // 5 = strlen("[1/1]")
+        if (len <= 0 || (size_t)len >= buflen)
             *buffer = '\0';
     }
     return buffer;
@@ -170,6 +178,48 @@ int ri_cmp(RationalInt lhs, RationalInt rhs)
         return -1;
     else
         return +1;
+}
+
+char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
+{
+    RationalInt in = ri_integer(val);
+    RationalInt fr = ri_fraction(val);
+    char sign = (val.denominator < 0) ? '-' : '+';
+    int len;
+    assert(in.denominator == +1 || in.denominator == -1);
+    if (in.numerator != 0 && fr.numerator != 0)
+    {
+        len = snprintf(buffer, buflen, "[%c%d %d/%d]", sign,
+                       iabs(in.numerator), iabs(fr.numerator), iabs(fr.denominator));
+    }
+    else if (in.numerator != 0)
+    {
+        len = snprintf(buffer, buflen, "[%c%d]", sign, iabs(in.numerator));
+    }
+    else if (fr.numerator != 0)
+    {
+        len = snprintf(buffer, buflen, "[%c%d/%d]",
+                       sign, iabs(val.numerator), iabs(val.denominator));
+    }
+    else
+    {
+        len = snprintf(buffer, buflen, "[0]");
+    }
+    if (len <= 0 || (size_t)len >= buflen)
+        *buffer = '\0';
+    return buffer;
+}
+
+RationalInt ri_integer(RationalInt val)
+{
+    RationalInt ri = ri_new(val.numerator / val.denominator, 1);
+    return ri;
+}
+
+RationalInt ri_fraction(RationalInt val)
+{
+    RationalInt ri = ri_new(val.numerator % val.denominator, val.denominator);
+    return ri;
 }
 
 #define TEST    // Temporary
@@ -366,6 +416,61 @@ static void p3_tester(const void *data)
                 ri_fmt(test->res, buffer3, sizeof(buffer3)));
 }
 
+/* -- PHASE 4 TESTING -- */
+
+/* -- Fraction and Integer -- */
+typedef struct p4_test_case
+{
+    RationalInt input;
+    RationalInt o_int;
+    RationalInt o_frac;
+} p4_test_case;
+
+static const p4_test_case p4_tests[] =
+{
+    { {  0,   1 }, { 0,  1 }, {  0,   1 } },
+    { {  1,   1 }, { 1,  1 }, {  0,   1 } },
+    { {  1,   2 }, { 0,  1 }, {  1,   2 } },
+    { {  3,   2 }, { 1,  1 }, {  1,   2 } },
+    { { 23, +12 }, { 1, +1 }, { 11, +12 } },
+    { { 23, -12 }, { 1, -1 }, { 11, -12 } },
+    { { 12, +23 }, { 0, +1 }, { 12, +23 } },
+    { { 12, -23 }, { 0, +1 }, { 12, -23 } },
+};
+
+static void p4_tester(const void *data)
+{
+    const p4_test_case *test = (const p4_test_case *)data;
+    RationalInt ri = ri_integer(test->input);
+    RationalInt rf = ri_fraction(test->input);
+    char buffer0[32];
+    char buffer1[32];
+    char buffer2[32];
+    char buffer3[32];
+    char buffer4[32];
+    char buffer5[32];
+
+    int rc1 = ri_cmp(ri, test->o_int);
+    int rc2 = ri_cmp(rf, test->o_frac);
+    if (rc1 != 0 || rc2 != 0)
+        pt_fail("%s: unexpected result %s (%d: actual %s vs wanted %s)"
+                "(%d: actual %s vs wanted %s)\n",
+                ri_fmt(test->input,  buffer0, sizeof(buffer0)),
+                ri_fmtproper(test->input,  buffer1, sizeof(buffer1)),
+                rc1,
+                ri_fmtproper(ri,           buffer2, sizeof(buffer2)),
+                ri_fmtproper(test->o_int,  buffer3, sizeof(buffer3)),
+                rc2,
+                ri_fmtproper(rf,           buffer4, sizeof(buffer4)),
+                ri_fmtproper(test->o_frac, buffer5, sizeof(buffer5)));
+    else
+        pt_pass("%s: %s becomes %s and %s\n",
+                ri_fmt(test->input,  buffer0, sizeof(buffer0)),
+                ri_fmtproper(test->input,  buffer1, sizeof(buffer1)),
+                ri_fmtproper(ri,           buffer2, sizeof(buffer2)),
+                ri_fmtproper(rf,           buffer4, sizeof(buffer4)));
+}
+
 /* -- Phased Test Infrastructure -- */
 
 static pt_auto_phase phases[] =
@@ -373,6 +478,7 @@ static pt_auto_phase phases[] =
     { p1_tester, PT_ARRAYINFO(p1_tests), 0, "ri_new" },
     { p2_tester, PT_ARRAYINFO(p2_tests), 0, "ri_cmp" },
     { p3_tester, PT_ARRAYINFO(p3_tests), 0, "Rational Binary Operators" },
+    { p4_tester, PT_ARRAYINFO(p4_tests), 0, "Fraction and Integer" },
 };
 
 int main(int argc, char **argv)
