@@ -1,63 +1,47 @@
+#include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 
+static inline void flush_buffer(const char *buffer, int buflen)
+{
+    for (int i = 0; i < buflen; i++)
+        putchar(buffer[i]);
+}
+
 int main(void)
 {
-    int c0;
-    while ((c0 = getchar()) != EOF)
+    char buffer[4];
+    int bufpos = 0;
+    int c;
+    while ((c = getchar()) != EOF)
     {
-        if (c0 != '\\')
+        if (c != '\\')
+            putchar(c);
+        else
         {
-            putchar(c0);
-            continue;
+            assert(bufpos == 0);
+            buffer[bufpos++] = c;
+            while ((c = getchar()) != EOF)
+            {
+                buffer[bufpos++] = c;
+                if (!isdigit(c))
+                {
+                    flush_buffer(buffer, bufpos - 1);
+                    ungetc(buffer[bufpos-1], stdin);
+                    bufpos = 0;
+                    break;
+                }
+                else if (bufpos == 4)
+                {
+                    putchar('\n');
+                    flush_buffer(buffer, bufpos);
+                    bufpos = 0;
+                    break;
+                }
+            }
         }
-        int c1 = getchar();
-        if (c1 == EOF)
-        {
-            putchar(c0);
-            break;
-        }
-        if (!isdigit(c1))
-        {
-            putchar(c0);
-            ungetc(c1, stdin);
-            continue;
-        }
-        int c2 = getchar();
-        if (c2 == EOF)
-        {
-            putchar(c0);
-            putchar(c1);
-            break;
-        }
-        if (!isdigit(c2))
-        {
-            putchar(c0);
-            putchar(c1);
-            ungetc(c2, stdin);
-            continue;
-        }
-        int c3 = getchar();
-        if (c3 == EOF)
-        {
-            putchar(c0);
-            putchar(c1);
-            putchar(c2);
-            break;
-        }
-        if (!isdigit(c3))
-        {
-            putchar(c0);
-            putchar(c1);
-            putchar(c2);
-            ungetc(c3, stdin);
-            continue;
-        }
-        putchar('\n');
-        putchar(c0);
-        putchar(c1);
-        putchar(c2);
-        putchar(c3);
     }
+    if (bufpos > 0)
+        flush_buffer(buffer, bufpos);
     return 0;
 }
