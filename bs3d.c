@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -19,25 +18,26 @@ int main(void)
             putchar(c);
         else
         {
-            assert(bufpos == 0);
             buffer[bufpos++] = c;
             while ((c = getchar()) != EOF)
             {
-                buffer[bufpos++] = c;
                 if (!isdigit(c))
                 {
-                    flush_buffer(buffer, bufpos - 1);
-                    ungetc(buffer[bufpos-1], stdin);
+                    flush_buffer(buffer, bufpos);
+                    ungetc(c, stdin);
                     bufpos = 0;
                     break;
                 }
-                else if (bufpos == 4)
+                else if (bufpos == 3)
                 {
                     putchar('\n');
                     flush_buffer(buffer, bufpos);
+                    putchar(c);
                     bufpos = 0;
                     break;
                 }
+                else
+                    buffer[bufpos++] = c;
             }
         }
     }
