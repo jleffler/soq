@@ -93,20 +93,7 @@ static void check_minimal_prime(int n)
                 return;
         }
 
-        //printf("== M2 == %d\n", n);     /* It's a minimal prime */
         printf("%d\n", n);              /* It's a minimal prime */
-    }
-}
-
-static void mp_checker(int max, void (*function)(int))
-{
-    max /= 6;
-    (*function)(2);
-    (*function)(3);
-    for (int c = 1; c < max; c++)
-    {
-        (*function)(6 * c - 1);
-        (*function)(6 * c + 1);
     }
 }
 
@@ -127,6 +114,15 @@ int main(int argc, char **argv)
             exit(1);
         }
     }
-    mp_checker(max, check_minimal_prime);
+
+    max /= 6;
+    check_minimal_prime(2);
+    check_minimal_prime(3);
+    for (int c = 1; c < max; c++)
+    {
+        check_minimal_prime(6 * c - 1);
+        check_minimal_prime(6 * c + 1);
+    }
+
     return 0;
 }
