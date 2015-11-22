@@ -48,12 +48,19 @@ C_CXX_DUAL_PROGRAMS = \
 
 C_CXX_PROGRAMS = ${C_CXX_DUAL_PROGRAMS:=-cxx}
 
+C_ONLY_PROGRAMS = \
+	isprime \
+	minimal-primes \
+	prime-factors
+
 PROGRAMS = \
+	${C_ONLY_PROGRAMS} \
 	${CXX_ONLY_PROGRAMS} \
 	${C_CXX_DUAL_PROGRAMS}
 
 all: ${PROGRAMS}
 
+c_only:     ${C_ONLY_PROGRAMS}
 cxx_only:	${CXX_ONLY_PROGRAMS}
 dual:		${C_CXX_DUAL_PROGRAMS}
 dual_cxx:	${C_CXX_PROGRAMS}
@@ -65,6 +72,10 @@ RM_F = rm -f
 
 ${C_CXX_SOURCE}: ${@:-cxx.cpp=.c}
 	${LN_S} ${@:-cxx.cpp=.c} $@
+
+remove:
+	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
+	${RM_FR} ${PROG} ${PROG}.*
 
 clean:
 	${RM_FR} *.o *.dSYM core a.out
