@@ -88,10 +88,11 @@ RationalInt ri_new(int numerator, int denominator)
 
 RationalInt ri_add(RationalInt lhs, RationalInt rhs)
 {
-    long long rn = lhs.numerator * rhs.denominator + rhs.numerator * lhs.denominator;
+    long long rn = (long long)lhs.numerator * rhs.denominator +
+                   (long long)rhs.numerator * lhs.denominator;
     if (rn == 0)
         return ri_new(0, 1);
-    long long rd = lhs.denominator * rhs.denominator;
+    long long rd = (long long)lhs.denominator * rhs.denominator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -102,10 +103,11 @@ RationalInt ri_add(RationalInt lhs, RationalInt rhs)
 
 RationalInt ri_sub(RationalInt lhs, RationalInt rhs)
 {
-    long long rn = lhs.numerator * rhs.denominator - rhs.numerator * lhs.denominator;
+    long long rn = (long long)lhs.numerator * rhs.denominator -
+                   (long long)rhs.numerator * lhs.denominator;
     if (rn == 0)
         return ri_new(0, 1);
-    long long rd = lhs.denominator * rhs.denominator;
+    long long rd = (long long)lhs.denominator * rhs.denominator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -116,10 +118,10 @@ RationalInt ri_sub(RationalInt lhs, RationalInt rhs)
 
 RationalInt ri_mul(RationalInt lhs, RationalInt rhs)
 {
-    long long rn = lhs.numerator * rhs.numerator;
+    long long rn = (long long)lhs.numerator * rhs.numerator;
     if (rn == 0)
         return ri_new(0, 1);
-    long long rd = lhs.denominator * rhs.denominator;
+    long long rd = (long long)lhs.denominator * rhs.denominator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -131,10 +133,10 @@ RationalInt ri_mul(RationalInt lhs, RationalInt rhs)
 RationalInt ri_div(RationalInt lhs, RationalInt rhs)
 {
     assert(rhs.numerator != 0);
-    if (lhs.numerator == 0)
+    if (lhs.numerator == 0)     // Zero divided by anything is zero
         return ri_new(0, 1);
-    long long rn = lhs.numerator * rhs.denominator;
-    long long rd = lhs.denominator * rhs.numerator;
+    long long rn = (long long)lhs.numerator * rhs.denominator;
+    long long rd = (long long)lhs.denominator * rhs.numerator;
     long long dv = gcd_ll(rn, rd);
     long long nr = rn / dv;
     long long dr = rd / dv;
@@ -175,8 +177,8 @@ int ri_cmp(RationalInt lhs, RationalInt rhs)
         else
             return +1;
     }
-    long long v1 = lhs.numerator * iabs(rhs.denominator);
-    long long v2 = rhs.numerator * iabs(lhs.denominator);
+    long long v1 = (long long)lhs.numerator * iabs(rhs.denominator);
+    long long v2 = (long long)rhs.numerator * iabs(lhs.denominator);
     assert(v1 != v2);
     if (v1 < v2)
         return -1;
@@ -260,10 +262,14 @@ RationalInt ri_pow(RationalInt base, RationalInt power)
         if (i & 1)
         {
             result = ri_mul(result, factor);
-            //printf("; result so far: %s", ri_fmtproper(result, buffer, sizeof(buffer)));
+            //printf("; result so far: %s\n", ri_fmtproper(result, buffer, sizeof(buffer)));
         }
-        factor = ri_mul(factor, factor);
-        //printf("; factor: %s\n", ri_fmtproper(factor, buffer, sizeof(buffer)));
+        /* How much of a kludge is this test? */
+        if (i > 1)
+        {
+            factor = ri_mul(factor, factor);
+            //printf("factor: %s\n", ri_fmtproper(factor, buffer, sizeof(buffer)));
+        }
     }
 
     if (power.denominator < 0)
@@ -611,23 +617,37 @@ typedef struct p6_test_case
     RationalInt result;
 } p6_test_case;
 
+/*
+** Power runs into trouble rather quickly — it isn't as useful as all
+** that.  There might be a way to avoid doing the multiple too soon, but
+** that merely delays the onset of problems.
+*/
 static const p6_test_case p6_tests[] =
 {
-    { { 0, 1 }, {  0, +1 }, {          0,          +1 } },
-    { { 0, 1 }, {  5, +1 }, {          0,          +1 } },
-    { { 1, 1 }, {  0, +1 }, {          1,          +1 } },
-    { { 2, 1 }, {  0, +1 }, {          1,          +1 } },
-    { { 3, 2 }, {  0, +1 }, {          1,          +1 } },
-    { { 2, 1 }, {  1, +1 }, {          2,          +1 } },
-    { { 3, 1 }, {  1, +1 }, {          3,          +1 } },
-    { { 5, 2 }, {  1, +1 }, {          5,          +2 } },
-    { { 2, 1 }, {  2, +1 }, {          4,          +1 } },
-    { { 2, 1 }, {  3, +1 }, {          8,          +1 } },
-    { { 2, 1 }, { 10, +1 }, {       1024,          +1 } },
-    { { 2, 1 }, { 30, +1 }, { 1073741824,          +1 } },
-    { { 2, 1 }, { 30, -1 }, {          1, +1073741824 } },
-    { { 5, 2 }, {  2, +1 }, {         25,          +4 } },
-    { { 5, 2 }, {  2, -1 }, {          4,         +25 } },
+    { {  0,  1 }, {  0, +1 }, {          0,          +1 } },
+    { {  0,  1 }, {  5, +1 }, {          0,          +1 } },
+    { {  1,  1 }, {  0, +1 }, {          1,          +1 } },
+    { {  2,  1 }, {  0, +1 }, {          1,          +1 } },
+    { {  3,  2 }, {  0, +1 }, {          1,          +1 } },
+    { {  2,  1 }, {  1, +1 }, {          2,          +1 } },
+    { {  3,  1 }, {  1, +1 }, {          3,          +1 } },
+    { {  5,  2 }, {  1, +1 }, {          5,          +2 } },
+    { {  2,  1 }, {  2, +1 }, {          4,          +1 } },
+    { {  2,  1 }, {  3, +1 }, {          8,          +1 } },
+    { {  2,  1 }, { 10, +1 }, {       1024,          +1 } },
+    { {  2,  1 }, { 15, +1 }, {      32768,          +1 } },
+    { {  5,  2 }, {  2, +1 }, {         25,          +4 } },
+    { {  5,  2 }, {  2, -1 }, {          4,         +25 } },
+    { {  2,  1 }, { 16, +1 }, {      65536,          +1 } },
+    { {  2,  1 }, { 17, +1 }, {     131072,          +1 } },
+    { {  2,  1 }, { 20, +1 }, {  1024*1024,          +1 } },
+    { {  2,  1 }, { 24, +1 }, { 16384*1024,          +1 } },
+    { {  2,  1 }, { 30, +1 }, { 1073741824,          +1 } },
+    { {  2,  1 }, { 30, -1 }, {          1, +1073741824 } },
+    { { 10,  1 }, {  8, -1 }, {          1,  +100000000 } },
+    { { 10,  1 }, {  8, +1 }, {  100000000,          +1 } },
+    { { 10, 13 }, {  8, +1 }, {  100000000,  +815730721 } },
+    { { 87,  7 }, {  4, +1 }, {   57289761,       +2401 } },
 };
 
 static void p6_tester(const void *data)
