@@ -76,7 +76,7 @@ RationalInt ri_new(int numerator, int denominator)
     }
     else
     {
-        int sign = 1 - 2 * ((numerator < 0 && denominator > 0) || (numerator > 0 && denominator < 0));
+        int sign = signum(numerator) * signum(denominator);
         assert(sign == +1 || sign == -1);
         int dv = gcd(iabs(numerator), iabs(denominator));
         assert(dv != 0);
@@ -188,6 +188,8 @@ int ri_cmp(RationalInt lhs, RationalInt rhs)
 
 char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
 {
+    assert(buflen > 0 && buffer != 0);
+    ri_chk(val);
     RationalInt in = ri_integer(val);
     RationalInt fr = ri_fraction(val);
     char sign = (val.denominator < 0) ? '-' : '+';
@@ -318,6 +320,7 @@ static void p1_tester(const void *data)
     const p1_test_case *test = (const p1_test_case *)data;
     char buffer1[32];
     char buffer2[32];
+    ri_chk(test->res);
 
     RationalInt ri = ri_new(test->i_num, test->i_den);
 
@@ -360,6 +363,8 @@ static void p2_tester(const void *data)
     const p2_test_case *test = (const p2_test_case *)data;
     char buffer1[32];
     char buffer2[32];
+    ri_chk(test->lhs);
+    ri_chk(test->rhs);
 
     int rc = ri_cmp(test->lhs, test->rhs);
     if (rc != test->res)
@@ -477,6 +482,9 @@ static void p3_tester(const void *data)
     char buffer2[32];
     char buffer3[32];
     char buffer4[32];
+    ri_chk(test->lhs);
+    ri_chk(test->rhs);
+    ri_chk(test->res);
 
     RationalInt res = (*test->op->op_func)(test->lhs, test->rhs);
     int rc = ri_cmp(test->res, res);
@@ -521,6 +529,9 @@ static const p4_test_case p4_tests[] =
 static void p4_tester(const void *data)
 {
     const p4_test_case *test = (const p4_test_case *)data;
+    ri_chk(test->input);
+    ri_chk(test->o_int);
+    ri_chk(test->o_frac);
     RationalInt ri = ri_integer(test->input);
     RationalInt rf = ri_fraction(test->input);
     char buffer0[32];
@@ -574,6 +585,9 @@ static const p5_test_case p5_tests[] =
 static void p5_tester(const void *data)
 {
     const p5_test_case *test = (const p5_test_case *)data;
+    ri_chk(test->lhs);
+    ri_chk(test->rhs);
+    ri_chk(test->mod);
     RationalInt dv = ri_div(test->lhs, test->rhs);
     RationalInt in = ri_integer(dv);
     RationalInt mv = ri_mod(test->lhs, test->rhs);
@@ -647,6 +661,9 @@ static const p6_test_case p6_tests[] =
     { { 10,  1 }, {  8, -1 }, {          1,  +100000000 } },
     { { 10,  1 }, {  8, +1 }, {  100000000,          +1 } },
     { { 10, 13 }, {  8, +1 }, {  100000000,  +815730721 } },
+    { { 10, 13 }, {  8, -1 }, {  815730721,  +100000000 } },
+    { { 13, 10 }, {  8, +1 }, {  815730721,  +100000000 } },
+    { { 13, 10 }, {  8, -1 }, {  100000000,  +815730721 } },
     { { 87,  7 }, {  4, +1 }, {   57289761,       +2401 } },
 };
 
@@ -657,6 +674,9 @@ static void p6_tester(const void *data)
     char buffer2[32];
     char buffer3[32];
     char buffer4[32];
+    ri_chk(test->base);
+    ri_chk(test->power);
+    ri_chk(test->result);
 
     RationalInt result = ri_pow(test->base, test->power);
 
