@@ -43,6 +43,13 @@ extern int ri_scn(const char *str, char **eor, RationalInt *result);
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
+#include "chkstrint.h"
+
+#if defined(__cplusplus)
+#define CONST_CAST(type, value) const_cast<type>(value)
+#else
+#define CONST_CAST(type, value) ((type)(value))
+#endif
 
 static inline int iabs(int x) { return (x < 0) ? -x : x; }
 static inline int signum(int x) { return (x > 0) ? +1 : (x < 0) ? -1 : 0; }
@@ -318,40 +325,84 @@ static int ri_scndec(const char *str, char **eor, RationalInt *res)
 {
     *res = ri_new(0, 1);
     const char *ptr = str;
-
-    int sign = +1;
-    if (*ptr == '+')
-        ptr++;
-    else if (*ptr == '-')
+    char *eon;
+    int i;
+    if (!chk_strtoi(ptr, &eon, 10, &i))
     {
-        sign = -1;
-        ptr++;
-    }
-    if (*ptr == '.')
-    {
-        /* .ddd */
-    }
-    else if (isdigit((unsigned char)*ptr))
-    {
-        /* ddd[.ddd] */
-        const char *s1 = ptr;
-        while (isdigit((unsigned char)*ptr))
-            ptr++;
-        const char *s2 = ptr;
-        const char *s3 = ptr;
-        if (*s2 == '.')
-        {
-            /* Using otherwise unused variables */
-            printf("<<JUNK>> %s %s %+d\n", s1, s3, sign);
-        }
-    }
-    else
-    {
-        /* Bogus - no digits after optional sign */
+        /* XXX: Premature return; -.1234 is badly formatted but legitimate */
         if (eor != 0)
-            *eor = (char *)str; // CONST_CAST(char *, str)
+            *eor = eon;
+        return -1;
     }
-    return -1;
+    if (*eon != '.')
+    {
+        *res = ri_new(i, 1);
+        if (eor != 0)
+            *eor = eon;
+        return 0;
+    }
+    /* Track whether sign was present */
+    /* Also number of significant digits in value ignoring leading zeros */
+    const char *bgn = str;
+    int sign = +1;
+    if (*bgn == '+' || *bgn == '-')
+    {
+        if (*bgn == '-')
+            sign = -1;
+        bgn++;
+    }
+    while (*bgn == '0')
+        bgn++;
+    int num_i_digits = (int)(eon - bgn);
+    assert(num_i_digits >= 0 && num_i_digits <= 10);
+
+    int f;
+    ptr = eon + 1;
+    if (!chk_strtoi(ptr, &eon, 10, &f))
+    {
+        /* Count the . not followed by a digit as part of the number. */
+        *res = ri_new(i, 1);
+        if (eor != 0)
+            *eor = CONST_CAST(char *, ptr);
+        return 0;
+    }
+
+    /* How many digits in fraction?  Remember: 0.0001 returns f = 1 but length is 4 */
+    int num_f_digits = (int)(eon - ptr);
+    assert(num_f_digits > 0);
+    /* XXX:     0.00000000000000000000000001 is a problem regardless */
+    /* XXX: 23450.00000000000000000000000001 is a problem regardless */
+    if (num_f_digits > 10)   /* XXX: 10 = magic number (max decimal digits in fraction) */
+    {
+        if (eor != 0)
+            *eor = eon;
+        return -1;
+    }
+
+    if (num_f_digits + num_i_digits > 10)
+    {
+        /* Definitely too big */
+        if (eor != 0)
+            *eor = eon;
+        return -1;
+    }
+    if (num_f_digits + num_i_digits == 10)
+    {
+        /* XXX: Hack - tests fail! */
+        if (eor != 0)
+            *eor = eon;
+        return -1;
+    }
+
+    static const int pow10[] =
+    {
+        1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+    };
+    *res = ri_new(i * pow10[num_f_digits] + f * sign, pow10[num_f_digits]);
+
+    if (eor != 0)
+        *eor = eon;
+    return 0;
 }
 
 int ri_scn(const char *str, char **eor, RationalInt *res)
@@ -788,21 +839,31 @@ typedef struct p7_test_case
 
 static const p7_test_case p7_tests[] =
 {
-    { "[0]",            {  0, +1 },  3,  0 },
-    { "0",              {  0, +1 },  1,  0 },
-    { "-0",             {  0, +1 },  2,  0 },
-    { "+0",             {  0, +1 },  2,  0 },
-    { "+000",           {  0, +1 },  4,  0 },
-    { "+0.00",          {  0, +1 },  5,  0 },
-    { "-.000",          {  0, +1 },  5,  0 },
-    { "[1/2]",          {  1, +2 },  5,  0 },
-    { "[+1/2]",         {  1, +2 },  6,  0 },
-    { "[-1/2]",         {  1, -2 },  6,  0 },
-    { "0.5",            {  1, +2 },  3,  0 },
-    { "[+3/2]",         {  3, +2 },  6,  0 },
-    { "[+1 1/2]",       {  3, +2 },  8,  0 },
-    { "[-1 1/2]",       {  3, -2 },  8,  0 },
-    { "[1 1/2]",        {  3, +2 },  7,  0 },
+    { "0",              {          0,        +1 },  1,  0 },
+    { "-0",             {          0,        +1 },  2,  0 },
+    { "+0",             {          0,        +1 },  2,  0 },
+    { "+000",           {          0,        +1 },  4,  0 },
+    { "+123",           {        123,        +1 },  4,  0 },
+    { "-321",           {        321,        -1 },  4,  0 },
+    { "-321.",          {        321,        -1 },  5,  0 },
+    { "-0.321",         {        321,     -1000 },  6,  0 },
+    { "+0.00",          {          0,        +1 },  5,  0 },
+    { "-.000",          {          0,        +1 },  5,  0 },
+    { "0.5XX",          {          1,        +2 },  3,  0 },
+    { "-3.14159",       {     314159,   -100000 },  8,  0 },
+    { "2147483647X",    { 2147483647,        +1 }, 10,  0 },
+    { "-2147.483647 ",  { 2147483647,  -1000000 }, 12,  0 },
+    { "0002147483.647", { 2147483647,     +1000 }, 14,  0 },
+    { "000000.7483647", {    7483647, +10000000 }, 14,  0 },
+    { "[0]",            {          0,        +1 },  3,  0 },
+    { "[1/2]",          {          1,        +2 },  5,  0 },
+    { "[+1/2]",         {          1,        +2 },  6,  0 },
+    { "[-1/2]",         {          1,        -2 },  6,  0 },
+    { "[+3/2]",         {          3,        +2 },  6,  0 },
+    { "[+1 1/2]",       {          3,        +2 },  8,  0 },
+    { "[-1 1/2]",       {          3,        -2 },  8,  0 },
+    { "[1 1/2]",        {          3,        +2 },  7,  0 },
+    { "[12 15/3]",      {         17,        +1 },  9,  0 },
 };
 
 static void p7_tester(const void *data)
@@ -824,16 +885,16 @@ static void p7_tester(const void *data)
         if (rc != 0)
             pt_fail("unexpected result: %s => (actual %s vs wanted %s) %d\n",
                     test->input,
-                    ri_fmtproper(test->output, buffer1, sizeof(buffer1)),
-                    ri_fmtproper(res,          buffer2, sizeof(buffer2)),
+                    ri_fmtproper(res,          buffer1, sizeof(buffer1)),
+                    ri_fmtproper(test->output, buffer2, sizeof(buffer2)),
                     rc);
         else
             pt_pass("%s = %s\n",
                     test->input,
                     ri_fmtproper(test->output, buffer1, sizeof(buffer1)));
     }
+    pt_done("<<%s>>\n", test->input);
 }
-
 
 /* -- Phased Test Infrastructure -- */
 
