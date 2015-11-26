@@ -10,20 +10,23 @@ typedef struct RationalInt
 } RationalInt;
 
 extern RationalInt ri_new(int numerator, int denominator);
+
 extern RationalInt ri_add(RationalInt lhs, RationalInt rhs);
 extern RationalInt ri_sub(RationalInt lhs, RationalInt rhs);
 extern RationalInt ri_mul(RationalInt lhs, RationalInt rhs);
 extern RationalInt ri_div(RationalInt lhs, RationalInt rhs);
-extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
-extern int ri_cmp(RationalInt lhs, RationalInt rhs);
-
-extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
-extern RationalInt ri_integer(RationalInt val);
-extern RationalInt ri_fraction(RationalInt val);
-
 extern RationalInt ri_mod(RationalInt lhs, RationalInt rhs);
-extern RationalInt ri_rec(RationalInt val);     // Reciprocal
 extern RationalInt ri_pow(RationalInt base, RationalInt power);
+
+extern RationalInt ri_rec(RationalInt val);             // Reciprocal
+extern RationalInt ri_integer(RationalInt val);         // Integer part
+extern RationalInt ri_fraction(RationalInt val);        // Fractional part
+
+extern int ri_cmp(RationalInt lhs, RationalInt rhs);    // Comparison (-1, 0, +1)
+
+extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
+extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
+extern int ri_scn(const char *str, char **eor, RationalInt *result);
 
 #endif /* RATIONAL_H_INCLUDED */
 
@@ -35,19 +38,28 @@ extern RationalInt ri_pow(RationalInt base, RationalInt power);
 ** 4. gcd(numerator, denominator) == 1 unless numerator == 0.
 */
 
-#include "gcd.h"        // add gcd_ll?
+//#include "rational.h"
 #include <assert.h>
+#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 
 static inline int iabs(int x) { return (x < 0) ? -x : x; }
 static inline int signum(int x) { return (x > 0) ? +1 : (x < 0) ? -1 : 0; }
 
-static void ri_chk(RationalInt val)
+static int gcd(int x, int y)
 {
-    assert(val.denominator != 0 && val.denominator != INT_MIN);
-    assert(val.numerator >= 0);
-    assert(val.numerator == 0 || gcd(iabs(val.numerator), iabs(val.denominator)) == 1);
+    int r;
+
+    if (x == 0 || y == 0)
+        return(0);
+
+    while ((r = x % y) != 0)
+    {
+        x = y;
+        y = r;
+    }
+    return(y);
 }
 
 static long long gcd_ll(long long x, long long y)
@@ -63,6 +75,13 @@ static long long gcd_ll(long long x, long long y)
         y = r;
     }
     return(y);
+}
+
+static void ri_chk(RationalInt val)
+{
+    assert(val.denominator != 0 && val.denominator != INT_MIN);
+    assert(val.numerator >= 0);
+    assert(val.numerator == 0 || gcd(iabs(val.numerator), iabs(val.denominator)) == 1);
 }
 
 RationalInt ri_new(int numerator, int denominator)
@@ -283,6 +302,67 @@ RationalInt ri_pow(RationalInt base, RationalInt power)
 
     //printf("<<-- result: %s\n", ri_fmtproper(result, buffer, sizeof(buffer)));
     return result;
+}
+
+/* Scan fraction number (in square brackets) */
+static int ri_scnfrc(const char *str, char **eor, RationalInt *res)
+{
+    *res = ri_new(0, 1);
+    if (eor != 0)
+        *eor = (char *)str; // CONST_CAST(char *, str)
+    return -1;
+}
+
+/* Scan decimal number (no square brackets) */
+static int ri_scndec(const char *str, char **eor, RationalInt *res)
+{
+    *res = ri_new(0, 1);
+    const char *ptr = str;
+
+    int sign = +1;
+    if (*ptr == '+')
+        ptr++;
+    else if (*ptr == '-')
+    {
+        sign = -1;
+        ptr++;
+    }
+    if (*ptr == '.')
+    {
+        /* .ddd */
+    }
+    else if (isdigit((unsigned char)*ptr))
+    {
+        /* ddd[.ddd] */
+        const char *s1 = ptr;
+        while (isdigit((unsigned char)*ptr))
+            ptr++;
+        const char *s2 = ptr;
+        const char *s3 = ptr;
+        if (*s2 == '.')
+        {
+            /* Using otherwise unused variables */
+            printf("<<JUNK>> %s %s %+d\n", s1, s3, sign);
+        }
+    }
+    else
+    {
+        /* Bogus - no digits after optional sign */
+        if (eor != 0)
+            *eor = (char *)str; // CONST_CAST(char *, str)
+    }
+    return -1;
+}
+
+int ri_scn(const char *str, char **eor, RationalInt *res)
+{
+    const char *ptr = str;
+    while (isspace((unsigned char)*ptr))
+        ptr++;
+    if (*ptr == '[')
+        return ri_scnfrc(ptr, eor, res);
+    else
+        return ri_scndec(ptr, eor, res);
 }
 
 #define TEST    // Temporary
@@ -695,6 +775,66 @@ static void p6_tester(const void *data)
                  ri_fmtproper(result,       buffer3, sizeof(buffer3)));
 }
 
+/* -- PHASE 7 TESTING -- */
+
+/* -- Scanning fractions -- */
+typedef struct p7_test_case
+{
+    const char *input;
+    RationalInt output;
+    int         offset;
+    int         status;
+} p7_test_case;
+
+static const p7_test_case p7_tests[] =
+{
+    { "[0]",            {  0, +1 },  3,  0 },
+    { "0",              {  0, +1 },  1,  0 },
+    { "-0",             {  0, +1 },  2,  0 },
+    { "+0",             {  0, +1 },  2,  0 },
+    { "+000",           {  0, +1 },  4,  0 },
+    { "+0.00",          {  0, +1 },  5,  0 },
+    { "-.000",          {  0, +1 },  5,  0 },
+    { "[1/2]",          {  1, +2 },  5,  0 },
+    { "[+1/2]",         {  1, +2 },  6,  0 },
+    { "[-1/2]",         {  1, -2 },  6,  0 },
+    { "0.5",            {  1, +2 },  3,  0 },
+    { "[+3/2]",         {  3, +2 },  6,  0 },
+    { "[+1 1/2]",       {  3, +2 },  8,  0 },
+    { "[-1 1/2]",       {  3, -2 },  8,  0 },
+    { "[1 1/2]",        {  3, +2 },  7,  0 },
+};
+
+static void p7_tester(const void *data)
+{
+    const p7_test_case *test = (const p7_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    ri_chk(test->output);
+    pt_settestid("<<%s>> for <<%s>>", test->input,
+                 ri_fmt(test->output, buffer1, sizeof(buffer1)));
+    char *eof;
+    RationalInt res;
+    int rc = ri_scn(test->input, &eof, &res);
+    pt_check_status(test->status, rc);
+    pt_check_int(test->offset, (int)(eof - test->input), "unexpected end of fraction");
+    if (rc == 0 && test->status == 0)
+    {
+        rc = ri_cmp(res, test->output);
+        if (rc != 0)
+            pt_fail("unexpected result: %s => (actual %s vs wanted %s) %d\n",
+                    test->input,
+                    ri_fmtproper(test->output, buffer1, sizeof(buffer1)),
+                    ri_fmtproper(res,          buffer2, sizeof(buffer2)),
+                    rc);
+        else
+            pt_pass("%s = %s\n",
+                    test->input,
+                    ri_fmtproper(test->output, buffer1, sizeof(buffer1)));
+    }
+}
+
+
 /* -- Phased Test Infrastructure -- */
 
 static pt_auto_phase phases[] =
@@ -705,6 +845,7 @@ static pt_auto_phase phases[] =
     { p4_tester, PT_ARRAYINFO(p4_tests), 0, "Fraction and Integer" },
     { p5_tester, PT_ARRAYINFO(p5_tests), 0, "Check modulus" },
     { p6_tester, PT_ARRAYINFO(p6_tests), 0, "Powers and Reciprocals" },
+    { p7_tester, PT_ARRAYINFO(p7_tests), 0, "Scanning fractions" },
 };
 
 int main(int argc, char **argv)
