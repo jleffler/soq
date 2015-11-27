@@ -320,51 +320,66 @@ static int ri_scnfrc(const char *str, char **eor, RationalInt *res)
     return -1;
 }
 
+static inline bool is_sign(char c) { return(c == '+' || c == '-'); }
+
+static inline int seteor_return(char **eor, char *eoc, int rv)
+{
+    if (eor != 0)
+        *eor = eoc;
+    return rv;
+}
+
 /* Scan decimal number (no square brackets) */
-static int ri_scndec(const char *str, char **eor, RationalInt *res)
+static int ri_scndec(char *str, char **eor, RationalInt *res)
 {
     *res = ri_new(0, 1);
-    const char *ptr = str;
-    char *eon;
-    int i;
-    if (!chk_strtoi(ptr, &eon, 10, &i))
-    {
-        /* XXX: Premature return; -.1234 is badly formatted but legitimate */
-        if (eor != 0)
-            *eor = eon;
-        return -1;
-    }
-    if (*eon != '.')
-    {
-        *res = ri_new(i, 1);
-        if (eor != 0)
-            *eor = eon;
-        return 0;
-    }
-    /* Track whether sign was present */
-    /* Also number of significant digits in value ignoring leading zeros */
-    const char *bgn = str;
+    assert(!isblank((unsigned char)*str));
+
+    /* Track whether sign is present */
+    char *bgn = str;
     int sign = +1;
-    if (*bgn == '+' || *bgn == '-')
+    if (is_sign(*bgn))
     {
         if (*bgn == '-')
             sign = -1;
         bgn++;
     }
+    if (!isdigit((unsigned char)*bgn))
+        return seteor_return(eor, str, -1);
+
+    char *eon = bgn;
+    int i = 0;
+
+    if (isdigit(*bgn))
+    {
+        if (!chk_strtoi(bgn, &eon, 10, &i))
+            return seteor_return(eor, eon, -1);
+    }
+
+    if (*eon != '.')
+    {
+        *res = ri_new(sign * i, 1);
+        return seteor_return(eor, eon, 0);
+    }
+
+    if (!isdigit((unsigned char)eon[1]))
+    {
+        *res = ri_new(sign * i, 1);
+        return seteor_return(eor, eon + 1, 0);
+    }
+
+    /* Number of significant digits in value ignoring leading zeros */
     while (*bgn == '0')
         bgn++;
     int num_i_digits = (int)(eon - bgn);
     assert(num_i_digits >= 0 && num_i_digits <= 10);
 
     int f;
-    ptr = eon + 1;
+    char *ptr = eon + 1;
     if (!chk_strtoi(ptr, &eon, 10, &f))
     {
-        /* Count the . not followed by a digit as part of the number. */
-        *res = ri_new(i, 1);
-        if (eor != 0)
-            *eor = CONST_CAST(char *, ptr);
-        return 0;
+        *res = ri_new(sign * i, 1);
+        return seteor_return(eor, ptr, 0);
     }
 
     /* How many digits in fraction?  Remember: 0.0001 returns f = 1 but length is 4 */
@@ -373,47 +388,46 @@ static int ri_scndec(const char *str, char **eor, RationalInt *res)
     /* XXX:     0.00000000000000000000000001 is a problem regardless */
     /* XXX: 23450.00000000000000000000000001 is a problem regardless */
     if (num_f_digits > 10)   /* XXX: 10 = magic number (max decimal digits in fraction) */
-    {
-        if (eor != 0)
-            *eor = eon;
-        return -1;
-    }
+        return seteor_return(eor, eon, -1);
 
     if (num_f_digits + num_i_digits > 10)
-    {
         /* Definitely too big */
-        if (eor != 0)
-            *eor = eon;
-        return -1;
-    }
+        return seteor_return(eor, eon, -1);
     if (num_f_digits + num_i_digits == 10)
     {
         /* XXX: Hack - tests fail! */
-        if (eor != 0)
-            *eor = eon;
-        return -1;
+        printf("[HACK]"); fflush(0);
+        return seteor_return(eor, eon, -1);
     }
 
     static const int pow10[] =
     {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
     };
-    *res = ri_new(i * pow10[num_f_digits] + f * sign, pow10[num_f_digits]);
+    *res = ri_new(sign * (i * pow10[num_f_digits] + f), pow10[num_f_digits]);
 
-    if (eor != 0)
-        *eor = eon;
-    return 0;
+    return seteor_return(eor, eon, 0);
 }
 
 int ri_scn(const char *str, char **eor, RationalInt *res)
 {
-    const char *ptr = str;
+    /*
+    ** The called code doesn't change the string pointed at by str, but
+    ** having it passed as a const char *is a pain.  CONST_CAST once to
+    ** avoid the pain.
+    */
+    char *ptr = CONST_CAST(char *, str);
     while (isspace((unsigned char)*ptr))
         ptr++;
+    int rv;
     if (*ptr == '[')
-        return ri_scnfrc(ptr, eor, res);
+        rv =  ri_scnfrc(ptr, eor, res);
     else
-        return ri_scndec(ptr, eor, res);
+        rv =  ri_scndec(ptr, eor, res);
+    /* If the string was not converted, *eor points to ptr but needs to point to str */
+    if (eor != 0 && *eor == ptr)
+        *eor = CONST_CAST(char *, str);
+    return rv;
 }
 
 #define TEST    // Temporary
@@ -842,12 +856,21 @@ static const p7_test_case p7_tests[] =
     { "0",              {          0,        +1 },  1,  0 },
     { "-0",             {          0,        +1 },  2,  0 },
     { "+0",             {          0,        +1 },  2,  0 },
+    { "- 0",            {          0,        +1 },  0, -1 },
+    { "+ 0",            {          0,        +1 },  0, -1 },
+    { "-. 0",           {          0,        +1 },  0, -1 },
+    { "+. 0",           {          0,        +1 },  0, -1 },
+    { "+0",             {          0,        +1 },  2,  0 },
     { "+000",           {          0,        +1 },  4,  0 },
     { "+123",           {        123,        +1 },  4,  0 },
     { "-321",           {        321,        -1 },  4,  0 },
     { "-321.",          {        321,        -1 },  5,  0 },
     { "-0.321",         {        321,     -1000 },  6,  0 },
+    { "-0.-321",        {          0,        +1 },  3,  0 },
+    { "-.-321",         {          0,        +1 },  0, -1 },
     { "+0.00",          {          0,        +1 },  5,  0 },
+    { "+0.+00",         {          0,        +1 },  3,  0 },
+    { "+9+00",          {          9,        +1 },  2,  0 },
     { "-.000",          {          0,        +1 },  5,  0 },
     { "0.5XX",          {          1,        +2 },  3,  0 },
     { "-3.14159",       {     314159,   -100000 },  8,  0 },
@@ -855,6 +878,8 @@ static const p7_test_case p7_tests[] =
     { "-2147.483647 ",  { 2147483647,  -1000000 }, 12,  0 },
     { "0002147483.647", { 2147483647,     +1000 }, 14,  0 },
     { "000000.7483647", {    7483647, +10000000 }, 14,  0 },
+    { "    0",          {          0,        +1 },  5,  0 },
+    { "    X",          {          0,        +1 },  0, -1 },
     { "[0]",            {          0,        +1 },  3,  0 },
     { "[1/2]",          {          1,        +2 },  5,  0 },
     { "[+1/2]",         {          1,        +2 },  6,  0 },
