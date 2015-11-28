@@ -39,7 +39,7 @@ extern int ri_scn(const char *str, char **eor, RationalInt *result);
 */
 
 //#include "rational.h"
-//#include "chkstrint.h"
+#include "chkstrint.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -329,13 +329,64 @@ static inline int seteor_return(char **eor, char *eoc, int rv, int errnum)
     return rv;
 }
 
-/* Scan fraction number (in square brackets) */
-static int ri_scnfrc(const char *str, char **eor, RationalInt *res)
+/* Scan fraction number: [I] or [N/D] or [I N/D] */
+static int ri_scnfrc(char *str, char **eor, RationalInt *res)
 {
-    *res = ri_new(0, 1);
-    if (eor != 0)
-        *eor = CONST_CAST(char *, str);
-    return -1;
+    assert(*str == '[');
+    char *eos = strchr(str, ']');
+    if (eos == 0)
+        return seteor_return(eor, str, -1, EINVAL);
+    int sign = +1;
+    char *ptr = str + 1;
+    while (isspace(*ptr))       /* Too flexible? Probably! */
+        ptr++;
+    if (*ptr == '+')
+        ptr++;
+    else if (*ptr == '-')
+    {
+        sign = -1;
+        ptr++;
+    }
+    if (!isdigit(*ptr))
+        return seteor_return(eor, eos+1, -1, EINVAL);
+    char *eon = 0;
+    int i;
+    if (!chk_strtoi(ptr, &eon, 10, &i))
+        return seteor_return(eor, eos+1, -1, ERANGE);
+    while (isspace(*eon))
+        eon++;
+    if (eon == eos)
+    {
+        /* [I] */
+        *res = ri_new(i, sign);
+        return seteor_return(eor, eos+1, 0, ENOERROR);
+    }
+    if (*eon == '/')
+    {
+        /* [N/D] */
+        eon++;
+        while (isspace(*eon))
+            eon++;
+        if (!isdigit(*eon))
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        ptr = eon;
+        int d;
+        if (!chk_strtoi(ptr, &eon, 10, &d))
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        while (isspace(*eon))
+            eon++;
+        if (eon != eos)
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        *res = ri_new(i, sign * d);
+        return seteor_return(eor, eos+1, 0, ENOERROR);
+    }
+    else if (isdigit(*eon))
+    {
+        printf("[INCOMPLETE]\n");
+        return seteor_return(eor, str, -1, EINVAL);
+    }
+    else
+        return seteor_return(eor, eos+1, -1, EINVAL);
 }
 
 /* Scan decimal number (no square brackets) */
@@ -352,11 +403,11 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
         sign = -1;
         ptr++;
     }
+
     int val = 0;
     int num_i_digits = 0;
     int num_z_digits = 0;
-    res->numerator = 0;         /* In case of doubt, the answer is zero */
-    res->denominator = 1;
+    *res = ri_new(0, 1);         /* In case of doubt, the answer is zero */
     while (*ptr == '0') /* Skip leading zeroes */
     {
         num_z_digits++;
@@ -891,15 +942,29 @@ static const p7_test_case p7_tests[] =
     { "    0    ",        {          0,        +1 },  5,  0 },
     { "    X",            {          0,        +1 },  0, -1 },
 
-    { "[0]",              {          0,        +1 },  3,  0 },
-    { "[1/2]",            {          1,        +2 },  5,  0 },
-    { "[+1/2]",           {          1,        +2 },  6,  0 },
-    { "[-1/2]",           {          1,        -2 },  6,  0 },
-    { "[+3/2]",           {          3,        +2 },  6,  0 },
-    { "[+1 1/2]",         {          3,        +2 },  8,  0 },
-    { "[-1 1/2]",         {          3,        -2 },  8,  0 },
-    { "[1 1/2]",          {          3,        +2 },  7,  0 },
-    { "[12 15/3]",        {         17,        +1 },  9,  0 },
+    { "[0]",                {          0,          +1 },  3,  0 },
+    { "[+10]",              {         10,          +1 },  5,  0 },
+    { "[-234]",             {        234,          -1 },  6,  0 },
+    { "[-2147483647]",      { 2147483647,          -1 }, 13,  0 },
+    { "[-2147483648]",      {          0,          +1 }, 13, -1 },
+    { "[+2147483647]",      { 2147483647,          +1 }, 13,  0 },
+    { "[+2147483648]",      {          0,          +1 }, 13, -1 },
+    { "[1/2]",              {          1,          +2 },  5,  0 },
+    { "[+1/2]",             {          1,          +2 },  6,  0 },
+    { "[-1/2]",             {          1,          -2 },  6,  0 },
+    { "[+3/2]",             {          3,          +2 },  6,  0 },
+    { "[-2147483647/3192]", { 2147483647,       -3192 }, 18,  0 },
+    { "[+2147483648/3192]", {          0,          +1 }, 18, -1 },
+    { "[-3192/2147483647]", {       3192, -2147483647 }, 18,  0 },
+    { "[-3192/2147483648]", {          0,          +1 }, 18, -1 },
+    { "[-319X/2147483647]", {          0,          +1 }, 18, -1 },
+    { "[-3192/2147X83647]", {          0,          +1 }, 18, -1 },
+    { "[-3192/-214748347]", {          0,          +1 }, 18, -1 },
+    { "[+3192.2147]",       {          0,          +1 }, 12, -1 },
+    { "[+1 1/2]",           {          3,          +2 },  8,  0 },
+    { "[-1 1/2]",           {          3,          -2 },  8,  0 },
+    { "[1 1/2]",            {          3,          +2 },  7,  0 },
+    { "[12 15/3]",          {         17,          +1 },  9,  0 },
 };
 
 static void p7_tester(const void *data)
