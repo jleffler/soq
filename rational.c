@@ -382,8 +382,33 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
     }
     else if (isdigit(*eon))
     {
-        printf("[INCOMPLETE]\n");
-        return seteor_return(eor, str, -1, EINVAL);
+        int n;
+        int d;
+        ptr = eon;
+        if (!chk_strtoi(ptr, &eon, 10, &n))
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        while (isspace(*eon))
+            eon++;
+        if (*eon != '/')
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        eon++;
+        while (isspace(*eon))
+            eon++;
+        ptr = eon;
+        if (!chk_strtoi(ptr, &eon, 10, &d))
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        while (isspace(*eon))
+            eon++;
+        if (eon != eos)
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        /* i, n, d are all valid integers, but can i + n/d be represented? */
+        if (i > (INT_MAX - d) / n)
+        {
+            printf("FAIL: I = %d; N = %d; D = %d\n", i, n, d);
+            return seteor_return(eor, eos+1, -1, ERANGE);
+        }
+        *res = ri_new(d * i + n, sign * d);
+        return seteor_return(eor, eos+1, 0, ENOERROR);
     }
     else
         return seteor_return(eor, eos+1, -1, EINVAL);
