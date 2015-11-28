@@ -311,14 +311,7 @@ RationalInt ri_pow(RationalInt base, RationalInt power)
     return result;
 }
 
-/* Scan fraction number (in square brackets) */
-static int ri_scnfrc(const char *str, char **eor, RationalInt *res)
-{
-    *res = ri_new(0, 1);
-    if (eor != 0)
-        *eor = (char *)str; // CONST_CAST(char *, str)
-    return -1;
-}
+/* -- Scan Functions -- */
 
 static inline bool is_sign(char c) { return(c == '+' || c == '-'); }
 
@@ -327,6 +320,48 @@ static inline int seteor_return(char **eor, char *eoc, int rv)
     if (eor != 0)
         *eor = eoc;
     return rv;
+}
+
+static const int pow10[] =
+{
+    1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+};
+
+static inline bool number_too_big(int num_i_digits, int num_f_digits, int i, int f)
+{
+    assert(num_i_digits + num_f_digits == 10 && num_i_digits < 10);
+    /*
+    ** Ugh...how to determine whether the 10-digit number is under
+    ** INT_MAX Remember, it might be 123.4567890 or 98765.43201 (the
+    ** first is OK, the second is not)
+    ** If num_i_digits == 10, then the number is small enough.
+    ** If num_i_digits < 10, then we have space to manoeuvre
+    ** If num_i_digits == 7, then if i > (INT_MAX / pow10[10 - 7]) then too big
+    **     if i < (INT_MAX / pow10[10-7]) then OK
+    **     else if (f > INT_MAX % pow10[10-7]) then too big
+    **     else OK
+    */
+    int i_pow10 = pow10[num_f_digits];
+    //printf("i = %d; f = %d; i_10 = %d; IMAX/i_10 = %d; IMAX%%i_10 = %d\n",
+    //        i, f, i_pow10, INT_MAX / i_pow10, INT_MAX % i_pow10);
+
+    if (i > INT_MAX / i_pow10)
+        return true;    // Too big
+    else if (i < INT_MAX / i_pow10)
+        return false;
+    else if (f > INT_MAX % i_pow10)
+        return true;
+    else
+        return false;
+}
+
+/* Scan fraction number (in square brackets) */
+static int ri_scnfrc(const char *str, char **eor, RationalInt *res)
+{
+    *res = ri_new(0, 1);
+    if (eor != 0)
+        *eor = CONST_CAST(char *, str);
+    return -1;
 }
 
 /* Scan decimal number (no square brackets) */
@@ -344,7 +379,8 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
             sign = -1;
         bgn++;
     }
-    if (!isdigit((unsigned char)*bgn))
+    if ((!isdigit((unsigned char)*bgn) && *bgn != '.') ||
+        (*bgn == '.' && !isdigit((unsigned char)bgn[1])))
         return seteor_return(eor, str, -1);
 
     char *eon = bgn;
@@ -378,11 +414,19 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
     char *ptr = eon + 1;
     if (!chk_strtoi(ptr, &eon, 10, &f))
     {
+        /*
+        ** What happened?  We had a digit, but the conversion failed, so
+        ** there must have been too many digits.  And we need to worry
+        ** about trailing zeros.  If we remove them, it might be OK?
+        ** Grumble!
+        */
+        printf("[HACK]"); fflush(0);
         *res = ri_new(sign * i, 1);
         return seteor_return(eor, ptr, 0);
     }
 
     /* How many digits in fraction?  Remember: 0.0001 returns f = 1 but length is 4 */
+    /* However, 0.001000000 returns 9 but the 6 trailing zeroes don't really count */
     int num_f_digits = (int)(eon - ptr);
     assert(num_f_digits > 0);
     /* XXX:     0.00000000000000000000000001 is a problem regardless */
@@ -393,17 +437,12 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
     if (num_f_digits + num_i_digits > 10)
         /* Definitely too big */
         return seteor_return(eor, eon, -1);
-    if (num_f_digits + num_i_digits == 10)
+    if (num_i_digits < 10 && num_f_digits + num_i_digits == 10)
     {
-        /* XXX: Hack - tests fail! */
-        printf("[HACK]"); fflush(0);
-        return seteor_return(eor, eon, -1);
+        if (number_too_big(num_i_digits, num_f_digits, i, f))
+            return seteor_return(eor, eon, -1);
     }
 
-    static const int pow10[] =
-    {
-        1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
-    };
     *res = ri_new(sign * (i * pow10[num_f_digits] + f), pow10[num_f_digits]);
 
     return seteor_return(eor, eon, 0);
@@ -853,42 +892,53 @@ typedef struct p7_test_case
 
 static const p7_test_case p7_tests[] =
 {
-    { "0",              {          0,        +1 },  1,  0 },
-    { "-0",             {          0,        +1 },  2,  0 },
-    { "+0",             {          0,        +1 },  2,  0 },
-    { "- 0",            {          0,        +1 },  0, -1 },
-    { "+ 0",            {          0,        +1 },  0, -1 },
-    { "-. 0",           {          0,        +1 },  0, -1 },
-    { "+. 0",           {          0,        +1 },  0, -1 },
-    { "+0",             {          0,        +1 },  2,  0 },
-    { "+000",           {          0,        +1 },  4,  0 },
-    { "+123",           {        123,        +1 },  4,  0 },
-    { "-321",           {        321,        -1 },  4,  0 },
-    { "-321.",          {        321,        -1 },  5,  0 },
-    { "-0.321",         {        321,     -1000 },  6,  0 },
-    { "-0.-321",        {          0,        +1 },  3,  0 },
-    { "-.-321",         {          0,        +1 },  0, -1 },
-    { "+0.00",          {          0,        +1 },  5,  0 },
-    { "+0.+00",         {          0,        +1 },  3,  0 },
-    { "+9+00",          {          9,        +1 },  2,  0 },
-    { "-.000",          {          0,        +1 },  5,  0 },
-    { "0.5XX",          {          1,        +2 },  3,  0 },
-    { "-3.14159",       {     314159,   -100000 },  8,  0 },
-    { "2147483647X",    { 2147483647,        +1 }, 10,  0 },
-    { "-2147.483647 ",  { 2147483647,  -1000000 }, 12,  0 },
-    { "0002147483.647", { 2147483647,     +1000 }, 14,  0 },
-    { "000000.7483647", {    7483647, +10000000 }, 14,  0 },
-    { "    0",          {          0,        +1 },  5,  0 },
-    { "    X",          {          0,        +1 },  0, -1 },
-    { "[0]",            {          0,        +1 },  3,  0 },
-    { "[1/2]",          {          1,        +2 },  5,  0 },
-    { "[+1/2]",         {          1,        +2 },  6,  0 },
-    { "[-1/2]",         {          1,        -2 },  6,  0 },
-    { "[+3/2]",         {          3,        +2 },  6,  0 },
-    { "[+1 1/2]",       {          3,        +2 },  8,  0 },
-    { "[-1 1/2]",       {          3,        -2 },  8,  0 },
-    { "[1 1/2]",        {          3,        +2 },  7,  0 },
-    { "[12 15/3]",      {         17,        +1 },  9,  0 },
+    { "0",                {          0,        +1 },  1,  0 },
+    { "-0",               {          0,        +1 },  2,  0 },
+    { "+0",               {          0,        +1 },  2,  0 },
+    { "- 0",              {          0,        +1 },  0, -1 },
+    { "+ 0",              {          0,        +1 },  0, -1 },
+    { "-. 0",             {          0,        +1 },  0, -1 },
+    { "+. 0",             {          0,        +1 },  0, -1 },
+    { "+0",               {          0,        +1 },  2,  0 },
+    { "+000",             {          0,        +1 },  4,  0 },
+    { "+123",             {        123,        +1 },  4,  0 },
+    { "-321",             {        321,        -1 },  4,  0 },
+    { "-321.",            {        321,        -1 },  5,  0 },
+    { "-0.321",           {        321,     -1000 },  6,  0 },
+    { "-0.-321",          {          0,        +1 },  3,  0 },
+    { "-.-321",           {          0,        +1 },  0, -1 },
+    { "+0.00",            {          0,        +1 },  5,  0 },
+    { "+0.+00",           {          0,        +1 },  3,  0 },
+    { "+9+00",            {          9,        +1 },  2,  0 },
+    { "-.000",            {          0,        +1 },  5,  0 },
+    { "0.5XX",            {          1,        +2 },  3,  0 },
+    { "-3.14159",         {     314159,   -100000 },  8,  0 },
+    { "2147483647X",      { 2147483647,        +1 }, 10,  0 },
+    { "-2147.483647 ",    { 2147483647,  -1000000 }, 12,  0 },
+    { "0002147483.647",   { 2147483647,     +1000 }, 14,  0 },
+    { "000000.7483647",   {    7483647, +10000000 }, 14,  0 },
+    { "-2147.483648 ",    {          0,        +1 }, 12, -1 },
+
+    /* How to handle these trailing zeros given that the string is not modifiable? */
+    { "-2147.48364700",   { 2147483647,  -1000000 }, 14,  0 },
+    { "-2147.4836470000", { 2147483647,  -1000000 }, 16,  0 },
+    { "-2147.2147480000", { 2147214748,  -1000000 }, 16,  0 },
+    { "-2147.4000000000", {      21474,        -10}, 16,  0 },
+    { "-2147.2000000000", {      21472,        -10}, 16,  0 },
+
+    { "    0",            {          0,        +1 },  5,  0 },
+    { "    0    ",        {          0,        +1 },  5,  0 },
+    { "    X",            {          0,        +1 },  0, -1 },
+
+    { "[0]",              {          0,        +1 },  3,  0 },
+    { "[1/2]",            {          1,        +2 },  5,  0 },
+    { "[+1/2]",           {          1,        +2 },  6,  0 },
+    { "[-1/2]",           {          1,        -2 },  6,  0 },
+    { "[+3/2]",           {          3,        +2 },  6,  0 },
+    { "[+1 1/2]",         {          3,        +2 },  8,  0 },
+    { "[-1 1/2]",         {          3,        -2 },  8,  0 },
+    { "[1 1/2]",          {          3,        +2 },  7,  0 },
+    { "[12 15/3]",        {         17,        +1 },  9,  0 },
 };
 
 static void p7_tester(const void *data)
