@@ -314,6 +314,8 @@ static inline int seteor_return(char **eor, char *eoc, int rv, int errnum)
     return rv;
 }
 
+static inline char *skip_blanks(char *str) { while (isspace(*str)) str++; return str; }
+
 /* Scan fraction number: [I] or [N/D] or [I N/D] */
 static int ri_scnfrc(char *str, char **eor, RationalInt *res)
 {
@@ -322,9 +324,7 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
     if (eos == 0)
         return seteor_return(eor, str, -1, EINVAL);
     int sign = +1;
-    char *ptr = str + 1;
-    while (isspace(*ptr))       /* Too flexible? Probably! */
-        ptr++;
+    char *ptr = skip_blanks(str + 1);
     if (*ptr == '+')
         ptr++;
     else if (*ptr == '-')
@@ -334,57 +334,46 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
     }
     if (!isdigit(*ptr))
         return seteor_return(eor, eos+1, -1, EINVAL);
-    char *eon = 0;
     int i;
-    if (!chk_strtoi(ptr, &eon, 10, &i))
+    if (!chk_strtoi(ptr, &ptr, 10, &i))
         return seteor_return(eor, eos+1, -1, ERANGE);
-    while (isspace(*eon))
-        eon++;
-    if (eon == eos)
+    ptr = skip_blanks(ptr);
+    if (ptr == eos)
     {
         /* [I] */
         *res = ri_new(i, sign);
         return seteor_return(eor, eos+1, 0, ENOERROR);
     }
-    if (*eon == '/')
+    if (*ptr == '/')
     {
         /* [N/D] */
-        eon++;
-        while (isspace(*eon))
-            eon++;
-        if (!isdigit(*eon))
+        ptr = skip_blanks(ptr + 1);
+        if (!isdigit(*ptr))
             return seteor_return(eor, eos+1, -1, EINVAL);
-        ptr = eon;
         int d;
-        if (!chk_strtoi(ptr, &eon, 10, &d))
+        if (!chk_strtoi(ptr, &ptr, 10, &d))
             return seteor_return(eor, eos+1, -1, EINVAL);
-        while (isspace(*eon))
-            eon++;
-        if (eon != eos)
+        ptr = skip_blanks(ptr);
+        if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         *res = ri_new(i, sign * d);
         return seteor_return(eor, eos+1, 0, ENOERROR);
     }
-    else if (isdigit(*eon))
+    else if (isdigit(*ptr))
     {
+        /* [I N/D] */
         int n;
+        if (!chk_strtoi(ptr, &ptr, 10, &n))
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        ptr = skip_blanks(ptr);
+        if (*ptr != '/')
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        ptr = skip_blanks(ptr + 1);
         int d;
-        ptr = eon;
-        if (!chk_strtoi(ptr, &eon, 10, &n))
+        if (!chk_strtoi(ptr, &ptr, 10, &d))
             return seteor_return(eor, eos+1, -1, EINVAL);
-        while (isspace(*eon))
-            eon++;
-        if (*eon != '/')
-            return seteor_return(eor, eos+1, -1, EINVAL);
-        eon++;
-        while (isspace(*eon))
-            eon++;
-        ptr = eon;
-        if (!chk_strtoi(ptr, &eon, 10, &d))
-            return seteor_return(eor, eos+1, -1, EINVAL);
-        while (isspace(*eon))
-            eon++;
-        if (eon != eos)
+        ptr = skip_blanks(ptr);
+        if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         /* i, n, d are all valid integers, but can i + n/d be represented? */
         if (i > (INT_MAX - d) / n)
@@ -400,9 +389,7 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
 static int ri_scndec(char *str, char **eor, RationalInt *res)
 {
     int sign = +1;
-    char *ptr = str;
-    while (isspace(*ptr))
-        ptr++;
+    char *ptr = skip_blanks(str);
     if (*ptr == '+')
         ptr++;
     else if (*ptr == '-')
@@ -414,8 +401,7 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
     int val = 0;
     int num_i_digits = 0;
     int num_z_digits = 0;
-    *res = ri_new(0, 1);         /* In case of doubt, the answer is zero */
-    while (*ptr == '0') /* Skip leading zeroes */
+    while (*ptr == '0')         /* Skip leading zeroes */
     {
         num_z_digits++;
         ptr++;
@@ -929,6 +915,7 @@ static const p7_test_case p7_tests[] =
     { "+0.00",              {          0,          +1 },  5,  0 },
     { "+0.+00",             {          0,          +1 },  3,  0 },
     { "+9+00",              {          9,          +1 },  2,  0 },
+    { "+6.25",              {         25,          +4 },  5,  0 },
     { "-.000",              {          0,          +1 },  5,  0 },
     { "0.5XX",              {          1,          +2 },  3,  0 },
     { "-3.14159",           {     314159,     -100000 },  8,  0 },
