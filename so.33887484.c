@@ -11,16 +11,16 @@ typedef struct RationalInt
 
 extern RationalInt ri_new(int numerator, int denominator);
 
-extern void ri_add(RationalInt lhs, RationalInt rhs, RationalInt *res);
-extern void ri_sub(RationalInt lhs, RationalInt rhs, RationalInt *res);
-extern void ri_mul(RationalInt lhs, RationalInt rhs, RationalInt *res);
-extern void ri_div(RationalInt lhs, RationalInt rhs, RationalInt *res);
-extern void ri_mod(RationalInt lhs, RationalInt rhs, RationalInt *res);
-extern void ri_pow(RationalInt base, RationalInt power, RationalInt *res);
+extern void ri_add(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
+extern void ri_sub(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
+extern void ri_mul(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
+extern void ri_div(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
+extern void ri_mod(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
+extern void ri_pow(const RationalInt *base, const RationalInt *power, RationalInt *res);
 
-extern void ri_rec(RationalInt val, RationalInt *res);             // Reciprocal
-extern void ri_integer(RationalInt val, RationalInt *res);         // Integer part
-extern void ri_fraction(RationalInt val, RationalInt *res);        // Fractional part
+extern void ri_rec(const RationalInt *val, RationalInt *res);             // Reciprocal
+extern void ri_integer(const RationalInt *val, RationalInt *res);         // Integer part
+extern void ri_fraction(const RationalInt *val, RationalInt *res);        // Fractional part
 
 extern int ri_cmp(RationalInt lhs, RationalInt rhs);    // Comparison (-1, 0, +1)
 
@@ -161,15 +161,15 @@ RationalInt ri_new(int numerator, int denominator)
     return ri;
 }
 
-void ri_add(RationalInt lhs, RationalInt rhs, RationalInt *res)
+void ri_add(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
 {
-    long long rn = (long long)lhs.numerator * rhs.denominator +
-                   (long long)rhs.numerator * lhs.denominator;
+    long long rn = (long long)lhs->numerator * rhs->denominator +
+                   (long long)rhs->numerator * lhs->denominator;
     if (rn == 0)
         *res = ri_new(0, 1);
     else
     {
-        long long rd = (long long)lhs.denominator * rhs.denominator;
+        long long rd = (long long)lhs->denominator * rhs->denominator;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -179,15 +179,15 @@ void ri_add(RationalInt lhs, RationalInt rhs, RationalInt *res)
     }
 }
 
-void ri_sub(RationalInt lhs, RationalInt rhs, RationalInt *res)
+void ri_sub(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
 {
-    long long rn = (long long)lhs.numerator * rhs.denominator -
-                   (long long)rhs.numerator * lhs.denominator;
+    long long rn = (long long)lhs->numerator * rhs->denominator -
+                   (long long)rhs->numerator * lhs->denominator;
     if (rn == 0)
         *res = ri_new(0, 1);
     else
     {
-        long long rd = (long long)lhs.denominator * rhs.denominator;
+        long long rd = (long long)lhs->denominator * rhs->denominator;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -197,16 +197,16 @@ void ri_sub(RationalInt lhs, RationalInt rhs, RationalInt *res)
     }
 }
 
-void ri_mul(RationalInt lhs, RationalInt rhs, RationalInt *res)
+void ri_mul(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
 {
-    long long rn = (long long)lhs.numerator * rhs.numerator;
+    long long rn = (long long)lhs->numerator * rhs->numerator;
     if (rn == 0)
     {
         *res = ri_new(0, 1);
     }
     else
     {
-        long long rd = (long long)lhs.denominator * rhs.denominator;
+        long long rd = (long long)lhs->denominator * rhs->denominator;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -216,15 +216,15 @@ void ri_mul(RationalInt lhs, RationalInt rhs, RationalInt *res)
     }
 }
 
-void ri_div(RationalInt lhs, RationalInt rhs, RationalInt *res)
+void ri_div(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
 {
-    assert(rhs.numerator != 0);
-    if (lhs.numerator == 0)     // Zero divided by anything is zero
+    assert(rhs->numerator != 0);
+    if (lhs->numerator == 0)     // Zero divided by anything is zero
         *res = ri_new(0, 1);
     else
     {
-        long long rn = (long long)lhs.numerator * rhs.denominator;
-        long long rd = (long long)lhs.denominator * rhs.numerator;
+        long long rn = (long long)lhs->numerator * rhs->denominator;
+        long long rd = (long long)lhs->denominator * rhs->numerator;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -280,9 +280,9 @@ char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
     assert(buflen > 0 && buffer != 0);
     ri_chk(val);
     RationalInt in;
-    ri_integer(val, &in);
+    ri_integer(&val, &in);
     RationalInt fr;
-    ri_fraction(val, &fr);
+    ri_fraction(&val, &fr);
     char sign = (val.denominator < 0) ? '-' : '+';
     int len;
     assert(in.denominator == +1 || in.denominator == -1);
@@ -309,56 +309,56 @@ char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
     return buffer;
 }
 
-void ri_integer(RationalInt val, RationalInt *res)
+void ri_integer(const RationalInt *val, RationalInt *res)
 {
-    *res = ri_new(val.numerator / val.denominator, 1);
+    *res = ri_new(val->numerator / val->denominator, 1);
 }
 
-void ri_fraction(RationalInt val, RationalInt *res)
+void ri_fraction(const RationalInt *val, RationalInt *res)
 {
-    *res = ri_new(val.numerator % val.denominator, val.denominator);
+    *res = ri_new(val->numerator % val->denominator, val->denominator);
 }
 
-void ri_mod(RationalInt lhs, RationalInt rhs, RationalInt *res)
+void ri_mod(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
 {
-    assert(rhs.numerator != 0);
+    assert(rhs->numerator != 0);
     RationalInt rd;
     ri_div(lhs, rhs, &rd);
     RationalInt ri;
-    ri_integer(rd, &ri);
+    ri_integer(&rd, &ri);
     RationalInt rm;
-    ri_mul(ri, rhs, &rm);
-    ri_sub(lhs, rm, res);
+    ri_mul(&ri, rhs, &rm);
+    ri_sub(lhs, &rm, res);
 }
 
-void ri_rec(RationalInt val, RationalInt *res)
+void ri_rec(const RationalInt *val, RationalInt *res)
 {
-    assert(val.numerator != 0);
-    *res = ri_new(val.denominator, val.numerator);
+    assert(val->numerator != 0);
+    *res = ri_new(val->denominator, val->numerator);
 }
 
-void ri_pow(RationalInt base, RationalInt power, RationalInt *res)
+void ri_pow(const RationalInt *base, const RationalInt *power, RationalInt *res)
 {
-    assert(power.denominator == +1 || power.denominator == -1);
-    if (base.numerator == 0)
+    assert(power->denominator == +1 || power->denominator == -1);
+    if (base->numerator == 0)
         *res = ri_new(0, 1);
-    else if (power.numerator == 0)
+    else if (power->numerator == 0)
         *res = ri_new(1, 1);
     else
     {
-        RationalInt factor = base;
+        RationalInt factor = *base;
         RationalInt result = ri_new(1, 1);
-        for (int i = power.numerator; i != 0; i >>= 1)
+        for (int i = power->numerator; i != 0; i >>= 1)
         {
             if (i & 1)
-                ri_mul(result, factor, &result);
+                ri_mul(&result, &factor, &result);
             /* How much of a kludge is this test? */
             if (i > 1)
-                ri_mul(factor, factor, &factor);
+                ri_mul(&factor, &factor, &factor);
         }
 
-        if (power.denominator < 0)
-            ri_rec(result, &result);
+        if (power->denominator < 0)
+            ri_rec(&result, &result);
 
         *res = result;
     }
@@ -631,7 +631,7 @@ static void p2_tester(const void *data)
 /* -- Rational Binary Operators -- */
 typedef struct BinaryOp
 {
-    void (*op_func)(RationalInt lhs, RationalInt rhs, RationalInt *res);
+    void (*op_func)(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
     const char   *op_name;
 } BinaryOp;
 
@@ -734,7 +734,7 @@ static void p3_tester(const void *data)
     ri_chk(test->res);
 
     RationalInt res;
-    (*test->op->op_func)(test->lhs, test->rhs, &res);
+    (*test->op->op_func)(&test->lhs, &test->rhs, &res);
     int rc = ri_cmp(test->res, res);
     if (rc != 0)
         pt_fail("unexpected result for %s %s %s (actual %s vs wanted %s: %d)\n",
@@ -781,9 +781,9 @@ static void p4_tester(const void *data)
     ri_chk(test->o_int);
     ri_chk(test->o_frac);
     RationalInt ri;
-    ri_integer(test->input, &ri);
+    ri_integer(&test->input, &ri);
     RationalInt rf;
-    ri_fraction(test->input, &rf);
+    ri_fraction(&test->input, &rf);
     char buffer0[32];
     char buffer1[32];
     char buffer2[32];
@@ -839,15 +839,15 @@ static void p5_tester(const void *data)
     ri_chk(test->rhs);
     ri_chk(test->mod);
     RationalInt dv;
-    ri_div(test->lhs, test->rhs, &dv);
+    ri_div(&test->lhs, &test->rhs, &dv);
     RationalInt in;
-    ri_integer(dv, &in);
+    ri_integer(&dv, &in);
     RationalInt mv;
-    ri_mod(test->lhs, test->rhs, &mv);
+    ri_mod(&test->lhs, &test->rhs, &mv);
     RationalInt rt;
-    ri_mul(in, test->rhs, &rt);
+    ri_mul(&in, &test->rhs, &rt);
     RationalInt rv;
-    ri_add(rt, mv, &rv);
+    ri_add(&rt, &mv, &rv);
     char buffer[10][32];
 
     if (ri_cmp(mv, test->mod) != 0 || ri_cmp(rv, test->lhs) != 0)
@@ -935,7 +935,7 @@ static void p6_tester(const void *data)
     ri_chk(test->result);
 
     RationalInt result;
-    ri_pow(test->base, test->power, &result);
+    ri_pow(&test->base, &test->power, &result);
 
     int rc = ri_cmp(result, test->result);
     if (rc != 0)
