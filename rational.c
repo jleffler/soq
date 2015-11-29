@@ -574,7 +574,7 @@ static void p2_tester(const void *data)
 typedef struct BinaryOp
 {
     RationalInt (*op_func)(RationalInt lhs, RationalInt rhs);
-    char         *op_name;
+    const char   *op_name;
 } BinaryOp;
 
 enum { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD };
