@@ -314,7 +314,19 @@ static inline int seteor_return(char **eor, char *eoc, int rv, int errnum)
     return rv;
 }
 
-static inline char *skip_blanks(char *str) { while (isspace(*str)) str++; return str; }
+static inline char *skip_space(char *str) { while (isspace(*str)) str++; return str; }
+static inline int opt_sign(char **str)
+{
+    int sign = +1;
+    if (**str == '+')
+        (*str)++;
+    else if (**str == '-')
+    {
+        sign = -1;
+        (*str)++;
+    }
+    return sign;
+}
 
 /* Scan fraction number: [I] or [N/D] or [I N/D] */
 static int ri_scnfrc(char *str, char **eor, RationalInt *res)
@@ -323,21 +335,14 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
     char *eos = strchr(str, ']');
     if (eos == 0)
         return seteor_return(eor, str, -1, EINVAL);
-    int sign = +1;
-    char *ptr = skip_blanks(str + 1);
-    if (*ptr == '+')
-        ptr++;
-    else if (*ptr == '-')
-    {
-        sign = -1;
-        ptr++;
-    }
+    char *ptr = skip_space(str + 1);
+    int sign = opt_sign(&ptr);
     if (!isdigit(*ptr))
         return seteor_return(eor, eos+1, -1, EINVAL);
     int i;
     if (!chk_strtoi(ptr, &ptr, 10, &i))
         return seteor_return(eor, eos+1, -1, ERANGE);
-    ptr = skip_blanks(ptr);
+    ptr = skip_space(ptr);
     if (ptr == eos)
     {
         /* [I] */
@@ -347,13 +352,13 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
     if (*ptr == '/')
     {
         /* [N/D] */
-        ptr = skip_blanks(ptr + 1);
+        ptr = skip_space(ptr + 1);
         if (!isdigit(*ptr))
             return seteor_return(eor, eos+1, -1, EINVAL);
         int d;
         if (!chk_strtoi(ptr, &ptr, 10, &d))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_blanks(ptr);
+        ptr = skip_space(ptr);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         *res = ri_new(i, sign * d);
@@ -365,14 +370,14 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
         int n;
         if (!chk_strtoi(ptr, &ptr, 10, &n))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_blanks(ptr);
+        ptr = skip_space(ptr);
         if (*ptr != '/')
             return seteor_return(eor, eos+1, -1, EINVAL);
-        ptr = skip_blanks(ptr + 1);
+        ptr = skip_space(ptr + 1);
         int d;
         if (!chk_strtoi(ptr, &ptr, 10, &d))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_blanks(ptr);
+        ptr = skip_space(ptr);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         /* i, n, d are all valid integers, but can i + n/d be represented? */
@@ -388,16 +393,8 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
 /* Scan decimal number (no square brackets) */
 static int ri_scndec(char *str, char **eor, RationalInt *res)
 {
-    int sign = +1;
-    char *ptr = skip_blanks(str);
-    if (*ptr == '+')
-        ptr++;
-    else if (*ptr == '-')
-    {
-        sign = -1;
-        ptr++;
-    }
-
+    char *ptr = str;
+    int sign = opt_sign(&ptr);
     int val = 0;
     int num_i_digits = 0;
     int num_z_digits = 0;
