@@ -1,35 +1,4 @@
-#ifndef RATIONAL_H_INCLUDED
-#define RATIONAL_H_INCLUDED
-
-#include <stddef.h>     // size_t
-
-typedef struct RationalInt
-{
-    int     numerator;
-    int     denominator;
-} RationalInt;
-
-extern RationalInt ri_new(int numerator, int denominator);
-
-extern void ri_add(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
-extern void ri_sub(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
-extern void ri_mul(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
-extern void ri_div(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
-extern void ri_mod(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
-extern void ri_pow(const RationalInt *base, const RationalInt *power, RationalInt *res);
-
-extern void ri_rec(const RationalInt *val, RationalInt *res);             // Reciprocal
-extern void ri_integer(const RationalInt *val, RationalInt *res);         // Integer part
-extern void ri_fraction(const RationalInt *val, RationalInt *res);        // Fractional part
-
-extern int ri_cmp(RationalInt lhs, RationalInt rhs);    // Comparison (-1, 0, +1)
-
-extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
-extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
-extern int ri_scn(const char *str, char **eor, RationalInt *result);
-
-#endif /* RATIONAL_H_INCLUDED */
-
+/* SO 33887484 */
 /*
 ** Storage rules:
 ** 1. Denominator is never zero.
@@ -38,7 +7,7 @@ extern int ri_scn(const char *str, char **eor, RationalInt *result);
 ** 4. gcd(numerator, denominator) == 1 unless numerator == 0.
 */
 
-//#include "rational.h"
+#include "so.33887484.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -140,9 +109,22 @@ static void ri_chk(RationalInt val)
     assert(val.numerator == 0 || gcd(iabs(val.numerator), iabs(val.denominator)) == 1);
 }
 
+/* Unimportant - because all functions already normalize RationalInt values, so GCD = 1 */
+int ri_gcd(const RationalInt *val)
+{
+    assert(val->denominator != 0 && val->denominator != INT_MIN);
+    return gcd(iabs(val->numerator), iabs(val->denominator));
+}
+
+/* Unimportant - because all functions already normalize RationalInt values */
+void ri_normalize(RationalInt *val)
+{
+    *val = ri_new(val->numerator, val->denominator);
+}
+
 RationalInt ri_new(int numerator, int denominator)
 {
-    assert(denominator != 0);
+    assert(denominator != 0 && denominator != INT_MIN);
     RationalInt ri;
     if (numerator == 0)
     {
@@ -532,7 +514,6 @@ int ri_scn(const char *str, char **eor, RationalInt *res)
     return rv;
 }
 
-#define TEST    // Temporary
 #if defined(TEST)
 
 #include "phasedtest.h"
