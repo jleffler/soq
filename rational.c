@@ -352,7 +352,7 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
             return seteor_return(eor, eos+1, -1, EINVAL);
         int d;
         if (!chk_strtoi(ptr, &ptr, 10, &d))
-            return seteor_return(eor, eos+1, -1, EINVAL);
+            return seteor_return(eor, eos+1, -1, ERANGE);
         ptr = skip_blanks(ptr);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
@@ -364,14 +364,14 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
         /* [I N/D] */
         int n;
         if (!chk_strtoi(ptr, &ptr, 10, &n))
-            return seteor_return(eor, eos+1, -1, EINVAL);
+            return seteor_return(eor, eos+1, -1, ERANGE);
         ptr = skip_blanks(ptr);
         if (*ptr != '/')
             return seteor_return(eor, eos+1, -1, EINVAL);
         ptr = skip_blanks(ptr + 1);
         int d;
         if (!chk_strtoi(ptr, &ptr, 10, &d))
-            return seteor_return(eor, eos+1, -1, EINVAL);
+            return seteor_return(eor, eos+1, -1, ERANGE);
         ptr = skip_blanks(ptr);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
@@ -946,6 +946,7 @@ static const p7_test_case p7_tests[] =
     { "[+3/2]",             {          3,          +2 },  6,  0 },
     { "[-2147483647/3192]", { 2147483647,       -3192 }, 18,  0 },
     { "[+2147483648/3192]", {          0,          +1 }, 18, -1 },
+    { "[-2147483648/3192]", {          0,          +1 }, 18, -1 },
     { "[-3192/2147483647]", {       3192, -2147483647 }, 18,  0 },
     { "[-3192/2147483648]", {          0,          +1 }, 18, -1 },
     { "[-319X/2147483647]", {          0,          +1 }, 18, -1 },
@@ -969,28 +970,31 @@ static void p7_tester(const void *data)
     char buffer1[32];
     char buffer2[32];
     ri_chk(test->output);
-    pt_settestid("<<%s>> for <<%s>>", test->input,
-                 ri_fmt(test->output, buffer1, sizeof(buffer1)));
+
     char *eof;
     RationalInt res;
     int rc = ri_scn(test->input, &eof, &res);
-    pt_check_status(test->status, rc);
-    pt_check_int(test->offset, (int)(eof - test->input), "unexpected end of fraction");
-    if (rc == 0 && test->status == 0)
-    {
-        rc = ri_cmp(res, test->output);
-        if (rc != 0)
-            pt_fail("unexpected result: %s => (actual %s vs wanted %s) %d\n",
-                    test->input,
-                    ri_fmtproper(res,          buffer1, sizeof(buffer1)),
-                    ri_fmtproper(test->output, buffer2, sizeof(buffer2)),
-                    rc);
-        else
-            pt_pass("%s = %s\n",
-                    test->input,
-                    ri_fmtproper(test->output, buffer1, sizeof(buffer1)));
-    }
-    pt_done("<<%s>>\n", test->input);
+    int errnum = errno;
+    if (rc != test->status)
+        pt_fail("scanning %s: unexpected status %d instead of %d\n",
+                test->input, rc, test->status);
+    /* The offset should be correct even if the conversion failed */
+    else if (test->offset != (int)(eof - test->input))
+        pt_fail("scanning %s: unexpected end of conversion %d instead of %d\n",
+                test->input, (int)(eof - test->input), test->offset);
+    else if (rc == -1)
+        pt_pass("scanning %s: conversion failed %d as expected (%d: %s)\n",
+                test->input, rc, errnum, strerror(errnum));
+    else if ((rc = ri_cmp(res, test->output)) != 0)
+        pt_fail("unexpected result: %s => (actual %s vs wanted %s) %d\n",
+                test->input,
+                ri_fmtproper(res,          buffer1, sizeof(buffer1)),
+                ri_fmtproper(test->output, buffer2, sizeof(buffer2)),
+                rc);
+    else
+        pt_pass("%s = %s\n",
+                test->input,
+                ri_fmtproper(test->output, buffer1, sizeof(buffer1)));
 }
 
 /* -- Phased Test Infrastructure -- */
