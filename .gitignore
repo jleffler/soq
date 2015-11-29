@@ -84,6 +84,7 @@ q7
 qs37
 quine
 quiz
+ratcalc
 rational
 readdir
 recv
@@ -100,6 +101,7 @@ sigalrm
 sigchld
 signals
 so.28947528
+so.33887484
 sorttest
 stld
 streplace
