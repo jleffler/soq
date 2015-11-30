@@ -15,8 +15,8 @@ int main(void)
     {
         RationalInt lhs;
         RationalInt rhs;
-        char *eon;
-        char *str = line;
+        const char *eon;
+        const char *str = line;
 
         if (ri_scn(str, &eon, &lhs) != 0)
         {
