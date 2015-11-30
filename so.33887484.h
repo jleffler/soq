@@ -16,7 +16,6 @@ extern void ri_sub(const RationalInt *lhs, const RationalInt *rhs, RationalInt *
 extern void ri_mul(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
 extern void ri_div(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
 extern void ri_mod(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res);
-extern void ri_pow(const RationalInt *base, const RationalInt *power, RationalInt *res);
 
 /*
 ** All values returned by the functions are already normalized, so
@@ -28,11 +27,8 @@ extern void ri_pow(const RationalInt *base, const RationalInt *power, RationalIn
 extern int ri_gcd(const RationalInt *val);      /* Exercise in futility */
 extern void ri_normalize(RationalInt *val);     /* Exercise in futility */
 
-extern void ri_rec(const RationalInt *val, RationalInt *res);             // Reciprocal
 extern void ri_integer(const RationalInt *val, RationalInt *res);         // Integer part
 extern void ri_fraction(const RationalInt *val, RationalInt *res);        // Fractional part
-
-extern int ri_cmp(RationalInt lhs, RationalInt rhs);    // Comparison (-1, 0, +1)
 
 extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
 extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);

@@ -5,9 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Include the library function code - laziness! */
 #include "so.33887484.c"
-
-//static inline char *skip_space(char *str) { while (isspace(*str)) str++; return str; }
 
 int main(void)
 {
