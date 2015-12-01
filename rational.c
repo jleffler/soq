@@ -26,7 +26,7 @@ extern int ri_cmp(RationalInt lhs, RationalInt rhs);    // Comparison (-1, 0, +1
 
 extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
 extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
-extern int ri_scn(const char *str, char **eor, RationalInt *result);
+extern int ri_scn(const char *str, const char **eor, RationalInt *result);
 
 #endif /* RATIONAL_H_INCLUDED */
 
@@ -50,12 +50,6 @@ extern int ri_scn(const char *str, char **eor, RationalInt *result);
 
 #ifndef ENOERROR
 #define ENOERROR 0
-#endif
-
-#if defined(__cplusplus)
-#define CONST_CAST(type, value) const_cast<type>(value)
-#else
-#define CONST_CAST(type, value) ((type)(value))
 #endif
 
 static inline int iabs(int x) { return (x < 0) ? -x : x; }
@@ -305,7 +299,7 @@ RationalInt ri_pow(RationalInt base, RationalInt power)
 
 /* -- Scan Functions -- */
 
-static inline int seteor_return(char **eor, char *eoc, int rv, int errnum)
+static inline int seteor_return(const char **eor, const char *eoc, int rv, int errnum)
 {
     if (eor != 0)
         *eor = eoc;
@@ -314,8 +308,8 @@ static inline int seteor_return(char **eor, char *eoc, int rv, int errnum)
     return rv;
 }
 
-static inline char *skip_space(char *str) { while (isspace(*str)) str++; return str; }
-static inline int opt_sign(char **str)
+static inline const char *skip_space(const char *str) { while (isspace(*str)) str++; return str; }
+static inline int opt_sign(const char **str)
 {
     int sign = +1;
     if (**str == '+')
@@ -329,20 +323,21 @@ static inline int opt_sign(char **str)
 }
 
 /* Scan fraction number: [I] or [N/D] or [I N/D] */
-static int ri_scnfrc(char *str, char **eor, RationalInt *res)
+static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
 {
     assert(*str == '[');
-    char *eos = strchr(str, ']');
+    const char *eos = strchr(str, ']');
     if (eos == 0)
         return seteor_return(eor, str, -1, EINVAL);
-    char *ptr = skip_space(str + 1);
+    const char *ptr = skip_space(str + 1);
     int sign = opt_sign(&ptr);
     if (!isdigit(*ptr))
         return seteor_return(eor, eos+1, -1, EINVAL);
     int i;
-    if (!chk_strtoi(ptr, &ptr, 10, &i))
+    char *eon;
+    if (!chk_strtoi(ptr, &eon, 10, &i))
         return seteor_return(eor, eos+1, -1, ERANGE);
-    ptr = skip_space(ptr);
+    ptr = skip_space(eon);
     if (ptr == eos)
     {
         /* [I] */
@@ -356,9 +351,9 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
         if (!isdigit(*ptr))
             return seteor_return(eor, eos+1, -1, EINVAL);
         int d;
-        if (!chk_strtoi(ptr, &ptr, 10, &d))
+        if (!chk_strtoi(ptr, &eon, 10, &d))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(ptr);
+        ptr = skip_space(eon);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         *res = ri_new(i, sign * d);
@@ -368,16 +363,16 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
     {
         /* [I N/D] */
         int n;
-        if (!chk_strtoi(ptr, &ptr, 10, &n))
+        if (!chk_strtoi(ptr, &eon, 10, &n))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(ptr);
+        ptr = skip_space(eon);
         if (*ptr != '/')
             return seteor_return(eor, eos+1, -1, EINVAL);
         ptr = skip_space(ptr + 1);
         int d;
-        if (!chk_strtoi(ptr, &ptr, 10, &d))
+        if (!chk_strtoi(ptr, &eon, 10, &d))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(ptr);
+        ptr = skip_space(eon);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         /* i, n, d are all valid integers, but can i + n/d be represented? */
@@ -391,9 +386,9 @@ static int ri_scnfrc(char *str, char **eor, RationalInt *res)
 }
 
 /* Scan decimal number (no square brackets) */
-static int ri_scndec(char *str, char **eor, RationalInt *res)
+static int ri_scndec(const char *str, const char **eor, RationalInt *res)
 {
-    char *ptr = str;
+    const char *ptr = str;
     int sign = opt_sign(&ptr);
     int val = 0;
     int num_i_digits = 0;
@@ -428,7 +423,7 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
         {
             /* Trailing zeros are ignored! */
             /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
-            char *trz = ptr;
+            const char *trz = ptr;
             while (*trz == '0')
                 trz++;
             if (!isdigit(*trz))
@@ -450,14 +445,9 @@ static int ri_scndec(char *str, char **eor, RationalInt *res)
     return seteor_return(eor, ptr, 0, ENOERROR);
 }
 
-int ri_scn(const char *str, char **eor, RationalInt *res)
+int ri_scn(const char *str, const char **eor, RationalInt *res)
 {
-    /*
-    ** The called code doesn't change the string pointed at by str, but
-    ** having it passed as a const char *is a pain.  CONST_CAST once to
-    ** avoid the pain.
-    */
-    char *ptr = CONST_CAST(char *, str);
+    const char *ptr = str;
     while (isspace((unsigned char)*ptr))
         ptr++;
     int rv;
@@ -467,7 +457,7 @@ int ri_scn(const char *str, char **eor, RationalInt *res)
         rv =  ri_scndec(ptr, eor, res);
     /* If the string was not converted, *eor points to ptr but needs to point to str */
     if (eor != 0 && *eor == ptr)
-        *eor = CONST_CAST(char *, str);
+        *eor = str;
     return rv;
 }
 
@@ -968,7 +958,7 @@ static void p7_tester(const void *data)
     char buffer2[32];
     ri_chk(test->output);
 
-    char *eof;
+    const char *eof;
     RationalInt res;
     int rc = ri_scn(test->input, &eof, &res);
     int errnum = errno;
