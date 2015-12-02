@@ -172,25 +172,6 @@ RationalInt ri_div(RationalInt lhs, RationalInt rhs)
     return ri_new(nr, dr);
 }
 
-char *ri_fmt(RationalInt val, char *buffer, size_t buflen)
-{
-    assert(buflen > 0 && buffer != 0);
-    ri_chk(val);
-    if (buflen > 0 && buffer != 0)
-    {
-        char sign = (val.denominator < 0) ? '-' : '+';
-        int len;
-        if (iabs(val.denominator) == 1)
-            len = snprintf(buffer, buflen, "[%c%d]", sign, val.numerator);
-        else
-            len = snprintf(buffer, buflen, "[%c%d/%d]",
-                           sign, iabs(val.numerator), iabs(val.denominator));
-        if (len <= 0 || (size_t)len >= buflen)
-            *buffer = '\0';
-    }
-    return buffer;
-}
-
 int ri_cmp(RationalInt lhs, RationalInt rhs)
 {
     if (lhs.denominator == rhs.denominator &&
@@ -211,38 +192,6 @@ int ri_cmp(RationalInt lhs, RationalInt rhs)
         return -1;
     else
         return +1;
-}
-
-char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
-{
-    assert(buflen > 0 && buffer != 0);
-    ri_chk(val);
-    RationalInt in = ri_integer(val);
-    RationalInt fr = ri_fraction(val);
-    char sign = (val.denominator < 0) ? '-' : '+';
-    int len;
-    assert(in.denominator == +1 || in.denominator == -1);
-    if (in.numerator != 0 && fr.numerator != 0)
-    {
-        len = snprintf(buffer, buflen, "[%c%d %d/%d]", sign,
-                       iabs(in.numerator), iabs(fr.numerator), iabs(fr.denominator));
-    }
-    else if (in.numerator != 0)
-    {
-        len = snprintf(buffer, buflen, "[%c%d]", sign, iabs(in.numerator));
-    }
-    else if (fr.numerator != 0)
-    {
-        len = snprintf(buffer, buflen, "[%c%d/%d]",
-                       sign, iabs(val.numerator), iabs(val.denominator));
-    }
-    else
-    {
-        len = snprintf(buffer, buflen, "[0]");
-    }
-    if (len <= 0 || (size_t)len >= buflen)
-        *buffer = '\0';
-    return buffer;
 }
 
 RationalInt ri_integer(RationalInt val)
@@ -297,6 +246,59 @@ RationalInt ri_pow(RationalInt base, RationalInt power)
     return result;
 }
 
+/* -- Format functions -- */
+
+char *ri_fmt(RationalInt val, char *buffer, size_t buflen)
+{
+    assert(buflen > 0 && buffer != 0);
+    ri_chk(val);
+    if (buflen > 0 && buffer != 0)
+    {
+        char sign = (val.denominator < 0) ? '-' : '+';
+        int len;
+        if (iabs(val.denominator) == 1)
+            len = snprintf(buffer, buflen, "[%c%d]", sign, val.numerator);
+        else
+            len = snprintf(buffer, buflen, "[%c%d/%d]",
+                           sign, iabs(val.numerator), iabs(val.denominator));
+        if (len <= 0 || (size_t)len >= buflen)
+            *buffer = '\0';
+    }
+    return buffer;
+}
+
+char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
+{
+    assert(buflen > 0 && buffer != 0);
+    ri_chk(val);
+    RationalInt in = ri_integer(val);
+    RationalInt fr = ri_fraction(val);
+    char sign = (val.denominator < 0) ? '-' : '+';
+    int len;
+    assert(in.denominator == +1 || in.denominator == -1);
+    if (in.numerator != 0 && fr.numerator != 0)
+    {
+        len = snprintf(buffer, buflen, "[%c%d %d/%d]", sign,
+                       iabs(in.numerator), iabs(fr.numerator), iabs(fr.denominator));
+    }
+    else if (in.numerator != 0)
+    {
+        len = snprintf(buffer, buflen, "[%c%d]", sign, iabs(in.numerator));
+    }
+    else if (fr.numerator != 0)
+    {
+        len = snprintf(buffer, buflen, "[%c%d/%d]",
+                       sign, iabs(val.numerator), iabs(val.denominator));
+    }
+    else
+    {
+        len = snprintf(buffer, buflen, "[0]");
+    }
+    if (len <= 0 || (size_t)len >= buflen)
+        *buffer = '\0';
+    return buffer;
+}
+
 /* -- Scan Functions -- */
 
 static inline int seteor_return(const char **eor, const char *eoc, int rv, int errnum)
@@ -308,7 +310,13 @@ static inline int seteor_return(const char **eor, const char *eoc, int rv, int e
     return rv;
 }
 
-static inline const char *skip_space(const char *str) { while (isspace(*str)) str++; return str; }
+static inline const char *skip_space(const char *str)
+{
+    while (isspace(*str))
+        str++;
+    return str;
+}
+
 static inline int opt_sign(const char **str)
 {
     int sign = +1;
@@ -403,7 +411,11 @@ static int ri_scndec(const char *str, const char **eor, RationalInt *res)
         char c = *ptr++ - '0';
         num_i_digits++;
         if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
-            return seteor_return(eor, ptr-1, -1, ERANGE);
+        {
+            while (isdigit(*ptr))
+                ptr++;
+            return seteor_return(eor, ptr, /*ptr-1,*/ -1, ERANGE);
+        }
         val = val * 10 + c;
     }
     if (*ptr != '.')
@@ -434,7 +446,11 @@ static int ri_scndec(const char *str, const char **eor, RationalInt *res)
         }
 
         if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+        {
+            while (isdigit(*ptr))
+                ptr++;
             return seteor_return(eor, ptr, -1, ERANGE);
+        }
 
         val = val * 10 + c;
         i_pow10 *= 10;
@@ -916,6 +932,8 @@ static const p7_test_case p7_tests[] =
     { "-2147.2147480000",   {  536803687,     -250000 }, 16,  0 },
     { "-2147.4000000000",   {      10737,          -5 }, 16,  0 },
     { "-2147.2000000000",   {      10736,          -5 }, 16,  0 },
+    { "-2147.2000000001",   {          0,          +1 }, 16, -1 },
+    { "-214792000000001",   {          0,          +1 }, 16, -1 },
     { "    0",              {          0,          +1 },  5,  0 },
     { "    0    ",          {          0,          +1 },  5,  0 },
     { "    X",              {          0,          +1 },  0, -1 },
