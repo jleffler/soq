@@ -27,6 +27,7 @@ extern int ri_cmp(RationalInt lhs, RationalInt rhs);    // Comparison (-1, 0, +1
 extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);
 extern char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen);
 extern int ri_scn(const char *str, const char **eor, RationalInt *result);
+extern int ri_scn2(const char *str, const char **eor, RationalInt *result);
 
 #endif /* RATIONAL_H_INCLUDED */
 
@@ -471,6 +472,153 @@ int ri_scn(const char *str, const char **eor, RationalInt *res)
         rv =  ri_scnfrc(ptr, eor, res);
     else
         rv =  ri_scndec(ptr, eor, res);
+    /* If the string was not converted, *eor points to ptr but needs to point to str */
+    if (eor != 0 && *eor == ptr)
+        *eor = str;
+    return rv;
+}
+
+/* Scan fraction number: [I] or [N/D] or [I N/D] */
+static int ri_scnfrc2(const char *str, const char **eor, RationalInt *res)
+{
+    assert(*str == '[');
+    const char *eos = strchr(str, ']');
+    if (eos == 0)
+        return seteor_return(eor, str, -1, EINVAL);
+    const char *ptr = skip_space(str + 1);
+    int sign = opt_sign(&ptr);
+    if (!isdigit(*ptr))
+        return seteor_return(eor, eos+1, -1, EINVAL);
+    int i;
+    char *eon;
+    if (!chk_strtoi(ptr, &eon, 10, &i))
+        return seteor_return(eor, eos+1, -1, ERANGE);
+    ptr = skip_space(eon);
+    if (ptr == eos)
+    {
+        /* [I] */
+        *res = ri_new(i, sign);
+        return seteor_return(eor, eos+1, 0, ENOERROR);
+    }
+    if (*ptr == '/')
+    {
+        /* [N/D] */
+        ptr = skip_space(ptr + 1);
+        if (!isdigit(*ptr))
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        int d;
+        if (!chk_strtoi(ptr, &eon, 10, &d))
+            return seteor_return(eor, eos+1, -1, ERANGE);
+        ptr = skip_space(eon);
+        if (ptr != eos)
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        *res = ri_new(i, sign * d);
+        return seteor_return(eor, eos+1, 0, ENOERROR);
+    }
+    else if (isdigit(*ptr))
+    {
+        /* [I N/D] */
+        int n;
+        if (!chk_strtoi(ptr, &eon, 10, &n))
+            return seteor_return(eor, eos+1, -1, ERANGE);
+        ptr = skip_space(eon);
+        if (*ptr != '/')
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        ptr = skip_space(ptr + 1);
+        int d;
+        if (!chk_strtoi(ptr, &eon, 10, &d))
+            return seteor_return(eor, eos+1, -1, ERANGE);
+        ptr = skip_space(eon);
+        if (ptr != eos)
+            return seteor_return(eor, eos+1, -1, EINVAL);
+        /* i, n, d are all valid integers, but can i + n/d be represented? */
+        if (i > (INT_MAX - d) / n)
+            return seteor_return(eor, eos+1, -1, ERANGE);
+        *res = ri_new(d * i + n, sign * d);
+        return seteor_return(eor, eos+1, 0, ENOERROR);
+    }
+    else
+        return seteor_return(eor, eos+1, -1, EINVAL);
+}
+
+/* Scan decimal number (no square brackets) */
+static int ri_scndec2(const char *str, const char **eor, RationalInt *res)
+{
+    const char *ptr = str;
+    int sign = opt_sign(&ptr);
+    int val = 0;
+    int num_i_digits = 0;
+    int num_z_digits = 0;
+    while (*ptr == '0')         /* Skip leading zeroes */
+    {
+        num_z_digits++;
+        ptr++;
+    }
+    while (isdigit(*ptr))
+    {
+        char c = *ptr++ - '0';
+        num_i_digits++;
+        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+        {
+            while (isdigit(*ptr))
+                ptr++;
+            return seteor_return(eor, ptr, /*ptr-1,*/ -1, ERANGE);
+        }
+        val = val * 10 + c;
+    }
+    if (*ptr != '.')
+    {
+        if (num_i_digits + num_z_digits == 0)
+            return seteor_return(eor, str, -1, EINVAL);
+        *res = ri_new(val, sign);
+        return seteor_return(eor, ptr, 0, ENOERROR);
+    }
+    ptr++;
+    int i_pow10 = 1;
+    while (isdigit(*ptr))
+    {
+        char c = *ptr++ - '0';
+
+        if (c == 0)
+        {
+            /* Trailing zeros are ignored! */
+            /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
+            const char *trz = ptr;
+            while (*trz == '0')
+                trz++;
+            if (!isdigit(*trz))
+            {
+                *res = ri_new(val, i_pow10 * sign);
+                return seteor_return(eor, trz, 0, ENOERROR);
+            }
+        }
+
+        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+        {
+            while (isdigit(*ptr))
+                ptr++;
+            return seteor_return(eor, ptr, -1, ERANGE);
+        }
+
+        val = val * 10 + c;
+        i_pow10 *= 10;
+    }
+    if (i_pow10 == 1 && num_i_digits + num_z_digits == 0)
+        return seteor_return(eor, str, -1, EINVAL);
+    *res = ri_new(val, i_pow10 * sign);
+    return seteor_return(eor, ptr, 0, ENOERROR);
+}
+
+int ri_scn2(const char *str, const char **eor, RationalInt *res)
+{
+    const char *ptr = str;
+    while (isspace((unsigned char)*ptr))
+        ptr++;
+    int rv;
+    if (*ptr == '[')
+        rv =  ri_scnfrc2(ptr, eor, res);
+    else
+        rv =  ri_scndec2(ptr, eor, res);
     /* If the string was not converted, *eor points to ptr but needs to point to str */
     if (eor != 0 && *eor == ptr)
         *eor = str;
@@ -1002,6 +1150,121 @@ static void p7_tester(const void *data)
                 ri_fmtproper(test->output, buffer1, sizeof(buffer1)));
 }
 
+/* -- PHASE 8 TESTING -- */
+
+/* -- Scanning fractions -- */
+typedef struct p8_test_case
+{
+    const char *input;
+    RationalInt output;
+    int         offset;
+    int         status;
+} p8_test_case;
+
+static const p8_test_case p8_tests[] =
+{
+    { "0",                  {          0,          +1 },  1,  0 },
+    { "-0",                 {          0,          +1 },  2,  0 },
+    { "+0",                 {          0,          +1 },  2,  0 },
+    { "- 0",                {          0,          +1 },  0, -1 },
+    { "+ 0",                {          0,          +1 },  0, -1 },
+    { "-. 0",               {          0,          +1 },  0, -1 },
+    { "+. 0",               {          0,          +1 },  0, -1 },
+    { "+0",                 {          0,          +1 },  2,  0 },
+    { "+000",               {          0,          +1 },  4,  0 },
+    { "+123",               {        123,          +1 },  4,  0 },
+    { "-321",               {        321,          -1 },  4,  0 },
+    { "-321.",              {        321,          -1 },  5,  0 },
+    { "-0.321",             {        321,       -1000 },  6,  0 },
+    { "-0.-321",            {          0,          +1 },  3,  0 },
+    { "-.-321",             {          0,          +1 },  0, -1 },
+    { "+0.00",              {          0,          +1 },  5,  0 },
+    { "+0.+00",             {          0,          +1 },  3,  0 },
+    { "+9+00",              {          9,          +1 },  2,  0 },
+    { "+6.25",              {         25,          +4 },  5,  0 },
+    { "-.000",              {          0,          +1 },  5,  0 },
+    { "0.5XX",              {          1,          +2 },  3,  0 },
+    { "-3.14159",           {     314159,     -100000 },  8,  0 },
+    { "2147483647X",        { 2147483647,          +1 }, 10,  0 },
+    { "-2147.483647 ",      { 2147483647,    -1000000 }, 12,  0 },
+    { "0002147483.647",     { 2147483647,       +1000 }, 14,  0 },
+    { "000000.7483647",     {    7483647,   +10000000 }, 14,  0 },
+    { "-2147.483648 ",      {          0,          +1 }, 12, -1 },
+    { "-2147.48364700",     { 2147483647,    -1000000 }, 14,  0 },
+    { "-2147.4836470000",   { 2147483647,    -1000000 }, 16,  0 },
+    { "-2147.2147480000",   {  536803687,     -250000 }, 16,  0 },
+    { "-2147.4000000000",   {      10737,          -5 }, 16,  0 },
+    { "-2147.2000000000",   {      10736,          -5 }, 16,  0 },
+    { "-2147.2000000001",   {          0,          +1 }, 16, -1 },
+    { "-214792000000001",   {          0,          +1 }, 16, -1 },
+    { "    0",              {          0,          +1 },  5,  0 },
+    { "    0    ",          {          0,          +1 },  5,  0 },
+    { "    X",              {          0,          +1 },  0, -1 },
+
+    { "0",                  {          0,          +1 },  1,  0 },
+    { "+10",                {         10,          +1 },  3,  0 },
+    { "-234",               {        234,          -1 },  4,  0 },
+    { "-2147483647",        { 2147483647,          -1 }, 11,  0 },
+    { "-2147483648",        {          0,          +1 }, 11, -1 },
+    { "+2147483647",        { 2147483647,          +1 }, 11,  0 },
+    { "+2147483648",        {          0,          +1 }, 11, -1 },
+    { "1/2",                {          1,          +2 },  3,  0 },
+    { "+1/2",               {          1,          +2 },  4,  0 },
+    { "-1/2",               {          1,          -2 },  4,  0 },
+    { "+3/2",               {          3,          +2 },  4,  0 },
+    { "-2147483647/3192",   { 2147483647,       -3192 }, 16,  0 },
+    { "+2147483648/3192",   {          0,          +1 }, 16, -1 },
+    { "-2147483648/3192",   {          0,          +1 }, 16, -1 },
+    { "-3192/2147483647",   {       3192, -2147483647 }, 16,  0 },
+    { "-3192/2147483648",   {          0,          +1 }, 16, -1 },
+    { "-319X/2147483647",   {        319,          -1 },  4, -1 },
+    { "-3192/2147X83647",   {        168,        -113 }, 10, -1 },
+    { "-3192/-214748347",   {          0,          +1 }, 16, -1 },
+    { "+3192.2147",         {   31922147,       10000 }, 10,  0 },
+    { "+1 1/2",             {          3,          +2 },  6,  0 },
+    { "-1 1/2",             {          3,          -2 },  6,  0 },
+    { "1 1/2",              {          3,          +2 },  5,  0 },
+    { "12 15/3",            {         17,          +1 },  7,  0 },
+    { " 134217727 13/16",   { 2147483645,         +16 }, 16,  0 },
+    { "-134217727 14/16",   { 1073741823,          -8 }, 16,  0 },
+    { "+134217727 15/16",   { 2147483647,         +16 }, 16,  0 },
+    { " 134217727 16/16",   {          0,          +1 }, 16, -1 },
+    { " 134217727 17/16",   {          0,          +1 }, 16, -1 },
+};
+
+static void p8_tester(const void *data)
+{
+    const p8_test_case *test = (const p8_test_case *)data;
+    char buffer1[32];
+    char buffer2[32];
+    ri_chk(test->output);
+
+    const char *eof;
+    RationalInt res;
+    int rc = ri_scn2(test->input, &eof, &res);
+    int errnum = errno;
+    if (rc != test->status)
+        pt_fail("scanning %s: unexpected status %d instead of %d\n",
+                test->input, rc, test->status);
+    /* The offset should be correct even if the conversion failed */
+    else if (test->offset != (int)(eof - test->input))
+        pt_fail("scanning %s: unexpected end of conversion %d instead of %d\n",
+                test->input, (int)(eof - test->input), test->offset);
+    else if (rc == -1)
+        pt_pass("scanning %s: conversion failed %d as expected (%d: %s)\n",
+                test->input, rc, errnum, strerror(errnum));
+    else if ((rc = ri_cmp(res, test->output)) != 0)
+        pt_fail("unexpected result: %s => (actual %s vs wanted %s) %d\n",
+                test->input,
+                ri_fmtproper(res,          buffer1, sizeof(buffer1)),
+                ri_fmtproper(test->output, buffer2, sizeof(buffer2)),
+                rc);
+    else
+        pt_pass("%s = %s\n",
+                test->input,
+                ri_fmtproper(test->output, buffer1, sizeof(buffer1)));
+}
+
 /* -- Phased Test Infrastructure -- */
 
 static pt_auto_phase phases[] =
@@ -1013,6 +1276,7 @@ static pt_auto_phase phases[] =
     { p5_tester, PT_ARRAYINFO(p5_tests), 0, "Check modulus" },
     { p6_tester, PT_ARRAYINFO(p6_tests), 0, "Powers and Reciprocals" },
     { p7_tester, PT_ARRAYINFO(p7_tests), 0, "Scanning fractions" },
+    { p8_tester, PT_ARRAYINFO(p8_tests), 0, "Scanning fractions Mk II" },
 };
 
 int main(int argc, char **argv)
