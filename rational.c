@@ -415,7 +415,7 @@ static int ri_scndec(const char *str, const char **eor, RationalInt *res)
         {
             while (isdigit(*ptr))
                 ptr++;
-            return seteor_return(eor, ptr, /*ptr-1,*/ -1, ERANGE);
+            return seteor_return(eor, ptr, -1, ERANGE);
         }
         val = val * 10 + c;
     }
@@ -541,10 +541,13 @@ static int ri_scnfrc2(const char *str, const char **eor, RationalInt *res)
         return seteor_return(eor, eos+1, -1, EINVAL);
 }
 
-/* Scan decimal number (no square brackets) */
-static int ri_scndec2(const char *str, const char **eor, RationalInt *res)
+int ri_scn2(const char *str, const char **eor, RationalInt *res)
 {
+    if (0)
+        return ri_scnfrc2(str, eor, res);
     const char *ptr = str;
+    while (isspace((unsigned char)*ptr))
+        ptr++;
     int sign = opt_sign(&ptr);
     int val = 0;
     int num_i_digits = 0;
@@ -562,7 +565,7 @@ static int ri_scndec2(const char *str, const char **eor, RationalInt *res)
         {
             while (isdigit(*ptr))
                 ptr++;
-            return seteor_return(eor, ptr, /*ptr-1,*/ -1, ERANGE);
+            return seteor_return(eor, ptr, -1, ERANGE);
         }
         val = val * 10 + c;
     }
@@ -570,6 +573,10 @@ static int ri_scndec2(const char *str, const char **eor, RationalInt *res)
     {
         if (num_i_digits + num_z_digits == 0)
             return seteor_return(eor, str, -1, EINVAL);
+        if (isspace(*ptr))
+        {
+            printf("[Look for N/D]\n");
+        }
         *res = ri_new(val, sign);
         return seteor_return(eor, ptr, 0, ENOERROR);
     }
@@ -607,22 +614,6 @@ static int ri_scndec2(const char *str, const char **eor, RationalInt *res)
         return seteor_return(eor, str, -1, EINVAL);
     *res = ri_new(val, i_pow10 * sign);
     return seteor_return(eor, ptr, 0, ENOERROR);
-}
-
-int ri_scn2(const char *str, const char **eor, RationalInt *res)
-{
-    const char *ptr = str;
-    while (isspace((unsigned char)*ptr))
-        ptr++;
-    int rv;
-    if (*ptr == '[')
-        rv =  ri_scnfrc2(ptr, eor, res);
-    else
-        rv =  ri_scndec2(ptr, eor, res);
-    /* If the string was not converted, *eor points to ptr but needs to point to str */
-    if (eor != 0 && *eor == ptr)
-        *eor = str;
-    return rv;
 }
 
 #define TEST    // Temporary
