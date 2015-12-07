@@ -532,10 +532,10 @@ static int cvt_integer(const char *str, const FractionString *fs,
 {
     printf("str: I [%s]\n", str);
     int nid = fs->i_end - fs->i_start;
-    printf("%*.*s\n", nid, nid, fs->i_start);
+    printf("%c %*.*s\n", ((fs->sign == +1) ? '+' : '-'), nid, nid, fs->i_start);
     int i;
     char *eon;
-    if (!chk_strtoi(str, &eon, 10, &i))
+    if (!chk_strtoi(fs->i_start, &eon, 10, &i))
     {
         assert(eon == fs->i_end);
         return seteor_return(eor, eon, -1, ERANGE);
@@ -631,8 +631,25 @@ static int cvt_compound_fraction(const char *str, const FractionString *fs,
     int nid = fs->i_end - fs->i_start;
     int nnd = fs->n_end - fs->n_start;
     int ndd = fs->d_end - fs->d_start;
-    printf("%*.*s %*.*s/%*.*s\n", nid, nid, fs->i_start, ndd, nnd, fs->n_start, ndd, ndd, fs->d_start);
-    *res = ri_new(0, 1);
+    printf("%*.*s %*.*s/%*.*s\n", nid, nid, fs->i_start, ndd, nnd, fs->n_start,
+           ndd, ndd, fs->d_start);
+
+    int i;
+    char *eon;
+    if (!chk_strtoi(fs->i_start, &eon, 10, &i))
+        return seteor_return(eor, fs->d_end, -1, ERANGE);
+    assert(eon == fs->i_end);
+    int n;
+    if (!chk_strtoi(fs->n_start, &eon, 10, &n))
+            return seteor_return(eor, fs->d_end, -1, ERANGE);
+    assert(eon == fs->n_end);
+    int d;
+    if (!chk_strtoi(fs->d_start, &eon, 10, &d))
+        return seteor_return(eor, fs->d_end, -1, ERANGE);
+    /* i, n, d are all valid integers, but can i + n/d be represented? */
+    if (i > (INT_MAX - d) / n)
+        return seteor_return(eor, fs->d_end, -1, ERANGE);
+    *res = ri_new(d * i + n, fs->sign * d);
     return seteor_return(eor, fs->d_end, 0, ENOERROR);
 }
 
