@@ -551,8 +551,56 @@ static int cvt_decimal(const char *str, const FractionString *fs,
     int nid = fs->i_end - fs->i_start;
     int nfd = fs->d_end - fs->d_start;
     printf("%*.*s.%*.*s\n", nid, nid, fs->i_start, nfd, nfd, fs->d_start);
-    *res = ri_new(0, 1);
-    return seteor_return(eor, fs->d_end, 0, ENOERROR);
+
+    const char *ptr = fs->i_start;
+    assert(isdigit(*ptr));
+    int val = 0;
+    int num_i_digits = 0;
+    int num_z_digits = 0;
+    while (*ptr == '0')         /* Skip leading zeroes */
+    {
+        num_z_digits++;
+        ptr++;
+    }
+    while (isdigit(*ptr))
+    {
+        char c = *ptr++ - '0';
+        num_i_digits++;
+        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+            return seteor_return(eor, fs->d_end, -1, ERANGE);
+        val = val * 10 + c;
+    }
+    assert(*ptr == '.');
+    ptr++;
+    int i_pow10 = 1;
+    while (isdigit(*ptr))
+    {
+        char c = *ptr++ - '0';
+
+        if (c == 0)
+        {
+            /* Trailing zeros are ignored! */
+            /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
+            const char *trz = ptr;
+            while (*trz == '0')
+                trz++;
+            if (!isdigit(*trz))
+            {
+                *res = ri_new(val, i_pow10 * fs->sign);
+                return seteor_return(eor, trz, 0, ENOERROR);
+            }
+        }
+
+        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+            return seteor_return(eor, fs->d_end, -1, ERANGE);
+
+        val = val * 10 + c;
+        i_pow10 *= 10;
+    }
+    if (i_pow10 == 1 && num_i_digits + num_z_digits == 0)
+        return seteor_return(eor, str, -1, EINVAL);
+    *res = ri_new(val, i_pow10 * fs->sign);
+    return seteor_return(eor, ptr, 0, ENOERROR);
 }
 
 static int cvt_simple_fraction(const char *str, const FractionString *fs,
