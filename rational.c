@@ -610,7 +610,17 @@ static int cvt_simple_fraction(const char *str, const FractionString *fs,
     int nid = fs->i_end - fs->i_start;
     int nfd = fs->d_end - fs->d_start;
     printf("%*.*s/%*.*s\n", nid, nid, fs->i_start, nfd, nfd, fs->d_start);
-    *res = ri_new(0, 1);
+
+    int i;
+    char *eon;
+    if (!chk_strtoi(fs->i_start, &eon, 10, &i))
+        return seteor_return(eor, fs->d_end, -1, ERANGE);
+    assert(eon == fs->i_end);
+    int d;
+    if (!chk_strtoi(fs->d_start, &eon, 10, &d))
+        return seteor_return(eor, fs->d_end, -1, ERANGE);
+    assert(eon == fs->d_end);
+    *res = ri_new(i, fs->sign * d);
     return seteor_return(eor, fs->d_end, 0, ENOERROR);
 }
 
