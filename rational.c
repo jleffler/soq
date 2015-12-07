@@ -527,10 +527,8 @@ typedef struct FractionString
     const char *d_end;
 } FractionString;
 
-static int cvt_integer(const char *str, const FractionString *fs,
-                       const char **eor, RationalInt *res)
+static int cvt_integer(const FractionString *fs, const char **eor, RationalInt *res)
 {
-    printf("str: I [%s]\n", str);
     int nid = fs->i_end - fs->i_start;
     printf("%c %*.*s\n", ((fs->sign == +1) ? '+' : '-'), nid, nid, fs->i_start);
     int i;
@@ -544,13 +542,12 @@ static int cvt_integer(const char *str, const FractionString *fs,
     return seteor_return(eor, fs->i_end, 0, ENOERROR);
 }
 
-static int cvt_decimal(const char *str, const FractionString *fs,
-                       const char **eor, RationalInt *res)
+static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *res)
 {
-    printf("str: I.D [%s]\n", str);
     int nid = fs->i_end - fs->i_start;
     int nfd = fs->d_end - fs->d_start;
-    printf("%*.*s.%*.*s\n", nid, nid, fs->i_start, nfd, nfd, fs->d_start);
+    printf("%c %*.*s.%*.*s\n", ((fs->sign == +1) ? '+' : '-'),
+           nid, nid, fs->i_start, nfd, nfd, fs->d_start);
 
     const char *ptr = fs->i_start;
     assert(isdigit(*ptr));
@@ -598,18 +595,16 @@ static int cvt_decimal(const char *str, const FractionString *fs,
         i_pow10 *= 10;
     }
     if (i_pow10 == 1 && num_i_digits + num_z_digits == 0)
-        return seteor_return(eor, str, -1, EINVAL);
+        return seteor_return(eor, fs->d_end, -1, EINVAL);
     *res = ri_new(val, i_pow10 * fs->sign);
     return seteor_return(eor, ptr, 0, ENOERROR);
 }
 
-static int cvt_simple_fraction(const char *str, const FractionString *fs,
-                       const char **eor, RationalInt *res)
+static int cvt_simple_fraction(const FractionString *fs, const char **eor, RationalInt *res)
 {
-    printf("str: N/D [%s]\n", str);
     int nid = fs->i_end - fs->i_start;
     int nfd = fs->d_end - fs->d_start;
-    printf("%*.*s/%*.*s\n", nid, nid, fs->i_start, nfd, nfd, fs->d_start);
+    printf("%c %*.*s/%*.*s\n", ((fs->sign == +1) ? '+' : '-'), nid, nid, fs->i_start, nfd, nfd, fs->d_start);
 
     int i;
     char *eon;
@@ -624,14 +619,12 @@ static int cvt_simple_fraction(const char *str, const FractionString *fs,
     return seteor_return(eor, fs->d_end, 0, ENOERROR);
 }
 
-static int cvt_compound_fraction(const char *str, const FractionString *fs,
-                       const char **eor, RationalInt *res)
+static int cvt_compound_fraction(const FractionString *fs, const char **eor, RationalInt *res)
 {
-    printf("str: I N/D [%s]\n", str);
     int nid = fs->i_end - fs->i_start;
     int nnd = fs->n_end - fs->n_start;
     int ndd = fs->d_end - fs->d_start;
-    printf("%*.*s %*.*s/%*.*s\n", nid, nid, fs->i_start, ndd, nnd, fs->n_start,
+    printf("%c %*.*s %*.*s/%*.*s\n", ((fs->sign == +1) ? '+' : '-'), nid, nid, fs->i_start, ndd, nnd, fs->n_start,
            ndd, ndd, fs->d_start);
 
     int i;
@@ -683,25 +676,25 @@ int ri_scn2(const char *str, const char **eor, RationalInt *res)
         else
             ptr++;
         /* Convert [i_start..i_end) point [d_start..d_end) to fraction */
-        return cvt_decimal(str, &fs, eor, res);
+        return cvt_decimal(&fs, eor, res);
     }
     ptr = skip_blank(ptr);
     if (!isdigit(*ptr) && *ptr != '/')
     {
         /* I */
         /* Convert [i_start..i_end) */
-        return cvt_integer(str, &fs, eor, res);
+        return cvt_integer(&fs, eor, res);
     }
     if (*ptr == '/')
     {
         /* N / D or I (followed by /) */
         ptr = skip_blank(ptr + 1);
         if (!isdigit(*ptr))
-            return cvt_integer(str, &fs, eor, res);
+            return cvt_integer(&fs, eor, res);
         fs.d_start = ptr;
         fs.d_end = ptr = skip_digits(ptr);
         /* Convert I / D to fraction */
-        return cvt_simple_fraction(str, &fs, eor, res);
+        return cvt_simple_fraction(&fs, eor, res);
     }
     assert(isdigit(*ptr));
     /* I N - is that N/D? */
@@ -711,18 +704,18 @@ int ri_scn2(const char *str, const char **eor, RationalInt *res)
     if (*ptr != '/')
     {
         /* Got I */
-        return cvt_integer(str, &fs, eor, res);
+        return cvt_integer(&fs, eor, res);
     }
     ptr = skip_blank(ptr+1);
     if (!isdigit(*ptr))
     {
         /* Got I */
-        return cvt_integer(str, &fs, eor, res);
+        return cvt_integer(&fs, eor, res);
     }
     fs.d_start = ptr;
     fs.d_end = ptr = skip_digits(ptr);
     /* Got I N/D */
-    return cvt_compound_fraction(str, &fs, eor, res);
+    return cvt_compound_fraction(&fs, eor, res);
 }
 
 #define TEST    // Temporary
@@ -1317,9 +1310,9 @@ static const p8_test_case p8_tests[] =
     { "-2147483648/3192",   {          0,          +1 }, 16, -1 },
     { "-3192/2147483647",   {       3192, -2147483647 }, 16,  0 },
     { "-3192/2147483648",   {          0,          +1 }, 16, -1 },
-    { "-319X/2147483647",   {        319,          -1 },  4, -1 },
-    { "-3192/2147X83647",   {        168,        -113 }, 10, -1 },
-    { "-3192/-214748347",   {          0,          +1 }, 16, -1 },
+    { "-319X/2147483647",   {        319,          -1 },  4,  0 },
+    { "-3192/2147X83647",   {        168,        -113 }, 10,  0 },
+    { "-3192/-214748347",   {       3192,          -1 },  5,  0 },
     { "+3192.2147",         {   31922147,       10000 }, 10,  0 },
     { "+1 1/2",             {          3,          +2 },  6,  0 },
     { "-1 1/2",             {          3,          -2 },  6,  0 },
