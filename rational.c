@@ -235,7 +235,6 @@ RationalInt ri_pow(RationalInt base, RationalInt power)
     {
         if (i & 1)
             result = ri_mul(result, factor);
-        /* How much of a kludge is this test? */
         if (i > 1)
             factor = ri_mul(factor, factor);
     }
@@ -310,10 +309,6 @@ static inline int seteor_return(const char **eor, const char *eoc, int rv, int e
     return rv;
 }
 
-/*
-** Use isblank() - only spaces and tabs.
-** Not isspace() - newlines, carriage returns, form feeds, vertical tabs too.
-*/
 static inline const char *skip_blank(const char *str)
 {
     while (isblank(*str))
@@ -327,32 +322,6 @@ static inline const char *skip_digits(const char *str)
         str++;
     return str;
 }
-
-/*
-** Where does *eor point for these input strings?
-**   +312 123/235       I N/D
-**               ^
-**   +312 X             I
-**       ^
-**   +312 123X          I
-**       ^
-**   +312 123/X         I
-**       ^
-**   +312 123/2X        I N/D
-**             ^
-**   +312.              I
-**        ^
-**   +312.X             I
-**        ^
-**   +312.123           I N/D
-**           ^
-**   +312/123           N/D
-**           ^
-**   +312/X             I
-**       ^
-**   +312/              I
-**       ^
-*/
 
 typedef struct FractionString
 {
@@ -378,6 +347,7 @@ static int cvt_integer(const FractionString *fs, const char **eor, RationalInt *
     return seteor_return(eor, fs->i_end, 0, ENOERROR);
 }
 
+/* cvt_decimal() handles both ddd. and .ddd as well as ddd.ddd */
 static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *res)
 {
     int val = 0;
@@ -405,14 +375,12 @@ static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *
         assert(*ptr == '.');
         ptr++;
     }
-
     int i_pow10 = 1;
     if (ptr != 0)
     {
         while (isdigit(*ptr))
         {
             char c = *ptr++ - '0';
-
             if (c == 0)
             {
                 /* Trailing zeros are ignored! */
@@ -426,10 +394,8 @@ static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *
                     return seteor_return(eor, trz, 0, ENOERROR);
                 }
             }
-
             if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
                 return seteor_return(eor, fs->d_end, -1, ERANGE);
-
             val = val * 10 + c;
             i_pow10 *= 10;
         }
@@ -490,6 +456,7 @@ int ri_scn(const char *str, const char **eor, RationalInt *res)
     }
     if (*ptr == '.' && isdigit(ptr[1]))
     {
+        /* .D */
         fs.d_start = ptr + 1;
         fs.d_end = skip_digits(ptr + 1);
         return cvt_decimal(&fs, eor, res);
@@ -498,8 +465,6 @@ int ri_scn(const char *str, const char **eor, RationalInt *res)
         return seteor_return(eor, str, -1, EINVAL);
     fs.i_start = ptr;
     fs.i_end = ptr = skip_digits(ptr);
-    /* Found an integer - what follows? */
-    /* Decimal point - fraction hunting */
     if (*ptr == '.')
     {
         /* I.D */
@@ -509,16 +474,12 @@ int ri_scn(const char *str, const char **eor, RationalInt *res)
             fs.d_start = ptr;
             fs.d_end = ptr = skip_digits(ptr);
         }
-        else
-            ptr++;
-        /* Convert [i_start..i_end) point [d_start..d_end) to fraction */
         return cvt_decimal(&fs, eor, res);
     }
     ptr = skip_blank(ptr);
     if (!isdigit(*ptr) && *ptr != '/')
     {
         /* I */
-        /* Convert [i_start..i_end) */
         return cvt_integer(&fs, eor, res);
     }
     if (*ptr == '/')
@@ -994,10 +955,13 @@ static const p7_test_case p7_tests[] =
     { "-.-321",             {          0,          +1 },  0, -1 },
     { "+0.00",              {          0,          +1 },  5,  0 },
     { "+0.+00",             {          0,          +1 },  3,  0 },
+    { "+9.",                {          9,          +1 },  3,  0 },
     { "+9+00",              {          9,          +1 },  2,  0 },
     { "+6.25",              {         25,          +4 },  5,  0 },
     { "-.000",              {          0,          +1 },  5,  0 },
     { "-.001",              {          1,       -1000 },  5,  0 },
+    { "+.001",              {          1,       +1000 },  5,  0 },
+    { " .001",              {          1,       +1000 },  5,  0 },
     { "0.5XX",              {          1,          +2 },  3,  0 },
     { "-3.14159",           {     314159,     -100000 },  8,  0 },
     { "2147483647X",        { 2147483647,          +1 }, 10,  0 },
@@ -1045,6 +1009,21 @@ static const p7_test_case p7_tests[] =
     { "+134217727 15/16",   { 2147483647,         +16 }, 16,  0 },
     { " 134217727 16/16",   {          0,          +1 }, 16, -1 },
     { " 134217727 17/16",   {          0,          +1 }, 16, -1 },
+
+    { "+312 123/235",       {      73443,        +235 }, 12,  0 },
+    { "+312 X",             {        312,          +1 },  4,  0 },
+    { "+312 123X",          {        312,          +1 },  4,  0 },
+    { "+312 123/X",         {        312,          +1 },  4,  0 },
+    { "+312 123/2X",        {        747,          +2 }, 10,  0 },
+    { "+312.",              {        312,          +1 },  5,  0 },
+    { "+312.X",             {        312,          +1 },  5,  0 },
+    { "+312.123  ",         {     312123,       +1000 },  8,  0 },
+    { "+312/123  ",         {        104,         +41 },  8,  0 },
+    { "+312/X",             {        312,          +1 },  4,  0 },
+    { "+312/",              {        312,          +1 },  4,  0 },
+
+    { "     +1000138887464217727     \t  2314134213112217\t/\t112324233423432432422226",
+                            {          0,          +1 }, 76, -1 },
 };
 
 static void p7_tester(const void *data)
