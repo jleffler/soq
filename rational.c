@@ -489,7 +489,6 @@ int ri_scn(const char *str, const char **eor, RationalInt *res)
     return rv;
 }
 
-
 /*
 ** Where does *eor point for these input strings?
 **   +312 123/235       I N/D
@@ -534,7 +533,14 @@ static int cvt_integer(const char *str, const FractionString *fs,
     printf("str: I [%s]\n", str);
     int nid = fs->i_end - fs->i_start;
     printf("%*.*s\n", nid, nid, fs->i_start);
-    *res = ri_new(0, 1);
+    int i;
+    char *eon;
+    if (!chk_strtoi(str, &eon, 10, &i))
+    {
+        assert(eon == fs->i_end);
+        return seteor_return(eor, eon, -1, ERANGE);
+    }
+    *res = ri_new(i, fs->sign);
     return seteor_return(eor, fs->i_end, 0, ENOERROR);
 }
 
