@@ -520,7 +520,6 @@ typedef struct FractionString
     int sign;
     const char *i_start;
     const char *i_end;
-    const char *d_point;
     const char *n_start;
     const char *n_end;
     const char *d_start;
@@ -549,50 +548,59 @@ static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *
     printf("%c %*.*s.%*.*s\n", ((fs->sign == +1) ? '+' : '-'),
            nid, nid, fs->i_start, nfd, nfd, fs->d_start);
 
-    const char *ptr = fs->i_start;
-    assert(isdigit(*ptr));
     int val = 0;
     int num_i_digits = 0;
     int num_z_digits = 0;
-    while (*ptr == '0')         /* Skip leading zeroes */
+    const char *ptr = fs->i_start;
+    if (ptr == 0)
+        ptr = fs->d_start;
+    else
     {
-        num_z_digits++;
+        assert(isdigit(*ptr));
+        while (*ptr == '0')         /* Skip leading zeroes */
+        {
+            num_z_digits++;
+            ptr++;
+        }
+        while (isdigit(*ptr))
+        {
+            char c = *ptr++ - '0';
+            num_i_digits++;
+            if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+                return seteor_return(eor, fs->d_end, -1, ERANGE);
+            val = val * 10 + c;
+        }
+        assert(*ptr == '.');
         ptr++;
     }
-    while (isdigit(*ptr))
-    {
-        char c = *ptr++ - '0';
-        num_i_digits++;
-        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
-            return seteor_return(eor, fs->d_end, -1, ERANGE);
-        val = val * 10 + c;
-    }
-    assert(*ptr == '.');
-    ptr++;
+
     int i_pow10 = 1;
-    while (isdigit(*ptr))
+    if (ptr != 0)
     {
-        char c = *ptr++ - '0';
-
-        if (c == 0)
+        while (isdigit(*ptr))
         {
-            /* Trailing zeros are ignored! */
-            /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
-            const char *trz = ptr;
-            while (*trz == '0')
-                trz++;
-            if (!isdigit(*trz))
+            char c = *ptr++ - '0';
+
+            if (c == 0)
             {
-                *res = ri_new(val, i_pow10 * fs->sign);
-                return seteor_return(eor, trz, 0, ENOERROR);
+                /* Trailing zeros are ignored! */
+                /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
+                const char *trz = ptr;
+                while (*trz == '0')
+                    trz++;
+                if (!isdigit(*trz))
+                {
+                    *res = ri_new(val, i_pow10 * fs->sign);
+                    return seteor_return(eor, trz, 0, ENOERROR);
+                }
             }
+
+            if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
+                return seteor_return(eor, fs->d_end, -1, ERANGE);
+
+            val = val * 10 + c;
+            i_pow10 *= 10;
         }
-
-        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
-            return seteor_return(eor, fs->d_end, -1, ERANGE);
-
-        val = val * 10 + c;
-        i_pow10 *= 10;
     }
     if (i_pow10 == 1 && num_i_digits + num_z_digits == 0)
         return seteor_return(eor, fs->d_end, -1, EINVAL);
@@ -600,7 +608,7 @@ static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *
     return seteor_return(eor, ptr, 0, ENOERROR);
 }
 
-static int cvt_simple_fraction(const FractionString *fs, const char **eor, RationalInt *res)
+static int cvt_simple(const FractionString *fs, const char **eor, RationalInt *res)
 {
     int nid = fs->i_end - fs->i_start;
     int nfd = fs->d_end - fs->d_start;
@@ -619,7 +627,7 @@ static int cvt_simple_fraction(const FractionString *fs, const char **eor, Ratio
     return seteor_return(eor, fs->d_end, 0, ENOERROR);
 }
 
-static int cvt_compound_fraction(const FractionString *fs, const char **eor, RationalInt *res)
+static int cvt_compound(const FractionString *fs, const char **eor, RationalInt *res)
 {
     int nid = fs->i_end - fs->i_start;
     int nnd = fs->n_end - fs->n_start;
@@ -648,7 +656,7 @@ static int cvt_compound_fraction(const FractionString *fs, const char **eor, Rat
 
 int ri_scn2(const char *str, const char **eor, RationalInt *res)
 {
-    struct FractionString fs = { 0, 0, 0, 0, 0, 0, 0, 0, };
+    struct FractionString fs = { 0, 0, 0, 0, 0, 0, 0, };
     const char *ptr = skip_blank(str);
     fs.sign = +1;
     if (*ptr == '+')
@@ -658,8 +666,17 @@ int ri_scn2(const char *str, const char **eor, RationalInt *res)
         ptr++;
         fs.sign = -1;
     }
+    if (*ptr == '.' && isdigit(ptr[1]))
+    {
+        fs.d_start = ptr + 1;
+        fs.d_end = skip_digits(ptr + 1);
+        return cvt_decimal(&fs, eor, res);
+    }
     if (!isdigit(*ptr))
+    {
+        printf("str: no digit or dot after optional sign (%s)\n", str);
         return seteor_return(eor, str, -1, EINVAL);
+    }
     fs.i_start = ptr;
     fs.i_end = ptr = skip_digits(ptr);
     /* Found an integer - what follows? */
@@ -667,7 +684,7 @@ int ri_scn2(const char *str, const char **eor, RationalInt *res)
     if (*ptr == '.')
     {
         /* I.D */
-        fs.d_point = ptr++;
+        ptr++;
         if (isdigit(*ptr))
         {
             fs.d_start = ptr;
@@ -694,7 +711,7 @@ int ri_scn2(const char *str, const char **eor, RationalInt *res)
         fs.d_start = ptr;
         fs.d_end = ptr = skip_digits(ptr);
         /* Convert I / D to fraction */
-        return cvt_simple_fraction(&fs, eor, res);
+        return cvt_simple(&fs, eor, res);
     }
     assert(isdigit(*ptr));
     /* I N - is that N/D? */
@@ -715,7 +732,7 @@ int ri_scn2(const char *str, const char **eor, RationalInt *res)
     fs.d_start = ptr;
     fs.d_end = ptr = skip_digits(ptr);
     /* Got I N/D */
-    return cvt_compound_fraction(&fs, eor, res);
+    return cvt_compound(&fs, eor, res);
 }
 
 #define TEST    // Temporary
@@ -1276,6 +1293,7 @@ static const p8_test_case p8_tests[] =
     { "+9+00",              {          9,          +1 },  2,  0 },
     { "+6.25",              {         25,          +4 },  5,  0 },
     { "-.000",              {          0,          +1 },  5,  0 },
+    { "-.001",              {          1,       -1000 },  5,  0 },
     { "0.5XX",              {          1,          +2 },  3,  0 },
     { "-3.14159",           {     314159,     -100000 },  8,  0 },
     { "2147483647X",        { 2147483647,          +1 }, 10,  0 },
