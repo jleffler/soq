@@ -311,9 +311,20 @@ static inline int seteor_return(const char **eor, const char *eoc, int rv, int e
     return rv;
 }
 
-static inline const char *skip_space(const char *str)
+/*
+** Use isblank() - only spaces and tabs.
+** Not isspace() - newlines, carriage returns, form feeds, vertical tabs too.
+*/
+static inline const char *skip_blank(const char *str)
 {
-    while (isspace(*str))
+    while (isblank(*str))
+        str++;
+    return str;
+}
+
+static inline const char *skip_digits(const char *str)
+{
+    while (isdigit(*str))
         str++;
     return str;
 }
@@ -338,7 +349,7 @@ static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
     const char *eos = strchr(str, ']');
     if (eos == 0)
         return seteor_return(eor, str, -1, EINVAL);
-    const char *ptr = skip_space(str + 1);
+    const char *ptr = skip_blank(str + 1);
     int sign = opt_sign(&ptr);
     if (!isdigit(*ptr))
         return seteor_return(eor, eos+1, -1, EINVAL);
@@ -346,7 +357,7 @@ static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
     char *eon;
     if (!chk_strtoi(ptr, &eon, 10, &i))
         return seteor_return(eor, eos+1, -1, ERANGE);
-    ptr = skip_space(eon);
+    ptr = skip_blank(eon);
     if (ptr == eos)
     {
         /* [I] */
@@ -356,13 +367,13 @@ static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
     if (*ptr == '/')
     {
         /* [N/D] */
-        ptr = skip_space(ptr + 1);
+        ptr = skip_blank(ptr + 1);
         if (!isdigit(*ptr))
             return seteor_return(eor, eos+1, -1, EINVAL);
         int d;
         if (!chk_strtoi(ptr, &eon, 10, &d))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(eon);
+        ptr = skip_blank(eon);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         *res = ri_new(i, sign * d);
@@ -374,14 +385,14 @@ static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
         int n;
         if (!chk_strtoi(ptr, &eon, 10, &n))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(eon);
+        ptr = skip_blank(eon);
         if (*ptr != '/')
             return seteor_return(eor, eos+1, -1, EINVAL);
-        ptr = skip_space(ptr + 1);
+        ptr = skip_blank(ptr + 1);
         int d;
         if (!chk_strtoi(ptr, &eon, 10, &d))
             return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(eon);
+        ptr = skip_blank(eon);
         if (ptr != eos)
             return seteor_return(eor, eos+1, -1, EINVAL);
         /* i, n, d are all valid integers, but can i + n/d be represented? */
@@ -465,7 +476,7 @@ static int ri_scndec(const char *str, const char **eor, RationalInt *res)
 int ri_scn(const char *str, const char **eor, RationalInt *res)
 {
     const char *ptr = str;
-    while (isspace((unsigned char)*ptr))
+    while (isblank((unsigned char)*ptr))
         ptr++;
     int rv;
     if (*ptr == '[')
@@ -478,142 +489,159 @@ int ri_scn(const char *str, const char **eor, RationalInt *res)
     return rv;
 }
 
-/* Scan fraction number: [I] or [N/D] or [I N/D] */
-static int ri_scnfrc2(const char *str, const char **eor, RationalInt *res)
+
+/*
+** Where does *eor point for these input strings?
+**   +312 123/235       I N/D
+**               ^
+**   +312 X             I
+**       ^
+**   +312 123X          I
+**       ^
+**   +312 123/X         I
+**       ^
+**   +312 123/2X        I N/D
+**             ^
+**   +312.              I
+**        ^
+**   +312.X             I
+**        ^
+**   +312.123           I N/D
+**           ^
+**   +312/123           N/D
+**           ^
+**   +312/X             I
+**       ^
+**   +312/              I
+**       ^
+*/
+
+typedef struct FractionString
 {
-    assert(*str == '[');
-    const char *eos = strchr(str, ']');
-    if (eos == 0)
-        return seteor_return(eor, str, -1, EINVAL);
-    const char *ptr = skip_space(str + 1);
-    int sign = opt_sign(&ptr);
-    if (!isdigit(*ptr))
-        return seteor_return(eor, eos+1, -1, EINVAL);
-    int i;
-    char *eon;
-    if (!chk_strtoi(ptr, &eon, 10, &i))
-        return seteor_return(eor, eos+1, -1, ERANGE);
-    ptr = skip_space(eon);
-    if (ptr == eos)
-    {
-        /* [I] */
-        *res = ri_new(i, sign);
-        return seteor_return(eor, eos+1, 0, ENOERROR);
-    }
-    if (*ptr == '/')
-    {
-        /* [N/D] */
-        ptr = skip_space(ptr + 1);
-        if (!isdigit(*ptr))
-            return seteor_return(eor, eos+1, -1, EINVAL);
-        int d;
-        if (!chk_strtoi(ptr, &eon, 10, &d))
-            return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(eon);
-        if (ptr != eos)
-            return seteor_return(eor, eos+1, -1, EINVAL);
-        *res = ri_new(i, sign * d);
-        return seteor_return(eor, eos+1, 0, ENOERROR);
-    }
-    else if (isdigit(*ptr))
-    {
-        /* [I N/D] */
-        int n;
-        if (!chk_strtoi(ptr, &eon, 10, &n))
-            return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(eon);
-        if (*ptr != '/')
-            return seteor_return(eor, eos+1, -1, EINVAL);
-        ptr = skip_space(ptr + 1);
-        int d;
-        if (!chk_strtoi(ptr, &eon, 10, &d))
-            return seteor_return(eor, eos+1, -1, ERANGE);
-        ptr = skip_space(eon);
-        if (ptr != eos)
-            return seteor_return(eor, eos+1, -1, EINVAL);
-        /* i, n, d are all valid integers, but can i + n/d be represented? */
-        if (i > (INT_MAX - d) / n)
-            return seteor_return(eor, eos+1, -1, ERANGE);
-        *res = ri_new(d * i + n, sign * d);
-        return seteor_return(eor, eos+1, 0, ENOERROR);
-    }
-    else
-        return seteor_return(eor, eos+1, -1, EINVAL);
+    int sign;
+    const char *i_start;
+    const char *i_end;
+    const char *d_point;
+    const char *n_start;
+    const char *n_end;
+    const char *d_start;
+    const char *d_end;
+} FractionString;
+
+static int cvt_integer(const char *str, const FractionString *fs,
+                       const char **eor, RationalInt *res)
+{
+    printf("str: I [%s]\n", str);
+    int nid = fs->i_end - fs->i_start;
+    printf("%*.*s\n", nid, nid, fs->i_start);
+    *res = ri_new(0, 1);
+    return seteor_return(eor, fs->i_end, 0, ENOERROR);
+}
+
+static int cvt_decimal(const char *str, const FractionString *fs,
+                       const char **eor, RationalInt *res)
+{
+    printf("str: I.D [%s]\n", str);
+    int nid = fs->i_end - fs->i_start;
+    int nfd = fs->d_end - fs->d_start;
+    printf("%*.*s.%*.*s\n", nid, nid, fs->i_start, nfd, nfd, fs->d_start);
+    *res = ri_new(0, 1);
+    return seteor_return(eor, fs->d_end, 0, ENOERROR);
+}
+
+static int cvt_simple_fraction(const char *str, const FractionString *fs,
+                       const char **eor, RationalInt *res)
+{
+    printf("str: N/D [%s]\n", str);
+    int nid = fs->i_end - fs->i_start;
+    int nfd = fs->d_end - fs->d_start;
+    printf("%*.*s/%*.*s\n", nid, nid, fs->i_start, nfd, nfd, fs->d_start);
+    *res = ri_new(0, 1);
+    return seteor_return(eor, fs->d_end, 0, ENOERROR);
+}
+
+static int cvt_compound_fraction(const char *str, const FractionString *fs,
+                       const char **eor, RationalInt *res)
+{
+    printf("str: I N/D [%s]\n", str);
+    int nid = fs->i_end - fs->i_start;
+    int nnd = fs->n_end - fs->n_start;
+    int ndd = fs->d_end - fs->d_start;
+    printf("%*.*s %*.*s/%*.*s\n", nid, nid, fs->i_start, ndd, nnd, fs->n_start, ndd, ndd, fs->d_start);
+    *res = ri_new(0, 1);
+    return seteor_return(eor, fs->d_end, 0, ENOERROR);
 }
 
 int ri_scn2(const char *str, const char **eor, RationalInt *res)
 {
-    if (0)
-        return ri_scnfrc2(str, eor, res);
-    const char *ptr = str;
-    while (isspace((unsigned char)*ptr))
+    struct FractionString fs = { 0, 0, 0, 0, 0, 0, 0, 0, };
+    const char *ptr = skip_blank(str);
+    fs.sign = +1;
+    if (*ptr == '+')
         ptr++;
-    int sign = opt_sign(&ptr);
-    int val = 0;
-    int num_i_digits = 0;
-    int num_z_digits = 0;
-    while (*ptr == '0')         /* Skip leading zeroes */
+    else if (*ptr == '-')
     {
-        num_z_digits++;
         ptr++;
+        fs.sign = -1;
     }
-    while (isdigit(*ptr))
-    {
-        char c = *ptr++ - '0';
-        num_i_digits++;
-        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
-        {
-            while (isdigit(*ptr))
-                ptr++;
-            return seteor_return(eor, ptr, -1, ERANGE);
-        }
-        val = val * 10 + c;
-    }
-    if (*ptr != '.')
-    {
-        if (num_i_digits + num_z_digits == 0)
-            return seteor_return(eor, str, -1, EINVAL);
-        if (isspace(*ptr))
-        {
-            printf("[Look for N/D]\n");
-        }
-        *res = ri_new(val, sign);
-        return seteor_return(eor, ptr, 0, ENOERROR);
-    }
-    ptr++;
-    int i_pow10 = 1;
-    while (isdigit(*ptr))
-    {
-        char c = *ptr++ - '0';
-
-        if (c == 0)
-        {
-            /* Trailing zeros are ignored! */
-            /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
-            const char *trz = ptr;
-            while (*trz == '0')
-                trz++;
-            if (!isdigit(*trz))
-            {
-                *res = ri_new(val, i_pow10 * sign);
-                return seteor_return(eor, trz, 0, ENOERROR);
-            }
-        }
-
-        if (val > INT_MAX / 10 || (val == INT_MAX / 10 && c > INT_MAX % 10))
-        {
-            while (isdigit(*ptr))
-                ptr++;
-            return seteor_return(eor, ptr, -1, ERANGE);
-        }
-
-        val = val * 10 + c;
-        i_pow10 *= 10;
-    }
-    if (i_pow10 == 1 && num_i_digits + num_z_digits == 0)
+    if (!isdigit(*ptr))
         return seteor_return(eor, str, -1, EINVAL);
-    *res = ri_new(val, i_pow10 * sign);
-    return seteor_return(eor, ptr, 0, ENOERROR);
+    fs.i_start = ptr;
+    fs.i_end = ptr = skip_digits(ptr);
+    /* Found an integer - what follows? */
+    /* Decimal point - fraction hunting */
+    if (*ptr == '.')
+    {
+        /* I.D */
+        fs.d_point = ptr++;
+        if (isdigit(*ptr))
+        {
+            fs.d_start = ptr;
+            fs.d_end = ptr = skip_digits(ptr);
+        }
+        else
+            ptr++;
+        /* Convert [i_start..i_end) point [d_start..d_end) to fraction */
+        return cvt_decimal(str, &fs, eor, res);
+    }
+    ptr = skip_blank(ptr);
+    if (!isdigit(*ptr) && *ptr != '/')
+    {
+        /* I */
+        /* Convert [i_start..i_end) */
+        return cvt_integer(str, &fs, eor, res);
+    }
+    if (*ptr == '/')
+    {
+        /* N / D or I (followed by /) */
+        ptr = skip_blank(ptr + 1);
+        if (!isdigit(*ptr))
+            return cvt_integer(str, &fs, eor, res);
+        fs.d_start = ptr;
+        fs.d_end = ptr = skip_digits(ptr);
+        /* Convert I / D to fraction */
+        return cvt_simple_fraction(str, &fs, eor, res);
+    }
+    assert(isdigit(*ptr));
+    /* I N - is that N/D? */
+    fs.n_start = ptr;
+    fs.n_end = ptr = skip_digits(ptr);
+    ptr = skip_blank(ptr);
+    if (*ptr != '/')
+    {
+        /* Got I */
+        return cvt_integer(str, &fs, eor, res);
+    }
+    ptr = skip_blank(ptr+1);
+    if (!isdigit(*ptr))
+    {
+        /* Got I */
+        return cvt_integer(str, &fs, eor, res);
+    }
+    fs.d_start = ptr;
+    fs.d_end = ptr = skip_digits(ptr);
+    /* Got I N/D */
+    return cvt_compound_fraction(str, &fs, eor, res);
 }
 
 #define TEST    // Temporary
