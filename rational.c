@@ -96,7 +96,7 @@ RationalInt ri_new(int numerator, int denominator)
 {
     assert(denominator != 0);
     RationalInt ri;
-    if (numerator == 0)
+    if (numerator == 0 || denominator == 0)
     {
         ri.numerator = 0;
         ri.denominator = 1;
@@ -430,7 +430,7 @@ static int cvt_compound(const FractionString *fs, const char **eor, RationalInt 
     assert(eon == fs->i_end);
     int n;
     if (!chk_strtoi(fs->n_start, &eon, 10, &n))
-            return seteor_return(eor, fs->d_end, -1, ERANGE);
+        return seteor_return(eor, fs->d_end, -1, ERANGE);
     assert(eon == fs->n_end);
     int d;
     if (!chk_strtoi(fs->d_start, &eon, 10, &d))
