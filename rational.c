@@ -256,9 +256,9 @@ char *ri_fmt(RationalInt val, char *buffer, size_t buflen)
         char sign = (val.denominator < 0) ? '-' : '+';
         int len;
         if (iabs(val.denominator) == 1)
-            len = snprintf(buffer, buflen, "[%c%d]", sign, val.numerator);
+            len = snprintf(buffer, buflen, "%c%d", sign, val.numerator);
         else
-            len = snprintf(buffer, buflen, "[%c%d/%d]",
+            len = snprintf(buffer, buflen, "%c%d/%d",
                            sign, iabs(val.numerator), iabs(val.denominator));
         if (len <= 0 || (size_t)len >= buflen)
             *buffer = '\0';
@@ -277,16 +277,16 @@ char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
     assert(in.denominator == +1 || in.denominator == -1);
     if (in.numerator != 0 && fr.numerator != 0)
     {
-        len = snprintf(buffer, buflen, "[%c%d %d/%d]", sign,
+        len = snprintf(buffer, buflen, "%c%d %d/%d", sign,
                        iabs(in.numerator), iabs(fr.numerator), iabs(fr.denominator));
     }
     else if (in.numerator != 0)
     {
-        len = snprintf(buffer, buflen, "[%c%d]", sign, iabs(in.numerator));
+        len = snprintf(buffer, buflen, "%c%d", sign, iabs(in.numerator));
     }
     else if (fr.numerator != 0)
     {
-        len = snprintf(buffer, buflen, "[%c%d/%d]",
+        len = snprintf(buffer, buflen, "%c%d/%d",
                        sign, iabs(val.numerator), iabs(val.denominator));
     }
     else
