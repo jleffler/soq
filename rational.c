@@ -438,7 +438,7 @@ static int cvt_compound(const FractionString *fs, const char **eor, RationalInt 
     if (!chk_strtoi(fs->d_start, &eon, 10, &d))
         return seteor_return(eor, fs->d_end, -1, ERANGE);
     /* i, n, d are all valid integers, but can i + n/d be represented? */
-    if (i > (INT_MAX - d) / n)
+    if (i > (INT_MAX - n) / d)
         return seteor_return(eor, fs->d_end, -1, ERANGE);
     *res = ri_new(d * i + n, fs->sign * d);
     return seteor_return(eor, fs->d_end, 0, ENOERROR);
@@ -1014,12 +1014,14 @@ static const p7_test_case p7_tests[] =
     { "+1 1/2",             {          3,          +2 },  6,  0 },
     { "-1 1/2",             {          3,          -2 },  6,  0 },
     { "1 1/2",              {          3,          +2 },  5,  0 },
+    { "-1 -1/2",            {          1,          -1 },  2,  0 },
     { "12 15/3",            {         17,          +1 },  7,  0 },
     { " 134217727 13/16",   { 2147483645,         +16 }, 16,  0 },
     { "-134217727 14/16",   { 1073741823,          -8 }, 16,  0 },
     { "+134217727 15/16",   { 2147483647,         +16 }, 16,  0 },
     { " 134217727 16/16",   {          0,          +1 }, 16, -1 },
     { " 134217727 17/16",   {          0,          +1 }, 16, -1 },
+    { "100000 1/100000",    {          0,          +1 }, 15, -1 },
 
     { "+312 123/235",       {      73443,        +235 }, 12,  0 },
     { "+312 X",             {        312,          +1 },  4,  0 },
