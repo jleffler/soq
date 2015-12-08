@@ -1452,5 +1452,4 @@
    fun:__swsetup
    fun:__v2printf
    fun:vfprintf_l
-   fun:fprintf
 }
