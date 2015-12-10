@@ -291,7 +291,7 @@ char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
     }
     else
     {
-        len = snprintf(buffer, buflen, "[0]");
+        len = snprintf(buffer, buflen, "0");
     }
     if (len <= 0 || (size_t)len >= buflen)
         *buffer = '\0';
@@ -378,14 +378,14 @@ static int cvt_decimal(const FractionString *fs, const char **eor, RationalInt *
     int i_pow10 = 1;
     if (ptr != 0)
     {
+        /* Trailing zeros are ignored! */
+        const char *trz = ptr;
         while (isdigit(*ptr))
         {
             char c = *ptr++ - '0';
-            if (c == 0)
+            if (c == 0 && trz < ptr)
             {
-                /* Trailing zeros are ignored! */
-                /* Modestly slow for 1.000001 as it scans over the zeros on each iteration */
-                const char *trz = ptr;
+                trz = ptr;
                 while (*trz == '0')
                     trz++;
                 if (!isdigit(*trz))
@@ -987,6 +987,7 @@ static const p7_test_case p7_tests[] =
     { "-0.000000001200000", {          0,          +1 }, 18, -1 },
     { "-0.0000000210000",   {         21, -1000000000 }, 16,  0 },
     { " 0.0000003210000",   {        321, +1000000000 }, 16,  0 },
+    { "+0.010020003000000", {   10020003, +1000000000 }, 18,  0 },
     { "    0",              {          0,          +1 },  5,  0 },
     { "    0    ",          {          0,          +1 },  5,  0 },
     { "    X",              {          0,          +1 },  0, -1 },
