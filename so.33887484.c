@@ -119,9 +119,12 @@ int ri_gcd(const RationalInt *val)
 
 static RationalInt ri_new(int numerator, int denominator)
 {
-    assert(denominator != 0 && denominator != INT_MIN);
+    assert(denominator != 0);
+    assert(denominator != INT_MIN && denominator != INT_MIN);
     RationalInt ri;
-    if (numerator == 0)
+    /* Handle invalid inputs as 0 if assertions are not enabled */
+    if (numerator   == 0 || numerator   == INT_MIN ||
+        denominator == 0 || denominator == INT_MIN)
     {
         ri.numerator = 0;
         ri.denominator = 1;
