@@ -9,7 +9,7 @@ int main(void)
 
     for (int j = 0; j < SIZE; j++)
     {
-            insert(&root, sample[j]);
+        insert(&root, sample[j]);
     }
 
     clear_tree(&root);

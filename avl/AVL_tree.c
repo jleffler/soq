@@ -1,8 +1,41 @@
 #include "AVL_tree.h"
+#include <assert.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static long
+static void dump_vertex(const char *tag, struct vertex *v)
+{
+    if (v == NULL)
+        printf("%s: data  ; height  ; v = 0x%.9" PRIXPTR "\n", tag, (uintptr_t)v);
+    else
+        printf("%s: data %d; height %ld; v = 0x%.9" PRIXPTR ", l = 0x%.9"
+               PRIXPTR ", r = 0x%.9" PRIXPTR ", p = 0x%.9" PRIXPTR "\n",
+               tag, v->data, v->height, (uintptr_t)v, (uintptr_t)v->l,
+               (uintptr_t)v->r, (uintptr_t)v->p);
+}
+
+static void dump_tree_inorder_notag(const struct vertex *v)
+{
+    if (v != NULL)
+    {
+        dump_tree_inorder_notag(v->l);
+        printf("data %d; height %ld; v = 0x%.9" PRIXPTR ", l = 0x%.9" PRIXPTR
+               ", r = 0x%.9" PRIXPTR ", p = 0x%.9" PRIXPTR "\n",
+               v->data, v->height, (uintptr_t)v, (uintptr_t)v->l,
+               (uintptr_t)v->r, (uintptr_t)v->p);
+        dump_tree_inorder_notag(v->r);
+    }
+}
+
+static void dump_tree_inorder(const char *tag, struct vertex *v)
+{
+    printf("-->> %s: (root 0x%.9" PRIXPTR ")\n", tag, (uintptr_t)v);
+    dump_tree_inorder_notag(v);
+    printf("<<-- %s:\n", tag);
+}
+
+static inline long
 max(long a, long b)
 {
     return(((a) > (b)) ? a : b);
@@ -11,6 +44,7 @@ max(long a, long b)
 static long
 balance_factor(struct vertex *v)
 {
+    assert(v != NULL);
     if (v->l == NULL && v->r == NULL)
         return 0;
     else if (v->l == NULL)
@@ -24,8 +58,8 @@ balance_factor(struct vertex *v)
 static void
 update_height(struct vertex *v)
 {
-    if (v->l == NULL
-        && v->r == NULL)
+    assert(v != NULL);
+    if (v->l == NULL && v->r == NULL)
     {
         v->height = 0;
         return;
@@ -69,54 +103,80 @@ right_rotate(struct vertex **v)
 static void
 left_rotate(struct vertex **v)
 {
+    assert(v != NULL);
+    assert(*v != NULL);
+    dump_vertex("-->> left_rotate", *v);
     if ((*v)->r == NULL)
         printf("1 r == NULL\n");
 
     if ((*v)->p != NULL)
     {
-        printf(" p is not NULL\n");
+        printf("p is not NULL\n");
         if ((*v)->p->r == (*v))
+        {
             (*v)->p->r = (*v)->r;
+        }
         else if ((*v)->p->l == (*v))
         {
             printf("p's l  == v\n");
+            dump_vertex("LR1 -  current node", *v);
+            dump_vertex("LR1 -   parent node", (*v)->p);
+            dump_vertex("LR1 -  parent  left", (*v)->p->l);
+            dump_vertex("LR1 - current right", (*v)->r);
+            dump_tree_inorder("LR1 - tree from parent", (*v)->p);
 
-            if ((*v)->r != NULL)
-                printf("WTF r != NULL r %p p %p p->l %p (*v) %p \n", (*v)->r, (*v)->p, (*v)->p->l, (*v));
+            //if ((*v)->r != NULL)
+                //printf("WTF r != NULL r %p p %p p->l %p (*v) %p\n", (*v)->r, (*v)->p, (*v)->p->l, (*v));
 
+            printf("Assign (*v)->r (0x%.9" PRIXPTR ") to (*v)->p->l (0x%.9" PRIXPTR ")\n",
+                (uintptr_t)(*v)->r, (uintptr_t)(*v)->p->l);
             (*v)->p->l = (*v)->r;
-            if ((*v)->r == NULL)
-                printf("WTF r == NULL r %p p %p p->l %p (*v) %p \n", (*v)->r, (*v)->p, (*v)->p->l, (*v));
+
+            dump_vertex("LR2 -  current node", *v);
+            dump_vertex("LR2 -   parent node", (*v)->p);
+            dump_vertex("LR2 -  parent  left", (*v)->p->l);
+            dump_vertex("LR2 - current right", (*v)->r);
+            // At this point, we don't have a tree
+            //dump_tree_inorder("LR2 - tree from parent", (*v)->p);
+
+            //if ((*v)->r == NULL)
+                //printf("WTF r == NULL r %p p %p p->l %p (*v) %p\n", (*v)->r, (*v)->p, (*v)->p->l, (*v));
         }
         else
         {
-            printf("error case \n");
+            printf("error case\n");
         }
     }
+    else
+        dump_vertex("(*v)->p == NULL", (*v)->p);
     printf("get there before\n");
 
     if ((*v)->r == NULL)
         printf("r == NULL\n");
 
+    assert((*v)->r != NULL);
+
     struct vertex  *tmp = (*v)->r->l;
     printf("get there after\n");
     (*v)->r->l = (*v);
-    printf("get there \n");
+    printf("get there\n");
     (*v)->r->p = (*v)->p;
     (*v)->p = (*v)->r;
     (*v)->r = tmp;
-    printf("get there \n");
+    printf("get there\n");
     if (tmp != NULL)
         tmp->p = (*v);
-    printf("get there \n");
+    printf("get there\n");
     update_height(*v);
     (*v) = (*v)->p;
     update_height(*v);
+    dump_vertex("<<-- left_rotate", *v);
 }
 
 static void
 insert_fixup(struct vertex *new_vertex)
 {
+    dump_tree_inorder("insert fixup 0", new_vertex);
     while ((new_vertex->p != NULL)
            && ((new_vertex->height + 1) > new_vertex->p->height))
     {
@@ -126,30 +186,36 @@ insert_fixup(struct vertex *new_vertex)
         {
             if (balance_factor(new_vertex->l) == -1)
             {
-                printf("double left right rotating \n");
+                printf("double left right rotating\n");
                 left_rotate(&new_vertex->l);
+                printf("double left right rotating finish\n");
             }
             right_rotate(&new_vertex);
+            dump_tree_inorder("insert fixup 1", new_vertex);
             return;
         }
         else if (balance_factor(new_vertex) == -2)
         {
             if (balance_factor(new_vertex->r) == 1)
             {
-                printf("double right left rotating \n");
+                printf("double right left rotating\n");
                 right_rotate(&new_vertex->r);
                 printf("double right rotating finish\n");
             }
             left_rotate(&new_vertex);
+            dump_tree_inorder("insert fixup 2", new_vertex);
             return;
         }
     }
+    dump_tree_inorder("insert fixup 3", new_vertex);
 }
 
 void
 insert(struct vertex **tree, int data)
 {
+    assert(tree != NULL);
     struct vertex  *new_vertex = malloc(sizeof(struct vertex));
+    assert(new_vertex != NULL);
     new_vertex->data = data;
     new_vertex->height = 0;
     new_vertex->l = NULL;
@@ -161,6 +227,7 @@ insert(struct vertex **tree, int data)
     else if (*tree == NULL)
     {
         *tree = new_vertex;
+        dump_tree_inorder("insert-1", *tree);
         return;
     }
     struct vertex  *root = *tree;
@@ -194,6 +261,7 @@ insert(struct vertex **tree, int data)
     {
         (*tree) = (*tree)->p;
     }
+    dump_tree_inorder("insert-2", *tree);
 }
 
 void *
