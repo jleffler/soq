@@ -1,16 +1,22 @@
 /*
-@(#)File:           $RCSfile$
-@(#)Version:        $Revision$
-@(#)Last changed:   $Date$
+@(#)File:           $RCSfile: test1.c,v $
+@(#)Version:        $Revision: 1.2 $
+@(#)Last changed:   $Date: 2016/01/17 00:28:29 $
 @(#)Purpose:        Demonstrate cross-library linking
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2014
+@(#)Copyright:      (C) JLSS 2015-16
 @(#)Product:        :PRODUCT:
 */
 
 #include <stdio.h>
 #include "lib1.h"
 #include "lib2.h"
+
+#ifndef lint
+/* Prevent over-aggressive optimizers from eliminating ID string */
+extern const char jlss_id_test1_c[];
+const char jlss_id_test1_c[] = "@(#)$Id: test1.c,v 1.2 2016/01/17 00:28:29 jleffler Exp $";
+#endif /* lint */
 
 int main(void)
 {
