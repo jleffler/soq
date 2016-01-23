@@ -1,4 +1,4 @@
-# @(#)$Id: makefile,v 1.2 2016/01/17 00:28:29 jleffler Exp jleffler $
+# @(#)$Id: makefile,v 1.3 2016/01/23 20:24:55 jleffler Exp $
 #
 # Makefile for demonstrating cross-library linking
 
