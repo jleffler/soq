@@ -4,36 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void dump_vertex(const char *tag, struct vertex *v)
-{
-    if (v == NULL)
-        printf("%s: data  ; height  ; v = 0x%.9" PRIXPTR "\n", tag, (uintptr_t)v);
-    else
-        printf("%s: data %d; height %ld; v = 0x%.9" PRIXPTR ", l = 0x%.9"
-               PRIXPTR ", r = 0x%.9" PRIXPTR ", p = 0x%.9" PRIXPTR "\n",
-               tag, v->data, v->height, (uintptr_t)v, (uintptr_t)v->l,
-               (uintptr_t)v->r, (uintptr_t)v->p);
-}
-
-static void dump_tree_inorder_notag(const struct vertex *v)
-{
-    if (v != NULL)
-    {
-        dump_tree_inorder_notag(v->l);
-        printf("data %d; height %ld; v = 0x%.9" PRIXPTR ", l = 0x%.9" PRIXPTR
-               ", r = 0x%.9" PRIXPTR ", p = 0x%.9" PRIXPTR "\n",
-               v->data, v->height, (uintptr_t)v, (uintptr_t)v->l,
-               (uintptr_t)v->r, (uintptr_t)v->p);
-        dump_tree_inorder_notag(v->r);
-    }
-}
-
-static void dump_tree_inorder(const char *tag, struct vertex *v)
-{
-    printf("-->> %s: (root 0x%.9" PRIXPTR ")\n", tag, (uintptr_t)v);
-    dump_tree_inorder_notag(v);
-    printf("<<-- %s:\n", tag);
-}
+static void dump_pointer(const char *tag, void *vp);
+static void dump_tree_inorder(const char *tag, struct vertex *v);
+static void dump_tree_inorder_notag(const struct vertex *v);
+static void dump_vertex(const char *tag, struct vertex *v);
 
 static inline long
 max(long a, long b)
@@ -118,11 +92,15 @@ left_rotate(struct vertex **v)
         }
         else if ((*v)->p->l == (*v))
         {
+            struct vertex *ov = *v;
             printf("p's l  == v\n");
+            dump_pointer("LR1 -  v", v);
+            dump_pointer("LR1 - *v", *v);
             dump_vertex("LR1 -  current node", *v);
             dump_vertex("LR1 -   parent node", (*v)->p);
             dump_vertex("LR1 -  parent  left", (*v)->p->l);
             dump_vertex("LR1 - current right", (*v)->r);
+            dump_vertex("LR1 -  old vertex *", ov);
             dump_tree_inorder("LR1 - tree from parent", (*v)->p);
 
             //if ((*v)->r != NULL)
@@ -132,10 +110,13 @@ left_rotate(struct vertex **v)
                 (uintptr_t)(*v)->r, (uintptr_t)(*v)->p->l);
             (*v)->p->l = (*v)->r;
 
+            dump_pointer("LR2 -  v", v);
+            dump_pointer("LR2 - *v", *v);
             dump_vertex("LR2 -  current node", *v);
             dump_vertex("LR2 -   parent node", (*v)->p);
             dump_vertex("LR2 -  parent  left", (*v)->p->l);
             dump_vertex("LR2 - current right", (*v)->r);
+            dump_vertex("LR2 -  old vertex *", ov);
             // At this point, we don't have a tree
             //dump_tree_inorder("LR2 - tree from parent", (*v)->p);
 
@@ -214,6 +195,7 @@ void
 insert(struct vertex **tree, int data)
 {
     assert(tree != NULL);
+    printf("-->> %s: data %d; tree 0x%.9" PRIXPTR "\n", __func__, data, (uintptr_t)*tree);
     struct vertex  *new_vertex = malloc(sizeof(struct vertex));
     assert(new_vertex != NULL);
     new_vertex->data = data;
@@ -228,6 +210,7 @@ insert(struct vertex **tree, int data)
     {
         *tree = new_vertex;
         dump_tree_inorder("insert-1", *tree);
+        printf("<<-- %s: data %d; tree 0x%.9" PRIXPTR "\n", __func__, data, (uintptr_t)*tree);
         return;
     }
     struct vertex  *root = *tree;
@@ -262,16 +245,19 @@ insert(struct vertex **tree, int data)
         (*tree) = (*tree)->p;
     }
     dump_tree_inorder("insert-2", *tree);
+    printf("<<-- %s: data %d; tree 0x%.9" PRIXPTR "\n", __func__, data, (uintptr_t)*tree);
 }
 
 void *
 find(struct vertex *v, int data)
 {
     while (v != NULL && v->data != data)
+    {
         if (v->data < data)
             v = v->r;
         else
             v = v->l;
+    }
 
     return v;
 }
@@ -279,12 +265,12 @@ find(struct vertex *v, int data)
 static void
 free_tree(struct vertex *root)
 {
-    if (root->l != NULL)
+    if (root != NULL)
+    {
         free_tree(root->l);
-    if (root->r != NULL)
         free_tree(root->r);
-
-    free(root);
+        free(root);
+    }
 }
 
 void
@@ -292,4 +278,46 @@ clear_tree(struct vertex **root)
 {
     free_tree(*root);
     *root = NULL;
+}
+
+/* Debugging aids */
+
+static void dump_pointer(const char *tag, void *vp)
+{
+    printf("%s: 0x%.9" PRIXPTR "\n", tag, (uintptr_t)vp);
+    fflush(stdout);
+}
+
+static void dump_vertex(const char *tag, struct vertex *v)
+{
+    if (v == NULL)
+        printf("%s: data  ; height  ; v = 0x%.9" PRIXPTR "\n", tag, (uintptr_t)v);
+    else
+        printf("%s: data %d; height %ld; v = 0x%.9" PRIXPTR ", l = 0x%.9"
+               PRIXPTR ", r = 0x%.9" PRIXPTR ", p = 0x%.9" PRIXPTR "\n",
+               tag, v->data, v->height, (uintptr_t)v, (uintptr_t)v->l,
+               (uintptr_t)v->r, (uintptr_t)v->p);
+    fflush(stdout);
+}
+
+static void dump_tree_inorder_notag(const struct vertex *v)
+{
+    if (v != NULL)
+    {
+        dump_tree_inorder_notag(v->l);
+        printf("data %d; height %ld; v = 0x%.9" PRIXPTR ", l = 0x%.9" PRIXPTR
+               ", r = 0x%.9" PRIXPTR ", p = 0x%.9" PRIXPTR "\n",
+               v->data, v->height, (uintptr_t)v, (uintptr_t)v->l,
+               (uintptr_t)v->r, (uintptr_t)v->p);
+        dump_tree_inorder_notag(v->r);
+        fflush(stdout);
+    }
+}
+
+static void dump_tree_inorder(const char *tag, struct vertex *v)
+{
+    printf("-->> %s: (root 0x%.9" PRIXPTR ")\n", tag, (uintptr_t)v);
+    dump_tree_inorder_notag(v);
+    printf("<<-- %s:\n", tag);
+    fflush(stdout);
 }

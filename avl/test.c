@@ -17,7 +17,7 @@ int main(void)
         for (i = 0; i < limit; i++)
         {
             int random = rand() % 10;
-            printf("inserting %d \n", random);
+            printf("inserting %d\n", random);
             insert(&root, random);
         }
         end = clock();
