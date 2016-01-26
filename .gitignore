@@ -53,6 +53,7 @@ fault
 fd-passing
 fifocircle
 fifosize
+file
 filter.stderr
 gai
 genouterr
