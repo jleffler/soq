@@ -5,6 +5,8 @@
 #include <string.h>
 #include <time.h>
 
+static inline int max(int x, int y) { return (x > y) ? x : y; }
+
 static void fettle_text(char *string)
 {
     unsigned char *dst = (unsigned char *)string;
@@ -18,12 +20,11 @@ static void fettle_text(char *string)
         if (isspace(c))
         {
             /* All white space sequences become a single blank */
-            *dst++ = ' ';
+            c = ' ';
             while (isspace(*src))
                 src++;
         }
-        else
-            *dst++ = c;
+        *dst++ = c;
     }
     /* Trailing white space (already reduced to a single blank) */
     if (dst > (unsigned char *)string && *(dst-1) == ' ')
@@ -33,7 +34,7 @@ static void fettle_text(char *string)
 
 int main(int argc, char **argv)
 {
-    struct timespec d = { .tv_sec = 0, .tv_nsec = 300000000 };
+    struct timespec d = { .tv_sec = 0, .tv_nsec = 100000000 };
     if (argc != 3)
     {
         fprintf(stderr, "Usage: %s length 'message'\n", argv[0]);
@@ -67,27 +68,16 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    /* The string copying below here is mostly stupid - just use snprintf() */
-    /* It does happen to work, though.  The length calcs above are semi-relevant. */
-    /* BOS - beginning of stupidity */
     int offset = 0;
     for (int i = 0; i < 2; i++)
     {
-        memmove(sign + offset, message, s_len);
-        offset += s_len;
-        memmove(sign + offset, padding, sizeof(padding) - 1);
-        offset += sizeof(padding) - 1;
-        if (s_len < width)
-        {
-            memset(sign + offset, ' ', width - s_len);
-            offset += width - s_len;
-        }
+        int p_wid = max(width - s_len, 0);
+        offset += sprintf(sign + offset, "%s%s%*.*s", message, padding, p_wid, p_wid, " ");
     }
     sign[offset] = '\0';
 
     printf("%zu vs %d (%s)\n", strlen(sign), 2 * (t_len + p_len), sign);
     assert(strlen(sign) == (size_t)(2 * (t_len + p_len)));
-    /* EOS - end of stupidity */
 
     for (int i = 0; i < 10; i++)
     {
