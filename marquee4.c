@@ -17,7 +17,7 @@ static void fettle_text(char *string)
     {
         if (isspace(c))
         {
-            /* All white space becomes a single blank */
+            /* All white space sequences become a single blank */
             *dst++ = ' ';
             while (isspace(*src))
                 src++;
@@ -58,7 +58,8 @@ int main(int argc, char **argv)
     int t_len = s_len;
     if (t_len < width)
         t_len = width;
-    int m_len = 2 * (t_len + sizeof(padding) - 1) + 1;
+    int p_len = sizeof(padding) - 1;
+    int m_len = 2 * (t_len + p_len) + 1;
     char *sign = malloc(m_len);
     if (sign == 0)
     {
@@ -67,37 +68,32 @@ int main(int argc, char **argv)
     }
 
     /* The string copying below here is mostly stupid - just use snprintf() */
-    /* It does happen to work, though.  The length calcs abover are semi-relevant. */
+    /* It does happen to work, though.  The length calcs above are semi-relevant. */
     /* BOS - beginning of stupidity */
     int offset = 0;
-    memmove(sign + offset, message, s_len);
-    offset += s_len;
-    memmove(sign + offset, padding, sizeof(padding) - 1);
-    offset += sizeof(padding) - 1;
-    if (s_len < width)
+    for (int i = 0; i < 2; i++)
     {
-        memset(sign + offset, ' ', width - s_len);
-        offset += width - s_len;
+        memmove(sign + offset, message, s_len);
+        offset += s_len;
+        memmove(sign + offset, padding, sizeof(padding) - 1);
+        offset += sizeof(padding) - 1;
+        if (s_len < width)
+        {
+            memset(sign + offset, ' ', width - s_len);
+            offset += width - s_len;
+        }
     }
-    memmove(sign + offset, message, s_len);
-    offset += s_len;
-    if (s_len < width)
-    {
-        memset(sign + offset, ' ', width - s_len);
-        offset += width - s_len;
-    }
-    memmove(sign + offset, padding, sizeof(padding) - 1);
-    offset += sizeof(padding) - 1;
     sign[offset] = '\0';
-    printf("%zu vs %zu (%s)\n", strlen(sign), 2 * (t_len + sizeof(padding)) - 1, sign);
-    assert(strlen(sign) == 2 * (t_len + sizeof(padding) - 1));
+
+    printf("%zu vs %d (%s)\n", strlen(sign), 2 * (t_len + p_len), sign);
+    assert(strlen(sign) == (size_t)(2 * (t_len + p_len)));
     /* EOS - end of stupidity */
 
     for (int i = 0; i < 10; i++)
     {
-        for (int l_len = 0; l_len < t_len; l_len++)
+        for (int l_len = 0; l_len < t_len + p_len; l_len++)
         {
-            int r_len = t_len - l_len;
+            int r_len = t_len + p_len - l_len;
             putchar('\r');
             /* Rotate to right */
             printf("[%.*s]", width, sign + r_len);
@@ -110,6 +106,7 @@ int main(int argc, char **argv)
     }
     putchar('\n');
 
+    free(message);
     free(sign);
 
     return 0;
