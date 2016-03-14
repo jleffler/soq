@@ -99,6 +99,9 @@ C_CXX_DUAL_PROGRAMS = \
 	isprime \
 	ll3 \
 	madump \
+	marquee \
+	marquee3 \
+	marquee4 \
 	matmake3d \
 	matmul89 \
 	mda \
@@ -112,6 +115,8 @@ C_CXX_DUAL_PROGRAMS = \
 	pthread-3 \
 	q7 \
 	quine \
+	ratcalc \
+	rational \
 	readdir \
 	recv \
 	regress \
@@ -121,6 +126,7 @@ C_CXX_DUAL_PROGRAMS = \
 	sigalrm \
 	sigchld \
 	signals \
+	so.33887484 \
 	streplace \
 	test-fstatat \
 	timezeromoves \
