@@ -37,6 +37,7 @@ typedef struct Pair
 extern Pair modbinsearch(const int *array, size_t a_size, int value);
 extern int BinSearch_A(int N, int X[N], int T);
 extern int BinSearch_B(int N, int X[N], int T);
+extern int BinSearch_C(int N, int X[N], int T);
 
 #ifndef lint
 /* Prevent over-aggressive optimizers from eliminating ID string */
@@ -99,6 +100,20 @@ const char jlss_id_modbinsearch_c[] = "@(#)$Id$";
 **      P := U
 **      if P > N or X[P] != T then P := 0
 **
+** Search for last occurrence of T in X[1..N] - BinSearch-C
+**
+**      L := 0; U := N+1
+**      while L+1 != U do
+**          # Invariant: X[L] <= T and X[U] > T and L < U
+**          M := (L+U) div 2
+**          if X[M] <= T then
+**              L := M
+**          else
+**              U := M
+**      # Assert: L+1 = U and X[L] < T and X[U] >= T
+**      P := L
+**      if P = 0 or X[P] != T then P := 0
+**
 ** C implementations of these deal with X[0..N-1] instead of X[1..N]
 */
 
@@ -141,6 +156,55 @@ int BinSearch_B(int N, int X[N], int T)
         P = -1;
     return P;
 }
+
+int BinSearch_C(int N, int X[N], int T)
+{
+    int L = -1;
+    int U = N;
+    while (L + 1 != U)
+    {
+        /* Invariant: X[L] <= T and X[U] > T and L < U */
+        int M = (L + U) / 2;
+        if (X[M] <= T)
+            L = M;
+        else
+            U = M;
+    }
+    assert(L+1 == U && (L == -1 || X[L] <= T) && (U >= N || X[U] > T));
+    int P = L;
+    if (P < 0 || X[P] != T)
+        P = -1;
+    return P;
+}
+
+#if 0
+static
+int bsearchl(const int *x, int n, int t)
+{
+    int l = -1;
+    int u = n;
+
+    assert(n >= 0);
+    while (l + 1 != u)
+    {
+        //      /* Invariant: x[l] < t && x[u] >= t && l < u */
+        /* Invariant: x[l] <= t && x[u] > t && l < u */
+        int m = (l + u) / 2;
+        //printf("  t = %d, l = %d, u = %d, m = %d, x[%d] = %d\n",
+        //       t, l, u, m, m, x[m]);
+        //      if (x[m] < t)
+        if (x[m] <= t)
+            l = m;
+        else
+            u = m;
+    }
+    //  if (u >= n || x[u] != t)
+    if (l < 0 || x[l] != t)
+        return -1;
+    assert(l >= 0 && l < n);
+    return l;
+}
+#endif /* 0 */
 
 Pair modbinsearch(const int *array, size_t a_size, int value)
 {
@@ -263,6 +327,12 @@ int main(int argc, char **argv)
     {
         int result = BinSearch_B(A_SIZE, a, i);
         printf("B(%2d): (%d)\n", i, result);
+    }
+
+    for (int i = a[0] - 1; i < a[A_SIZE - 1] + 2; i++)
+    {
+        int result = BinSearch_C(A_SIZE, a, i);
+        printf("C(%2d): (%d)\n", i, result);
     }
 
 #if 0
