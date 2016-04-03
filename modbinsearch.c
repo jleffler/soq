@@ -15,6 +15,7 @@
 #include "posixver.h"
 #include "stderr.h"
 #include <assert.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -177,35 +178,6 @@ int BinSearch_C(int N, int X[N], int T)
     return P;
 }
 
-#if 0
-static
-int bsearchl(const int *x, int n, int t)
-{
-    int l = -1;
-    int u = n;
-
-    assert(n >= 0);
-    while (l + 1 != u)
-    {
-        //      /* Invariant: x[l] < t && x[u] >= t && l < u */
-        /* Invariant: x[l] <= t && x[u] > t && l < u */
-        int m = (l + u) / 2;
-        //printf("  t = %d, l = %d, u = %d, m = %d, x[%d] = %d\n",
-        //       t, l, u, m, m, x[m]);
-        //      if (x[m] < t)
-        if (x[m] <= t)
-            l = m;
-        else
-            u = m;
-    }
-    //  if (u >= n || x[u] != t)
-    if (l < 0 || x[l] != t)
-        return -1;
-    assert(l >= 0 && l < n);
-    return l;
-}
-#endif /* 0 */
-
 Pair modbinsearch(const int *array, size_t a_size, int value)
 {
     assert(a_size < SIZE_MAX);
@@ -266,6 +238,43 @@ Pair modbinsearch(const int *array, size_t a_size, int value)
     return result;
 }
 
+static void check_sorted(int size, int array[size])
+{
+    bool ok = true;
+    for (int i = 1; i < size; i++)
+    {
+        if (array[i-1] > array[i])
+        {
+            fprintf(stderr, "Out of order: A[%d] = %d, A[%d] = %d\n", i-1, array[i-1], i, array[i]);
+            ok = false;
+        }
+    }
+    if (!ok)
+        exit(1);
+}
+
+static void test_array(int size, int array[size])
+{
+    printf("Data: ");
+    for (int i = 0; i < size; i++)
+        printf(" %2d", array[i]);
+    putchar('\n');
+    check_sorted(size, array);
+
+    for (int i = array[0] - 1; i < array[size - 1] + 2; i++)
+    {
+        int a_idx = BinSearch_A(size, array, i);
+        int b_idx = BinSearch_B(size, array, i);
+        int c_idx = BinSearch_C(size, array, i);
+        printf("T %2d:  A %2d,  B %2d,  C %2d\n", i, a_idx, b_idx, c_idx);
+        assert(a_idx != -1 || (b_idx == -1 && c_idx == -1));
+        assert(b_idx != -1 || (c_idx == -1 && a_idx == -1));
+        assert(c_idx != -1 || (a_idx == -1 && b_idx == -1));
+        assert(a_idx == -1 || (array[a_idx] == i && array[b_idx] == i && array[c_idx] == i));
+        assert(a_idx == -1 || (a_idx >= b_idx && a_idx <= c_idx));
+    }
+}
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
@@ -290,6 +299,18 @@ int main(int argc, char **argv)
     int a[] = { 1, 2, 2, 4, 5, 5, 5, 5, 5, 6, 8, 8, 9, 10 };
     enum { A_SIZE = sizeof(a) / sizeof(a[0]) };
 
+    test_array(A_SIZE, a);
+
+    int b[] = { 10, 12, 12, 12, 14, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 18, 18, 18, 19, 19, 19, 19, };
+    enum { B_SIZE = sizeof(b) / sizeof(b[0]) };
+
+    test_array(B_SIZE, b);
+
+    int c[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, };
+    enum { C_SIZE = sizeof(c) / sizeof(c[0]) };
+
+    test_array(C_SIZE, c);
+
 #if 0
     static const struct Results
     {
@@ -311,29 +332,6 @@ int main(int argc, char **argv)
         { 14, 13 },
     };
 #endif
-
-    printf("Data: ");
-    for (int i = 0; i < A_SIZE; i++)
-        printf(" %2d", a[i]);
-    putchar('\n');
-
-    for (int i = a[0] - 1; i < a[A_SIZE - 1] + 2; i++)
-    {
-        int result = BinSearch_A(A_SIZE, a, i);
-        printf("A(%2d): (%d)\n", i, result);
-    }
-
-    for (int i = a[0] - 1; i < a[A_SIZE - 1] + 2; i++)
-    {
-        int result = BinSearch_B(A_SIZE, a, i);
-        printf("B(%2d): (%d)\n", i, result);
-    }
-
-    for (int i = a[0] - 1; i < a[A_SIZE - 1] + 2; i++)
-    {
-        int result = BinSearch_C(A_SIZE, a, i);
-        printf("C(%2d): (%d)\n", i, result);
-    }
 
 #if 0
     for (int i = a[0] - 1; i < a[A_SIZE - 1] + 2; i++)
