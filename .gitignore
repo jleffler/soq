@@ -94,6 +94,7 @@ rational
 readdir
 recv
 regress
+rev
 revlist
 roundup
 scan
