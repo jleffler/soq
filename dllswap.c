@@ -198,7 +198,9 @@ static inline void zap_list(List *list)
             del_item(item);
             item = next;
         }
+        prt_item(stdout, item);
         del_item(item);
+        printf("List zapped\n");
     }
 }
 
