@@ -13,7 +13,6 @@
 /* SO 35147784 */
 
 #include "posixver.h"
-#include "stderr.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -85,7 +84,8 @@ const char jlss_id_modbinsearch_c[] = "@(#)$Id$";
 **      P := L
 **      if P = 0 or X[P] != T then P := 0
 **
-** C implementations of these deal with X[0..N-1] instead of X[1..N]
+** C implementations of these deal with X[0..N-1] instead of X[1..N],
+** and return -1 when the value is not found.
 */
 
 int BinSearch_A(int N, const int X[N], int T)
@@ -184,78 +184,61 @@ int BinSearch_C(int N, const int X[N], int T)
 ** == 7 .. lo =  6, hi = 7   R = (7,  6) not found
 ** == 8 .. lo =  6, hi = 8   R = (7,  7) found
 ** == 9 .. lo =  7, hi = 8   R = (8,  7) not found
+**
+** Code below yields:
+** == 1 .. lo = -1, hi = -1  R = (-1, -1) not found
+** == 2 .. lo = -1, hi =  1  R = ( 0,  0) found
+** == 3 .. lo =  0, hi =  4  R = ( 1,  3) found
+** == 4 .. lo = -1, hi = -1  R = (-1, -1) not found
+** == 5 .. lo =  3, hi =  6  R = ( 4,  5) found
+** == 6 .. lo =  5, hi =  7  R = ( 6,  6) found
+** == 7 .. lo = -1, hi = -1  R = (-1, -1) not found
+** == 8 .. lo =  6, hi =  8  R = ( 7,  7) found
+** == 9 .. lo = -1, hi = -1  R = (-1, -1) not found
 */
 
-/*
-** -- Can we do better than BinSearch_B() for lower bound followed by
-**    BinSearch_C() for upper bound, remembering to adjust range after
-**    finding lower bound?
-** -- Can we modify BinSearch_B() and BinSearch_C() to report where the
-**    insertion should occur?
-** -- How to deal with BinSearch_B() not reporting where the insertion
-**    should occur?
-*/
-
-Pair BinSearch_D(int a_size, const int array[a_size], int value)
+Pair BinSearch_D(int N, const int X[N], int T)
 {
-    Pair result = { 1, 0 };
-    /* Deal with edge cases */
-    if (a_size == 0)
-        return result;
-    else if (value < array[0])
-        return result;
-    else if (value > array[a_size  - 1])
-        return (Pair) { .lo = a_size + 1, .hi = a_size };
+    int L_lo = -1;
+    int L_hi = N;
+    int U_lo = -1;
+    int U_hi = N;
 
-    int lo = 0;
-    int hi = a_size - 1;
-
-    assert(array[lo] <= value && array[hi] >= value);
-    /*
-    ** Conceptually, array[-1] < value and array[a_size] > value
-    ** The out of bounds elements will never be accessed
-    **
-    ** Pre-condition: foreach (i in 0..a_size-2) assert(array[i] <= array[i+1])
-    ** aka - the data in array is sorted.
-    **
-    ** Loop invariant (inadequate):
-    ** If value is in array, it is in array[lo]..array[hi].
-    ** Objective:
-    **  If found -
-    **      array[lo]   == value && array[hi]   == value &&
-    **      array[lo-1] <  value && array[hi+1] >  value &&
-    **      lo <= hi
-    **  If not found -
-    **      array[hi] > value && array[hi-1] < value
-    **      and lo = hi + 1
-    */
-    while (lo < hi)
+    while (L_lo + 1 != L_hi || U_lo + 1 != U_hi)
     {
-        size_t md = (hi - lo) / 2 + lo;
-        //if (lo == 0 || array[lo] > value)
-        //{
-        //}
-        if (array[md] > value)
+        if (L_lo + 1 != L_hi)
         {
-            /* High point is before md */
-            hi = md - 1;
+            /* Invariant: X[L_lo] < T and X[L_hi] >= T and L_lo < L_hi */
+            int L_md = (L_lo + L_hi) / 2;
+            if (X[L_md] < T)
+                L_lo = L_md;
+            else
+                L_hi = L_md;
         }
-        else if (array[md] < value)
+        if (U_lo + 1 != U_hi)
         {
-            /* Low point is after md */
-            lo = md + 1;
-        }
-        else
-        {
-            /* Low point is at or before lo */
-            /* High point is at or after hi */
+            /* Invariant: X[U_lo] <= T and X[U_hi] > T and U_lo < U_hi */
+            int U_md = (U_lo + U_hi) / 2;
+            if (X[U_md] <= T)
+                U_lo = U_md;
+            else
+                U_hi = U_md;
         }
     }
 
-    return result;
+    assert(L_lo+1 == L_hi && (L_lo == -1 || X[L_lo] < T) && (L_hi >= N || X[L_hi] >= T));
+    int L = L_hi;
+    if (L >= N || X[L] != T)
+        L = -1;
+    assert(U_lo+1 == U_hi && (U_lo == -1 || X[U_lo] <= T) && (U_hi >= N || X[U_hi] > T));
+    int U = U_lo;
+    if (U < 0 || X[U] != T)
+        U = -1;
+
+    return (Pair) { .lo = L, .hi = U };
 }
 
-static void check_sorted(const char *a_name, int size, int array[size])
+static void check_sorted(const char *a_name, int size, const int array[size])
 {
     bool ok = true;
     for (int i = 1; i < size; i++)
@@ -271,12 +254,33 @@ static void check_sorted(const char *a_name, int size, int array[size])
         exit(1);
 }
 
-static void test_array(const char *a_name, int size, int array[size])
+static void dump_array(const char *a_name, int size, const int array[size])
 {
-    printf("Data: ");
+    printf("%s Data: ", a_name);
     for (int i = 0; i < size; i++)
         printf(" %2d", array[i]);
     putchar('\n');
+}
+
+static void linear_search(int size, const int array[size], int value, int *lo, int *hi)
+{
+    *lo = *hi = -1;
+    for (int i = 0; i < size; i++)
+    {
+        if (array[i] == value)
+        {
+            if (*lo == -1)
+                *lo = i;
+            *hi = i;
+        }
+        else if (array[i] > value)
+            break;
+    }
+}
+
+static void test_abc_search(const char *a_name, int size, const int array[size])
+{
+    dump_array(a_name, size, array);
     check_sorted(a_name, size, array);
 
     for (int i = array[0] - 1; i < array[size - 1] + 2; i++)
@@ -290,57 +294,66 @@ static void test_array(const char *a_name, int size, int array[size])
         assert(c_idx != -1 || (a_idx == -1 && b_idx == -1));
         assert(a_idx == -1 || (array[a_idx] == i && array[b_idx] == i && array[c_idx] == i));
         assert(a_idx == -1 || (a_idx >= b_idx && a_idx <= c_idx));
+        int lo;
+        int hi;
+        linear_search(size, array, i, &lo, &hi);
+        assert(lo == b_idx && hi == c_idx);
     }
 }
 
-int main(int argc, char **argv)
+static void test_d_search(const char *a_name, int size, const int array[size], const Pair results[])
 {
-    err_setarg0(argv[argc - argc]);
+    int j = 0;
+    dump_array(a_name, size, array);
+    for (int i = array[0] - 1; i < array[size - 1] + 2; i++, j++)
+    {
+        Pair result = BinSearch_D(size, array, i);
+        printf("%2d: (%d, %d) vs (%d, %d)\n", i, result.lo, result.hi, results[j].lo, results[j].hi);
+        int lo;
+        int hi;
+        linear_search(size, array, i, &lo, &hi);
+        assert(lo == result.lo && hi == result.hi);
+    }
+}
 
+int main(void)
+{
     int A[] = { 1, 2, 2, 4, 5, 5, 5, 5, 5, 6, 8, 8, 9, 10 };
     enum { A_SIZE = sizeof(A) / sizeof(A[0]) };
 
-    test_array("A", A_SIZE, A);
+    test_abc_search("A", A_SIZE, A);
 
     int B[] = { 10, 12, 12, 12, 14, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 18, 18, 18, 19, 19, 19, 19, };
     enum { B_SIZE = sizeof(B) / sizeof(B[0]) };
 
-    test_array("B", B_SIZE, B);
+    test_abc_search("B", B_SIZE, B);
 
     int C[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, };
     enum { C_SIZE = sizeof(C) / sizeof(C[0]) };
 
-    test_array("C", C_SIZE, C);
+    test_abc_search("C", C_SIZE, C);
 
-    if (0)
+    /* Results for BinSearch_D() on array A */
+    static const Pair results_A[] =
     {
-        /* Results for BinSearch_D() on array A */
-        static const struct Results
-        {
-            int lo;
-            int hi;
-        } results[] =
-        {
-            {  1,  0 },
-            {  0,  0 },
-            {  1,  2 },
-            {  4,  3 },
-            {  3,  3 },
-            {  4,  8 },
-            {  9,  9 },
-            { 11, 10 },
-            { 10, 11 },
-            { 12, 12 },
-            { 13, 13 },
-            { 14, 13 },
-        };
+        { -1, -1 }, {  0,  0 }, {  1,  2 },
+        { -1, -1 }, {  3,  3 }, {  4,  8 },
+        {  9,  9 }, { -1, -1 }, { 10, 11 },
+        { 12, 12 }, { 13, 13 }, { -1, -1 },
+    };
 
-        for (int i = A[0] - 1; i < A[A_SIZE - 1] + 2; i++)
-        {
-            Pair result = BinSearch_D(A_SIZE, A, i);
-            printf("%2d: (%d, %d) vs (%d, %d)\n", i, result.lo, result.hi, results[i].lo, results[i].hi);
-        }
-    }
+    test_d_search("A", A_SIZE, A, results_A);
+
+    int D[] = { 2, 3, 3, 3, 5, 5, 6, 8 };
+    enum { D_SIZE = sizeof(D) / sizeof(D[0]) };
+    static const Pair results_D[] =
+    {
+        { -1, -1 }, {  0,  0 }, {  1,  3 },
+        { -1, -1 }, {  4,  5 }, {  6,  6 },
+        { -1, -1 }, {  7,  7 }, { -1, -1 },
+    };
+
+    test_d_search("D", D_SIZE, D, results_D);
 
     return 0;
 }
