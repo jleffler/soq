@@ -151,41 +151,27 @@ int BinSearch_C(int N, const int X[N], int T)
 /*
 ** If value is found in the array (elements array[0]..array[a_size-1]),
 ** then the returned Pair identifies the lowest index at which value is
-** found (in lo) and the highest value (in hi).  The values will be the
-** same if there's only one entry that matches.
+** found (in lo) and the highest value (in hi).  The lo and hi values
+** will be the same if there's only one entry that matches.
 **
-** If value is not found in the array, then the index before (at) which
-** value should be inserted is returned in hi, and lo is set to hi+1.
+** If the value is not found in the array, the pair (-1, -1) is returned.
 **
 ** -- If the values in the array are unique, then this is not the binary
 **    search to use.
 ** -- If it doesn't matter which one of multiple identical keys are
 **    returned, this is not the binary search to use.
-*/
-
-/*
-** The following description requires a different interpretation of the
-** rules - it is not compatible with the previous definition.
+**
+** ------------------------------------------------------------------------
 **
 ** Another way to look at this is:
 ** -- Lower bound is largest  index lo such that a[lo] < value and a[lo+1] >= value
 ** -- Upper bound is smallest index hi such that a[hi] > value and a[hi-1] <= value
 ** -- Range is then lo+1..hi-1.
+** -- If the values is not found, the value (-1, -1) is returned.
 **
 ** Let's review:
 ** == Data: 2, 3, 3, 3, 5, 5, 6, 8 (N = 8)
 ** Searches and results:
-** == 1 .. lo = -1, hi = 0   R = (0, -1) not found
-** == 2 .. lo = -1, hi = 1   R = (0,  0) found
-** == 3 .. lo =  0, hi = 4   R = (1,  3) found
-** == 4 .. lo =  3, hi = 4   R = (4,  3) not found
-** == 5 .. lo =  3, hi = 6   R = (4,  5) found
-** == 6 .. lo =  5, hi = 7   R = (6,  6) found
-** == 7 .. lo =  6, hi = 7   R = (7,  6) not found
-** == 8 .. lo =  6, hi = 8   R = (7,  7) found
-** == 9 .. lo =  7, hi = 8   R = (8,  7) not found
-**
-** Code below yields:
 ** == 1 .. lo = -1, hi = -1  R = (-1, -1) not found
 ** == 2 .. lo = -1, hi =  1  R = ( 0,  0) found
 ** == 3 .. lo =  0, hi =  4  R = ( 1,  3) found
@@ -195,6 +181,11 @@ int BinSearch_C(int N, const int X[N], int T)
 ** == 7 .. lo = -1, hi = -1  R = (-1, -1) not found
 ** == 8 .. lo =  6, hi =  8  R = ( 7,  7) found
 ** == 9 .. lo = -1, hi = -1  R = (-1, -1) not found
+**
+** Code created by combining BinSearch_B() and BinSearch_C() into a
+** single function.  The two separate ranges of values to be searched
+** (L_lo:L_hi vs U_lo:U_hi) are almost unavoidable as if there are
+** repeats in the data, the values diverge.
 */
 
 Pair BinSearch_D(int N, const int X[N], int T)
