@@ -294,9 +294,10 @@ static void test_abc_search(const char *a_name, int size, const int array[size])
 
 static void test_d_search(const char *a_name, int size, const int array[size], const Pair results[])
 {
-    int j = 0;
     dump_array(a_name, size, array);
-    for (int i = array[0] - 1; i < array[size - 1] + 2; i++, j++)
+    check_sorted(a_name, size, array);
+
+    for (int i = array[0] - 1, j = 0; i < array[size - 1] + 2; i++, j++)
     {
         Pair result = BinSearch_D(size, array, i);
         printf("%2d: (%d, %d) vs (%d, %d)\n", i, result.lo, result.hi, results[j].lo, results[j].hi);
