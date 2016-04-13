@@ -151,7 +151,7 @@ static void exec_arguments(int argc, char **argv)
     for (int i = 1; i < argc; i++)
     {
         char *arg = argv[i];
-        printf("Processing %d [%s]\n", i, arg);
+        //printf("Processing %d [%s]\n", i, arg);
         if (strcmp(arg, "|") == 0)
         {
             if (i == 1)
@@ -354,12 +354,10 @@ int file_exist(char *filename)
 }
 
 /* Signal handler */
-static
-void sighandler(int signo, siginfo_t *si, void *vp)
+static void sighandler(int signo)
 {
-    int return_value;
-    return_value = write(2, "Received SIGINT\n", 16);
-    ++return_value; /* use the value to please the compiler */
+    assert(signo == SIGINT);
+    write(2, "Received SIGINT\n", 16);
 }
 
 int main(int argc, char *argv[])
@@ -409,8 +407,8 @@ int main(int argc, char *argv[])
     memset(&sa, '\0', sizeof(sa));
 
     pid_temp = 0; /* To please the compiler */
-    sa.sa_sigaction = sighandler;
-    sa.sa_flags = SA_SIGINFO;
+    sa.sa_handler = sighandler;
+    sa.sa_flags = 0;
     sigaction(SIGINT, &sa, &osa);
 
     /* get the PATH environment to find if less is installed */
@@ -464,6 +462,7 @@ int main(int argc, char *argv[])
         memset(line, 0, sizeof line); /*Reset*/
         if (!fgets(line, BUFFER_LEN, stdin))
         {
+            putchar('\n');
             break;
         }
         Janitor(SIGCHLD);
@@ -507,12 +506,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        /* token = strtok(line," ");
-           while(token!=NULL) {
-             argv2[i]=token;
-             token = strtok(NULL," ");
-             i++;
-           }*/
         if (StartsWith(line, "unixinfo"))
         {
             built_in_command = 1;
@@ -609,7 +602,7 @@ int main(int argc, char *argv[])
                 /*pid_temp = fork();*/
                 foreground = pid_temp;  /*Set pid for foreground process*/
             }
-            err_setarg0(argv[0]);
+            err_setarg0(argv[argc-argc]);
             argv2[1] = line;
             i = 1;
             p = strtok(line, " ");
