@@ -215,19 +215,6 @@ struct command
     char *const *argv;
 };
 
-/* Error handling function */
-static void err_syserr(char *fmt, ...)
-{
-    int errnum = errno;
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    if (errnum != 0)
-        fprintf(stderr, "(%d: %s)\n", errnum, strerror(errnum));
-    exit(EXIT_FAILURE);
-}
-
 /* Helper function that determines the beginning of a string */
 static int StartsWith(const char *a, const char *b)
 {
@@ -236,67 +223,9 @@ static int StartsWith(const char *a, const char *b)
     return 0;
 }
 
-/* Helper function that spawns processes */
-static int spawn_proc(int in, int out, struct command *cmd)
-{
-    pid_t pid;
-    if ((pid = fork()) == 0)
-    {
-        if (in != 0)
-        {
-            if (dup2(in, 0) < 0)
-                err_syserr("dup2() failed on stdin for %s: ", cmd->argv[0]);
-            close(in);
-        }
-        if (out != 1)
-        {
-            if (dup2(out, 1) < 0)
-                err_syserr("dup2() failed on stdout for %s: ", cmd->argv[0]);
-            close(out);
-        }
-        fprintf(stderr, "%d: executing %s\n", (int)getpid(), cmd->argv[0]);
-        execvp(cmd->argv[0], cmd->argv);
-        err_syserr("failed to execute %s: ", cmd->argv[0]);
-    }
-    else if (pid < 0)
-    {
-        err_syserr("fork failed: ");
-    }
-    return pid;
-}
-
-/* Helper function that forks pipes */
-static void fork_pipes(int n, struct command *cmd)
-{
-    int i;
-    int in = 0;
-    int fd[2];
-
-    for (i = 0; i < n - 1; ++i)
-    {
-        if (pipe(fd) == -1)
-        {
-            err_syserr("Failed creating pipe");
-        }
-
-        spawn_proc(in, fd[1], cmd + i);
-        close(fd[1]);
-        in = fd[0];
-    }
-    if (dup2(in, 0) < 0)
-    {
-        err_syserr("dup2() failed on stdin for %s: ", cmd[i].argv[0]);
-    }
-    fprintf(stderr, "%d: executing %s\n", (int)getpid(), cmd[i].argv[0]);
-    execvp(cmd[i].argv[0], cmd[i].argv);
-    err_syserr("failed to execute %s: ", cmd[i].argv[0]);
-}
-
-/*Remove zoombie processes*/
-/*Return if background process terminated*/
-/*
-   http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html
- */
+/* Remove zombie processes */
+/* Return if background process terminated */
+/* http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html */
 static
 void Janitor(int status)
 {
@@ -345,14 +274,6 @@ void RemoveSpaces(char *source)
     *i = 0;
 }
 
-/* helper function that determines whether a file exists */
-static
-int file_exist(char *filename)
-{
-    struct stat buffer;
-    return(stat(filename, &buffer) == 0);
-}
-
 /* Signal handler */
 static void sighandler(int signo)
 {
@@ -363,45 +284,25 @@ static void sighandler(int signo)
 int main(int argc, char *argv[])
 {
     char *p;
-    char *array[4];
+    char *array[40];
     char line[BUFFER_LEN];
     char line2[BUFFER_LEN];
     char *argv2[100];
     int argc2 = 0;
     size_t length;
-    char *token3;
     int i = 0;
-    char *tokenstr;
-    char *search = " ";
     int isBackground = 0;
     int built_in_command = 0;
     int fd[2];
-    char *printenv[] = { "printenv", 0};
-    char *sort[] = { "sort", 0 };
-    char *pager_cmd[] = { "less", 0 };
-    char *grep[4];
     long time;
     int status = 0;
     int max = 80;
     int b;
-    int pos = 0;
-    char *tmp;
-    char *new_str;
-    int len = 1;
-    int k;
-    struct passwd *pw;
-    const char *homedir;
-    struct command cmd[3];
-    struct command cmd2[4];
     struct timeval time_start;
     struct timeval time_end;
     sigset_t my_sig;
     pid_t pid_temp;
-    char *pagerValue;
-    int ret;
     char *pathValue;
-    char *pathValue2;
-    int breakloop = 0;
     struct sigaction sa, osa;
 
     memset(&sa, '\0', sizeof(sa));
@@ -421,36 +322,6 @@ int main(int argc, char *argv[])
     {
         printf("'%s' is set to %s.\n", "PATH", pathValue);
     }
-
-    pathValue2 = strdup(pathValue);
-    token3 = strtok(pathValue2, ":");
-    ret = 1;
-    while (token3 != NULL)
-    {
-        if ((new_str = malloc(strlen(token3) + strlen("/less") + 1)) != NULL)
-        {
-            new_str[0] = '\0';
-            strcat(new_str, token3);
-            strcat(new_str, "/less");
-            if (file_exist(new_str))
-            {
-                /* Found less */
-                ret = 0;
-                breakloop = 1;
-            }
-            free(new_str);
-            if (breakloop)
-            {
-                break;
-            }
-        }
-        else
-        {
-            printf("malloc failed!\n");
-        }
-        token3 = strtok(NULL, ":");
-    }
-    free(pathValue2);
 
     while (1)
     {
@@ -477,87 +348,7 @@ int main(int argc, char *argv[])
         {
             line[length - 1] = '\0';
         }
-        if (strcmp(line, "exit") == 0)
-        {
-            break;
-        }
 
-        if (StartsWith(line, "cd"))
-        {
-            built_in_command = 1;
-            if (strstr(line, " ") == NULL)
-            {
-                pw = getpwuid(getuid());
-                homedir = pw->pw_dir;
-
-                if (chdir(homedir) == -1)     /*Change to home directory*/
-                {
-                    perror("Failed changing to homedirectory\n");
-                }
-            }
-            else
-            {
-                tokenstr = strtok(line, search);
-                tokenstr = strtok(NULL, search);
-
-                if (chdir(tokenstr) == -1)
-                {
-                    perror("Failed changing directory\n");
-                }
-            }
-        }
-        if (StartsWith(line, "unixinfo"))
-        {
-            built_in_command = 1;
-
-            pagerValue = getenv("PAGER");
-            if (!pagerValue)
-            {
-                if (ret == 0)
-                {
-                    pager_cmd[0] = "less";
-                }
-                else
-                {
-                    pager_cmd[0] = "more";
-                }
-            }
-            else
-            {
-                pager_cmd[0] = pagerValue;
-            }
-
-            if (i == 1)
-            {
-                cmd[0].argv = printenv;
-                cmd[1].argv = sort;
-                cmd[2].argv = pager_cmd;
-                fork_pipes(3, cmd);
-            }
-            else
-            {
-                for (k = 1; k < i; k++)
-                {
-                    len += strlen(argv2[k]) + 2;
-                }
-                tmp = (char *)malloc(len);
-                tmp[0] = '\0';
-                for (k = 1; k < i; k++)
-                {
-                    pos += sprintf(tmp + pos, "%s%s", (k == 1 ? "" : "|"), argv2[k]);
-                }
-                grep[0] = "grep";
-                grep[1] = "-E";
-                grep[2] = tmp;
-                grep[3] = NULL;
-                cmd2[0].argv = printenv;
-                cmd2[1].argv = grep;
-                cmd2[2].argv = sort;
-                cmd2[3].argv = pager_cmd;
-                fork_pipes(4, cmd2);
-                free(tmp);
-            }
-        }
         if (0 == built_in_command)     /*Not a built in command, so let execute it*/
         {
             argv2[i] = NULL;
@@ -578,7 +369,6 @@ int main(int argc, char *argv[])
             }
 
             if (isBackground == 1)      /*If backgroundprocess*/
-
             {
                 if (pipe(fd) == -1)      /*(two new file descriptors)*/
                 {
@@ -603,6 +393,8 @@ int main(int argc, char *argv[])
                 foreground = pid_temp;  /*Set pid for foreground process*/
             }
             err_setarg0(argv[argc-argc]);
+
+            printf("Command line: %s\n", line);
             argv2[1] = line;
             i = 1;
             p = strtok(line, " ");
@@ -614,6 +406,7 @@ int main(int argc, char *argv[])
                 p = strtok(NULL, " ");
             }
             array[i] = NULL;
+            dump_argv("Before exec_arguments", i, array);
             exec_arguments(i, array);
             corpse_collector();
 

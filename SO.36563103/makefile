@@ -25,7 +25,7 @@ LDLIBS  = ${LDLIB1} ${LDLIB2}
 
 CFLAGS  = ${OFLAGS} ${GFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
-PROGRAMS = pl1 c_posix1 c_posix2
+PROGRAMS = c_posix1
 
 all: ${PROGRAMS}
 
