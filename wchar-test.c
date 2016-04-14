@@ -1,3 +1,5 @@
+/* SO 30388085 */
+
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
