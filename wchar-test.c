@@ -1,3 +1,4 @@
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +10,9 @@ int main(void)
 {
     wchar_t buf[SIZE + 1];
     wchar_t *pat = L"привет мир\n";
-    wchar_t str[SIZE + 2];
+    wchar_t str[SIZE + 2] = L"";
+
+    setlocale(LC_ALL, "");
 
     FILE *f1 = fopen("вход", "r");
     FILE *f2 = fopen("выход", "w");
@@ -25,8 +28,10 @@ int main(void)
     {
         if (wcscmp(buf, pat) == 0)
         {
-            swprintf(str, sizeof(str)/sizeof(str[0]), L"%s", buf);
+            buf[wcscspn(buf, L"\n")] = L'\0';
+            swprintf(str, sizeof(str)/sizeof(str[0]), L"[%ls]\n", buf);
             fputws(str, f2);
+            wprintf(L"buffer and pattern are equal: [%ls]\n", buf);
         }
         else
         {
