@@ -118,6 +118,7 @@ timer.h
 timezeromoves
 uint128
 unwrap
+utf8-test
 visit
 vlamat
 vlastruct
