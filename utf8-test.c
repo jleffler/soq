@@ -1,4 +1,3 @@
-#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,8 +9,6 @@ int main(void)
     char buf[SIZE + 1];
     char *pat = "привет мир";
     char str[SIZE + 2];
-
-    setlocale(LC_ALL, "");
 
     FILE *f1 = fopen("вход", "r");
     FILE *f2 = fopen("выход", "w");
