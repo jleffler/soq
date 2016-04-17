@@ -54,7 +54,7 @@ int main(void)
                     max_prod = product;
                     max_end = d_count;
                 }
-                //printf("bp = %zu; B[bp] = %d\n", b_pos, buffer[b_pos]);
+                printf("bp = %zu; B[bp] = %d; product = %13" PRIu64 "\n", b_pos, buffer[b_pos], product);
                 assert(buffer[b_pos] != 0);
                 assert(product % buffer[b_pos] == 0);
                 product /= buffer[b_pos];
