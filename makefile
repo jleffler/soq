@@ -63,11 +63,16 @@ SCRIPT_PROGRAMS = \
 
 C_ONLY_PROGRAMS = \
 	binary \
+	bsmax \
+	bsmin \
 	if \
 	if-jl \
 	if-strict \
 	matmul99 \
-	visit
+	modbinsearch \
+	utf8-test \
+	visit \
+	wchar-test
 
 CXX_ONLY_PROGRAMS = \
 	heapprt \
