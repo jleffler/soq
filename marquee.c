@@ -1,3 +1,4 @@
+/* SO 35678399 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

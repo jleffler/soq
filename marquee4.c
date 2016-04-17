@@ -1,3 +1,4 @@
+/* SO 35678399 */
 #include "stderr.h"
 #include "chkstrint.h"
 #include <assert.h>
