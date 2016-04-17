@@ -25,7 +25,7 @@ LDLIBS  = ${LDLIB1} ${LDLIB2}
 
 CFLAGS = ${OFLAGS} ${GFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
-PROGRAMS = postfix-infix
+PROGRAMS = postfix-infix so.36668295
 
 all: ${PROGRAMS}
 
