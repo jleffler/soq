@@ -57,7 +57,7 @@ static void stack_push_str(Stack *stack, const char *str)
     if (stack->tos == stack->size)
     {
         size_t n_size = (stack->size + 2) * 2;
-        void  *n_data = malloc(n_size * sizeof(*stack->stack));
+        void  *n_data = realloc(stack->stack, n_size * sizeof(*stack->stack));
         if (n_data == 0)
             err_syserr("out of memory\n");
         stack->size = n_size;
@@ -92,7 +92,7 @@ static void stack_free(Stack *stack)
 #undef is_operator
 static bool is_operator(char c)
 {
-    return (c == '+' || c == '-' || c == '*' || c == '/');
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^');
 }
 
 static void postfix_infix(const char *postfix)
@@ -112,8 +112,12 @@ static void postfix_infix(const char *postfix)
         {
             char *rhs = stack_pop(&stack);
             char *lhs = stack_pop(&stack);
-            char expr[strlen(lhs) + strlen(rhs) + sizeof("(*)")];
-            snprintf(expr, sizeof(expr), "(%s%c%s)", lhs, c, rhs);
+            size_t l_rhs = strlen(rhs);
+            size_t l_lhs = strlen(lhs);
+            char expr[l_lhs + l_rhs + sizeof("()*()")];
+            snprintf(expr, sizeof(expr), "%s%s%s%c%s%s%s",
+                    (l_lhs > 1) ? "(" : "", lhs, (l_lhs > 1) ? ")" : "", c,
+                    (l_rhs > 1) ? "(" : "", rhs, (l_rhs > 1) ? ")" : "");
             stack_push_str(&stack, expr);
             free(lhs);
             free(rhs);
@@ -128,15 +132,16 @@ static void postfix_infix(const char *postfix)
         }
     }
 
-    if (stack.tos != 1)
+    if (valid)
     {
-        err_remark("Stack has wrong number of entries (%zu instead of 1)\n", stack.tos);
-    }
-    else if (valid)
-    {
-        char *infix = stack_pop(&stack);
-        printf("Infix expression: %s\n", infix);
-        free(infix);
+        if (stack.tos != 1)
+            err_remark("Stack has wrong number of entries (%zu instead of 1)\n", stack.tos);
+        else
+        {
+            char *infix = stack_pop(&stack);
+            printf("Infix expression: %s\n", infix);
+            free(infix);
+        }
     }
     stack_free(&stack);
 }
