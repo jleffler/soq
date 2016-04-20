@@ -12,14 +12,9 @@
 
 /* SO 35147784 */
 
-#include "posixver.h"
 #include <assert.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 typedef struct Pair
 {
@@ -229,16 +224,18 @@ Pair BinSearch_D(int N, const int X[N], int T)
     return (Pair) { .lo = L, .hi = U };
 }
 
+/* Test support code */
+
 static void check_sorted(const char *a_name, int size, const int array[size])
 {
-    bool ok = true;
+    int ok = 1;
     for (int i = 1; i < size; i++)
     {
         if (array[i-1] > array[i])
         {
             fprintf(stderr, "Out of order: %s[%d] = %d, %s[%d] = %d\n",
                     a_name, i-1, array[i-1], a_name, i, array[i]);
-            ok = false;
+            ok = 0;
         }
     }
     if (!ok)
@@ -253,6 +250,7 @@ static void dump_array(const char *a_name, int size, const int array[size])
     putchar('\n');
 }
 
+/* This interface could be used instead of the Pair returned by BinSearch_D() */
 static void linear_search(int size, const int array[size], int value, int *lo, int *hi)
 {
     *lo = *hi = -1;
