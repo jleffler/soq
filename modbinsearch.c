@@ -66,6 +66,7 @@ const char jlss_id_modbinsearch_c[] = "@(#)$Id$";
 **      if P > N or X[P] != T then P := 0
 **
 ** Search for last occurrence of T in X[1..N] - BinSearch-C
+** Adapted from BinSearch-B (not in Programming Pearls)
 **
 **      L := 0; U := N+1
 **      while L+1 != U do
