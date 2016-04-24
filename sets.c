@@ -68,7 +68,7 @@ int set_member(Set *set, int value)
 }
 
 /* set1 intersect set2 */
-void set_intersect(Set *set1, Set *set2, Set *result)
+void set_intersect(const Set *set1, const Set *set2, Set *result)
 {
     int i;
     for (i = 0; i < ARRAY_SIZE; i++)
@@ -76,7 +76,7 @@ void set_intersect(Set *set1, Set *set2, Set *result)
 }
 
 /* set1 union set2 */
-void set_union(Set *set1, Set *set2, Set *result)
+void set_union(const Set *set1, const Set *set2, Set *result)
 {
     int i;
     for (i = 0; i < ARRAY_SIZE; i++)
@@ -84,7 +84,7 @@ void set_union(Set *set1, Set *set2, Set *result)
 }
 
 /* set1 minus set2 */
-void set_difference(Set *set1, Set *set2, Set *result)
+void set_difference(const Set *set1, const Set *set2, Set *result)
 {
     int i;
     for (i = 0; i < ARRAY_SIZE; i++)

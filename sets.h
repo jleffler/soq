@@ -12,9 +12,9 @@ extern void set_destroy(Set *set);
 extern void set_insert(Set *set, int value);
 extern void set_delete(Set *set, int value);
 extern int  set_member(Set *set, int value);
-extern void set_difference(Set *set1, Set *set2, Set *result);
-extern void set_union(Set *set1, Set *set2, Set *result);
-extern void set_intersect(Set *set1, Set *set2, Set *result);
+extern void set_difference(const Set *set1, const Set *set2, Set *result);
+extern void set_union(const Set *set1, const Set *set2, Set *result);
+extern void set_intersect(const Set *set1, const Set *set2, Set *result);
 extern void set_empty(Set *set);
 
 #endif /* SETS_H_INCLUDED */
