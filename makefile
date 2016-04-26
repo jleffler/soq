@@ -63,16 +63,13 @@ SCRIPT_PROGRAMS = \
 
 C_ONLY_PROGRAMS = \
 	binary \
-	bsmax \
-	bsmin \
+	dllswap \
 	if \
 	if-jl \
 	if-strict \
 	matmul99 \
-	modbinsearch \
-	utf8-test \
-	visit \
-	wchar-test
+	sets \
+	visit
 
 CXX_ONLY_PROGRAMS = \
 	heapprt \
@@ -82,11 +79,6 @@ CXX_ONLY_PROGRAMS = \
 	test-rename
 
 C_CXX_DUAL_PROGRAMS = \
-	2da \
-	3dalloc1 \
-	3dalloc2 \
-	3dalloc3 \
-	3dalloc4 \
 	arraysize \
 	bst-1 \
 	bst-2 \
@@ -107,9 +99,6 @@ C_CXX_DUAL_PROGRAMS = \
 	marquee \
 	marquee3 \
 	marquee4 \
-	matmake3d \
-	matmul89 \
-	mda \
 	partition-4 \
 	pbb \
 	pipecircle \
