@@ -363,6 +363,4 @@
    fun:__smakebuf
    fun:__swsetup
    fun:__sfvwrite
-   fun:puts
-   fun:main
 }
