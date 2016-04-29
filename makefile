@@ -41,20 +41,15 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #    incunabulum.c \
 #    modern-incunabulum.c \
 #    cmpfltint.c \
-#	 substr.c \		# -DTEST to make executable
-#	 rangesquash1.pl
-#	 rangesquash2.pl
-#	 rangesquash3.pl
-#	 rangesquash4.pl
+#    substr.c \     # -DTEST to make executable
+#    if.c \         # Archaic code; cannot be compiled by GCC 5
+#                   # Requires minimal compilation options and GCC 4.x
+#                   # (or possibly an earlier version).
 #
 
 SCRIPT_PROGRAMS = \
 	am-pm \
 	check-rename \
-	expand_tilde \
-	filter.stderr \
-	genouterr \
-	multiopts \
 	rangesquash1 \
 	rangesquash2 \
 	rangesquash3 \
@@ -64,11 +59,16 @@ SCRIPT_PROGRAMS = \
 C_ONLY_PROGRAMS = \
 	binary \
 	dllswap \
-	if \
+	emtb \
+	emtd \
+	emtr \
 	if-jl \
 	if-strict \
-	matmul99 \
+	rev \
+	revlist \
 	sets \
+	term-pgrp \
+	test-rename \
 	visit
 
 CXX_ONLY_PROGRAMS = \
@@ -76,12 +76,14 @@ CXX_ONLY_PROGRAMS = \
 	map \
 	mppsel \
 	qsel \
-	test-rename
+	stld
 
+# pthread-1 and pthread-2 require -Wno-deprecated-declarations on Mac OS X 10.11.4
 C_CXX_DUAL_PROGRAMS = \
 	arraysize \
 	bst-1 \
 	bst-2 \
+	circular-dll \
 	cntinv \
 	colourpartition \
 	computist-1 \
@@ -93,7 +95,7 @@ C_CXX_DUAL_PROGRAMS = \
 	fifocircle \
 	fifosize \
 	gai \
-	isprime \
+	ll19 \
 	ll3 \
 	madump \
 	marquee \
@@ -103,7 +105,6 @@ C_CXX_DUAL_PROGRAMS = \
 	pbb \
 	pipecircle \
 	pipesize \
-	prime-factors \
 	pthread-1 \
 	pthread-2 \
 	pthread-3 \
@@ -123,6 +124,7 @@ C_CXX_DUAL_PROGRAMS = \
 	so.33887484 \
 	streplace \
 	test-fstatat \
+	test-remove \
 	timezeromoves \
 	uint128 \
 	unwrap
@@ -142,6 +144,8 @@ script:		${SCRIPT_PROGRAMS}
 c_only:		${C_ONLY_PROGRAMS}
 cxx_only:	${CXX_ONLY_PROGRAMS}
 dual:		${C_CXX_DUAL_PROGRAMS}
+
+#pthread-1: CFLAGS += -Wno-deprecated-declarations
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi

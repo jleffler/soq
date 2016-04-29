@@ -4,7 +4,7 @@
 @(#)Last changed:   $Date$
 @(#)Purpose:        Circular Doubly-Linked List
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015
+@(#)Copyright:      (C) JLSS 2015-16
 @(#)Product:        :PRODUCT:
 */
 
@@ -21,7 +21,7 @@
 
 struct Circular_DLL
 {
-    void         *data;
+    const void   *data;
     Circular_DLL *next;
     Circular_DLL *prev;
 };
@@ -32,9 +32,9 @@ extern const char jlss_id_circular_dll_c[];
 const char jlss_id_circular_dll_c[] = "@(#)$Id$";
 #endif /* lint */
 
-static Circular_DLL *cdll_make_item(void *data)
+static Circular_DLL *cdll_make_item(const void *data)
 {
-    Circular_DLL *item = malloc(sizeof(*item));
+    Circular_DLL *item = (Circular_DLL *)malloc(sizeof(*item)); /*=C++=*/
     if (item != 0)
     {
         item->data = data;
@@ -44,7 +44,7 @@ static Circular_DLL *cdll_make_item(void *data)
     return item;
 }
 
-Circular_DLL *cdll_add_before(Circular_DLL *list, void *data)
+Circular_DLL *cdll_add_before(Circular_DLL *list, const void *data)
 {
     Circular_DLL *item = cdll_make_item(data);
     if (item == 0)
@@ -64,7 +64,7 @@ Circular_DLL *cdll_add_before(Circular_DLL *list, void *data)
     return item;
 }
 
-Circular_DLL *cdll_add_after(Circular_DLL *list, void *data)
+Circular_DLL *cdll_add_after(Circular_DLL *list, const void *data)
 {
     Circular_DLL *item = cdll_make_item(data);
     if (item == 0)
@@ -97,14 +97,14 @@ void cdll_apply(Circular_DLL *list, CDLL_Apply function, void *ctxt)
     }
 }
 
-Circular_DLL *cdll_find(Circular_DLL *list, CDLL_Compare function, void *ctxt)
+Circular_DLL *cdll_find(Circular_DLL *list, CDLL_Compare function, const void *data)
 {
     if (list != 0)
     {
         Circular_DLL *item = list;
         do
         {
-            if ((*function)(item->data, ctxt))
+            if ((*function)(item->data, data))
                 return item;
             item = item->next;
         } while (item != list);
@@ -144,9 +144,9 @@ Circular_DLL *cdll_remove(Circular_DLL *list)
     return item;
 }
 
-void *cdll_data(Circular_DLL *list)
+const void *cdll_data(Circular_DLL *list)
 {
-    void *data = 0;
+    const void *data = 0;
     if (list != 0)
         data = list->data;
     return data;
@@ -168,7 +168,7 @@ Circular_DLL *cdll_prev(Circular_DLL *list)
     return item;
 }
 
-static void cdll_print_pointer(FILE *fp, const char * tag, const void *ptr)
+static void cdll_print_pointer(FILE *fp, const char *tag, const void *ptr)
 {
     fprintf(fp, "%s0x%.8" PRIXPTR, tag, (uintptr_t)ptr);
 }
@@ -194,10 +194,10 @@ void cdll_dump_item(FILE *fp, const char *tag, const Circular_DLL *item)
 #include <string.h>
 #include <unistd.h>
 
-static void print_item(void *data, void *ctxt)
+static void print_item(const void *data, void *ctxt)
 {
     FILE *fp = (FILE *)ctxt;
-    char *info = (char *)data;
+    const char *info = (const char *)data;
     fprintf(fp, " %s", info);
 }
 
@@ -213,19 +213,19 @@ static void print_cdll(const char *tag, Circular_DLL *list)
 
 static int item_find(const void *vdata, const void *vword)
 {
-    const char *data = vdata;
-    const char *word = vword;
+    const char *data = (const char *)vdata;     /*=C++=*/
+    const char *word = (const char *)vword;     /*=C++=*/
     return(strcmp(data, word) == 0);
 }
 
 int main(void)
 {
-    char *data[] = { "abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx" };
+    const char *data[] = { "abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx" };
     enum { NUM_DATA = sizeof(data) / sizeof(data[0]) };
     struct Inserter
     {
         const char *where;
-        Circular_DLL *(*adder)(Circular_DLL *list, void *data);
+        Circular_DLL *(*adder)(Circular_DLL *list, const void *data);
     } inserters[] =
     {
         { "Before", cdll_add_before },

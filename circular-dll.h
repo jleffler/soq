@@ -4,7 +4,7 @@
 @(#)Last changed:   $Date$
 @(#)Purpose:        Circular Doubly-Linked List
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015
+@(#)Copyright:      (C) JLSS 2015-16
 @(#)Product:        :PRODUCT:
 */
 
@@ -30,17 +30,17 @@ const char jlss_id_circular_dll_h[] = "@(#)$Id$";
 #endif /* MAIN_PROGRAM */
 
 typedef struct Circular_DLL Circular_DLL;
-typedef void (*CDLL_Apply)(void *data, void *ctxt);
+typedef void (*CDLL_Apply)(const void *data, void *ctxt);
 typedef int  (*CDLL_Compare)(const void *data, const void *word);
 
-extern Circular_DLL *cdll_add_after(Circular_DLL *list, void *data);
-extern Circular_DLL *cdll_add_before(Circular_DLL *list, void *data);
-extern Circular_DLL *cdll_find(Circular_DLL *list, CDLL_Compare function, void *ctxt);
+extern Circular_DLL *cdll_add_after(Circular_DLL *list, const void *data);
+extern Circular_DLL *cdll_add_before(Circular_DLL *list, const void *data);
+extern Circular_DLL *cdll_find(Circular_DLL *list, CDLL_Compare function, const void *data);
 extern Circular_DLL *cdll_next(Circular_DLL *list);
 extern Circular_DLL *cdll_prev(Circular_DLL *list);
 extern Circular_DLL *cdll_remove(Circular_DLL *list);
 
-extern void *cdll_data(Circular_DLL *list);
+extern const void *cdll_data(Circular_DLL *list);
 
 extern void cdll_apply(Circular_DLL *list, CDLL_Apply function, void *ctxt);
 extern void cdll_destroy(Circular_DLL *list);

@@ -67,6 +67,7 @@ junk
 ll3
 ll5
 madump
+map
 marquee
 marquee3
 marquee4
@@ -75,6 +76,7 @@ matmul89
 matmul99
 mda
 modbinsearch
+mppsel
 multi-pipe-sort
 multiopts
 partition-4
@@ -87,8 +89,13 @@ posixver.h
 pthread-?
 q7
 qs37
+qsel
 quine
 quiz
+rangesquash1
+rangesquash2
+rangesquash3
+rangesquash4
 ratcalc
 rational
 readdir
@@ -97,6 +104,7 @@ regress
 rev
 revlist
 roundup
+run-processes
 scan
 script.awk
 script.sed
