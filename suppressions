@@ -363,8 +363,6 @@
    fun:__smakebuf
    fun:__swsetup
    fun:__sfvwrite
-   fun:puts
-   fun:main
 }
 {
     Mac-OS=X=10.11.4-Leak-023
