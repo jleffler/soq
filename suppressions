@@ -363,4 +363,23 @@
    fun:__smakebuf
    fun:__swsetup
    fun:__sfvwrite
+   fun:puts
+   fun:main
+}
+{
+    Mac-OS=X=10.11.4-Leak-023
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:malloc_zone_malloc
+    fun:_read_images
+    fun:object_setClass
+    fun:_ZNK8objc_opt17objc_stringhash_t4hashEPKcm
+    fun:map_images_nolock
+    fun:_ZL25batchFinalizeOnTwoThreadsP14_malloc_zone_tPFvP16auto_zone_cursorPFvPvS3_ES3_ES2_m
+    fun:_ZN4dyldL18notifyBatchPartialE17dyld_image_statesbPFPKcS0_jPK15dyld_image_infoE
+    fun:_ZN4dyld36registerImageStateBatchChangeHandlerE17dyld_image_statesPFPKcS0_jPK15dyld_image_infoE
+    fun:dyld_register_image_state_change_handler
+    fun:_objc_init
+    fun:_os_object_init
+    fun:libdispatch_init
 }
