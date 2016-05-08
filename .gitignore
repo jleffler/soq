@@ -87,6 +87,7 @@ piped-merge-sort
 pipeline
 pipesize
 posixver.h
+pthread-37
 pthread-?
 q7
 qs37
