@@ -44,7 +44,10 @@
 
 #include <stdlib.h> /* exit() */
 #include <unistd.h> /* lseek() - and others */
-static inline int seek(int fd, int offset, int whence) { return lseek(fd, offset, whence); }
+
+/* This code compiles with GCC 6.1.0 with -std=c90 and few stringent options */
+
+static int seek(int fd, int offset, int whence) { return lseek(fd, offset, whence); }
 
 /* if command */
 

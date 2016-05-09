@@ -126,6 +126,7 @@ test-fstatat
 test-rename
 timer.h
 timezeromoves
+trie-31
 uint128
 unwrap
 utf8-test

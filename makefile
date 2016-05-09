@@ -42,9 +42,11 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #    modern-incunabulum.c \
 #    cmpfltint.c \
 #    substr.c \     # -DTEST to make executable
-#    if.c \         # Archaic code; cannot be compiled by GCC 5
+#    if.c \         # Archaic code; cannot be compiled by GCC 5 or 6
 #                   # Requires minimal compilation options and GCC 4.x
 #                   # (or possibly an earlier version).
+#    if-jl.c        # Also archaic code; compiles OK with GCC 6.1.0 with
+#					# gcc -o if-jl -std=c90 if-jl.c
 #
 
 SCRIPT_PROGRAMS = \
@@ -62,13 +64,14 @@ C_ONLY_PROGRAMS = \
 	emtb \
 	emtd \
 	emtr \
-	if-jl \
 	if-strict \
+	pthread-37 \
 	rev \
 	revlist \
 	sets \
 	term-pgrp \
 	test-rename \
+	trie-31 \
 	visit
 
 CXX_ONLY_PROGRAMS = \
@@ -78,7 +81,8 @@ CXX_ONLY_PROGRAMS = \
 	qsel \
 	stld
 
-# pthread-1 and pthread-2 require -Wno-deprecated-declarations on Mac OS X 10.11.4
+# File so.33887484.c is included by ratcalc.c (sic!)
+
 C_CXX_DUAL_PROGRAMS = \
 	arraysize \
 	bst-1 \
@@ -121,10 +125,8 @@ C_CXX_DUAL_PROGRAMS = \
 	sigalrm \
 	sigchld \
 	signals \
-	so.33887484 \
 	streplace \
 	test-fstatat \
-	test-remove \
 	timezeromoves \
 	uint128 \
 	unwrap
@@ -145,7 +147,11 @@ c_only:		${C_ONLY_PROGRAMS}
 cxx_only:	${CXX_ONLY_PROGRAMS}
 dual:		${C_CXX_DUAL_PROGRAMS}
 
+#circular-dll: CFLAGS += -DTEST
 #pthread-1: CFLAGS += -Wno-deprecated-declarations
+
+circular-dll: circular-dll.c circular-dll.h
+	${CC} -o $@ -DTEST ${CFLAGS} circular-dll.c ${LDFLAGS} ${LDLIBS}
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi

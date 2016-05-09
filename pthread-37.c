@@ -1,6 +1,7 @@
 /* SO 37092445 */
 #include "posixver.h"
 /* Pragma needed on Mac OS X to suppress warnings about sem_init() and sem_destroy() */
+/* NB: Mac OS X does not implement them - returning errno 78 Function not implemented */
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "stderr.h"
 #include <errno.h>

@@ -1,3 +1,6 @@
+/* Pragma needed on Mac OS X to suppress warnings about sem_init() and sem_destroy() */
+/* NB: Mac OS X does not implement them - returning errno 78 Function not implemented */
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <assert.h>
 #include <pthread.h>
 #include <semaphore.h>
