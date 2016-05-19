@@ -1,17 +1,8 @@
+#include "memprobe.h"
 #include <unistd.h>
 #include <errno.h>
 
-//#include "memprobe.h"
-#ifndef MEMPROBE_H_INCLUDED
-#define MEMPROBE_H_INCLUDED
-
-#include <stddef.h>
-extern int probe_memory(void *address, size_t length);
-extern void probe_finish(void);
-extern int probe_init(void);
-
-#endif /* MEMPROBE_H_INCLUDED */
-
+enum { MAX_PROBE_SIZE = 512 };
 static int fd[2] = { -1, -1 };
 
 int probe_init(void)
@@ -32,7 +23,7 @@ void probe_finish(void)
         close(fd[1]);
 }
 
-int probe_memory(void *address, size_t length)
+int probe_memory_rd(const void *address, size_t length)
 {
     int result;
 
@@ -42,11 +33,12 @@ int probe_memory(void *address, size_t length)
     /*
     ** Do not allow over-long lengths.
     **
-    ** Could be more sophisticated, such as writing at start and end of
-    ** segment long segment, or writing every 4 KiB along segment.
+    ** Could be more sophisticated, such as writing at the start and end
+    ** of a large segment, or writing every 4 KiB along a very large
+    ** segment.
     */
-    if (length > 512)
-        length = 512;
+    if (length > MAX_PROBE_SIZE)
+        length = MAX_PROBE_SIZE;
 
     /* Save errno */
     int errnum = errno;
@@ -71,33 +63,92 @@ int probe_memory(void *address, size_t length)
     return result;
 }
 
+int probe_memory_rw(void *address, size_t length)
+{
+    int result;
+
+    if (probe_init() != 0)
+        return -1;
+
+    /*
+    ** Do not allow over-long lengths.
+    **
+    ** Could be more sophisticated, such as writing at the start and end
+    ** of a large segment, or writing every 4 KiB along a very large
+    ** segment.
+    */
+    if (length > MAX_PROBE_SIZE)
+        length = MAX_PROBE_SIZE;
+
+    /* Save errno */
+    int errnum = errno;
+    errno = 0;
+    int io_len = write(fd[1], address, length);
+    if (io_len < 0 || (size_t)io_len != length || errno == EFAULT)
+        result = 0;
+    else
+        result = 1;
+
+    /*
+    ** Read what was written - checking writability of address and
+    ** ensuring that the pipe doesn't fill and block
+    */
+    if (result == 1)
+    {
+        if ((io_len = read(fd[0], address, length)) < 0 || (size_t)io_len != length || errno == EFAULT)
+            result = 0;
+
+    }
+
+    /* Reinstate errno */
+    if (errno == 0)
+        errno = errnum;
+
+    return result;
+}
+
+/* ---------------------------------------------------------------------- */
+
+#ifdef TEST
+
 #include <stdio.h>
+#include <string.h>
+
+static void test_ro(const void *address, size_t length, const char *tag)
+{
+    if (probe_memory_rd(address, length) == 1)
+        printf("%s is readable\n", tag);
+    else
+        printf("%s is BAD (%d)\n", tag, errno);
+}
+
+static void test_rw(void *address, size_t length, const char *tag)
+{
+    if (probe_memory_rw(address, length) == 1)
+        printf("%s is writeable\n", tag);
+    else
+        printf("%s is BAD (%d)\n", tag, errno);
+}
 
 int main(void)
 {
     int matrix[4] = { 0, 1, 2, 3 };
-
-    if (probe_memory(matrix, sizeof(matrix)) == 1)
-        printf("matrix is readable\n");
-    else
-        printf("matrix is BAD (%d)\n", errno);
-
-    if (probe_memory(NULL, sizeof(matrix)) == 1)
-        printf("NULL is readable\n");
-    else
-        printf("NULL is BAD (%d)\n", errno);
-
     int *dne = (int *)0x820011114444;
-    if (probe_memory(dne, sizeof(matrix)) == 1)
-        printf("dne is readable\n");
-    else
-        printf("dne is BAD (%d)\n", errno);
 
-    if (probe_memory(probe_memory, sizeof(matrix)) == 1)
-        printf("probe_memory is readable\n");
-    else
-        printf("probe_memory is BAD (%d)\n", errno);
+    printf("Readability:\n");
+    test_ro(matrix, sizeof(matrix), "matrix");
+    test_ro(NULL, sizeof(matrix), "NULL");
+    test_ro(dne, sizeof(matrix), "Non-existent address");
+    test_ro(probe_memory_rd, sizeof(matrix), "Function probe_memory_rd()");
+
+    printf("\nWriteability:\n");
+    test_rw(matrix, sizeof(matrix), "matrix");
+    test_rw(NULL, sizeof(matrix), "NULL");
+    test_rw(dne, sizeof(matrix), "Non-existent address");
+    test_rw(probe_memory_rd, sizeof(matrix), "Function probe_memory_rd()");
 
     probe_finish();
     return 0;
 }
+
+#endif /* TEST */
