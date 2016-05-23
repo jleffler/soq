@@ -1,0 +1,11 @@
+#!/bin/bash
+
+count=${1:-1000}
+
+tmp="${TMPDIR:-/tmp}/t6.$$"
+trap "rm -f $tmp.?; exit 1" 0 1 2 3 13 15
+primes $count | tpipe -s "wc -l >$tmp.1" "total > $tmp.2"
+printf "Sum   of primes to $count = %d\n" $(<$tmp.2)
+printf "Count of primes to $count = %d\n" $(<$tmp.1)
+rm -f $tmp.?
+trap 0
