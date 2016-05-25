@@ -23,7 +23,7 @@ void probe_finish(void)
         close(fd[1]);
 }
 
-int probe_memory_rd(const void *address, size_t length)
+int probe_memory_ro(const void *address, size_t length)
 {
     int result;
 
@@ -116,10 +116,10 @@ int probe_memory_rw(void *address, size_t length)
 
 static void test_ro(const void *address, size_t length, const char *tag)
 {
-    if (probe_memory_rd(address, length) == 1)
+    if (probe_memory_ro(address, length) == 1)
         printf("%s is readable\n", tag);
     else
-        printf("%s is BAD (%d)\n", tag, errno);
+        printf("%s is BAD (%d: %s)\n", tag, errno, strerror(errno));
 }
 
 static void test_rw(void *address, size_t length, const char *tag)
@@ -127,7 +127,7 @@ static void test_rw(void *address, size_t length, const char *tag)
     if (probe_memory_rw(address, length) == 1)
         printf("%s is writeable\n", tag);
     else
-        printf("%s is BAD (%d)\n", tag, errno);
+        printf("%s is BAD (%d: %s)\n", tag, errno, strerror(errno));
 }
 
 int main(void)
@@ -139,13 +139,13 @@ int main(void)
     test_ro(matrix, sizeof(matrix), "matrix");
     test_ro(NULL, sizeof(matrix), "NULL");
     test_ro(dne, sizeof(matrix), "Non-existent address");
-    test_ro(probe_memory_rd, sizeof(matrix), "Function probe_memory_rd()");
+    test_ro(probe_memory_ro, sizeof(matrix), "Function probe_memory_ro()");
 
     printf("\nWriteability:\n");
     test_rw(matrix, sizeof(matrix), "matrix");
     test_rw(NULL, sizeof(matrix), "NULL");
     test_rw(dne, sizeof(matrix), "Non-existent address");
-    test_rw(probe_memory_rd, sizeof(matrix), "Function probe_memory_rd()");
+    test_rw(probe_memory_ro, sizeof(matrix), "Function probe_memory_ro()");
 
     probe_finish();
     return 0;
