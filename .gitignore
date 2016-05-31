@@ -8,7 +8,16 @@
 *~
 .DS_Store
 ?
+AES
+BinarySearch/
+Euler-08/
+Google/
+Primes/
+Scores/
+UTF8/
+Untracked/
 a.out
+avl
 cmpfltint
 const-stuff
 core
@@ -27,6 +36,7 @@ quine
 recv
 regress
 send
+shlibs
 sorttest
 streplace
 timer.h
