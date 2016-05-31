@@ -1,6 +1,7 @@
 #include "memprobe.h"
-#include <unistd.h>
+#include <assert.h>
 #include <errno.h>
+#include <unistd.h>
 
 enum { MAX_PROBE_SIZE = 512 };
 static int fd[2] = { -1, -1 };
@@ -9,8 +10,12 @@ int probe_init(void)
 {
     if (fd[0] == -1) 
     {
+        assert(fd[1] == -1);
         if (pipe(fd) != 0)
+        {
+            assert(fd[0] == -1 && fd[1] == -1);
             return -1;
+        }
     }
     return 0;
 }
@@ -21,6 +26,7 @@ void probe_finish(void)
         close(fd[0]);
     if (fd[1] != -1)
         close(fd[1]);
+    fd[0] = fd[1] = -1;
 }
 
 int probe_memory_ro(const void *address, size_t length)
