@@ -21,6 +21,7 @@ avl
 cmpfltint
 const-stuff
 core
+cs50.h
 e2big
 excel-rc
 fifocircle
