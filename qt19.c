@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//static const double MIN_X = -100.0;
-//static const double MAX_X = +100.0;
-//static const double MIN_Y = -100.0;
-//static const double MAX_Y = +100.0;
 static const double CTR_X =    0.0;
 static const double CTR_Y =    0.0;
 static const double WIDTH = +100.0;
@@ -170,9 +166,32 @@ static Node *quadtree_insert(Node *n, struct Particle *p, double center_x, doubl
     return n;
 }
 
-static inline void print_quadtree(Node *n)
+static void print_quadtree_details(const char *tag, Node *n, int d)
+{
+    static const char indent[] =
+        "                                                            ";
+    assert(d < 15);
+    const char *prefix = indent + sizeof(indent) - d * 3;
+    printf("%s%s Centre (%6.2f,%6.2f) W %6.2f P %p\n",
+           prefix, tag, n->center_x, n->center_y, n->width, (void *)n);
+    if (n->p != 0)
+        printf("%s%s Point  (%6.2f,%6.2f)\n",
+              prefix, tag, n->p->x_pos, n->p->y_pos);
+    if (n->nw != 0)
+        print_quadtree_details("NW:", n->nw, d+1);
+    if (n->sw != 0)
+        print_quadtree_details("SW:", n->sw, d+1);
+    if (n->se != 0)
+        print_quadtree_details("SE:", n->se, d+1);
+    if (n->ne != 0)
+        print_quadtree_details("NE:", n->ne, d+1);
+}
+
+static void print_quadtree(Node *n)
 {
     assert(n != 0);
+    printf("QT Node %p\n", (void *)n);
+    print_quadtree_details("===", n, 0);
 }
 
 /*
@@ -200,12 +219,14 @@ int main(void)
     Node *root = NULL;
     printf("# Particle 0: ");
     root = quadtree_insert(root, &particles[0], CTR_X, CTR_Y, WIDTH);
+    print_quadtree(root);
 
     for (int i = 1; i < nParticles; i++)
     {
         printf("# Particle %d: ", i);
         Node *tree = quadtree_insert(root, &particles[i], CTR_X, CTR_Y, WIDTH);
         assert(tree == root);
+        print_quadtree(root);
     }
     return 0;
 }
