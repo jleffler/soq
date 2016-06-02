@@ -340,3 +340,15 @@ int main(int argc, char **argv)
     }
     return 0;
 }
+
+/*
+Notes towards generalization:
+1. Add structure to describe squares.
+2. Allow command line scaling of region.
+3. Consider whether the auto-allocation of all 4 nodes on split is good.
+4. Add a search function as in Wikipedia (https://en.wikipedia.org/wiki/Quadtree).
+5. Consider whether to print quadtree every time (command line option?).
+6. Consider moving to vignettes.
+7. Consider whether mass and velocity is still relevant.
+8. Improved identification/tagging for print_particle().
+*/
