@@ -71,11 +71,11 @@ static inline void print_quadtree_details(const char *tag, Node *n, int d)
         "                                                            ";
     assert(d < 15);
     const char *prefix = indent + sizeof(indent) - d * 3;
-    printf("%s%s Centre (%6.2f,%6.2f) W %6.2f P %p\n",
-           prefix, tag, n->center_x, n->center_y, n->width, (void *)n);
+    printf("%s%s Centre (%6.2f,%6.2f) W %6.2f ",
+           prefix, tag, n->center_x, n->center_y, n->width);
     if (n->p != 0)
-        printf("%s%s Point  (%6.2f,%6.2f)\n",
-              prefix, tag, n->p->x_pos, n->p->y_pos);
+        printf("Point (%6.2f,%6.2f)", n->p->x_pos, n->p->y_pos);
+    putchar('\n');
     if (n->nw != 0)
         print_quadtree_details("NW:", n->nw, d+1);
     if (n->sw != 0)
