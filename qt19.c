@@ -1,14 +1,20 @@
 /* SO 37577522 */
+#include <assert.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static const double MIN_X = -100.0;
-static const double MAX_X = +100.0;
-static const double MIN_Y = -100.0;
-static const double MAX_Y = +100.0;
-static const double CTR_X = (MIN_X + MAX_X) / 2.0;
-static const double CTR_Y = (MIN_Y + MAX_Y) / 2.0;
+//static const double MIN_X = -100.0;
+//static const double MAX_X = +100.0;
+//static const double MIN_Y = -100.0;
+//static const double MAX_Y = +100.0;
+static const double CTR_X =    0.0;
+static const double CTR_Y =    0.0;
+static const double WIDTH = +100.0;
+
+typedef struct Particle Particle;
+typedef struct Node Node;
 
 struct Particle
 {
@@ -19,105 +25,154 @@ struct Particle
     double y_vel;
 };
 
-typedef struct node
+struct Node
 {
-    struct Particle *p;
-    double center_x;
-    double center_y;
-    double width;
-    struct node *sw;
-    struct node *nw;
-    struct node *se;
-    struct node *ne;
-} node;
+    Particle *p;
+    double    center_x;
+    double    center_y;
+    double    width;
+    Node     *sw;
+    Node     *nw;
+    Node     *se;
+    Node     *ne;
+};
 
-static node *quadtree_insert(node *n, struct Particle *p, double center_x, double center_y, double width)
+static inline bool in_box(const Particle *p, double center_x, double center_y, double width)
 {
-    printf("Centre (X,Y) = (%6.2f,%6.2f)\n", center_x, center_y);
+    return((p->x_pos >= center_x - width && p->x_pos < center_x + width) &&
+           (p->y_pos >= center_y - width && p->y_pos < center_y + width));
+}
+
+static void check_in_box(const Particle *p, double center_x, double center_y, double width)
+{
+        if (!in_box(p, center_x, center_y, width))
+        {
+            fprintf(stderr, "Point (%6.2f,%6.2f) is outside rectangle (%6.2f,%6.2f) W %6.2f\n",
+                    p->x_pos, p->y_pos, center_x, center_y, width);
+            exit(EXIT_FAILURE);
+        }
+}
+
+static Node *make_node(double center_x, double center_y, double width)
+{
+    Node *n = malloc(sizeof(*n));
+    if (n == 0)
+    {
+        fprintf(stderr, "Failed to allocate %zu bytes\n", sizeof(*n));
+        exit(EXIT_FAILURE);
+    }
+    n->center_x = center_x;
+    n->center_y = center_y;
+    n->width = width;
+    n->p = 0;
+    n->sw = 0;
+    n->se = 0;
+    n->ne = 0;
+    n->nw = 0;
+    return n;
+}
+
+/* Node can be leaf node with no particle */
+/* Node can be leaf node with a particle */
+/* Node can be non-leaf node with no particle */
+/* Leaf nodes have all sector pointers null */
+/* Non-leaf nodes have all sector pointers not null */
+static inline void check_node(Node *n)
+{
+    if (n != 0)
+        assert((n->p == 0 && (n->nw != 0 && n->sw != 0 && n->se != 0 && n->ne != 0)) ||
+               (n->p == 0 && (n->nw == 0 && n->sw == 0 && n->se == 0 && n->ne == 0)) ||
+               (n->p != 0 && (n->nw == 0 && n->sw == 0 && n->se == 0 && n->ne == 0)));
+}
+
+static void split_node(Node *n)
+{
+    assert(n != 0);
+    printf("= Split node: (%6.2f,%6.2f) W %6.2f\n", n->center_x, n->center_y, n->width);
+    assert(n != 0 && n->sw == 0 && n->nw == 0 && n->ne == 0 && n->se == 0 && n->p != 0);
+    double new_width = n->width / 2.0;
+    n->sw = make_node(n->center_x - new_width, n->center_y - new_width, new_width);
+    n->nw = make_node(n->center_x - new_width, n->center_y + new_width, new_width);
+    n->se = make_node(n->center_x + new_width, n->center_y - new_width, new_width);
+    n->ne = make_node(n->center_x + new_width, n->center_y + new_width, new_width);
+    Particle *p = n->p;
+    if (in_box(p, n->sw->center_x, n->sw->center_y, n->sw->width))
+        n->sw->p = p;
+    else if (in_box(p, n->nw->center_x, n->nw->center_y, n->nw->width))
+        n->nw->p = p;
+    else if (in_box(p, n->se->center_x, n->se->center_y, n->se->width))
+        n->se->p = p;
+    else if (in_box(p, n->ne->center_x, n->ne->center_y, n->ne->width))
+        n->ne->p = p;
+    else
+        assert(0);  /* Can't happen! */
+    n->p = 0;
+    check_node(n);
+}
+
+static Node *quadtree_insert(Node *n, struct Particle *p, double center_x, double center_y, double width)
+{
+    printf("Point (%6.2f,%6.2f), Centre (%6.2f,%6.2f), W = %6.2f\n",
+            p->x_pos, p->y_pos, center_x, center_y, width);
+    check_node(n);
+    /* Check that point falls in bounding box */
+    check_in_box(p, center_x, center_y, width);
     if (n == NULL)
     {
-        n = (node *)malloc(sizeof(node));
-        n->is_leaf = 1;
-
+        n = make_node(center_x, center_y, width);
         n->p = p;
-        n->m = 0.1;
-
-        n->sw = NULL;
-        n->se = NULL;
-        n->nw = NULL;
-        n->ne = NULL;
-        if (width < 1e-300)
-        {
-            n->width = 1e-300;
-        }
-        else
-            n->width    = width;
-        return n;
+        check_node(n);
+    }
+    else if (n->nw == 0 && n->p == 0)
+    {
+        n->p = p;
     }
     else
     {
-        // n = (node*)malloc(sizeof(node));
-        double x;
-        double y;
-        if (width < 1e-300)
+        if (n->nw == 0)  // Could check any segment for null-ness
         {
-            width = 1e-300;
-        }
-        if (n->is_leaf == 1) // ! that is, if the node is not a branch
-        {
-            x = n->p->x_pos;
-            y = n->p->y_pos;
-
-            if (x <= center_x && y <= center_y) // ! first quadrant
-            {
-                printf("(X,Y) = (%6.2f, %6.2f) Recurse SW 1: ", x, y);
-                n->sw = quadtree_insert(n->sw, n->p, center_x * 0.5, center_y * 0.5, width * 0.5);
-            }
-            else if (x <= center_x && y > center_y) // ! second quadrant
-            {
-                printf("(X,Y) = (%6.2f, %6.2f) Recurse NW 1: ", x, y);
-                n->nw = quadtree_insert(n->nw, n->p, center_x * 0.5, center_y * 1.5, width * 0.5);
-            }
-            else if (x > center_x && y <= center_y) // ! third quadrant
-            {
-                printf("(X,Y) = (%6.2f, %6.2f) Recurse SE 1: ", x, y);
-                n->se = quadtree_insert(n->se, n->p, center_x * 1.5, center_y * 0.5, width * 0.5);
-            }
-            else // ! fourth quadrant
-            {
-                printf("(X,Y) = (%6.2f, %6.2f) Recurse NE 1: ", x, y);
-                n->ne = quadtree_insert(n->ne, n->p, center_x * 1.5, center_y * 1.5, width * 0.5);
-            }
-
-            n->p = NULL; // ! sets branch pointer to nothing...
-            n->is_leaf = 0;
+            /* Need to split node into four and insert particle into correct node */
+            assert(n->p != 0);
+            split_node(n);
         }
 
-        x = p->x_pos;
-        y = p->y_pos;
-
-        if (x <= center_x && y <= center_y) // ! first quadrant
+        double new_width = width * 0.5;
+        if (p->x_pos < center_x && p->y_pos < center_y)
         {
-            printf("(X,Y) = (%6.2f, %6.2f) Recurse SW 2: ", x, y);
-            n->sw = quadtree_insert(n->sw, p, center_x * 0.5, center_y * 0.5, width * 0.5);
+            printf("Recurse SW 1: ");
+            Node *sw = quadtree_insert(n->sw, p, center_x - new_width, center_y - new_width, new_width);
+            assert(sw == n->sw);
+            check_node(sw);
         }
-        else if (x <= center_x && y > center_y) // ! second quadrant
+        else if (p->x_pos < center_x && p->y_pos >= center_y)
         {
-            printf("(X,Y) = (%6.2f, %6.2f) Recurse NW 2: ", x, y);
-            n->nw = quadtree_insert(n->nw, p, center_x * 0.5, center_y * 1.5, width * 0.5);
+            printf("Recurse NW 1: ");
+            Node *nw = quadtree_insert(n->nw, p, center_x - new_width, center_y + new_width, new_width);
+            assert(nw == n->nw);
+            check_node(nw);
         }
-        else if (x > center_x && y <= center_y) // ! third quadrant
+        else if (p->x_pos >= center_x && p->y_pos < center_y)
         {
-            printf("(X,Y) = (%6.2f, %6.2f) Recurse SE 2: ", x, y);
-            n->se = quadtree_insert(n->se, p, center_x * 1.5, center_y * 0.5, width * 0.5);
+            printf("Recurse SE 1: ");
+            Node *se = quadtree_insert(n->se, p, center_x + new_width, center_y - new_width, new_width);
+            assert(se == n->se);
+            check_node(se);
         }
-        else // ! fourth quadrant
+        else
         {
-            printf("(X,Y) = (%6.2f, %6.2f) Recurse NE 2: ", x, y);
-            n->ne = quadtree_insert(n->ne, p, center_x * 1.5, center_y * 1.5, width * 0.5);
+            printf("Recurse NE 1: ");
+            Node *ne = quadtree_insert(n->ne, p, center_x + new_width, center_y + new_width, new_width);
+            assert(ne == n->ne);
+            check_node(ne);
         }
-        return n;
     }
+    check_node(n);
+    return n;
+}
+
+static inline void print_quadtree(Node *n)
+{
+    assert(n != 0);
 }
 
 /*
@@ -142,14 +197,15 @@ enum { nParticles = sizeof(particles) / sizeof(particles[0]) };
 
 int main(void)
 {
-    node *root = NULL;
-    printf("Particle 0: ");
-    root = quadtree_insert(root, &particles[0], 0.5, 0.5, 1.0);
+    Node *root = NULL;
+    printf("# Particle 0: ");
+    root = quadtree_insert(root, &particles[0], CTR_X, CTR_Y, WIDTH);
 
     for (int i = 1; i < nParticles; i++)
     {
-        printf("Particle %d: ", i);
-        quadtree_insert(root, &particles[i], 0.5, 0.5, 1.0);
+        printf("# Particle %d: ", i);
+        Node *tree = quadtree_insert(root, &particles[i], CTR_X, CTR_Y, WIDTH);
+        assert(tree == root);
     }
     return 0;
 }
