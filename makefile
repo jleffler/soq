@@ -102,6 +102,7 @@ C_CXX_DUAL_PROGRAMS = \
 	matmake3d \
 	matmul89 \
 	mda \
+	memprobe \
 	partition-4 \
 	pbb \
 	pipecircle \
@@ -111,6 +112,7 @@ C_CXX_DUAL_PROGRAMS = \
 	pthread-2 \
 	pthread-3 \
 	q7 \
+	qt19 \
 	quine \
 	readdir \
 	recv \
