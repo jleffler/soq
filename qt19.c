@@ -277,12 +277,12 @@ static void free_quadtree(Node *n, bool free_particles)
 
 static void add_particle_to_array(ParticleArray *r, Particle *p)
 {
-    printf("%s", __func__);
-    print_particle(0, p);
+    //printf("%s", __func__);
+    //print_particle(0, p);
     if (r->cur_idx >= r->max_idx)
     {
         size_t new_max = r->max_idx * 2 + 2;
-        Particle **new_arr = REALLOC(r->array, new_max);
+        Particle **new_arr = REALLOC(r->array, new_max * sizeof(*new_arr));
         /* REALLOC never returns a null pointer */
         r->array = new_arr;
         r->max_idx = new_max;
@@ -306,23 +306,26 @@ static void reset_particle_array(ParticleArray *r)
 
 static void free_particle_array(ParticleArray *r)
 {
-    free(r->array);
-    free(r);
+    if (r != 0)
+    {
+        free(r->array);
+        free(r);
+    }
 }
 
 static size_t quadtree_search(const Node *n, const Area *a, ParticleArray *r)
 {
-    printf("-->> %s", __func__);
-    print_area(" A", a);
-    print_area(" N", &n->a);
-    putchar('\n');
+    //printf("-->> %s", __func__);
+    //print_area(" A", a);
+    //print_area(" N", &n->a);
+    //printf(" %s\n", boxes_overlap(&n->a, a) ? "overlap" : "disjoint");
     size_t count = 0;
     if (boxes_overlap(&n->a, a))
     {
         if (n->p != 0)
         {
-            print_area("A", a);
-            print_particle(0, n->p);
+            //print_area("A", a);
+            //print_particle(0, n->p);
             if (in_box(n->p, a))
             {
                 add_particle_to_array(r, n->p);
@@ -337,7 +340,7 @@ static size_t quadtree_search(const Node *n, const Area *a, ParticleArray *r)
             count += quadtree_search(n->ne, a, r);
         }
     }
-    printf("<<-- %s (%zu)\n", __func__, count);
+    //printf("<<-- %s (%zu)\n", __func__, count);
     return count;
 }
 
@@ -392,15 +395,15 @@ static void test_search(const Node *root)
     ParticleArray *r = make_particle_array();
     for (int i = 0; i < 3; i++)
     {
-        double x = CTR_X - WIDTH + (WIDTH / 6.0) + i * (WIDTH / 3.0);
+        double x = CTR_X - WIDTH + (WIDTH / 3.0) + i * (2.0 * WIDTH / 3.0);
         for (int j = 0; j < 3; j++)
         {
-            double y = CTR_Y - WIDTH + (WIDTH / 6.0) + j * (WIDTH / 3.0);
+            double y = CTR_Y - WIDTH + (WIDTH / 3.0) + j * (2.0 * WIDTH / 3.0);
             reset_particle_array(r);
-            Area overlap = { x, y, WIDTH / 6.0 };
-            size_t n = quadtree_search(root, &overlap, r);
+            Area box = { x, y, WIDTH / 3.0 };
+            size_t n = quadtree_search(root, &box, r);
             printf("Found %zu points in ", n);
-            print_area("search area", &overlap);
+            print_area("search area", &box);
             putchar('\n');
             print_particle_array("Points in box", r);
         }
