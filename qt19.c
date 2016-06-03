@@ -100,18 +100,18 @@ static inline void print_quadtree(Node *n)
 }
 /* End Debugging/Diagnostic code */
 
-static inline bool in_box(const Particle *p, double center_x, double center_y, double width)
+static inline bool in_box(const Particle *p, const Area *box)
 {
-    return((p->x_pos >= center_x - width && p->x_pos < center_x + width) &&
-           (p->y_pos >= center_y - width && p->y_pos < center_y + width));
+    return((p->x_pos >= box->center_x - box->width && p->x_pos < box->center_x + box->width) &&
+           (p->y_pos >= box->center_y - box->width && p->y_pos < box->center_y + box->width));
 }
 
-static void check_in_box(const Particle *p, double center_x, double center_y, double width)
+static void check_in_box(const Particle *p, const Area *box)
 {
-    if (!in_box(p, center_x, center_y, width))
+    if (!in_box(p, box))
     {
         fprintf(stderr, "Point (%6.2f,%6.2f) is outside rectangle (%6.2f,%6.2f) W %6.2f\n",
-                p->x_pos, p->y_pos, center_x, center_y, width);
+                p->x_pos, p->y_pos, box->center_x, box->center_y, box->width);
         exit(EXIT_FAILURE);
     }
 }
@@ -154,13 +154,13 @@ static void split_node(Node *n)
     n->se = make_node(n->a.center_x + new_width, n->a.center_y - new_width, new_width);
     n->ne = make_node(n->a.center_x + new_width, n->a.center_y + new_width, new_width);
     Particle *p = n->p;
-    if (in_box(p, n->sw->a.center_x, n->sw->a.center_y, n->sw->a.width))
+    if (in_box(p, &n->sw->a))
         n->sw->p = p;
-    else if (in_box(p, n->nw->a.center_x, n->nw->a.center_y, n->nw->a.width))
+    else if (in_box(p, &n->nw->a))
         n->nw->p = p;
-    else if (in_box(p, n->se->a.center_x, n->se->a.center_y, n->se->a.width))
+    else if (in_box(p, &n->se->a))
         n->se->p = p;
-    else if (in_box(p, n->ne->a.center_x, n->ne->a.center_y, n->ne->a.width))
+    else if (in_box(p, &n->ne->a))
         n->ne->p = p;
     else
     {
@@ -174,16 +174,16 @@ static void split_node(Node *n)
     check_node(n);
 }
 
-static Node *quadtree_insert(Node *n, struct Particle *p, double center_x, double center_y, double width)
+static Node *quadtree_insert(Node *n, struct Particle *p, const Area *box)
 {
     printf("Point (%6.2f,%6.2f), Centre (%6.2f,%6.2f), W = %6.2f\n",
-            p->x_pos, p->y_pos, center_x, center_y, width);
+            p->x_pos, p->y_pos, box->center_x, box->center_y, box->width);
     check_node(n);
     /* Check that point falls in bounding box */
-    check_in_box(p, center_x, center_y, width);
+    check_in_box(p, box);
     if (n == NULL)
     {
-        n = make_node(center_x, center_y, width);
+        n = make_node(box->center_x, box->center_y, box->width);
         n->p = p;
     }
     else if (n->nw == 0 && n->p == 0)
@@ -200,32 +200,36 @@ static Node *quadtree_insert(Node *n, struct Particle *p, double center_x, doubl
             //print_quadtree_node(n);
         }
 
-        double new_width = width * 0.5;
-        if (p->x_pos < center_x && p->y_pos < center_y)
+        double new_width = box->width * 0.5;
+        if (p->x_pos < box->center_x && p->y_pos < box->center_y)
         {
             printf("Recurse SW 1: ");
-            Node *sw = quadtree_insert(n->sw, p, center_x - new_width, center_y - new_width, new_width);
+            Area new_box = { box->center_x - new_width, box->center_y - new_width, new_width };
+            Node *sw = quadtree_insert(n->sw, p, &new_box);
             assert(sw == n->sw);
             check_node(sw);
         }
-        else if (p->x_pos < center_x && p->y_pos >= center_y)
+        else if (p->x_pos < box->center_x && p->y_pos >= box->center_y)
         {
             printf("Recurse NW 1: ");
-            Node *nw = quadtree_insert(n->nw, p, center_x - new_width, center_y + new_width, new_width);
+            Area new_box = { box->center_x - new_width, box->center_y + new_width, new_width };
+            Node *nw = quadtree_insert(n->nw, p, &new_box);
             assert(nw == n->nw);
             check_node(nw);
         }
-        else if (p->x_pos >= center_x && p->y_pos < center_y)
+        else if (p->x_pos >= box->center_x && p->y_pos < box->center_y)
         {
             printf("Recurse SE 1: ");
-            Node *se = quadtree_insert(n->se, p, center_x + new_width, center_y - new_width, new_width);
+            Area new_box = { box->center_x + new_width, box->center_y - new_width, new_width };
+            Node *se = quadtree_insert(n->se, p, &new_box);
             assert(se == n->se);
             check_node(se);
         }
         else
         {
             printf("Recurse NE 1: ");
-            Node *ne = quadtree_insert(n->ne, p, center_x + new_width, center_y + new_width, new_width);
+            Area new_box = { box->center_x + new_width, box->center_y + new_width, new_width };
+            Node *ne = quadtree_insert(n->ne, p, &new_box);
             assert(ne == n->ne);
             check_node(ne);
         }
@@ -268,15 +272,16 @@ static void built_in(void)
     };
     enum { nParticles = sizeof(particles) / sizeof(particles[0]) };
     Node *root = NULL;
+    Area  a = { CTR_X, CTR_Y, WIDTH };
 
     printf("# Particle 0: ");
-    root = quadtree_insert(root, &particles[0], CTR_X, CTR_Y, WIDTH);
+    root = quadtree_insert(root, &particles[0], &a);
     print_quadtree(root);
 
     for (int i = 1; i < nParticles; i++)
     {
         printf("# Particle %d: ", i);
-        Node *tree = quadtree_insert(root, &particles[i], CTR_X, CTR_Y, WIDTH);
+        Node *tree = quadtree_insert(root, &particles[i], &a);
         assert(tree == root);
         print_quadtree(root);
     }
@@ -312,13 +317,14 @@ static void read_from_file(const char *file)
         err_syserr("Failed to open file %s: ", file);
     Node *root = NULL;
     Particle particle;
+    Area box = { CTR_X, CTR_Y, WIDTH };
 
     for (int i = 0; read_particle(fp, &particle) != EOF; i++)
     {
         Particle *p = MALLOC(sizeof(*p));
         *p = particle;
         //print_particle(i, p);
-        Node *tree = quadtree_insert(root, p, CTR_X, CTR_Y, WIDTH);
+        Node *tree = quadtree_insert(root, p, &box);
         if (root == NULL)
             root = tree;
         assert(tree == root);
