@@ -13,6 +13,7 @@ static const double WIDTH = +100.0;
 
 typedef struct Particle Particle;
 typedef struct Node Node;
+typedef struct Area Area;
 
 struct Particle
 {
@@ -23,12 +24,17 @@ struct Particle
     double y_vel;
 };
 
+struct Area
+{
+    double center_x;
+    double center_y;
+    double width;
+};
+
 struct Node
 {
     Particle *p;
-    double    center_x;
-    double    center_y;
-    double    width;
+    Area      a;
     Node     *sw;
     Node     *nw;
     Node     *se;
@@ -45,7 +51,7 @@ static void print_particle(int i, const Particle *p)
 
 static inline void print_quadtree_info(const char *tag, const Node *n)
 {
-    printf("%s: C (%6.2f,%6.2f) W %6.2f\n", tag, n->center_x, n->center_y, n->width);
+    printf("%s: C (%6.2f,%6.2f) W %6.2f\n", tag, n->a.center_x, n->a.center_y, n->a.width);
     if (n->p)
         print_particle(-1, n->p);
 }
@@ -72,7 +78,7 @@ static inline void print_quadtree_details(const char *tag, Node *n, int d)
     assert(d < 15);
     const char *prefix = indent + sizeof(indent) - d * 3;
     printf("%s%s Centre (%6.2f,%6.2f) W %6.2f ",
-           prefix, tag, n->center_x, n->center_y, n->width);
+           prefix, tag, n->a.center_x, n->a.center_y, n->a.width);
     if (n->p != 0)
         printf("Point (%6.2f,%6.2f)", n->p->x_pos, n->p->y_pos);
     putchar('\n');
@@ -113,9 +119,9 @@ static void check_in_box(const Particle *p, double center_x, double center_y, do
 static Node *make_node(double center_x, double center_y, double width)
 {
     Node *n = MALLOC(sizeof(*n));
-    n->center_x = center_x;
-    n->center_y = center_y;
-    n->width = width;
+    n->a.center_x = center_x;
+    n->a.center_y = center_y;
+    n->a.width = width;
     n->p = 0;
     n->sw = 0;
     n->se = 0;
@@ -140,21 +146,21 @@ static inline void check_node(Node *n)
 static void split_node(Node *n)
 {
     assert(n != 0);
-    printf("= Split node: (%6.2f,%6.2f) W %6.2f\n", n->center_x, n->center_y, n->width);
+    printf("= Split node: (%6.2f,%6.2f) W %6.2f\n", n->a.center_x, n->a.center_y, n->a.width);
     assert(n != 0 && n->sw == 0 && n->nw == 0 && n->ne == 0 && n->se == 0 && n->p != 0);
-    double new_width = n->width / 2.0;
-    n->sw = make_node(n->center_x - new_width, n->center_y - new_width, new_width);
-    n->nw = make_node(n->center_x - new_width, n->center_y + new_width, new_width);
-    n->se = make_node(n->center_x + new_width, n->center_y - new_width, new_width);
-    n->ne = make_node(n->center_x + new_width, n->center_y + new_width, new_width);
+    double new_width = n->a.width / 2.0;
+    n->sw = make_node(n->a.center_x - new_width, n->a.center_y - new_width, new_width);
+    n->nw = make_node(n->a.center_x - new_width, n->a.center_y + new_width, new_width);
+    n->se = make_node(n->a.center_x + new_width, n->a.center_y - new_width, new_width);
+    n->ne = make_node(n->a.center_x + new_width, n->a.center_y + new_width, new_width);
     Particle *p = n->p;
-    if (in_box(p, n->sw->center_x, n->sw->center_y, n->sw->width))
+    if (in_box(p, n->sw->a.center_x, n->sw->a.center_y, n->sw->a.width))
         n->sw->p = p;
-    else if (in_box(p, n->nw->center_x, n->nw->center_y, n->nw->width))
+    else if (in_box(p, n->nw->a.center_x, n->nw->a.center_y, n->nw->a.width))
         n->nw->p = p;
-    else if (in_box(p, n->se->center_x, n->se->center_y, n->se->width))
+    else if (in_box(p, n->se->a.center_x, n->se->a.center_y, n->se->a.width))
         n->se->p = p;
-    else if (in_box(p, n->ne->center_x, n->ne->center_y, n->ne->width))
+    else if (in_box(p, n->ne->a.center_x, n->ne->a.center_y, n->ne->a.width))
         n->ne->p = p;
     else
     {
