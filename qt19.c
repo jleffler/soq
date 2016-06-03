@@ -14,6 +14,7 @@ static const double WIDTH = +100.0;
 typedef struct Particle Particle;
 typedef struct Node Node;
 typedef struct Area Area;
+typedef struct ParticleArray ParticleArray;
 
 struct Particle
 {
@@ -31,6 +32,13 @@ struct Area
     double width;
 };
 
+struct ParticleArray
+{
+    size_t     max_idx;
+    size_t     cur_idx;
+    Particle **array;
+};
+
 struct Node
 {
     Particle *p;
@@ -42,6 +50,11 @@ struct Node
 };
 
 /* Debugging/diagnostic code */
+
+static void print_area(const char *tag, const Area *a)
+{
+    printf("%s: C (%6.2f,%6.2f) W %6.2f", tag, a->center_x, a->center_y, a->width);
+}
 
 static void print_particle(int i, const Particle *p)
 {
@@ -99,6 +112,16 @@ static inline void print_quadtree(Node *n)
     print_quadtree_details("===", n, 0);
 }
 /* End Debugging/Diagnostic code */
+
+static inline bool boxes_overlap(const Area *a1, const Area *a2)
+{
+    /* If boxes overlap, they overlap in x-dimension and y-dimension */
+    /* x1.low <= x2.high && x1.high >= x2.low */
+    return (a1->center_x - a1->width <= a2->center_x + a2->width &&
+            a1->center_x + a1->width >= a2->center_x - a2->width &&
+            a1->center_y - a1->width <= a2->center_y + a2->width &&
+            a1->center_y + a1->width >= a2->center_y - a2->width);
+}
 
 static inline bool in_box(const Particle *p, const Area *box)
 {
@@ -252,6 +275,82 @@ static void free_quadtree(Node *n, bool free_particles)
     }
 }
 
+static void add_particle_to_array(ParticleArray *r, Particle *p)
+{
+    printf("%s", __func__);
+    print_particle(0, p);
+    if (r->cur_idx >= r->max_idx)
+    {
+        size_t new_max = r->max_idx * 2 + 2;
+        Particle **new_arr = REALLOC(r->array, new_max);
+        /* REALLOC never returns a null pointer */
+        r->array = new_arr;
+        r->max_idx = new_max;
+    }
+    r->array[r->cur_idx++] = p;
+}
+
+static ParticleArray *make_particle_array(void)
+{
+    ParticleArray *r = MALLOC(sizeof(*r));
+    r->max_idx = 0;
+    r->cur_idx = 0;
+    r->array = 0;
+    return r;
+}
+
+static void reset_particle_array(ParticleArray *r)
+{
+    r->cur_idx = 0;
+}
+
+static void free_particle_array(ParticleArray *r)
+{
+    free(r->array);
+    free(r);
+}
+
+static size_t quadtree_search(const Node *n, const Area *a, ParticleArray *r)
+{
+    printf("-->> %s", __func__);
+    print_area(" A", a);
+    print_area(" N", &n->a);
+    putchar('\n');
+    size_t count = 0;
+    if (boxes_overlap(&n->a, a))
+    {
+        if (n->p != 0)
+        {
+            print_area("A", a);
+            print_particle(0, n->p);
+            if (in_box(n->p, a))
+            {
+                add_particle_to_array(r, n->p);
+                count++;
+            }
+        }
+        else if (n->nw != 0)
+        {
+            count += quadtree_search(n->nw, a, r);
+            count += quadtree_search(n->sw, a, r);
+            count += quadtree_search(n->se, a, r);
+            count += quadtree_search(n->ne, a, r);
+        }
+    }
+    printf("<<-- %s (%zu)\n", __func__, count);
+    return count;
+}
+
+static void print_particle_array(const char *tag, const ParticleArray *r)
+{
+    if (r->cur_idx > 0)
+    {
+        printf("%s: (%zu)\n", tag, r->cur_idx);
+        for (size_t i = 0; i < r->cur_idx; i++)
+            print_particle(i, r->array[i]);
+    }
+}
+
 /* Test code */
 
 static void built_in(void)
@@ -286,6 +385,27 @@ static void built_in(void)
         print_quadtree(root);
     }
     free_quadtree(root, false); // Do not free particles
+}
+
+static void test_search(const Node *root)
+{
+    ParticleArray *r = make_particle_array();
+    for (int i = 0; i < 3; i++)
+    {
+        double x = CTR_X - WIDTH + (WIDTH / 6.0) + i * (WIDTH / 3.0);
+        for (int j = 0; j < 3; j++)
+        {
+            double y = CTR_Y - WIDTH + (WIDTH / 6.0) + j * (WIDTH / 3.0);
+            reset_particle_array(r);
+            Area overlap = { x, y, WIDTH / 6.0 };
+            size_t n = quadtree_search(root, &overlap, r);
+            printf("Found %zu points in ", n);
+            print_area("search area", &overlap);
+            putchar('\n');
+            print_particle_array("Points in box", r);
+        }
+    }
+    free_particle_array(r);
 }
 
 static int read_particle(FILE *fp, Particle *p)
@@ -332,14 +452,52 @@ static void read_from_file(const char *file)
     }
 
     print_quadtree(root);
+
+    test_search(root);
+
     free_quadtree(root, true);  // Free particles too
 
     fclose(fp);
 }
 
+static void test_overlap(void)
+{
+    Area boxes[] =
+    {
+        {  0.0,  0.0, 10.0 },
+        { 80.0, 80.0, 10.0 },
+        { 70.0, 70.0, 10.0 },
+        { 75.0, 65.0, 10.0 },
+        { 45.0, 95.0,  5.0 },
+        { 56.0, 95.0,  5.0 },
+        { 55.0, 95.0,  5.0 },
+    };
+    enum { NUM_BOXES = sizeof(boxes) / sizeof(boxes[0]) };
+
+    for (int i = 0; i < NUM_BOXES; i++)
+    {
+        char buffer1[32];
+        snprintf(buffer1, sizeof(buffer1), "Area %d", i);
+        print_area(buffer1, &boxes[i]);
+        putchar('\n');
+        for (int j = 0; j < NUM_BOXES; j++)
+        {
+            char buffer2[32];
+            snprintf(buffer2, sizeof(buffer2), "    Area %d", j);
+            print_area(buffer2, &boxes[j]);
+            printf((boxes_overlap(&boxes[i], &boxes[j])) ? " overlap" : " disjoint");
+            putchar('\n');
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
+
+    if (argc == 0)
+        test_overlap();
+
     if (argc == 1)
     {
         printf("Built-in Data:\n");
@@ -355,7 +513,7 @@ int main(int argc, char **argv)
 
 /*
 Notes towards generalization:
-1. Add structure to describe squares.
+1. Add structure to describe squares.   -- Done!
 2. Allow command line scaling of region.
 3. Consider whether the auto-allocation of all 4 nodes on split is good.
 4. Add a search function as in Wikipedia (https://en.wikipedia.org/wiki/Quadtree).
@@ -363,4 +521,5 @@ Notes towards generalization:
 6. Consider moving to vignettes.
 7. Consider whether mass and velocity is still relevant.
 8. Improved identification/tagging for print_particle().
+9. Consider allowing more than one point per quadtree node (Wikipedia does).
 */
