@@ -390,17 +390,19 @@ static void built_in(void)
     free_quadtree(root, false); // Do not free particles
 }
 
-static void test_search(const Node *root)
+static void test_search(const Node *root, int num)
 {
+    assert(num > 0 && num <= 100);
+    printf("Search in %dx%d sections\n", num, num);
     ParticleArray *r = make_particle_array();
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < num; i++)
     {
-        double x = CTR_X - WIDTH + (WIDTH / 3.0) + i * (2.0 * WIDTH / 3.0);
-        for (int j = 0; j < 3; j++)
+        double x = CTR_X - WIDTH + (WIDTH / num) + i * (2.0 * WIDTH / num);
+        for (int j = 0; j < num; j++)
         {
-            double y = CTR_Y - WIDTH + (WIDTH / 3.0) + j * (2.0 * WIDTH / 3.0);
+            double y = CTR_Y - WIDTH + (WIDTH / num) + j * (2.0 * WIDTH / num);
             reset_particle_array(r);
-            Area box = { x, y, WIDTH / 3.0 };
+            Area box = { x, y, WIDTH / num };
             size_t n = quadtree_search(root, &box, r);
             printf("Found %zu points in ", n);
             print_area("search area", &box);
@@ -456,7 +458,9 @@ static void read_from_file(const char *file)
 
     print_quadtree(root);
 
-    test_search(root);
+    test_search(root, 2);
+    test_search(root, 3);
+    test_search(root, 4);
 
     free_quadtree(root, true);  // Free particles too
 
@@ -516,13 +520,27 @@ int main(int argc, char **argv)
 
 /*
 Notes towards generalization:
-1. Add structure to describe squares.   -- Done!
-2. Allow command line scaling of region.
-3. Consider whether the auto-allocation of all 4 nodes on split is good.
-4. Add a search function as in Wikipedia (https://en.wikipedia.org/wiki/Quadtree).
-5. Consider whether to print quadtree every time (command line option?).
-6. Consider moving to vignettes.
-7. Consider whether mass and velocity is still relevant.
-8. Improved identification/tagging for print_particle().
-9. Consider allowing more than one point per quadtree node (Wikipedia does).
+ X. Add structure to describe squares. -- Done!
+ 2. Allow command line scaling of region.
+ 3. Consider whether auto-allocation of all 4 nodes on split is OK.
+ X. Add a search function as in example code at Wikipedia
+    (https://en.wikipedia.org/wiki/Quadtree). -- Done!
+ 5. Consider whether to allow printing of quadtree after every insert,
+    and other verbosity command line options).
+ 6. Consider moving to vignettes.
+ 7. Consider whether mass and velocity is still relevant (not really).
+ 8. Improved identification/tagging for print_particle() -- plain
+    print_particle() to take a general string tag, and
+    print_particle_num() to print a number.
+ 9. Consider allowing more than one point per quadtree node (like the
+    code at Wikipedia does).
+10. Support rectangular shapes.
+11. Specify searchable ranges from command line.
+12. Generalize division of ranges.
+13. Use ffilter() to handle reading from files or standard input, with
+    option to run built-in test (and another to run the overlap test,
+    and another to run a contains (in_box()) test).
+14. Consider how to measure performance of quadtree search against
+    linear search.
+15. Determine when quadtree search outperforms linear search.
 */
