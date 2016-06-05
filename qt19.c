@@ -4,8 +4,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "stderr.h"
 #include "emalloc.h"
+#include "filter.h"
 
 static const double CTR_X =    0.0;
 static const double CTR_Y =    0.0;
@@ -64,9 +66,12 @@ static void print_particle(int i, const Particle *p)
 
 static inline void print_quadtree_info(const char *tag, const Node *n)
 {
-    printf("%s: C (%6.2f,%6.2f) W %6.2f\n", tag, n->a.center_x, n->a.center_y, n->a.width);
-    if (n->p)
-        print_particle(-1, n->p);
+    if (n != 0)
+    {
+        printf("%s: C (%6.2f,%6.2f) W %6.2f\n", tag, n->a.center_x, n->a.center_y, n->a.width);
+        if (n->p)
+            print_particle(-1, n->p);
+    }
 }
 
 static inline void print_quadtree_node(Node *n)
@@ -107,9 +112,9 @@ static inline void print_quadtree_details(const char *tag, Node *n, int d)
 
 static inline void print_quadtree(Node *n)
 {
-    assert(n != 0);
     printf("QT Node %p\n", (void *)n);
-    print_quadtree_details("===", n, 0);
+    if (n != 0)
+        print_quadtree_details("===", n, 0);
 }
 /* End Debugging/Diagnostic code */
 
@@ -355,32 +360,35 @@ static void print_particle_array(const char *tag, const ParticleArray *r)
 }
 
 /* Test code */
+/* random -n 10 -T '    { %6:2[1:20]f, %6:2[-100:100]f, %6:2[-100:100]f, %6:2[-100:100]f, %6:2[-100:100]f },' */
+static struct Particle particles[] =
+{
+    {  19.99,  96.07,  62.79, -99.46,  19.70 },
+    {  12.94,   1.43, -33.45,  31.80, -66.08 },
+    {   6.49,  16.99, -20.83,  92.51,  35.98 },
+    {  17.01, -28.85, -94.10,  42.82,  -1.30 },
+    {  14.27,  85.07,  88.21,  11.22,  16.85 },
+    {  15.73, -56.37,  46.85,  27.40, -15.15 },
+    {   1.53, -49.44, -64.27, -29.45, -38.25 },
+    {   8.03,  92.11, -47.50,  63.77, -29.99 },
+    {   8.67, -99.81,  73.19,  18.75,  88.66 },
+    {  16.36,  66.33,  14.23,  87.65,  40.01 },
+};
+enum { NUM_PARTICLES = sizeof(particles) / sizeof(particles[0]) };
 
 static void built_in(void)
 {
-    /* random -n 10 -T '    { %6:2[1:20]f, %6:2[-100:100]f, %6:2[-100:100]f, %6:2[-100:100]f, %6:2[-100:100]f },' */
-    static struct Particle particles[] =
-    {
-        {  19.99,  96.07,  62.79, -99.46,  19.70 },
-        {  12.94,   1.43, -33.45,  31.80, -66.08 },
-        {   6.49,  16.99, -20.83,  92.51,  35.98 },
-        {  17.01, -28.85, -94.10,  42.82,  -1.30 },
-        {  14.27,  85.07,  88.21,  11.22,  16.85 },
-        {  15.73, -56.37,  46.85,  27.40, -15.15 },
-        {   1.53, -49.44, -64.27, -29.45, -38.25 },
-        {   8.03,  92.11, -47.50,  63.77, -29.99 },
-        {   8.67, -99.81,  73.19,  18.75,  88.66 },
-        {  16.36,  66.33,  14.23,  87.65,  40.01 },
-    };
-    enum { nParticles = sizeof(particles) / sizeof(particles[0]) };
+
     Node *root = NULL;
     Area  a = { CTR_X, CTR_Y, WIDTH };
+
+    printf("Built-in Data:\n");
 
     printf("# Particle 0: ");
     root = quadtree_insert(root, &particles[0], &a);
     print_quadtree(root);
 
-    for (int i = 1; i < nParticles; i++)
+    for (int i = 1; i < NUM_PARTICLES; i++)
     {
         printf("# Particle %d: ", i);
         Node *tree = quadtree_insert(root, &particles[i], &a);
@@ -434,12 +442,9 @@ static int read_particle(FILE *fp, Particle *p)
     return EOF;
 }
 
-static void read_from_file(const char *file)
+static void read_from_file(FILE *fp, char *file)
 {
     printf("Data from: %s\n", file);
-    FILE *fp = fopen(file, "r");
-    if (fp == 0)
-        err_syserr("Failed to open file %s: ", file);
     Node *root = NULL;
     Particle particle;
     Area box = { CTR_X, CTR_Y, WIDTH };
@@ -458,29 +463,33 @@ static void read_from_file(const char *file)
 
     print_quadtree(root);
 
-    test_search(root, 2);
-    test_search(root, 3);
-    test_search(root, 4);
+    if (root != 0)
+    {
+        test_search(root, 2);
+        test_search(root, 3);
+        test_search(root, 4);
+    }
 
     free_quadtree(root, true);  // Free particles too
-
-    fclose(fp);
 }
+
+static Area boxes[] =
+{
+    {   0.0,   0.0, 10.0 },
+    {  80.0,  80.0, 10.0 },
+    {  70.0,  70.0, 10.0 },
+    { -30.0, -90.0, 10.0 },
+    {  75.0,  65.0, 10.0 },
+    {  45.0,  95.0,  5.0 },
+    { -55.0, +45.0, 10.0 },
+    { -55.0, -65.0, 10.0 },
+    {  56.0,  95.0,  5.0 },
+    {  55.0,  95.0,  5.0 },
+};
+enum { NUM_BOXES = sizeof(boxes) / sizeof(boxes[0]) };
 
 static void test_overlap(void)
 {
-    Area boxes[] =
-    {
-        {  0.0,  0.0, 10.0 },
-        { 80.0, 80.0, 10.0 },
-        { 70.0, 70.0, 10.0 },
-        { 75.0, 65.0, 10.0 },
-        { 45.0, 95.0,  5.0 },
-        { 56.0, 95.0,  5.0 },
-        { 55.0, 95.0,  5.0 },
-    };
-    enum { NUM_BOXES = sizeof(boxes) / sizeof(boxes[0]) };
-
     for (int i = 0; i < NUM_BOXES; i++)
     {
         char buffer1[32];
@@ -498,23 +507,84 @@ static void test_overlap(void)
     }
 }
 
+static void test_inside(void)
+{
+    for (int i = 0; i < NUM_BOXES; i++)
+    {
+        char buffer1[32];
+        snprintf(buffer1, sizeof(buffer1), "Area %d", i);
+        print_area(buffer1, &boxes[i]);
+        putchar('\n');
+        for (int j = 0; j < NUM_PARTICLES; j++)
+        {
+            print_particle(j, &particles[j]);
+            printf("  %s\n", (in_box(&particles[j], &boxes[i])) ? "Inside" : "Outside");
+        }
+    }
+}
+
+static const char optstr[] = "bc:hiow:C:N:VW:";
+static const char usestr[] = "[-bhioV][-c x,y][-w len][-C x,y][-N num][-W len] [file ...]";
+static const char hlpstr[] =
+    "  -b      Run test with built-in data\n"
+    "  -c x,y  Centre of data area\n"
+    "  -h      Print this information and exit\n"
+    "  -i      Run inside test\n"
+    "  -o      Run overlap test\n"
+    "  -w len  Half-width of data area\n"
+    "  -C x,y  Centre of search area\n"
+    "  -N num  Number of search cells in each direction\n"
+    "  -W len  Half-width of search area\n"
+    "  -V      Print version information and exit\n"
+    ;
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
+    int do_filter = true;
 
-    if (argc == 0)
-        test_overlap();
+    int opt;
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'b':
+            built_in();
+            do_filter = false;
+            break;
+        case 'c':
+            break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'i':
+            test_inside();
+            do_filter = false;
+            break;
+        case 'o':
+            test_overlap();
+            do_filter = false;
+            break;
+        case 'w':
+            break;
+        case 'C':
+            break;
+        case 'N':
+            break;
+        case 'V':
+            err_version("QT19", "$Revision$ ($Date$)");
+            /*NOTREACHED*/
+        case 'W':
+            break;
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
 
-    if (argc == 1)
-    {
-        printf("Built-in Data:\n");
-        built_in();
-    }
-    else
-    {
-        for (int i = 1; i < argc; i++)
-            read_from_file(argv[i]);
-    }
+    if (do_filter || argc != optind)
+        filter(argc, argv, optind, read_from_file);
+
     return 0;
 }
 
