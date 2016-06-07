@@ -1,5 +1,6 @@
 /* SO 37577522 */
 #include <assert.h>
+#include <ctype.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -8,10 +9,6 @@
 #include "stderr.h"
 #include "emalloc.h"
 #include "filter.h"
-
-static const double CTR_X =    0.0;
-static const double CTR_Y =    0.0;
-static const double WIDTH = +100.0;
 
 typedef struct Particle Particle;
 typedef struct Node Node;
@@ -50,6 +47,14 @@ struct Node
     Node     *se;
     Node     *ne;
 };
+
+static double ctr_x = 0.0;
+static double ctr_y = 0.0;
+static double width = 100.0;
+static double search_x = 0.0;
+static double search_y = 0.0;
+static double search_w = 100.0;
+static int    search_n = 2;
 
 /* Debugging/diagnostic code */
 
@@ -380,7 +385,7 @@ static void built_in(void)
 {
 
     Node *root = NULL;
-    Area  a = { CTR_X, CTR_Y, WIDTH };
+    Area  a = { ctr_x, ctr_y, width };
 
     printf("Built-in Data:\n");
 
@@ -405,12 +410,12 @@ static void test_search(const Node *root, int num)
     ParticleArray *r = make_particle_array();
     for (int i = 0; i < num; i++)
     {
-        double x = CTR_X - WIDTH + (WIDTH / num) + i * (2.0 * WIDTH / num);
+        double x = search_x - search_w + (search_w / search_n) + i * (2.0 * search_w / search_n);
         for (int j = 0; j < num; j++)
         {
-            double y = CTR_Y - WIDTH + (WIDTH / num) + j * (2.0 * WIDTH / num);
+            double y = search_y - search_w + (search_w / search_n) + j * (2.0 * search_w / search_n);
             reset_particle_array(r);
-            Area box = { x, y, WIDTH / num };
+            Area box = { x, y, search_w / num };
             size_t n = quadtree_search(root, &box, r);
             printf("Found %zu points in ", n);
             print_area("search area", &box);
@@ -447,7 +452,7 @@ static void read_from_file(FILE *fp, char *file)
     printf("Data from: %s\n", file);
     Node *root = NULL;
     Particle particle;
-    Area box = { CTR_X, CTR_Y, WIDTH };
+    Area box = { ctr_x, ctr_y, width };
 
     for (int i = 0; read_particle(fp, &particle) != EOF; i++)
     {
@@ -464,11 +469,7 @@ static void read_from_file(FILE *fp, char *file)
     print_quadtree(root);
 
     if (root != 0)
-    {
-        test_search(root, 2);
-        test_search(root, 3);
-        test_search(root, 4);
-    }
+        test_search(root, search_n);
 
     free_quadtree(root, true);  // Free particles too
 }
@@ -523,6 +524,46 @@ static void test_inside(void)
     }
 }
 
+static bool all_space(const char *str)
+{
+    int c;
+    while ((c = *str++) != '\0')
+    {
+        if (!isblank(c))
+            return false;
+    }
+    return true;
+}
+
+static void parse_coordinates(const char *str, double *x, double *y, const char *tag)
+{
+    int n;
+    if (sscanf(str, "%lf,%lf%n", x, y, &n) == 2 && all_space(&str[n]))
+        return;
+    err_error("Failed to parse %s from '%s'\n", tag, str);
+    /*NOTREACHED*/
+}
+
+static double parse_double(const char *str, const char *tag)
+{
+    double d;
+    int n;
+    if (sscanf(str, "%lf%n", &d, &n) == 1 && all_space(&str[n]))
+        return d;
+    err_error("Failed to parse %s from '%s'\n", tag, str);
+    /*NOTREACHED*/
+}
+
+static int parse_integer(const char *str, const char *tag)
+{
+    int i;
+    int n;
+    if (sscanf(str, "%i%n", &i, &n) == 1 && all_space(&str[n]))
+        return i;
+    err_error("Failed to parse %s from '%s'\n", tag, str);
+    /*NOTREACHED*/
+}
+
 static const char optstr[] = "bc:hiow:C:N:VW:";
 static const char usestr[] = "[-bhioV][-c x,y][-w len][-C x,y][-N num][-W len] [file ...]";
 static const char hlpstr[] =
@@ -553,6 +594,7 @@ int main(int argc, char **argv)
             do_filter = false;
             break;
         case 'c':
+            parse_coordinates(optarg, &ctr_x, &ctr_y, "centre of data area");
             break;
         case 'h':
             err_help(usestr, hlpstr);
@@ -566,15 +608,25 @@ int main(int argc, char **argv)
             do_filter = false;
             break;
         case 'w':
+            width = parse_double(optarg, "data area half-width");
+            if (width <= 0.0)
+                err_error("Data area half-width (%6.2f) is not positive\n", width);
             break;
         case 'C':
+            parse_coordinates(optarg, &search_x, &search_y, "centre of search area");
             break;
         case 'N':
+            search_n = parse_integer(optarg, "number of sub-divisions in search area");
+            if (search_n < 1 || search_n > 1000)
+                err_error("Number of sub-divisions %d out of range 1..1000\n", search_n);
             break;
         case 'V':
             err_version("QT19", "$Revision$ ($Date$)");
             /*NOTREACHED*/
         case 'W':
+            search_w = parse_double(optarg, "search area half-width");
+            if (width <= 0.0)
+                err_error("Search area half-width (%6.2f) is not positive\n", width);
             break;
         default:
             err_usage(usestr);
@@ -591,7 +643,7 @@ int main(int argc, char **argv)
 /*
 Notes towards generalization:
  X. Add structure to describe squares. -- Done!
- 2. Allow command line scaling of region.
+ X. Allow command line scaling of region. -- Done!
  3. Consider whether auto-allocation of all 4 nodes on split is OK.
  X. Add a search function as in example code at Wikipedia
     (https://en.wikipedia.org/wiki/Quadtree). -- Done!
@@ -605,11 +657,11 @@ Notes towards generalization:
  9. Consider allowing more than one point per quadtree node (like the
     code at Wikipedia does).
 10. Support rectangular shapes.
-11. Specify searchable ranges from command line.
+ X. Specify searchable ranges from command line. -- Done!
 12. Generalize division of ranges.
 13. Use ffilter() to handle reading from files or standard input, with
     option to run built-in test (and another to run the overlap test,
-    and another to run a contains (in_box()) test).
+    and another to run a contains (in_box()) test). -- Done!
 14. Consider how to measure performance of quadtree search against
     linear search.
 15. Determine when quadtree search outperforms linear search.
