@@ -12,7 +12,7 @@ struct ABin_s
 
 ABin somasAcA_OK(ABin a);
 int getsums(ABin a);
-ABin somasAcA(ABin a);
+void somasAcA(ABin a);
 
 static ABin newABin(int valor, ABin esq, ABin dir)
 {
@@ -53,15 +53,14 @@ ABin somasAcA_OK(ABin a)
     return *res;
 }
 
-ABin somasAcA(ABin a)
+void somasAcA(ABin a)
 {
     if (a != NULL)
     {
+        somasAcA(a->esq);
+        somasAcA(a->dir);
         a->valor = getsums(a);
-        a->esq = somasAcA(a->esq);
-        a->dir = somasAcA(a->dir);
     }
-    return a;
 }
 
 static void print_postorder(ABin node)
@@ -100,12 +99,11 @@ int main(void)
 
     print_tree("Before", root);
 
-    ABin eval = somasAcA(root);
-    assert(eval == root);
+    somasAcA(root);
 
     print_tree("After", root);
 
-    eval = somasAcA_OK(root);
+    ABin eval = somasAcA_OK(root);
     assert(eval != root);
 
     print_tree("Second time", root);
