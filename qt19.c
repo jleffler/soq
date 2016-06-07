@@ -644,11 +644,21 @@ int main(int argc, char **argv)
 Notes towards generalization:
  X. Add structure to describe squares. -- Done!
  X. Allow command line scaling of region. -- Done!
- 3. Consider whether auto-allocation of all 4 nodes on split is OK.
+ X. Consider whether auto-allocation of all 4 nodes on split is OK.
+    -- What's the alternative?  Allocate one or two sub-nodes as needed,
+    -- and others when required?  But you'd have to keep track of when
+    -- the pointer is null, etc.  It might simplify the conditions
+    -- slightly, might it not?  (Answer: code in check_node() would be
+    -- more complex.)
+    == Consideration given; decision is not to change the system.
+    -- Should a single allocation be used for all four nodes,
+    -- simplifying the release process?
+    == Insufficient benefit.
  X. Add a search function as in example code at Wikipedia
     (https://en.wikipedia.org/wiki/Quadtree). -- Done!
- 5. Consider whether to allow printing of quadtree after every insert,
+ X. Consider whether to allow printing of quadtree after every insert,
     and other verbosity command line options).
+    -- Currently OK as is (now that code is working).
  6. Consider moving to vignettes.
  7. Consider whether mass and velocity is still relevant (not really).
  8. Improved identification/tagging for print_particle() -- plain
@@ -656,10 +666,11 @@ Notes towards generalization:
     print_particle_num() to print a number.
  9. Consider allowing more than one point per quadtree node (like the
     code at Wikipedia does).
-10. Support rectangular shapes.
+10. Support rectangular shapes (x-width different from y-height).
+    NB: if only one number given, then shape is square.
  X. Specify searchable ranges from command line. -- Done!
-12. Generalize division of ranges.
-13. Use ffilter() to handle reading from files or standard input, with
+ X. Generalize division of ranges. -- Done!
+ X. Use ffilter() to handle reading from files or standard input, with
     option to run built-in test (and another to run the overlap test,
     and another to run a contains (in_box()) test). -- Done!
 14. Consider how to measure performance of quadtree search against
