@@ -38,6 +38,7 @@ Untracked
 a.out
 am-pm
 arraysize
+awk.script
 binary
 bsmax
 bsmin
@@ -123,6 +124,7 @@ scan
 script.awk
 script.sed
 script.sh
+sed.script
 send
 sets
 sigalrm
