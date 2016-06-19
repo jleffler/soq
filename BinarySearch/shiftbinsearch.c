@@ -1,3 +1,4 @@
+/* Becomes binsearch_E() in binsearch-speed.c */
 
 static
 int binary_search(int N, const int A[N], int val)

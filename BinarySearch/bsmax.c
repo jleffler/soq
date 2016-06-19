@@ -23,18 +23,15 @@ int bsearchl(const int *x, int n, int t)
     assert(n >= 0);
     while (l + 1 != u)
     {
-//      /* Invariant: x[l] < t && x[u] >= t && l < u */
         /* Invariant: x[l] <= t && x[u] > t && l < u */
         int m = (l + u) / 2;
         //printf("  t = %d, l = %d, u = %d, m = %d, x[%d] = %d\n",
         //       t, l, u, m, m, x[m]);
-//      if (x[m] < t)
         if (x[m] <= t)
             l = m;
         else
             u = m;
     }
-//  if (u >= n || x[u] != t)
     if (l < 0 || x[l] != t)
         return -1;
     assert(l >= 0 && l < n);
@@ -82,7 +79,6 @@ int main(void)
                     for (int n = 0; n < k; n++)
                         assert(base[n] != i);
                 }
-//              assert(r == -1 || (base[r] == i && (r == 0 || base[r-1] < i)));
                 assert(r == -1 || (base[r] == i && (r == k-1 || base[r+1] > i)));
             }
         }
