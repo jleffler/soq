@@ -338,7 +338,20 @@ int main(void)
     swap_items(i4, i5);
     prt_list_rev(stdout, "List After swap 6 (reverse)", head);
 
-    zap_list(head);
+    /*
+    ** NB: if the list consists of nodes A & B, then starting at A, you
+    ** always see A then B in the output, whether printing forwards or
+    ** in reverse, and whether printing before or after the swap.
+    */
+    rem_item(head);
+    del_item(head);
+    prt_list_rev(stdout, "List After removing head (reverse)", i4);
+    swap_items(i4, i5);
+    prt_list_rev(stdout, "List After swap 7 (reverse)", i4);
+    swap_items(i4, i5);
+    prt_list_rev(stdout, "List After swap 8 (reverse)", i4);
+
+    zap_list(i5);
     printf("List zapped\n");
 
     return 0;
