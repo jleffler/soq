@@ -183,9 +183,13 @@ int main(void)
     {
         url[6] = (i % 6) + 'A';
         tester("isxdigit", url, decode_2);
+        url[6] = (i % 6) + 'A';
         tester("ishex",    url, decode_1);
+        url[6] = (i % 6) + 'A';
         tester("tohex-A",  url, decode_3);
+        url[6] = (i % 6) + 'A';
         tester("tohex-B",  url, decode_4);
+        url[6] = (i % 6) + 'A';
         tester("hex_val",  url, decode_5);
     }
 
