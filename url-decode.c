@@ -10,6 +10,18 @@ static inline int ishex(int x)
            (x >= 'A' && x <= 'F');
 }
 
+static int to_hex(char c)
+{
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    else if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
+    else if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    else
+        return -1;
+}
+
 static int decode_1(const char *s, char *dec)
 {
     char *o;
@@ -52,6 +64,33 @@ static int decode_2(const char *s, char *dec)
     return o - dec;
 }
 
+static int decode_3(const char *s, char *dec)
+{
+    char *o;
+    const char *end = s + strlen(s);
+    int c;
+
+    for (o = dec; s <= end; ++o)
+    {
+        int c1;
+        int c2 = 0;
+        c = *s++;
+        if (c == '+')
+            c = ' ';
+        else if (c == '%')
+        {
+            if ((c1 = to_hex(*s++)) == -1 ||
+                (c2 = to_hex(*s++)) == -1)
+                return -1;
+            else
+                c = c1 * 16 + c2;
+        }
+        if (dec)
+            *o = c;
+    }
+    return o - dec;
+}
+
 enum { MAX_COUNT = 100000 };
 
 static void tester(const char *tag, char *url, int (*decoder)(const char *, char *))
@@ -86,7 +125,8 @@ int main(void)
     {
         url[6] = (i % 6) + 'A';
         tester("isxdigit", url, decode_2);
-        tester("ishex", url, decode_1);
+        tester("ishex",    url, decode_1);
+        tester("tohex",    url, decode_3);
     }
 
     return 0;
