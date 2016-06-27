@@ -149,6 +149,44 @@ static int decode_5(const char *url_data, char *dest)
     return pos - dest;
 }
 
+#undef hex_val
+
+#define hex_val(c)                                                        \
+  (((c) >= '0' && (c) <= '9') ? ((c)-48) : (((c) >= 'a' && (c) <= 'f') || \
+                                            ((c) >= 'A' && (c) <= 'F'))   \
+                                         ? (((c) | 32) - 87)        \
+                                         : ({                       \
+                                              return -1;             \
+                                              0;                     \
+                                           }))
+
+static int decode_6(const char *url_data, char *dest)
+{
+    char *pos = dest;
+    while (*url_data != '\0')
+    {
+        if (*url_data == '+')
+        {
+            // decode space
+            *(pos++) = ' ';
+            ++url_data;
+        }
+        else if (*url_data == '%')
+        {
+            // decode hex value
+            // this is a percent encoded value.
+            *(pos++) = (hex_val(url_data[1]) << 4) | hex_val(url_data[2]);
+            url_data += 3;
+        }
+        else
+            *(pos++) = *(url_data++);
+    }
+    *pos = '\0';
+    return pos - dest;
+}
+
+#undef hex_val
+
 enum { MAX_COUNT = 100000 };
 
 static void tester(const char *tag, char *url, int (*decoder)(const char *, char *))
@@ -190,7 +228,9 @@ int main(void)
         url[6] = (i % 6) + 'A';
         tester("tohex-B",  url, decode_4);
         url[6] = (i % 6) + 'A';
-        tester("hex_val",  url, decode_5);
+        tester("hex_val1", url, decode_5);
+        url[6] = (i % 6) + 'A';
+        tester("hex_val2", url, decode_6);
     }
 
     return 0;
