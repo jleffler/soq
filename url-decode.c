@@ -40,7 +40,7 @@ static int decode_1(const char *s, char *dec)
         if (dec)
             *o = c;
     }
-    return o - dec;
+    return o - dec - 1;
 }
 
 static int decode_2(const char *s, char *dec)
@@ -61,7 +61,7 @@ static int decode_2(const char *s, char *dec)
         if (dec)
             *o = c;
     }
-    return o - dec;
+    return o - dec - 1;
 }
 
 static int decode_3(const char *s, char *dec)
@@ -88,7 +88,65 @@ static int decode_3(const char *s, char *dec)
         if (dec)
             *o = c;
     }
+    return o - dec - 1;
+}
+
+static int decode_4(const char *s, char *dec)
+{
+    char *o;
+    int c;
+
+    for (o = dec; (c = *s++) != '\0'; ++o)
+    {
+        if (c == '+')
+            c = ' ';
+        else if (c == '%')
+        {
+            int c1 = to_hex(*s++);
+            int c2 = to_hex(*s++);
+            if (c1 == -1 || c2 == -1)
+                return -1;
+            else
+                c = c1 * 16 + c2;
+        }
+        *o = c;
+    }
+    *o = '\0';
     return o - dec;
+}
+
+#define is_hex(c)                                              \
+  (((c) >= '0' && (c) <= '9') || ((c) >= 'a' && (c) <= 'f') || \
+   ((c) >= 'A' && (c) <= 'F'))
+#define hex_val(c) (((c) >= '0' && (c) <= '9') ? ((c)-48) : (((c) | 32) - 87))
+
+static int decode_5(const char *url_data, char *dest)
+{
+    char *pos = dest;
+    for (size_t i = 0; url_data[i] != '\0'; i++)
+    {
+        if (url_data[i] == '+')  // decode space
+            *(pos++) = ' ';
+        else if (url_data[i] == '%')
+        {
+            // decode hex value
+            if (is_hex(url_data[i + 1]) && is_hex(url_data[i + 2]))
+            {
+                // this is a percent encoded value.
+                *(pos++) = (hex_val(url_data[i + 1]) << 4) | hex_val(url_data[i + 2]);
+                i += 2;
+            }
+            else
+            {
+                // there was an error in the URL encoding...
+                return -1;
+            }
+        }
+        else
+            *(pos++) = url_data[i];
+    }
+    *pos = '\0';
+    return pos - dest;
 }
 
 enum { MAX_COUNT = 100000 };
@@ -126,7 +184,9 @@ int main(void)
         url[6] = (i % 6) + 'A';
         tester("isxdigit", url, decode_2);
         tester("ishex",    url, decode_1);
-        tester("tohex",    url, decode_3);
+        tester("tohex-A",  url, decode_3);
+        tester("tohex-B",  url, decode_4);
+        tester("hex_val",  url, decode_5);
     }
 
     return 0;
