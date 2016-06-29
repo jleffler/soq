@@ -19,22 +19,11 @@ struct Link
 
 typedef struct Link Link;
 
-static void print_list(Link *root)
-{
-    const char *pad = "";
-    while (root != 0)
-    {
-        printf("%s[%s]", pad, root->frame->name);
-        root = root->next;
-        pad = " -> ";
-    }
-}
+static void print_list(Link *root);
 
-static inline void changePos(Link **anchor_link, const char *name, int pos)
+static void changePos(Link **anchor_link, const char *name, int pos)
 {
-    assert(anchor_link != 0);
-    assert(name != 0);
-    assert(pos >= 0);
+    assert(anchor_link != 0 && name != 0 && pos >= 0);
     Link *root = *anchor_link;
     Link *link = root;
     Link *prev = 0;
@@ -55,10 +44,13 @@ static inline void changePos(Link **anchor_link, const char *name, int pos)
         *anchor_link = root->next;
         root = *anchor_link;
     }
-    if (prev != 0)
+    else
+    {
+        assert(prev != 0);
         prev->next = link->next;
-    // node is detached; now where does it go?
-    if (pos == 0)       // Move to start - update root
+    }
+    // link is detached; now where does it go?
+    if (pos == 0)       // Move to start; update root
     {
         link->next = root;
         *anchor_link = link;
@@ -69,6 +61,17 @@ static inline void changePos(Link **anchor_link, const char *name, int pos)
         node = node->next;
     link->next = node->next;
     node->next = link;
+}
+
+static void print_list(Link *root)
+{
+    const char *pad = "";
+    while (root != 0)
+    {
+        printf("%s[%s]", pad, root->frame->name);
+        root = root->next;
+        pad = "->";
+    }
 }
 
 static void free_frame(Frame *frame)
@@ -120,6 +123,7 @@ static Link *make_list(int num, Frame *frames)
     for (int k = 0; k < num; k++)
     {
         Link *link = make_link(frames[k].name, frames[k].duration);
+        assert(link != 0 && link->frame != 0);  // Lazy!
         if (head == 0)
             head = link;
         if (tail != 0)
@@ -137,6 +141,7 @@ int main(void)
         { "pic1", 1 },
         { "pic2", 2 },
         { "pic3", 3 },
+        { "pic4", 4 },      // Never in the list, but searched for
     };
     enum { NUM_FRAMES = sizeof(frames) / sizeof(frames[0]) };
 
@@ -144,7 +149,7 @@ int main(void)
     {
         for (int j = 0; j < NUM_FRAMES; j++)
         {
-            Link *head = make_list(NUM_FRAMES, frames);
+            Link *head = make_list(NUM_FRAMES - 1, frames);
             print_list(head);
             printf(" == %s to %u == ", frames[i].name, j);
             changePos(&head, frames[i].name, j);
@@ -153,5 +158,6 @@ int main(void)
             free_link(head);
         }
     }
-	return 0;
+
+    return 0;
 }
