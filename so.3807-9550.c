@@ -27,7 +27,7 @@ static void changePos(Link **anchor_link, const char *name, int pos)
     Link *root = *anchor_link;
     Link *link = root;
     Link *prev = 0;
-    int count = 0;
+    int count = 1;
     while (link != 0 && strcmp(link->frame->name, name) != 0)
     {
         prev = link;
@@ -38,7 +38,7 @@ static void changePos(Link **anchor_link, const char *name, int pos)
         return;
     if (count == pos)   // Already in target position - no swap
         return;
-    if (count == 0)     // Moving first item; update root
+    if (count == 1)     // Moving first item; update root
     {
         assert(link == root);
         *anchor_link = root->next;
@@ -50,14 +50,14 @@ static void changePos(Link **anchor_link, const char *name, int pos)
         prev->next = link->next;
     }
     // link is detached; now where does it go?
-    if (pos == 0)       // Move to start; update root
+    if (pos == 1)       // Move to start; update root
     {
         link->next = root;
         *anchor_link = link;
         return;
     }
     Link *node = root;
-    for (int i = 0; i < pos - 1 && node->next != 0; i++)
+    for (int i = 1; i < pos - 1 && node->next != 0; i++)
         node = node->next;
     link->next = node->next;
     node->next = link;
@@ -137,11 +137,11 @@ int main(void)
 {
     Frame frames[] =
     {
-        { "pic0", 0 },
-        { "pic1", 1 },
-        { "pic2", 2 },
-        { "pic3", 3 },
-        { "pic4", 4 },      // Never in the list, but searched for
+        { "pic1", 0 },
+        { "pic2", 1 },
+        { "pic3", 2 },
+        { "pic4", 3 },
+        { "pic5", 4 },      // Never in the list, but searched for
     };
     enum { NUM_FRAMES = sizeof(frames) / sizeof(frames[0]) };
 
@@ -151,8 +151,8 @@ int main(void)
         {
             Link *head = make_list(NUM_FRAMES - 1, frames);
             print_list(head);
-            printf(" == %s to %u == ", frames[i].name, j);
-            changePos(&head, frames[i].name, j);
+            printf(" == %s to %u == ", frames[i].name, j + 1);
+            changePos(&head, frames[i].name, j + 1);
             print_list(head);
             putchar('\n');
             free_link(head);
