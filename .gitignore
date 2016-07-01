@@ -35,7 +35,7 @@ Scores
 UTF8/output
 UTF8/output.nolocale
 UTF8/x37
-Untracked
+Untracked/
 a.out
 am-pm
 arraysize
@@ -68,6 +68,7 @@ fault
 fd-passing
 fifocircle
 fifosize
+file
 filter.stderr
 gai
 genouterr
@@ -92,6 +93,7 @@ matmul99
 mda
 modbinsearch
 mppsel
+memprobe
 multi-pipe-sort
 multiopts
 partition-4
@@ -106,6 +108,7 @@ pthread-?
 q7
 qs37
 qsel
+qt19
 quine
 quiz
 rangesquash1
@@ -133,6 +136,7 @@ sigchld
 signals
 so.28947528
 so.33887484
+so.3807-9550
 sorttest
 stld
 streplace

@@ -163,6 +163,10 @@ static void test_ops(void)
     set_empty(s3);
     set_difference(s2, s1, s3);
     dump_set("S2 minus S1", s3);
+
+    set_destroy(s1);
+    set_destroy(s2);
+    set_destroy(s3);
 }
 
 static void test_set(void)

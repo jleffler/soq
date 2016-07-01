@@ -105,6 +105,7 @@ C_CXX_DUAL_PROGRAMS = \
 	marquee \
 	marquee3 \
 	marquee4 \
+	memprobe \
 	partition-4 \
 	pbb \
 	pipecircle \
@@ -113,6 +114,7 @@ C_CXX_DUAL_PROGRAMS = \
 	pthread-2 \
 	pthread-3 \
 	q7 \
+	qt19 \
 	quine \
 	ratcalc \
 	rational \

@@ -356,6 +356,40 @@
    fun:_ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm
 }
 {
+   Mac-OS-X-10.11.4-Leak-020a
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:NXMapGet
+   fun:_read_images
+   fun:map_images_nolock
+   fun:_ZL25batchFinalizeOnTwoThreadsP14_malloc_zone_tPFvP16auto_zone_cursorPFvPvS3_ES3_ES2_m
+   fun:_ZN4dyldL18notifyBatchPartialE17dyld_image_statesbPFPKcS0_jPK15dyld_image_infoE
+   fun:_ZN4dyld36registerImageStateBatchChangeHandlerE17dyld_image_statesPFPKcS0_jPK15dyld_image_infoE
+   fun:dyld_register_image_state_change_handler
+   fun:_objc_init
+   fun:_os_object_init
+   fun:libdispatch_init
+   fun:libSystem_initializer
+}
+{
+   Mac-OS-X-10.11.4-Leak-021a
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc_zone_memalign
+   fun:_ZL11addSubclassP10objc_classS0_
+   fun:_ZL12realizeClassP10objc_class
+   fun:_ZL12realizeClassP10objc_class
+   fun:_ZN4dyldL12notifySingleE17dyld_image_statesPK11ImageLoader
+   fun:_ZN11ImageLoader23recursiveInitializationERKNS_11LinkContextEjRNS_21InitializerTimingListERNS_15UninitedUpwardsE
+   fun:_ZN11ImageLoader19processInitializersERKNS_11LinkContextEjRNS_21InitializerTimingListERNS_15UninitedUpwardsE
+   fun:_ZN11ImageLoader19processInitializersERKNS_11LinkContextEjRNS_21InitializerTimingListERNS_15UninitedUpwardsE
+   fun:_ZN11ImageLoader15runInitializersERKNS_11LinkContextERNS_21InitializerTimingListE
+   fun:_ZN4dyld24initializeMainExecutableEv
+   fun:_ZN4dyld5_mainEPK12macho_headermiPPKcS5_S5_Pm
+   fun:_ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm
+}
+{
    Mac-OS-X-10.11.4-Leak-022
    Memcheck:Leak
    match-leak-kinds: reachable
@@ -363,4 +397,96 @@
    fun:__smakebuf
    fun:__swsetup
    fun:__sfvwrite
+}
+{
+   Mac-OS=X=10.11.4-Leak-023
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc_zone_malloc
+   fun:_read_images
+   fun:object_setClass
+   fun:_ZNK8objc_opt17objc_stringhash_t4hashEPKcm
+   fun:map_images_nolock
+   fun:_ZL25batchFinalizeOnTwoThreadsP14_malloc_zone_tPFvP16auto_zone_cursorPFvPvS3_ES3_ES2_m
+   fun:_ZN4dyldL18notifyBatchPartialE17dyld_image_statesbPFPKcS0_jPK15dyld_image_infoE
+   fun:_ZN4dyld36registerImageStateBatchChangeHandlerE17dyld_image_statesPFPKcS0_jPK15dyld_image_infoE
+   fun:dyld_register_image_state_change_handler
+   fun:_objc_init
+   fun:_os_object_init
+   fun:libdispatch_init
+}
+{
+   Mac-OS-X-10.11.5-Leak-024
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__Balloc_D2A
+   fun:__d2b_D2A
+   fun:__dtoa
+   fun:__vfprintf
+   fun:__v2printf
+   fun:vfprintf_l
+}
+
+# QT19 - 2016-06-02
+{
+   Mac-OS-X-10.11.5-Leak-025
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:__Balloc_D2A
+   fun:__rv_alloc_D2A
+   fun:__dtoa
+   fun:__vfprintf
+   fun:__v2printf
+   fun:vfprintf_l
+}
+
+{
+   Mac-OS-X-10.11.5-Leak-026
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:__Balloc_D2A
+   fun:__d2b_D2A
+   fun:__dtoa
+   fun:__vfprintf
+   fun:__v2printf
+   fun:vfprintf_l
+}
+
+{
+   Mac-OS-X-10.11.5-Leak-027
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:__Balloc_D2A
+   fun:__i2b_D2A
+   fun:__dtoa
+   fun:__vfprintf
+   fun:__v2printf
+   fun:vfprintf_l
+}
+
+{
+   Mac-OS-X-10.11.5-Leak-028
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:__Balloc_D2A
+   fun:__lshift_D2A
+   fun:__dtoa
+   fun:__vfprintf
+   fun:__v2printf
+   fun:vfprintf_l
+}
+
+{
+   Mac-OS-X-10.11.5-Leak-029
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__parsefloat_buf
+   fun:__svfscanf_l
+   fun:vsscanf_l
 }
