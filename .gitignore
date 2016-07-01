@@ -23,6 +23,7 @@
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256
 Scores
+Untracked/
 a.out
 am-pm
 arraysize
@@ -105,6 +106,7 @@ sigchld
 signals
 so.28947528
 so.33887484
+so.3807-9550
 sorttest
 stld
 streplace
