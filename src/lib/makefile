@@ -8,9 +8,12 @@ CPFLAGS = -fp
 FILES.c = \
 	gcd.c \
 	stderr.c
+AUXFILES.h = \
+	posixver.h \
+	wraphead.h
 
 FILES.o = ${FILES.c:.c=.o}
-FILES.h = ${FILES.c:.c=.h}
+FILES.h = ${FILES.c:.c=.h} ${AUXFILES.h}
 
 all: ${LIBNAME} ${FILES.h}
 
