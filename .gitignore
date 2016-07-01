@@ -27,11 +27,13 @@ Google/shm-master
 Google/sigsync
 Google/sortfile1
 Google/sortfile2
+Osiris
 Primes/alt-min-primes
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256
 Safe
 Scores
+Sphinx
 UTF8/output
 UTF8/output.nolocale
 UTF8/x37
@@ -91,9 +93,9 @@ matmake3d
 matmul89
 matmul99
 mda
+memprobe
 modbinsearch
 mppsel
-memprobe
 multi-pipe-sort
 multiopts
 partition-4
