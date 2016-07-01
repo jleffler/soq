@@ -30,6 +30,7 @@ Google/sortfile2
 Primes/alt-min-primes
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256
+Safe
 Scores
 UTF8/output
 UTF8/output.nolocale
@@ -138,6 +139,7 @@ streplace
 term-pgrp
 test-fstatat
 test-rename
+test-tcsetpgrp
 timer.h
 timezeromoves
 trie-31
