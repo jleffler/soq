@@ -50,7 +50,6 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #
 
 SCRIPT_PROGRAMS = \
-	am-pm \
 	check-rename \
 	rangesquash1 \
 	rangesquash2 \
@@ -61,21 +60,15 @@ SCRIPT_PROGRAMS = \
 C_ONLY_PROGRAMS = \
 	binary \
 	dllswap \
-	emtb \
-	emtd \
-	emtr \
 	if-strict \
 	pthread-37 \
 	rev \
 	revlist \
-	sets \
 	term-pgrp \
 	test-rename \
-	trie-31 \
-	visit
+	trie-31
 
 CXX_ONLY_PROGRAMS = \
-	heapprt \
 	map \
 	mppsel \
 	qsel \
@@ -87,7 +80,6 @@ C_CXX_DUAL_PROGRAMS = \
 	arraysize \
 	bst-1 \
 	bst-2 \
-	circular-dll \
 	cntinv \
 	colourpartition \
 	computist-1 \
@@ -95,16 +87,12 @@ C_CXX_DUAL_PROGRAMS = \
 	e2big \
 	excel-rc \
 	factors \
-	fault \
 	fifocircle \
 	fifosize \
 	gai \
 	ll19 \
 	ll3 \
 	madump \
-	marquee \
-	marquee3 \
-	marquee4 \
 	memprobe \
 	partition-4 \
 	pbb \
@@ -113,17 +101,10 @@ C_CXX_DUAL_PROGRAMS = \
 	pthread-1 \
 	pthread-2 \
 	pthread-3 \
-	q7 \
-	qt19 \
 	quine \
-	ratcalc \
-	rational \
 	readdir \
-	recv \
 	regress \
 	roundup \
-	scan \
-	send \
 	sigalrm \
 	sigchld \
 	signals \
