@@ -59,7 +59,6 @@ SCRIPT_PROGRAMS = \
 
 C_ONLY_PROGRAMS = \
 	binary \
-	dllswap \
 	if-strict \
 	pthread-37 \
 	rev \
@@ -80,12 +79,10 @@ C_CXX_DUAL_PROGRAMS = \
 	arraysize \
 	bst-1 \
 	bst-2 \
-	cntinv \
 	colourpartition \
 	computist-1 \
 	computist-2 \
 	e2big \
-	excel-rc \
 	factors \
 	fifocircle \
 	fifosize \
@@ -93,7 +90,6 @@ C_CXX_DUAL_PROGRAMS = \
 	ll19 \
 	ll3 \
 	madump \
-	memprobe \
 	partition-4 \
 	pbb \
 	pipecircle \
