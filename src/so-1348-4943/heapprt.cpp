@@ -1,3 +1,6 @@
+/* SO 13484943 */
+/* Code by http://stackoverflow.com/users/2691606/megajixiang */
+
 #ifndef HEAPJ_H_INCLUDED
 #define HEAPJ_H_INCLUDED
 
