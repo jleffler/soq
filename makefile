@@ -90,7 +90,6 @@ C_CXX_DUAL_PROGRAMS = \
 	ll19 \
 	ll3 \
 	madump \
-	memprobe \
 	partition-4 \
 	pbb \
 	pipecircle \

@@ -1,3 +1,5 @@
+/* Derived from code in SO 18863184 */
+/* Original answer by https://stackoverflow.com/users/703016/kretab-chabawenizc */
 #include "memprobe.h"
 #include <assert.h>
 #include <errno.h>
