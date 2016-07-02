@@ -48,7 +48,6 @@ bst-1
 bst-2
 check-rename
 cmpfltint
-cntinv
 colourpartition
 computist-1
 computist-2
@@ -56,9 +55,7 @@ core
 cs50.h
 cscope.out
 data
-dllswap
 e2big
-excel-rc
 expand_tilde
 factors
 fd-passing
