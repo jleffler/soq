@@ -1,3 +1,4 @@
+/* SO 14544920 */
 #include <string.h>
 
 extern void substr(char *buffer, size_t buflen, char const *source, int len);
