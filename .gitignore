@@ -126,7 +126,6 @@ term-pgrp
 test-fstatat
 test-rename
 test-tcsetpgrp
-timer.h
 timezeromoves
 trie-31
 uint128
