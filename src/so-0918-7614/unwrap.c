@@ -1,4 +1,5 @@
 /* SO 9187614 */
+/* Code by http://stackoverflow.com/users/416224/kay */
 #include <stdio.h>
 
 /* "unwrapper": */

@@ -55,7 +55,7 @@ SCRIPT_PROGRAMS = \
 	rangesquash2 \
 	rangesquash3 \
 	rangesquash4 \
-	run-processes
+	run-processes \
 
 C_ONLY_PROGRAMS = \
 	if-strict \
@@ -64,13 +64,13 @@ C_ONLY_PROGRAMS = \
 	revlist \
 	term-pgrp \
 	test-rename \
-	trie-31
+	trie-31 \
 
 CXX_ONLY_PROGRAMS = \
 	map \
 	mppsel \
 	qsel \
-	stld
+	stld \
 
 C_CXX_DUAL_PROGRAMS = \
 	arraysize \
@@ -103,9 +103,7 @@ C_CXX_DUAL_PROGRAMS = \
 	signals \
 	streplace \
 	test-fstatat \
-	timezeromoves \
 	uint128 \
-	unwrap
 
 PROGRAMS = \
 	${SCRIPT_PROGRAMS} \

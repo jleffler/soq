@@ -1,3 +1,6 @@
+/* SO 4408170 */
+/* Code by http://stackoverflow.com/users/1691280/brandin */
+
 #include <string.h>
 
 // str_replace(haystack, haystacksize, oldneedle, newneedle) --

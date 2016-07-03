@@ -3,10 +3,12 @@
 include ../etc/soq-head.mk
 
 BUILD_DIRECTORIES = \
-	lib \
+	libcs50 \
+	libsoq \
 	so-0044-0061 \
 	so-0429-4928 \
 	so-0765-1397 \
+	so-0918-7614 \
 	so-1251-5755 \
 	so-1348-4943 \
 	so-1718-2582 \
