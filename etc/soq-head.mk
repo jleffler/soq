@@ -1,4 +1,4 @@
-# Makefile fragment for SOQ (aka Himalayan-Yeti) GitHub Project
+# Makefile fragment for SOQ GitHub Project
 #
 # Use: include ../../etc/soq.mk in a per-directory source file
 
@@ -11,6 +11,7 @@ HDRDIR  = ${BASEDIR}/inc
 LIBPATH = ${LIBDIR}/${LIBNAME}
 
 CC     = gcc
+TFLAGS = # Set to -DTEST when needed
 SFLAGS = -std=c11
 WFLAG1 = -Wall
 WFLAG2 = -Wextra
@@ -25,7 +26,7 @@ GFLAGS = -g
 UFLAGS = # Set on command line
 IFLAGS = -I${BASEDIR}/inc
 
-CFLAGS = ${SFLAGS} ${OFLAGS} ${GFLAGS} ${WFLAGS} ${UFLAGS} ${IFLAGS}
+CFLAGS = ${SFLAGS} ${OFLAGS} ${GFLAGS} ${WFLAGS} ${UFLAGS} ${IFLAGS} ${TFLAGS}
 
 LDFLAGS = -L${BASEDIR}/lib
 LDLIBS  = -lsoq

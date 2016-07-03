@@ -1,7 +1,6 @@
 # SO 0429-4928
 
-# Assumes etc/soq-head.mk is already included.
-include ../../etc/soq.mk
+include ../../etc/soq-head.mk
 
 PROG1    = send
 PROG2    = recv

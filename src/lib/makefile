@@ -1,18 +1,32 @@
 # Makefile for SOQ library
 
-include ../../etc/soq.mk
+include ../../etc/soq-head.mk
 
 CP      = cp
 CPFLAGS = -fp
 
 FILES.c = \
+	chkstrint.c \
+	emalloc.c \
+	filter.c \
 	gcd.c \
-	stderr.c
+	kludge.c \
+	stderr.c \
+	timer.c \
+
+AUXFILES.c = \
+	errhelp.c \
+	filterio.c \
+	strtoi.c \
+	strtosize.c \
+
 AUXFILES.h = \
+	debug.h \
+	jlss.h \
 	posixver.h \
 	wraphead.h
 
-FILES.o = ${FILES.c:.c=.o}
+FILES.o = ${FILES.c:.c=.o} ${AUXFILES.c:.c=.o}
 FILES.h = ${FILES.c:.c=.h} ${AUXFILES.h}
 
 all: ${LIBNAME} ${FILES.h}

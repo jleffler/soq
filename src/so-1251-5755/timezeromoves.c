@@ -1,3 +1,4 @@
+/* SO 12515755 */
 #include <string.h>
 
 #define MAX(x, y)   (((x) > (y)) ? (x) : (y))
