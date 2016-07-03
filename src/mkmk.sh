@@ -10,7 +10,7 @@ do
     {
         echo $d | sed 's/so-\(....\)-\(....\)/# SO \1\2/'
         echo
-        echo "include ../../soq-head.mk"
+        echo "include ../../etc/soq-head.mk"
         echo
         n=1
         for extn in c cpp py sh pl
@@ -30,7 +30,7 @@ do
         printf '\n\n'
         echo 'all: ${PROGRAMS}'
         echo
-        echo "include ../../soq-tail.mk"
+        echo "include ../../etc/soq-tail.mk"
     } > $d/makefile
     fi
 done
