@@ -1,3 +1,4 @@
+/* SO 38044987 */
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>

@@ -32,7 +32,6 @@ Primes/alt-min-primes
 SHA-256/shatest-ietf
 SHA-256/so-20020953-sha256
 Safe
-Scores
 Sphinx
 UTF8/output
 UTF8/output.nolocale
@@ -41,7 +40,6 @@ Untracked/
 a.out
 arraysize
 awk.script
-binary
 bsmax
 bsmin
 bst-1
@@ -52,7 +50,6 @@ colourpartition
 computist-1
 computist-2
 core
-cs50.h
 cscope.out
 data
 e2big
@@ -126,11 +123,7 @@ term-pgrp
 test-fstatat
 test-rename
 test-tcsetpgrp
-timezeromoves
 trie-31
 uint128
-unwrap
-utf8-test
 vlamat
 vlastruct
-wchar-test
