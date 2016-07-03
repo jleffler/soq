@@ -58,7 +58,6 @@ SCRIPT_PROGRAMS = \
 	run-processes
 
 C_ONLY_PROGRAMS = \
-	binary \
 	if-strict \
 	pthread-37 \
 	rev \
@@ -72,8 +71,6 @@ CXX_ONLY_PROGRAMS = \
 	mppsel \
 	qsel \
 	stld
-
-# File so.33887484.c is included by ratcalc.c (sic!)
 
 C_CXX_DUAL_PROGRAMS = \
 	arraysize \
@@ -126,11 +123,7 @@ c_only:		${C_ONLY_PROGRAMS}
 cxx_only:	${CXX_ONLY_PROGRAMS}
 dual:		${C_CXX_DUAL_PROGRAMS}
 
-#circular-dll: CFLAGS += -DTEST
 #pthread-1: CFLAGS += -Wno-deprecated-declarations
-
-circular-dll: circular-dll.c circular-dll.h
-	${CC} -o $@ -DTEST ${CFLAGS} circular-dll.c ${LDFLAGS} ${LDLIBS}
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
