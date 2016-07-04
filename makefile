@@ -65,7 +65,6 @@ CXX_ONLY_PROGRAMS = \
 	stld \
 
 C_CXX_DUAL_PROGRAMS = \
-	arraysize \
 	bst-1 \
 	bst-2 \
 	computist-1 \
