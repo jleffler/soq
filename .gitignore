@@ -63,9 +63,6 @@ gai
 genouterr
 genprintfmt
 heapprt
-if
-if-jl
-if-strict
 inc/*.h
 incunabulum
 junk
