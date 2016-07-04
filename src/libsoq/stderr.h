@@ -3,7 +3,7 @@
 @(#)Purpose:        Header file for standard error functions
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1989-93,1996-99,2003,2005-11,2015-16
-@(#)Derivation:     stderr.h,v 10.10 2015/10/14 23:12:19
+@(#)Derivation:     stderr.h 10.10 2015/10/14 23:12:19
 */
 
 #if !defined(STDERR_H)

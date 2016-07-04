@@ -7,21 +7,24 @@ CPFLAGS = -fp
 
 FILES.c = \
 	chkstrint.c \
+	debug.c \
 	emalloc.c \
 	filter.c \
 	gcd.c \
 	kludge.c \
+	range.c \
 	stderr.c \
 	timer.c \
 
 AUXFILES.c = \
 	errhelp.c \
 	filterio.c \
+	range2.c \
+	range3.c \
 	strtoi.c \
 	strtosize.c \
 
 AUXFILES.h = \
-	debug.h \
 	jlss.h \
 	posixver.h \
 	wraphead.h

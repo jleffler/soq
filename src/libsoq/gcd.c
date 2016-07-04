@@ -3,7 +3,7 @@
 @(#)Purpose:        Implement Greatest Common Divisor for two integers
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1993,1997,2000,2005,2012,2015-16
-@(#)Derivation:     gcd.c,v 1.7 2015/06/02 03:05:40
+@(#)Derivation:     gcd.c 1.7 2015/06/02 03:05:40
 */
 
 /*TABSTOP=4*/

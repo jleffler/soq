@@ -7,7 +7,4 @@ PROG2  = rotcols
 
 all:	${PROG1} ${PROG2}
 
-${PROG1}: ${LIBPATH}
-${PROG2}: ${LIBPATH}
-
 include ../../etc/soq-tail.mk

@@ -3,7 +3,7 @@
 @(#)Purpose:        Wrap a C header in extern "C" { ... } for C++
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2015-16
-@(#)Derivation:     wraphead.h,v 1.1 2015/02/16 23:29:47
+@(#)Derivation:     wraphead.h 1.1 2015/02/16 23:29:47
 */
 
 /*TABSTOP=4*/

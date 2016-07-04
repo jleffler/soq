@@ -17,12 +17,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_strtosize_c[];
-const char jlss_id_strtosize_c[] = "@(#)$Id: strtosize.c,v 1.4 2016/06/07 06:20:44 jleffler Exp $";
-#endif /* lint */
-
 size_t strtosize(const char *data, char **endptr, int base)
 {
     int old_errno = errno;
