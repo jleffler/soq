@@ -1,3 +1,6 @@
+/* SO 19452971 */
+/* Macros by http://stackoverflow.com/users/1606345/alter-mann */
+/* Can this be combined with _Static_assert()? */
 #include <stdio.h>
 
 #define IS_INDEXABLE(arg) (sizeof(arg[0]))
