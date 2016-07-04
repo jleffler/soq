@@ -56,7 +56,6 @@ C_ONLY_PROGRAMS = \
 	revlist \
 	term-pgrp \
 	test-rename \
-	trie-31 \
 
 CXX_ONLY_PROGRAMS = \
 	map \
