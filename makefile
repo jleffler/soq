@@ -75,7 +75,6 @@ C_CXX_DUAL_PROGRAMS = \
 	fifocircle \
 	fifosize \
 	gai \
-	ll19 \
 	ll3 \
 	madump \
 	partition-4 \
