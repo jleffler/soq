@@ -63,13 +63,9 @@ gai
 genouterr
 genprintfmt
 heapprt
-if
-if-jl
-if-strict
 inc/*.h
 incunabulum
 junk
-ll19
 ll3
 ll5
 madump

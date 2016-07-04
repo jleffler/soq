@@ -41,12 +41,6 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #    incunabulum.c \
 #    modern-incunabulum.c \
 #    cmpfltint.c \
-#    if.c \         # Archaic code; cannot be compiled by GCC 5 or 6
-#                   # Requires minimal compilation options and GCC 4.x
-#                   # (or possibly an earlier version).
-#    if-jl.c        # Also archaic code; compiles OK with GCC 6.1.0 with
-#					# gcc -o if-jl -std=c90 if-jl.c
-#
 
 SCRIPT_PROGRAMS = \
 	check-rename \
@@ -57,7 +51,6 @@ SCRIPT_PROGRAMS = \
 	run-processes \
 
 C_ONLY_PROGRAMS = \
-	if-strict \
 	pthread-37 \
 	rev \
 	revlist \
@@ -75,7 +68,6 @@ C_CXX_DUAL_PROGRAMS = \
 	arraysize \
 	bst-1 \
 	bst-2 \
-	colourpartition \
 	computist-1 \
 	computist-2 \
 	e2big \
@@ -83,7 +75,6 @@ C_CXX_DUAL_PROGRAMS = \
 	fifocircle \
 	fifosize \
 	gai \
-	ll19 \
 	ll3 \
 	madump \
 	partition-4 \
