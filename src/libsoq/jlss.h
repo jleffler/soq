@@ -1,11 +1,9 @@
 /*
-@(#)File:           $RCSfile: jlss.h,v $
-@(#)Version:        $Revision: 2015.6 $
-@(#)Last changed:   $Date: 2015/11/26 18:41:52 $
+@(#)File:           jlss.h
 @(#)Purpose:        JLSS Library Functions
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1997-2001,2003-05,2008-13,2015-16
-@(#)Derivation:     jlss.h,v 2015.6 2015/11/26 18:41:52
+@(#)Derivation:     jlss.h 2015.6 2015/11/26 18:41:52
 */
 
 /*TABSTOP=4*/

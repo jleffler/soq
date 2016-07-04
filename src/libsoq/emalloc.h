@@ -3,7 +3,7 @@
 @(#)Purpose:        Interfaces to routines in emalloc.c
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1990,1992-93,1996-97,2001,2003,2005,2008,2015-16
-@(#)Derivation:     emalloc.h,v 5.10 2015/02/17 04:50:35 
+@(#)Derivation:     emalloc.h 5.10 2015/02/17 04:50:35
 */
 
 /*TABSTOP=4*/

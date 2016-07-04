@@ -3,7 +3,7 @@
 @(#)Purpose:        Request appropriate POSIX and X/Open Support
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2010,2015-16
-@(#)Derivation:     posixver.h,v 1.3 2015/07/05 21:28:18 
+@(#)Derivation:     posixver.h 1.3 2015/07/05 21:28:18
 */
 
 /*TABSTOP=4*/

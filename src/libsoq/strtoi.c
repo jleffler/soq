@@ -14,12 +14,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#if !defined(lint)
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_strtoi_c[];
-const char jlss_id_strtoi_c[] = "@(#)$Id: strtoi.c,v 1.5 2015/11/14 23:23:01 jleffler Exp $";
-#endif /* lint */
-
 int strtoi(const char *data, char **endptr, int base)
 {
     int old_errno = errno;

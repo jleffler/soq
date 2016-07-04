@@ -3,7 +3,7 @@
 @(#)Purpose:        More secure memory allocation
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1989-93,1996-97,2003,2005,2008,2015-16
-@(#)Derivation:     emalloc.c,v 5.13 2016/01/17 16:05:58
+@(#)Derivation:     emalloc.c 5.13 2016/01/17 16:05:58
 */
 
 /*TABSTOP=4*/

@@ -3,7 +3,7 @@
 @(#)Purpose:        Checked string to integer conversions
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2015-16
-@(#)Derivation:     chkstrint.h,v 1.1 2015/11/26 18:40:49
+@(#)Derivation:     chkstrint.h 1.1 2015/11/26 18:40:49
 */
 
 /*TABSTOP=4*/

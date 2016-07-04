@@ -3,7 +3,7 @@
 @(#)Purpose:        Error reporting routines
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1988-91,1996-99,2001,2003,2005-11,2013,2015-16
-@(#)Derivation:     stderr.c,v 10.14 2015/06/02 03:04:32
+@(#)Derivation:     stderr.c 10.14 2015/06/02 03:04:32
 */
 
 /*TABSTOP=4*/

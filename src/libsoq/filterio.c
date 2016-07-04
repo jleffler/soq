@@ -13,11 +13,6 @@
 
 static int numfiles = 0;
 
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-const char jlss_id_filterio_c[] = "@(#)$Id: filterio.c,v 2014.2 2014/12/27 23:14:36 jleffler Exp $";
-#endif /* lint */
-
 /* filter_numfiles() - return number of files to be processed */
 int filter_numfiles(void)
 {
