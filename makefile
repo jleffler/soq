@@ -14,7 +14,7 @@ SFLAGS = -std=c11
 GFLAGS = -g
 OFLAGS = -O3
 UFLAGS = # Set on command line
-IFLAG1 = -I${HOME}/inc
+IFLAG1 = -I./inc
 IFLAGS = ${IFLAG1}
 
 IXXFLAGS = ${IFLAGS}
@@ -28,8 +28,8 @@ UXXFLAGS = # Set on comand line
 OXXFLAGS = -O3
 GXXFLAGS = -g
 
-LDFLAG1 = -L${HOME}/lib/64
-LDLIB1  = -ljl
+LDFLAG1 = -L./lib
+LDLIB1  = -lsoq
 LDLIB2  = #-lcs50
 LDFLAGS = ${LDFLAG1}
 LDLIBS  = ${LDLIB1} ${LDLIB2}

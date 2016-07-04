@@ -55,7 +55,6 @@ data
 e2big
 expand_tilde
 factors
-fd-passing
 fifocircle
 fifosize
 file
