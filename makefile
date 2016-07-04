@@ -41,7 +41,6 @@ CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAG
 #    incunabulum.c \
 #    modern-incunabulum.c \
 #    cmpfltint.c \
-#    substr.c \     # -DTEST to make executable
 #    if.c \         # Archaic code; cannot be compiled by GCC 5 or 6
 #                   # Requires minimal compilation options and GCC 4.x
 #                   # (or possibly an earlier version).
@@ -101,7 +100,6 @@ C_CXX_DUAL_PROGRAMS = \
 	sigalrm \
 	sigchld \
 	signals \
-	streplace \
 	test-fstatat \
 	uint128 \
 
