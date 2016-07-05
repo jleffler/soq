@@ -79,7 +79,6 @@ C_CXX_DUAL_PROGRAMS = \
 	pthread-3 \
 	quine \
 	readdir \
-	roundup \
 	sigalrm \
 	sigchld \
 	signals \

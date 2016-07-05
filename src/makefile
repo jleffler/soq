@@ -6,6 +6,7 @@ BUILD_DIRECTORIES = \
 	libcs50 \
 	libsoq \
 	so-0044-0061 \
+	so-0242-2712 \
 	so-0355-5689 \
 	so-0429-4928 \
 	so-0440-8170 \
