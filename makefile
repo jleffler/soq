@@ -75,7 +75,6 @@ C_CXX_DUAL_PROGRAMS = \
 	ll3 \
 	partition-4 \
 	pbb \
-	pipecircle \
 	pipesize \
 	pthread-1 \
 	pthread-2 \
