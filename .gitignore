@@ -49,7 +49,6 @@ core
 cscope.out
 data
 e2big
-factors
 file
 gai
 inc/*.h
