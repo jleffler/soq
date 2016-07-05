@@ -70,12 +70,10 @@ C_CXX_DUAL_PROGRAMS = \
 	computist-2 \
 	e2big \
 	factors \
-	fifosize \
 	gai \
 	ll3 \
 	partition-4 \
 	pbb \
-	pipesize \
 	pthread-1 \
 	pthread-2 \
 	pthread-3 \

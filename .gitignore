@@ -50,7 +50,6 @@ cscope.out
 data
 e2big
 factors
-fifosize
 file
 gai
 inc/*.h
@@ -62,7 +61,6 @@ mda
 mppsel
 partition-4
 pbb
-pipesize
 pthread-37
 pthread-?
 qsel
