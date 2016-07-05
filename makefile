@@ -48,7 +48,6 @@ SCRIPT_PROGRAMS = \
 	rangesquash2 \
 	rangesquash3 \
 	rangesquash4 \
-	run-processes \
 
 C_ONLY_PROGRAMS = \
 	pthread-37 \
