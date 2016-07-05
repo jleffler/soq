@@ -1,3 +1,4 @@
+/* SO 2422712 */
 #include <stdio.h>
 #include <limits.h>
 #include <stdbool.h>

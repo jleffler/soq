@@ -73,7 +73,6 @@ rangesquash4
 readdir
 rev
 revlist
-roundup
 run-processes
 script.awk
 script.sed
