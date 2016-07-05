@@ -68,7 +68,6 @@ C_CXX_DUAL_PROGRAMS = \
 	computist-1 \
 	computist-2 \
 	e2big \
-	factors \
 	gai \
 	ll3 \
 	partition-4 \
