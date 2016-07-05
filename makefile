@@ -70,7 +70,6 @@ C_CXX_DUAL_PROGRAMS = \
 	computist-2 \
 	e2big \
 	factors \
-	fifocircle \
 	fifosize \
 	gai \
 	ll3 \
