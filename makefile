@@ -6,9 +6,6 @@ include etc/soq-head.mk
 IFLAGS  = -I./inc
 LDFLAG1 = -L./lib
 
-# Non-compiling source, or source not compiling to a program
-#    cmpfltint.c \
-
 SCRIPT_PROGRAMS = \
 	check-rename \
 
@@ -25,11 +22,7 @@ CXX_ONLY_PROGRAMS = \
 C_CXX_DUAL_PROGRAMS = \
 	bst-1 \
 	bst-2 \
-	computist-1 \
-	computist-2 \
-	e2big \
 	gai \
-	pbb \
 	pthread-1 \
 	pthread-2 \
 	pthread-3 \
