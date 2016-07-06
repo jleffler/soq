@@ -20,8 +20,12 @@ CS50NAME = lib${CS50BASE}.a
 CS50PATH = ${LIBDIR}/${CS50NAME}
 
 CC     = gcc
-TFLAGS = # Set to -DTEST when needed
+GFLAGS = -g
+IFLAGS = -I${HDRDIR}
+OFLAGS = -O3
 SFLAGS = -std=c11
+TFLAGS = # Set to -DTEST (or similar) when needed
+UFLAGS = # Set on command line
 WFLAG1 = -Wall
 WFLAG2 = -Wextra
 WFLAG3 = -Werror
@@ -30,15 +34,27 @@ WFLAG5 = -Wstrict-prototypes
 WFLAG6 = #-Wold-style-declaration # Strict GCC only (not clang, it would seem).
 WFLAG7 = -Wold-style-definition
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} ${WFLAG7}
-OFLAGS = -O3
-GFLAGS = -g
-UFLAGS = # Set on command line
-IFLAGS = -I${HDRDIR}
 
-CFLAGS = ${SFLAGS} ${OFLAGS} ${GFLAGS} ${WFLAGS} ${UFLAGS} ${IFLAGS} ${TFLAGS}
+GXXFLAGS = -g
+IXXFLAGS = ${IFLAGS}
+OXXFLAGS = -O3
+SXXFLAGS = -std=c++11
+TXXFLAGS = # Set to -DTEST (or similar) when needed
+UXXFLAGS = # Set on comand line
+WXXFLAG1 = -Wall
+WXXFLAG2 = -Wextra
+WXXFLAG3 = -Werror
+WXXFLAG4 =
+WXXFLAGS = ${WXXFLAG1} ${WXXFLAG2} ${WXXFLAG3} ${WXXFLAG4}
 
-LDFLAGS = -L${LIBDIR}
-LDLIBS  = -l${SOQBASE}
+LDFLAG1 = -L${LIBDIR}
+LDFLAGS = ${LDFLAG1}
+LDLIB1  = -l${SOQBASE}
+LDLIB2  = #-l${CS50BASE}
+LDLIBS  = ${LDLIB1} ${LDLIB2}
+
+CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${TFLAGS}   ${UFLAGS}
+CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${TXXFLAGS} ${UXXFLAGS}
 
 DEBRIS = core a.out *~ *.o
 RM_FR  = rm -fr
