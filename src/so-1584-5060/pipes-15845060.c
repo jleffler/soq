@@ -36,7 +36,7 @@ static void dump_fds(void)
 
 static void close_pipes(int **descr, int argc)
 {
-    for (int i = 0; i < argc; i++)
+    for (int i = 1; i < argc - 1; i++)
     {
         for (int j = 0; j < 2; j++)
         {
@@ -116,6 +116,7 @@ int main(int argc, char **argv)
         if (WIFEXITED(status))
         {
             int num = find_num(sons, argc-1, id);
+            err_remark("Process %s exited successfully\n", argv[num]);
             //safe_close(descr[num][0]);
             //safe_close(descr[num+1][1]);
             continue;
