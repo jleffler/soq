@@ -2,16 +2,32 @@
 
 include ../../etc/soq-head.mk
 
-PROG1 = #incunabulum
-PROG2 = #modern-incunabulum
-PROG3 = stld
-PROG4 = rangesquash1
-PROG5 = rangesquash2
-PROG6 = rangesquash3
-PROG7 = rangesquash4
-PROG8 = lcm20
+PROG01 = #incunabulum
+PROG02 = #modern-incunabulum
+PROG03 = stld
+PROG04 = rangesquash1
+PROG05 = rangesquash2
+PROG06 = rangesquash3
+PROG07 = rangesquash4
+PROG08 = lcm20
+PROG09 = test-rename
+PROG10 = check-rename
+PROG11 = quine-c
+PROG12 = quine-py
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6} ${PROG7} ${PROG8}
+PROGRAMS = \
+	${PROG01} \
+	${PROG02} \
+	${PROG03} \
+	${PROG04} \
+	${PROG05} \
+	${PROG06} \
+	${PROG07} \
+	${PROG08} \
+	${PROG09} \
+	${PROG10} \
+	${PROG11} \
+	${PROG12} \
 
 all: ${PROGRAMS}
 
