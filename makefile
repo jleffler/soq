@@ -36,7 +36,6 @@ C_CXX_DUAL_PROGRAMS = \
 	computist-2 \
 	e2big \
 	gai \
-	ll3 \
 	pbb \
 	pthread-1 \
 	pthread-2 \

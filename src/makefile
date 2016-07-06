@@ -29,6 +29,7 @@ BUILD_DIRECTORIES = \
 	so-1880-1547 \
 	so-1886-3184 \
 	so-1920-0574 \
+	so-1921-4293 \
 	so-1930-4085 \
 	so-1936-1241 \
 	so-1945-2971 \
@@ -58,8 +59,3 @@ BUILD_DIRECTORIES = \
 	so-3799-7620 \
 	so-3804-4987 \
 	so-3807-9550 \
-
-.DEFAULT all:
-	+for dir in ${BUILD_DIRECTORIES}; \
-	do (echo "+++ $${dir}"; cd "$${dir}" && ${MAKE} $@ && echo "--- $${dir}") \
-	done
