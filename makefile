@@ -37,7 +37,6 @@ C_CXX_DUAL_PROGRAMS = \
 	e2big \
 	gai \
 	ll3 \
-	partition-4 \
 	pbb \
 	pthread-1 \
 	pthread-2 \
