@@ -3,7 +3,12 @@
 # Create makefiles in so-abcd-wxyz directories that lack them.
 
 shopt -s nullglob
-for d in so-*
+
+case $# in
+(0) set -- so-*;;
+esac
+
+for d in "${@}"
 do
     if [ ! -f $d/makefile ]
     then

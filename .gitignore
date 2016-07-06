@@ -52,7 +52,6 @@ e2big
 file
 gai
 inc/*.h
-incunabulum
 junk
 map
 mda
@@ -61,10 +60,6 @@ pthread-37
 pthread-?
 quine
 quiz
-rangesquash1
-rangesquash2
-rangesquash3
-rangesquash4
 readdir
 rev
 revlist
@@ -75,7 +70,6 @@ sed.script
 sigalrm
 sigchld
 signals
-stld
 term-pgrp
 test-fstatat
 test-rename
