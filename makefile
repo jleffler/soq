@@ -26,7 +26,6 @@ C_CXX_DUAL_PROGRAMS = \
 	pthread-1 \
 	pthread-2 \
 	pthread-3 \
-	quine \
 	readdir \
 	sigalrm \
 	sigchld \
