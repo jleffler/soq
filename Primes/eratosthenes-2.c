@@ -1,3 +1,5 @@
+/* Sieve of Eratosthenes */
+/* 8 bits per flag - odd numbers after 2 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -24,8 +26,8 @@ int main(int argc, char **argv)
 {
     int i;
     int max = MAX_PRIME;
-    uint64_t sum = 2;
-    uint64_t cnt = 1;
+    uint64_t sum = 0;
+    uint64_t cnt = 0;
 
     if (argc > 1)
         max = atoi(argv[1]);
@@ -35,28 +37,33 @@ int main(int argc, char **argv)
         printf("Reset max to %d\n", max);
     }
 
-    //printf("2\n");
-    int sqrt_max = sqrt(max);
-
-    for (i = 3; i <= sqrt_max; i += 2)
+    if (max >= 2)
     {
-        if (!is_marked(i / 2) == 0)
+        sum = 2;
+        cnt = 1;
+        //printf("2\n");
+        int sqrt_max = sqrt(max);
+
+        for (i = 3; i <= sqrt_max; i += 2)
         {
-            sum += i;
-            cnt++;
-            //printf("%d\n", i);
-            for (int j = i + i + i; j < max; j += i + i)
-                set_mark(j / 2);
+            if (!is_marked(i / 2) == 0)
+            {
+                sum += i;
+                cnt++;
+                //printf("%d\n", i);
+                for (int j = i + i + i; j <= max; j += i + i)
+                    set_mark(j / 2);
+            }
         }
-    }
 
-    for ( ; i < max; i += 2)
-    {
-        if (!is_marked(i / 2) == 0)
+        for ( ; i <= max; i += 2)
         {
-            sum += i;
-            cnt++;
-            //printf("%d\n", i);
+            if (!is_marked(i / 2) == 0)
+            {
+                sum += i;
+                cnt++;
+                //printf("%d\n", i);
+            }
         }
     }
 

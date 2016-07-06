@@ -14,6 +14,7 @@
 ** 2
 **
 ** The first number is the number of entries to process.
+**
 ** Each entry is on a single line.  It consists of a triple a, b, c.
 ** The output should be the count of the numbers in the inclusive range
 ** [a, b] that have c distinct prime factors.
@@ -30,9 +31,14 @@
 ** has fewer, so the output is 2.
 **
 ** The constraints are the the values in a, b will be in the range 2 to
-** 10,000,000.  The value of c will clearly be much smaller; the maximum
-** number of distinct prime factors in a value up to 10M is 2 * 3 * 5 *
-** 7 * 11 * 13 * 17 * 19 = 9,699,690
+** 10,000,000.
+**
+** The value of c will clearly be much smaller; the maximum number of
+** distinct prime factors in a value up to 10M is 8 (based on the value
+** 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19 = 9,699,690).  Indeed, 8 is also
+** the maximum for 100M as the first number with 9 unique prime factors
+** is 223,092,870; the first with 10 is 6,469,693,230; and the first
+** with 11 is 200,560,490,130.
 **
 ** ********************************************************************
 **
@@ -53,7 +59,9 @@ using namespace std;
 
 namespace {
 
-const int MAX_NUMBER = 10000000;
+//const int MAX_NUMBER = 10000000;
+// Up to 1E8 - 10 times the maximum stated in the specification.
+const int MAX_NUMBER = 100000000;
 
 uint8_t factors[MAX_NUMBER+1];
 

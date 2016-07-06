@@ -1,3 +1,7 @@
+# @(#)$Id: makefile,v 1.3 2016/01/23 20:24:55 jleffler Exp $
+#
+# Makefile for demonstrating cross-library linking
+
 CC     = gcc #/usr/bin/gcc
 RM_FR  = rm -fr --
 WFLAG1 = -Wall
@@ -29,18 +33,22 @@ LNKSHLIB = -shared
 LIBRARY1 = library1.${SOEXT}
 LIBRARY2 = library2.${SOEXT}
 
+HEADERS = lib1.h lib2.h
 LIB1.o  = lib1a.o lib1b.o
 LIB2.o  = lib2a.o lib2b.o
-TEST1.o = test1.o
+TEST1.o = ${PROGRAM1}.o
 
 PROGRAM1 = test1
 PROGRAM2 = test2
 PROGRAMS = ${PROGRAM1} ${PROGRAM2}
 
-all: ${PROGRAMS}
-	test1 | tee test1.out
-	test2 | tee test2.out
-	diff -u test1.out test2.out || true
+all: headers programs
+	${PROGRAM1} | tee ${PROGRAM1}.out
+	${PROGRAM2} | tee ${PROGRAM2}.out
+	diff -u ${PROGRAM1}.out ${PROGRAM2}.out || true
+
+headers: ${HEADERS}
+programs: ${PROGRAMS}
 
 ${PROGRAM1}: ${TEST1.o} ${LIBRARY1} ${LIBRARY2}
 	${CC} ${CFLAGS} -o $@ ${TEST1.o} ${LDFLAGS} ${LDLIBS1}
@@ -59,5 +67,5 @@ remove:
 	${RM_FR} ${PROG} ${PROG}.*
 
 clean:
-	${RM_FR} *.o *.dSYM core a.out
-	${RM_FR} ${PROGRAMS}
+	${RM_FR} *.o *.dSYM core a.out ${PROGRAM1}.out ${PROGRAM2}.out
+	${RM_FR} ${PROGRAMS} ${LIBRARY1} ${LIBRARY2}

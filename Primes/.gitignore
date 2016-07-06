@@ -1,10 +1,16 @@
 *.dSYM
 *.o
+*.out
 eratosthenes-1
 eratosthenes-2
 eratosthenes-3
 eratosthenes-4
 eratosthenes-5
+eratosthenes-6
+eratosthenes-?-cxx
+isprime
 list.of.primes.bz2
-makefile
+minimal-primes
+prime-factors
+project-euler-87
 so28005392
