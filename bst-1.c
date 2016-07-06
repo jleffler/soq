@@ -3,6 +3,15 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
+/*
+** Write a recursive function in C, which receives a root in a binary
+** tree, and checks if a path-to-leaf equalling a given sum exists.  A
+** path-to-leaf need not start at the root.
+** The question imposes a condition that there be a single function.
+** It was not necessary to identify the nodes on the path.
+** The tree is not in any sorted order.
+*/
+
 typedef struct BST BST;
 struct BST
 {

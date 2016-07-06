@@ -51,7 +51,8 @@ C_CXX_PROGRAMS = ${C_CXX_DUAL_PROGRAMS:=-cxx}
 C_ONLY_PROGRAMS = \
 	isprime \
 	minimal-primes \
-	prime-factors
+	prime-factors \
+	project-euler-87
 
 PROGRAMS = \
 	${C_ONLY_PROGRAMS} \

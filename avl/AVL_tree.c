@@ -1,8 +1,17 @@
+/* SO 34959596 */
 #include "AVL_tree.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+/*
+** Official solution (as yet unimplemented):
+** The right/left rotation functions use pointer to pointer.  When I
+** pass the parent's l or r pointer to it.  It cause a bug inside the
+** function.  A better way to improve this code is replace pointer to
+** pointer by just pointer and update pointer by returning value.
+*/
 
 static void dump_pointer(const char *tag, void *vp);
 static void dump_tree_inorder(const char *tag, struct vertex *v);

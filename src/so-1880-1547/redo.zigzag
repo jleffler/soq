@@ -1,0 +1,23 @@
+R=README.zigzag
+{
+echo "Redoing ZigZag Code"
+echo ""
+} > $R
+
+git log 82f679d..0700889 |
+while read word1 word2 residue
+do
+    if [ "$word1" = commit ]
+    then commit="$word2"
+    elif [ "$word1" = "zigzag.c:" ]
+    then
+        file=$(la $residue)
+        echo "Commit: $commit - $file" >>$R
+        git co $commit
+        cp -p zigzag.c $file
+    fi
+done
+
+# Originally did git co master, which lead to disaster!
+git co so/18801547
+git status
