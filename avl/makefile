@@ -25,9 +25,17 @@ LDLIBS  = ${LDLIB1} ${LDLIB2}
 
 CFLAGS  = ${OFLAGS} ${GFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
-all: avl2
+all: avl1 avl2 avl3
 
-OBJECTS = AVL_tree.o avl2.o
+OBJECT.1 = AVL_tree.o test.o
+OBJECT.2 = AVL_tree.o avl2.o
+OBJECT.3 = AVL_tree.o avl3.o
 
-avl2: ${OBJECTS}
-	${CC} -o $@ ${CFLAGS} ${OBJECTS} ${LDFLAGS} ${LDLIBS}
+avl1: ${OBJECT.1}
+	${CC} -o $@ ${CFLAGS} ${OBJECT.1} ${LDFLAGS} ${LDLIBS}
+
+avl2: ${OBJECT.2}
+	${CC} -o $@ ${CFLAGS} ${OBJECT.2} ${LDFLAGS} ${LDLIBS}
+
+avl3: ${OBJECT.3}
+	${CC} -o $@ ${CFLAGS} ${OBJECT.3} ${LDFLAGS} ${LDLIBS}
