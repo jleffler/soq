@@ -7,14 +7,35 @@ IFLAGS  = -I./inc
 LDFLAG1 = -L./lib
 
 SCRIPT_PROGRAMS = \
-	check-rename \
 
 C_ONLY_PROGRAMS = \
+	bst-1 \
+	bst-2 \
+	gai \
+	pipes-13213864 \
+	pipes-13636252 \
+	pipes-13693446 \
+	pipes-13905948 \
+	pipes-14312939 \
+	pipes-15673333 \
+	pipes-15845060 \
+	pipes-18582446 \
+	pthread-1 \
+	pthread-2 \
+	pthread-3 \
 	pthread-37 \
+	readdir \
 	rev \
 	revlist \
+	sigalrm \
+	sigchld \
+	signals \
+	so-18923412 \
+	stopper \
 	term-pgrp \
+	test-fstatat \
 	test-rename \
+	test-tcsetpgrp \
 
 CXX_ONLY_PROGRAMS = \
 	map \

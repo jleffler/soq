@@ -1,0 +1,11 @@
+The purpose of the 'pipes' branch is to preserve programs that work on pipes, usually in the context of a shell of some sort.
+
+fifocircle.c
+pipes-13213864.c
+pipes-13636252.c
+pipes-13693446.c
+pipes-13905948.c
+pipes-14312939.c
+pipes-15673333.c
+pipes-15845060.c
+pipes-18582446.c
