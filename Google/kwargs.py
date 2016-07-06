@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 def print_kwargs(**kwargs):
   for k in kwargs:
     print k, " => ", kwargs[k]
