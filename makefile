@@ -7,16 +7,10 @@ IFLAGS  = -I./inc
 LDFLAG1 = -L./lib
 
 # Non-compiling source, or source not compiling to a program
-#    incunabulum.c \
-#    modern-incunabulum.c \
 #    cmpfltint.c \
 
 SCRIPT_PROGRAMS = \
 	check-rename \
-	rangesquash1 \
-	rangesquash2 \
-	rangesquash3 \
-	rangesquash4 \
 
 C_ONLY_PROGRAMS = \
 	pthread-37 \
@@ -27,7 +21,6 @@ C_ONLY_PROGRAMS = \
 
 CXX_ONLY_PROGRAMS = \
 	map \
-	stld \
 
 C_CXX_DUAL_PROGRAMS = \
 	bst-1 \
