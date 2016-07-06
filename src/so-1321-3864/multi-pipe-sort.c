@@ -1,3 +1,5 @@
+/* SO 13213864 Multiprocessing and pipes in C */
+
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
