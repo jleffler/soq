@@ -59,3 +59,8 @@ BUILD_DIRECTORIES = \
 	so-3799-7620 \
 	so-3804-4987 \
 	so-3807-9550 \
+
+.DEFAULT all:
+	+for dir in ${BUILD_DIRECTORIES}; \
+	do (echo "+++ $${dir}"; cd "$${dir}" && ${MAKE} $@ && echo "--- $${dir}") \
+	done
