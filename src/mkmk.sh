@@ -7,17 +7,20 @@ for d in so-*
 do
     if [ ! -f $d/makefile ]
     then
-    {
+        echo $d && cd $d
+        {
         echo $d | sed 's/so-\(....\)-\(....\)/# SO \1\2/'
         echo
         echo "include ../../etc/soq-head.mk"
         echo
         n=1
-        for extn in c cpp py sh pl
+        for extn in c cpp py sh pl awk
         do
-            for file in $d/*.$extn
+            for file in *.$extn
             do
-                echo "PROG$n = $(basename "$file" ".$extn")"
+                prog="$(basename "$file" ".$extn")"
+                gitignore "$prog"
+                echo "PROG$n = $prog"
                 : $((n=$n+1))
             done
         done
@@ -31,6 +34,6 @@ do
         echo 'all: ${PROGRAMS}'
         echo
         echo "include ../../etc/soq-tail.mk"
-    } > $d/makefile
+        } > makefile
     fi
 done
