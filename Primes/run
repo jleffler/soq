@@ -1,0 +1,6 @@
+#!/bin/bash
+
+blanklines
+date
+echo
+"$@"

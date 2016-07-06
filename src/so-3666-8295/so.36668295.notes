@@ -1,0 +1,101 @@
+
+Commentary (over a period of 20 hours or so):
+
+There are lots of questions on SO about postfix to infix conversion (and
+probably more about infix to postfix conversion).  You say you've
+understood the algorithm, but your code shows none of that
+understanding.  Have you tested your stack functions?  (No; you've not
+written push() yet.)  Get working push and pop functions, test that they
+work, test that they handle an empty stack appropriately (and stack
+overflow, too).  But mainly show what you've got, and where you're
+having problems.  What's written as commentary in push() doesn't belong
+in push().  Pushing involves no popping. – Jonathan Leffler
+
+
+Thanks for you answer.  I Tried to build the code, I put here what i did
+so far.  The push() func is not done because i don't know how to finish,
+that's where i need some help to complete.  The reason of use POP is
+because i'll have to pop out the last 2 numbers to concatenate and push
+back.  Please take a look at the comments. – Bruno Dantas
+
+
+Then, with all due respect, you need to try a little harder and do a
+little more research — SO has lots of questions listed under 'related'
+on the RHS which will help you with your thinking.  You need to complete
+your implementation of push() and pop() and test that before
+complicating your code with handling the printing.  Note that the
+printing — and pushing and popping — will be done in your main()
+program (unless you factor the conversion of a postfix string into an
+infix string into a function, which would be a good idea, but probably
+out of scope for you at the moment). – Jonathan Leffler
+
+
+Find a text book, or a question about stack implementation on SO, so as
+to complete the push() function.  That is very simple coding.  It belies
+your claim to understand the logic; stacks are very basic data
+structures.  If you ignore error handling, push() is one line in the
+body of the function.  You'll make two calls to pop() to collect two
+numbers of the stack; you'll complain if there aren't two numbers (if
+the user types 5*3+, for example), so pop() needs to return an error
+indicator too — maybe -1 would do. – Jonathan Leffler
+
+
+Jonathan Thank you for the advise.  About the logic of using pop: I
+don't know if You whatched the video, but i have to pop out the last 2
+elements and concatenate them with the operator, then push back to the
+stack.  The reason I asked this here is because I tried to found in a
+lot of places and sadly could not find.  I already build a push function
+with one element the problem is to built that using dinamic allocation
+to place a string that will be big as much the funtion works.  The code
+is incomplete because i don't want help in all the parts, just on the
+push a string like I explained. – Bruno Dantas
+
+
+As far as I can see, your pushing single characters onto the stack.  You
+make two calls to pop to get two values off the stack.  It seems that me
+that the hardest part is probably prefixing the infix expression with
+parentheses when necessary, though I've not sat down and done the
+exercise recently.  Conversion of 35+4*6+8*2-4/ ends up with quite a few
+parentheses at the start, I think. – Jonathan Leffler
+
+
+Yes Jonathan, that's why I required for help, how to place a String on a
+Stack that will be bigger as the program will push?  Take a look the
+video I posted you will understand that :) Ty for the effort =] –
+Bruno Dantas
+
+
+Not keen on watching videos...I certainly haven't yet watched that one.
+Having to watch a video to be able to answer a question, even assuming
+it were open and hence answerable, is unusual and not really the way SO
+expects to work. – Jonathan Leffler
+
+
+Ok.  So ty anyway for the answers and have a great day.  I found an
+example that I'll use and try to work on it.  Please be more patiance
+with the begginers and TY for the tips :) – Bruno Dantas
+
+
+OK.  So, in summary, the video maps postfix (unambiguous) expression
+42$3*3-84/11+/+ into ambiguous (or inaccurate) infix expression
+4$2*3-3+8/4/1+1.  Even ignoring the unusual $ operator, the infix
+expression does not evaluate accurately under normal 'PEMDAS' rules, nor
+using strict left-to-right (or right-to-left) evaluation.  So that
+algorithm isn't very useful.  Your stack structure is not set up to
+handle pushing strings; you don't keep any record of string boundaries.
+To implement what the video shows, you have to make your stack handle
+strings instead of characters. – Jonathan Leffler
+
+
+If the "more patient" comment is aimed at me, you are misunderstanding
+SO.  I have been patient way beyond what most people will be.
+Ordinarily, you'd have gotten at most my first comment, which was
+already being 'nice' to you, and nothing more, or only smackdown
+comments after that.  You seem to have expectations way out of line with
+what you'll get with most other people on SO. – Jonathan Leffler
+
+
+Sorry I didn't mean to offend you.  But please close the topic I just
+done the program.  If You are interested in Please check the code here:
+pastebin.com/1JPhrDK6.  Anyway I respect You and please don't take the
+critic on the wrong way. – Bruno Dantas

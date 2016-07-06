@@ -9,6 +9,10 @@ Originally asked 2008-12-15 02:02 by FerranB, but subsequently closed.
 A pity since the answers were far better than the question (and mine was
 the accepted answer, with 7 up-votes).
 
+Now transferred to:
+SO 10818443: Short/long options with option argument -- Is this some sort of convention?
+SO 2160083:  What is the general syntax of a Unix shell command?
+
 My answer (in MarkDown):
 
 How many different types of options do you recognize?  I can think of
@@ -20,7 +24,10 @@ many, including:
 * Single-letter options preceded by single dash, grouping not allowed,
   arguments must be attached (RCS).
 * Single-letter options preceded by single dash, grouping not allowed,
-  arguments must be separate (pre-POSIX SCCS, IIRC).
+  arguments must be separate (pre-POSIX SCCS, IIRC).  
+  <sup>_It appears this is a mis-remembrance; arguments in SCCS needed
+  to be attached to the option letter in general
+  (e.g. `sccs delta -y'Because I said so' file.c`)._</sup>
 * Multi-letter options preceded by single dash, arguments may be
   attached or in next argument (X11 programs).
 * Multi-letter options preceded by single dash, may be abbreviated
@@ -41,6 +48,9 @@ All sensible option systems use an option consisting of double-dash
 ('`--`') alone to mean "end of options" - the following arguments are
 "non-option arguments" (usually file names) even if they start with a
 dash.  (I regard supporting this notation as an imperative.)
+Note, however, that if `-a` takes an argument, writing `somecmd -a --
+-x` uses the `--` as the argument to `-a`, not as the end of options, so
+the `-x` will also be interpreted by `somecmd`.
 
 Many but not all programs accept single dash as a file name to mean
 standard input (usually) or standard output (occasionally).  Sometimes,

@@ -1,4 +1,6 @@
-
+/* Pragma needed on Mac OS X to suppress warnings about sem_init() and sem_destroy() */
+/* NB: Mac OS X does not implement them - returning errno 78 Function not implemented */
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <assert.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -10,9 +12,8 @@
 #define NUM_CHAR 1024
 #define BUFFER_SIZE 8
 
-
 typedef struct {
-    pthread_mutex_t mutex; 
+    pthread_mutex_t mutex;
     sem_t full;
     sem_t empty;
     char* buffer;
@@ -55,14 +56,13 @@ int main(void) {
     pthread_t reader, writer;
     Context context;
     srand(time(NULL));
-    int status = 0;
-    status = pthread_mutex_init(&context.mutex, NULL);
-    status = sem_init(&context.full,0,0);
-    status = sem_init(&context.empty,0, BUFFER_SIZE);
+    (void) pthread_mutex_init(&context.mutex, NULL);
+    (void) sem_init(&context.full,0,0);
+    (void) sem_init(&context.empty,0, BUFFER_SIZE);
     context.buffer = buffer;
 
-    status = pthread_create(&reader, NULL, Reader, &context);
-    status = pthread_create(&writer, NULL, Writer, &context);
+    (void) pthread_create(&reader, NULL, Reader, &context);
+    (void) pthread_create(&writer, NULL, Writer, &context);
 
     pthread_join(reader,NULL);   // This line seems to be necessary
     pthread_join(writer,NULL);   // This line seems to be necessary
