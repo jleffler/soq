@@ -1,0 +1,92 @@
+Notes on Signal Management Functions
+====================================
+
+POSIX has a plethora of signal-related functions.
+
+[`sigaction()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaction.html)
+
+sigaction(signum, NULL, &oact) returns current action for signal.
+sigaction(signum, &nact, NULL) sets new signal handling.
+sigaction(signum, &nact, &oact) sets and returns.
+
+
+[`sigpending()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigpending.html)
+[`pthread_sigmask()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_sigmask.html)
+[`sigprocmask()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigprocmask.html)
+[`sigsuspend()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigsuspend.html)
+[`sigtimedwait()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigtimedwait.html)
+[`sigwaitinfo()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigwaitinfo.html)
+[`sigwait()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigwait.html)
+
+
+The signal set handling functions are pretty straight-forward:
+
+[`sigaddset()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaddset.html)
+[`sigdelset()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigdelset.html)
+[`sigemptyset()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigemptyset.html)
+[`sigfillset()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigfillset.html)
+[`sigismember()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigismember.html)
+
+
+[`sigaltstack()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaltstack.html)
+
+Non-local jumps from signal handlers
+
+[`sigsetjmp()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigsetjmp.html)
+[`siglongjmp()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/siglongjmp.html)
+
+
+Obsolescent signal functions
+
+[`signal()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/signal.html)
+[`sigrelse()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigrelse.html)
+[`sighold()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sighold.html)
+[`sigignore()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigignore.html)
+[`siginterrupt()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/siginterrupt.html)
+[`sigpause()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigpause.html)
+[`sigqueue()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigqueue.html)
+
+
+Signal management for posix_spawn()
+
+One of the more rococo parts of POSIX is the
+[`posix_spawn()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn.html)
+and
+[`posix_spawnp()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnp.html)
+functions.  These allow you to control in a parent process what should
+happen when a child process is spawned (logically instead of forking).
+The description of the operations is complex; generally, more complex
+than simply forking and having the child do what it is supposed to do.
+However, the options are the.  You can control the signal handling too:
+
+[`posix_spawnattr_getsigdefault()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_getsigdefault.html)
+[`posix_spawnattr_getsigmask()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_getsigmask.html)
+[`posix_spawnattr_setsigdefault()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_setsigdefault.html)
+[`posix_spawnattr_setsigmask()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_setsigmask.html)
+
+Functions related to reporting signal (error) messages:
+
+The
+[`strsignal()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strsignal.html)
+function generates a string identifying a signal from the signal number.
+It is analogous to
+[`strerror()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strerror.html).
+
+The
+[`psignal()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/psignal.html)
+function is analogous to
+[`perror()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/perror.html)
+in that it prints a message to standard error, but it uses signal number
+instead of an error number.  The
+[`psiginfo()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/psiginfo.html)
+is similar but prints information from a `siginfo_t` structure.
+[`pthread_cond_signal()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_cond_signal.html)
+
+
+[`kill()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/kill.html)
+[`killpg()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/killpg.html)
+[`pthread_kill()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_kill.html)
+
+
+Jonathan Leffler (jonathan.leffler@gmail.com)
+@(#)$Id$
