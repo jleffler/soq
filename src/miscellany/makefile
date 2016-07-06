@@ -14,6 +14,7 @@ PROG09 = test-rename
 PROG10 = check-rename
 PROG11 = quine-c
 PROG12 = quine-py
+PROG13 = dec_to_hex
 
 PROGRAMS = \
 	${PROG01} \
@@ -28,6 +29,7 @@ PROGRAMS = \
 	${PROG10} \
 	${PROG11} \
 	${PROG12} \
+	${PROG13} \
 
 all: ${PROGRAMS}
 
