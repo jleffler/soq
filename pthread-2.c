@@ -1,3 +1,6 @@
+/* Pragma needed on Mac OS X to suppress warnings about sem_init() and sem_destroy() */
+/* NB: Mac OS X does not implement them - returning errno 78 Function not implemented */
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
@@ -12,7 +15,7 @@
 #define NUM_CHAR 1024
 #define BUFFER_SIZE 8
 
-static void err_error(char *fmt, ...)
+static void err_error(const char *fmt, ...)
 {
     int errnum = errno;
     va_list args;
@@ -24,9 +27,8 @@ static void err_error(char *fmt, ...)
     pthread_exit(0);
 }
 
-
 typedef struct {
-    pthread_mutex_t mutex; 
+    pthread_mutex_t mutex;
     sem_t full;
     sem_t empty;
     size_t count;
@@ -76,7 +78,7 @@ static void *Writer(void* arg) {
     return NULL;
 }
 
-int main() {
+int main(void) {
     char buffer[BUFFER_SIZE];
     pthread_t reader, writer;
     Context context;
