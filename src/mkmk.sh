@@ -41,6 +41,7 @@ do
         echo
         echo "include ../../etc/soq-tail.mk"
         } > makefile
+        git add makefile
         )
     fi
 done
