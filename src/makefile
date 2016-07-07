@@ -2,10 +2,7 @@
 
 include ../etc/soq-head.mk
 
-BUILD_DIRECTORIES = \
-	libcs50 \
-	libsoq \
-	miscellany \
+SO_DIRECTORIES = \
 	so-0036-7309 \
 	so-0040-2377 \
 	so-0044-0061 \
@@ -22,6 +19,7 @@ BUILD_DIRECTORIES = \
 	so-0686-8618 \
 	so-0736-5814 \
 	so-0765-1397 \
+	so-0765-6915 \
 	so-0777-8268 \
 	so-0858-2632 \
 	so-0885-4855 \
@@ -41,6 +39,7 @@ BUILD_DIRECTORIES = \
 	so-1390-5948 \
 	so-1431-2939 \
 	so-1454-4920 \
+	so-1482-4668 \
 	so-1544-2950 \
 	so-1567-3333 \
 	so-1584-5060 \
@@ -53,19 +52,27 @@ BUILD_DIRECTORIES = \
 	so-1855-9403 \
 	so-1858-2446 \
 	so-1880-1547 \
+	so-1881-2266 \
+	so-1882-0288 \
 	so-1886-3184 \
 	so-1888-4251 \
 	so-1892-3412 \
+	so-1892-8821 \
+	so-1901-6840 \
 	so-1920-0574 \
 	so-1921-4293 \
 	so-1930-4085 \
 	so-1936-1241 \
 	so-1945-2971 \
+	so-1947-1071 \
+	so-1960-7450 \
+	so-1972-7309 \
 	so-1974-7644 \
 	so-1978-2086 \
 	so-1982-5489 \
 	so-2001-6194 \
 	so-2016-4204 \
+	so-2027-1977 \
 	so-2029-3405 \
 	so-2034-2745 \
 	so-2083-1765 \
@@ -103,6 +110,13 @@ BUILD_DIRECTORIES = \
 	so-3799-7620 \
 	so-3804-4987 \
 	so-3807-9550 \
+
+BUILD_DIRECTORIES = \
+	libcs50 \
+	libsoq \
+	miscellany \
+	sorttest \
+	${SO_DIRECTORIES} \
 
 .DEFAULT all:
 	+for dir in ${BUILD_DIRECTORIES}; \
