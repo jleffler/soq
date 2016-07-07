@@ -12,6 +12,7 @@ rangesquash3
 rangesquash4
 rev
 revlist
+select
 stld
 test-rename
 uint128

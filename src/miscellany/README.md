@@ -21,7 +21,8 @@ context that suggests it was related to SO.
 * dec_to_hex.c:
 
   Assembled in response to questions by Saurabh (look in gmail).
-incunabulum.c:
+
+* incunabulum.c:
 
   Need to track down the origin of this (arcane, pre-standard K&R C).
 
@@ -47,14 +48,18 @@ incunabulum.c:
 
 * rev.c:
 
-  string reversing algorithms, miscellaneous
+  String reversing algorithms, miscellaneous
 
 * revlist.c:
 
-  singly-linked list reversing algorithm.
+  Singly-linked list reversing algorithm.
 
   Probably not my code, but not clear how to identify who wrote it
   before I hacked it into the shape it is.
+
+* select.c:
+
+  Demonstration of how to use `select()` system call.
 
 * stld.cpp:
 

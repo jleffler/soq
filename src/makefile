@@ -15,6 +15,7 @@ SO_DIRECTORIES = \
 	so-0436-1132 \
 	so-0440-8170 \
 	so-0512-5919 \
+	so-0612-7503 \
 	so-0629-7596 \
 	so-0686-8618 \
 	so-0736-5814 \
@@ -86,6 +87,7 @@ SO_DIRECTORIES = \
 	so-2773-3348 \
 	so-2800-3921 \
 	so-2801-0892 \
+	so-2969-1159 \
 	so-3000-5033 \
 	so-3029-4129 \
 	so-3040-9127 \
@@ -116,6 +118,7 @@ BUILD_DIRECTORIES = \
 	libcs50 \
 	libsoq \
 	miscellany \
+	sortfile \
 	sorttest \
 	${SO_DIRECTORIES} \
 
