@@ -1,0 +1,9 @@
+#!/bin/bash
+
+count=${1:-1000}
+
+if rmk -q eratosthenes-2 ||
+   rmk    eratosthenes-2
+then
+    eratosthenes-2 $count | grep -v '^[0-9]'
+fi

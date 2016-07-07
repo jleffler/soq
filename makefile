@@ -1,36 +1,16 @@
-CC     = gcc #/usr/bin/gcc
-RM_FR  = rm -fr --
-WFLAG1 = -Wall 
-WFLAG2 = -Wextra
-WFLAG3 = -Wmissing-prototypes 
-WFLAG4 = -Wstrict-prototypes 
-WFLAG5 = -Wold-style-definition
-WFLAG6 =
-WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} 
-SFLAGS = -std=c99
-GFLAGS = -g
-OFLAGS = -O3
-UFLAGS =
-IFLAG1 = -I${HOME}/inc
-IFLAGS = # ${IFLAG1}
+# To suppress JL-specific options:
+# LDLIBS= LDFLAGS= IFLAGS=
 
-IXXFLAGS = ${IFLAGS}
-SXXFLAGS =
-WXXFLAGS = -Wall -Wextra
-UXXFLAGS =
-OXXFLAGS = -O3
-GXXFLAGS = -g
+include etc/soq-head.mk
 
-LDFLAG1 = -L${HOME}/lib/64
-LDLIB1  = -ljl
-LDFLAGS = # ${LDFLAG1}
-LDLIBS  = # ${LDLIB1}
+IFLAGS  = -I./inc
+LDFLAG1 = -L./lib
 
-CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
-CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${UXXFLAGS}
+default:
+	@echo "You must specify a target to build"
 
 all:
-	@echo "You must specify a target to build"
+	cd src; ${MAKE} all
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
@@ -38,3 +18,4 @@ remove:
 
 clean:
 	${RM_FR} *.o *.dSYM core a.out
+	${RM_FR} ${PROGRAMS}
