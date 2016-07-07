@@ -2,6 +2,7 @@ check-rename
 dec_to_hex
 incunabulum
 lcm20
+map
 modern-incunabulum
 quine-c
 quine-py
@@ -9,5 +10,8 @@ rangesquash1
 rangesquash2
 rangesquash3
 rangesquash4
+rev
+revlist
 stld
 test-rename
+uint128
