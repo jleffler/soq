@@ -19,6 +19,7 @@ PROG14 = map
 PROG15 = uint128
 PROG16 = rev
 PROG17 = revlist
+PROG18 = select
 
 PROGRAMS = \
 	${PROG01} \
@@ -38,6 +39,7 @@ PROGRAMS = \
 	${PROG15} \
 	${PROG16} \
 	${PROG17} \
+	${PROG18} \
 
 all: ${PROGRAMS}
 
