@@ -15,6 +15,8 @@ PROG10 = check-rename
 PROG11 = quine-c
 PROG12 = quine-py
 PROG13 = dec_to_hex
+PROG14 = map
+PROG15 = uint128
 
 PROGRAMS = \
 	${PROG01} \
@@ -30,6 +32,8 @@ PROGRAMS = \
 	${PROG11} \
 	${PROG12} \
 	${PROG13} \
+	${PROG14} \
+	${PROG15} \
 
 all: ${PROGRAMS}
 
