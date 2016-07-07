@@ -1,0 +1,48 @@
+Redoing ZigZag Code
+
+Commit: 07008895f5df3d87b5515d4cd5f660e565253198 - zigzag8.c
+Commit: 08cc3615e3c7ecd575ab606926fd8c91392da100 - zigzag7.c
+Commit: b8426627e59153bff13422fd7cd0772652fdfbea - zigzag6.c
+Commit: 1ea0bdec710fd001cfc6915fd6749aaa25f1b605 - zigzag5.c
+Commit: b41b7e7264054e83f1de717da1b39f64d5571bae - rle.c
+Commit: c1f2b444d917653b50f6ef885abb126642a473fa - zigzag4.c
+Commit: c46163502579b3c9c21152ff631b3abfc729ccec - zigzag3.c
+Commit: dff2d6ca0dade604f16e323f870e25b36e899712 - zigzag2.c
+Commit: a6cfac6f16659e5b5a123d3a1ae1fae31914c8e0 - zigzag1.c
+
+Branch so/18801547 now contains the 9 files listed above with new
+commits.  There were some hiccups in the creation of these files, but we
+managed to recover.
+
+What went wrong?
+
+After creating the source files from the original checkouts, I checked
+out master instead of so/18801547.  Then I did the checkins and clean-up
+on master, instead of the branch, thereby superficially deleting most of
+the material from master.
+
+At the intermediate stage:
+
+e246968  -- branch so/18801547 -- tag so-188-1547-old-master-head
+
+dc5111d  -- branch master      -- tag master-disaster
+a75ad73
+b46a9f8
+566dd59
+f4eb688
+6cbd47f
+fd2e026
+f5c053b
+daec79c
+1e494af
+e246968 -- again
+
+So, to recover:
+
+git co so/18801547
+git branch -d master            # Failed; not fully merged - recommend use -D
+git branch -D master
+git branch master e246968       # Reset master
+git co master
+git branch -d so/18801547
+git branch so/18801547 dc5111d  # Reset so/18801547
