@@ -17,6 +17,8 @@ PROG12 = quine-py
 PROG13 = dec_to_hex
 PROG14 = map
 PROG15 = uint128
+PROG16 = rev
+PROG17 = revlist
 
 PROGRAMS = \
 	${PROG01} \
@@ -34,6 +36,8 @@ PROGRAMS = \
 	${PROG13} \
 	${PROG14} \
 	${PROG15} \
+	${PROG16} \
+	${PROG17} \
 
 all: ${PROGRAMS}
 

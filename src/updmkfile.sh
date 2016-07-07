@@ -17,4 +17,5 @@ while (<>)
     {
         print "$_\n";
     }
-}' -i.bak makefile
+}' -i makefile
+git add makefile
