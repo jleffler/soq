@@ -1,3 +1,4 @@
 sigalrm
 sigchld
 signals
+sigsync
