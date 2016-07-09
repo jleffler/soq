@@ -1,4 +1,4 @@
-/*SO 26240690 - Euler Project 8 (Largest product in a series) */
+/* SO 26240690 - Euler Project 8 (Largest product in a series) */
 #include <assert.h>
 #include <ctype.h>
 #include <inttypes.h>
