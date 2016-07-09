@@ -1,11 +1,9 @@
 /*
-@(#)File:           $RCSfile: lib1.h,v $
-@(#)Version:        $Revision: 1.2 $
-@(#)Last changed:   $Date: 2016/01/17 00:25:46 $
+@(#)File:           lib1.h
 @(#)Purpose:        Demo cross-library linking
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2015-16
-@(#)Product:        :PRODUCT:
+@(#)Derivation:     lib1.h 1.2 2016/01/17 00:25:46
 */
 
 /*TABSTOP=4*/

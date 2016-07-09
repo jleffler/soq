@@ -1,11 +1,9 @@
 /*
-@(#)File:           $RCSfile: test1.c,v $
-@(#)Version:        $Revision: 1.2 $
-@(#)Last changed:   $Date: 2016/01/17 00:28:29 $
+@(#)File:           test1.c
 @(#)Purpose:        Demonstrate cross-library linking
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2015-16
-@(#)Product:        :PRODUCT:
+@(#)Derivation:     test1.c 1.2 2016/01/17 00:28:29
 */
 
 #include <stdio.h>

@@ -1,6 +1,7 @@
 *.dSYM
 *.o
 *.out
+alt-min-primes
 eratosthenes-1
 eratosthenes-2
 eratosthenes-3
