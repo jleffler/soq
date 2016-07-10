@@ -34,9 +34,9 @@ greatest product.  What is the value of this product?
 There are 20 lines of 50 digits per line in the data - see e8-02.data
 for 'just the digits'.
 
-As of 2016-07-08, the code crashes on the sequences in lines 5-6 of the
-data.  It also fails on lines 9-11 (but not on just 10-11, or 9-10).  It
-works on lines 1-5, also on lines 6-10, and also on lines 11-20.  The
-crash is an assertion failure that the current 13-digit product is not
-divisible by the first digit in the current 13-digit sequence.  It is
-not yet clear what triggers this problem.
+Answer:
+
+Maximum product =   23514624000; start =  198; len = 13; digits = 5576689664895
+
+Looking at the last 3 digits of line 4 and the first 10 of line 5
+matches the printed data.
