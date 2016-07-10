@@ -31,8 +31,8 @@ greatest product.  What is the value of this product?
 
 ---
 
-There are 20 lines of 50 digits per line in the data - see e8-02.data
-for 'just the digits'.
+There are 20 lines of 50 digits per line in the data - see e8-02.data for
+'just the digits'.
 
 Answer:
 
@@ -40,3 +40,6 @@ Maximum product =   23514624000; start =  198; len = 13; digits = 5576689664895
 
 Looking at the last 3 digits of line 4 and the first 10 of line 5
 matches the printed data.
+
+Submitting the answer to Project Euler confirms that it is correct.  It
+also suggests that this material should be less visible in the repository.
