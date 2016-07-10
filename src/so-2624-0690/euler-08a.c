@@ -23,7 +23,7 @@ int main(void)
     size_t f_pos = 0;       // Position in buffer
     size_t n_digits = 0;    // Number of digits
     size_t d_count = 0;     // Digits in total
-    //uint64_t product = 1;   // Current product
+    uint64_t product = 1;   // Current product
 
     /*
     size_t max_end = 0;
@@ -55,12 +55,12 @@ int main(void)
 
         d_count++;
         int digit = c - '0';
+        assert(digit >= 0 && digit <= 9);
         if (digit == 0)
         {
             printf("Zeroed!\n");
             f_pos = 0;
-            //buffer[f_pos] = 1;
-            /*product = 1;*/
+            product = 1;
             n_digits = 0;
         }
         else
@@ -95,10 +95,18 @@ int main(void)
                 n_digits++;
             }
             else
+            {
+                assert(o_val > 0 && o_val <= 9);
+                assert(product % o_val == 0);
+                product /= o_val;
                 f_pos = (f_pos + 1) % N_DIGITS;
+            }
 
-            printf("Digit: %d - d_count = %4zu; n_digits = %2zu; f_pos = %2zu; o_val = %d; digits = ",
-                   digit, d_count, n_digits, f_pos, o_val);
+            product *= digit;
+
+            printf("Digit: %d - d_count = %4zu; n_digits = %2zu; f_pos = %2zu;"
+                   " o_val = %d; product = %13" PRIu64 "; digits = ",
+                   digit, d_count, n_digits, f_pos, o_val, product);
             print_digits(buffer, f_pos, n_digits);
             putchar('\n');
 
