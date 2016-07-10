@@ -16,42 +16,33 @@ static void print_digits(const char buffer[N_DIGITS], size_t f_pos, size_t n_dig
     }
 }
 
+static void copy_digits(char dst[N_DIGITS], const char src[N_DIGITS], size_t f_pos, size_t n_digits)
+{
+    for (size_t i = 0; i < n_digits; i++)
+    {
+        size_t j = (f_pos + i) % N_DIGITS;
+        *dst++ = src[j];
+    }
+}
+
 int main(void)
 {
     int c;
-    char buffer[N_DIGITS];
+    char buffer[N_DIGITS] = "";
     size_t f_pos = 0;       // Position in buffer
     size_t n_digits = 0;    // Number of digits
     size_t d_count = 0;     // Digits in total
     uint64_t product = 1;   // Current product
 
-    /*
-    size_t max_end = 0;
-    size_t max_len = 0;
-    uint64_t max_prod = 0;  // Maximum product
-    */
-
-    /*
-    memset(buffer, 1, sizeof(buffer));
-    for (size_t i = 0; i < sizeof(buffer); i++)
-        assert(buffer[i] == 1);
-    */
+    char     max_buf[N_DIGITS] = "";
+    size_t   max_len = 0;
+    uint64_t max_prd = 0;
+    size_t   max_bgn = 0;
 
     while ((c = getchar()) != EOF)
     {
         if (!isdigit(c))
             continue;
-
-        /*
-        printf("c = %c (d-count = %4zu, c-count = %4zu, f_pos = %2zu, old.product = %13" PRIu64,
-               c, d_count, n_digits, f_pos, product);
-        if (max_prod > 0)
-        {
-            printf(", max (product = %13" PRIu64 ", bgn = %4zu, end = %4zu)",
-                   max_prod, max_end - max_len, max_end);
-        }
-        printf(")\n");
-        */
 
         d_count++;
         int digit = c - '0';
@@ -65,26 +56,6 @@ int main(void)
         }
         else
         {
-            /*
-            if (n_digits >= N_DIGITS)
-            {
-                assert(n_digits == N_DIGITS);
-                printf("max-len: bp = %2zu; B[bp] = %d; product = %13" PRIu64 "; remainder = %13" PRIu64 "\n",
-                       f_pos, buffer[f_pos], product, product % buffer[f_pos]);
-                assert(f_pos < N_DIGITS);
-                assert(buffer[f_pos] != 0);
-                if (product % buffer[f_pos] != 0)
-                {
-                    printf("Numbers: ");
-                    print_digits(buffer, f_pos, n_digits);
-                    putchar('\n');
-                }
-                assert(product % buffer[f_pos] == 0);
-                product /= buffer[f_pos];
-                n_digits--;
-            }
-            */
-            //product *= digit;
             size_t w_pos = (f_pos + n_digits) % N_DIGITS;
 
             int o_val = buffer[w_pos];
@@ -110,21 +81,24 @@ int main(void)
             print_digits(buffer, f_pos, n_digits);
             putchar('\n');
 
-            /*
-            if (product > max_prod)
+            if (product > max_prd)
             {
-                max_prod = product;
-                max_end = d_count;
+                max_prd = product;
                 max_len = n_digits;
+                copy_digits(max_buf, buffer, f_pos, n_digits);
+                max_bgn = d_count - max_len + 1;
+                printf("New maximum: product = %13" PRIu64 "; start = %4zu; len = %2zu; digits = ",
+                       max_prd, max_bgn, max_len);
+                print_digits(max_buf, 0, max_len);
+                putchar('\n');
             }
-            */
-
         }
     }
 
-    /*
-    printf("Max product is %" PRIu64 " starting at %zu up to %zu\n",
-           max_prod, max_end - max_len, max_end);
-    */
+    printf("Maximum product = %13" PRIu64 "; start = %4zu; len = %2zu; digits = ",
+           max_prd, max_bgn, max_len);
+    print_digits(max_buf, 0, max_len);
+    putchar('\n');
+
     return 0;
 }
