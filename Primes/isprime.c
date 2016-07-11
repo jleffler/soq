@@ -5,6 +5,15 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifndef NO_PROGRESS_REPORTING
+#include <signal.h>
+#include <sys/time.h>
+#include <unistd.h>
+#define PROGRESS_REPORT(x)  (x)
+#else
+#define PROGRESS_REPORT(x)  ((void)0)
+#endif
+
 #define WRAPPED_HEADER "timer.h"
 #include "wraphead.h"
 
@@ -163,6 +172,7 @@ static int check_number(unsigned v)
     int p6 = isprime3(v);
     if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6)
     {
+        PROGRESS_REPORT(putchar('\n'));
         printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
                 " IsPrime3() %d; isprime1() %d; isprime2() %d;"
                 " isprime3() %d\n",
@@ -172,12 +182,36 @@ static int check_number(unsigned v)
     return 0;
 }
 
+#ifndef NO_PROGRESS_REPORTING
+static int icounter = 0;
+static void alarm_handler(int signum)
+{
+    assert(signum == SIGALRM);
+    write(STDOUT_FILENO, ".", 1);
+    if (++icounter % 60 == 0)
+        write(STDOUT_FILENO, "\n", 1);
+}
+
+static void set_interval_timer(int interval)
+{
+    struct itimerval iv = { { .tv_sec = interval, .tv_usec = 0 },
+                            { .tv_sec = interval, .tv_usec = 0 } };
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_handler = alarm_handler;
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGALRM, &sa, 0);
+    setitimer(ITIMER_REAL, &iv, 0);
+}
+#endif
+
 static void bake_off(int seed, int count)
 {
     srand(seed);
     Clock clk;
     clk_init(&clk);
-    printf("Bake-off...[warning this could take can three minutes or more]...\n");
+    printf("Bake-off...warning this could take three minutes or more.\n");
+    PROGRESS_REPORT(set_interval_timer(1));
 
     clk_start(&clk);
 
@@ -199,11 +233,15 @@ static void bake_off(int seed, int count)
     }
 
     clk_stop(&clk);
+    PROGRESS_REPORT(set_interval_timer(0));
+
+    PROGRESS_REPORT(putchar('\n'));
+    char buffer[32];
+    (void)clk_elapsed_us(&clk, buffer, sizeof(buffer));
     if (failures == 0)
-    {
-        char buffer[32];
-        printf("== PASS == %s s\n", clk_elapsed_us(&clk, buffer, sizeof(buffer)));
-    }
+        printf("== PASS == %s s\n", buffer);
+    else
+        printf("!! FAIL !! %d failures in %s s\n", failures, buffer);
 }
 
 static void one_test(int seed)
