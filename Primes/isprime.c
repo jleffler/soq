@@ -86,7 +86,7 @@ static int isprime1(unsigned number)
     return 1;
 }
 
-/* Fourth step up - marginally better than isprime1() */
+/* Fourth step up - marginally worse than isprime1() */
 static int isprime2(unsigned number)
 {
     if (number <= 1)
@@ -103,7 +103,7 @@ static int isprime2(unsigned number)
     return 1;
 }
 
-/* Fifth step up - marginally but measurably better than isprime2() */
+/* Fifth step up - usually marginally but measurably better than isprime1() */
 static int isprime3(unsigned number)
 {
     if (number <= 1)
@@ -120,6 +120,8 @@ static int isprime3(unsigned number)
     enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
     for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
     {
+        if (number == small_primes[i])
+            return 1;
         if (number % small_primes[i] == 0)
             return 0;
     }
@@ -151,33 +153,51 @@ static void test_primality_tester(const char *tag, int seed, int (*prime)(unsign
            count, clk_elapsed_us(&clk, buffer, sizeof(buffer)));
 }
 
+static int check_number(unsigned v)
+{
+    int p1 = IsPrime1(v);
+    int p2 = IsPrime2(v);
+    int p3 = IsPrime3(v);
+    int p4 = isprime1(v);
+    int p5 = isprime2(v);
+    int p6 = isprime3(v);
+    if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6)
+    {
+        printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
+                " IsPrime3() %d; isprime1() %d; isprime2() %d;"
+                " isprime3() %d\n",
+                v, p1, p2, p3, p4, p5, p6);
+        return 1;
+    }
+    return 0;
+}
+
 static void bake_off(int seed, int count)
 {
     srand(seed);
     Clock clk;
     clk_init(&clk);
+    printf("Bake-off...[warning this could take can three minutes or more]...\n");
 
     clk_start(&clk);
 
     int failures = 0;
+
+    /* Check numbers to 1000 */
+    for (unsigned v = 1; v < 1000; v++)
+    {
+        if (check_number(v))
+            failures++;
+    }
+
+    /* Check random numbers */
     for (int i = 0; i < count; i++)
     {
         unsigned v = rand();
-        int p1 = IsPrime1(v);
-        int p2 = IsPrime2(v);
-        int p3 = IsPrime3(v);
-        int p4 = isprime1(v);
-        int p5 = isprime2(v);
-        int p6 = isprime3(v);
-        if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6)
-        {
-            printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
-                   " IsPrime3() %d; isprime1() %d; isprime2() %d;"
-                   " isprime3() %d\n",
-                   v, p1, p2, p3, p4, p5, p6);
+        if (check_number(v))
             failures++;
-        }
     }
+
     clk_stop(&clk);
     if (failures == 0)
     {
@@ -188,9 +208,11 @@ static void bake_off(int seed, int count)
 
 static void one_test(int seed)
 {
+    static int bake_off_counter = 0;
     printf("Seed; %d\n", seed);
     enum { COUNT = 10000000 };
-    bake_off(seed, COUNT);
+    if (bake_off_counter++ == 0)
+        bake_off(seed, COUNT);
     assert(COUNT > 100000);
     test_primality_tester("IsPrime0", seed, IsPrime0, COUNT / 100000);
     test_primality_tester("IsPrime1", seed, IsPrime1, COUNT);
