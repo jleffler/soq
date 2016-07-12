@@ -30,20 +30,20 @@ const char jlss_id_posix_timer_h[] = "@(#)$Id$";
 #include <time.h>
 
 /* Defines correct for Mac OS X 10.11.5 */
-//#define NO_UNION_SIGVAL
-//#define NO_STRUCT_SIGEVENT
-#define NO_TYPE_TIMER_T
-#define NO_STRUCT_ITIMERSPEC
+#define HAVE_UNION_SIGVAL
+#define HAVE_STRUCT_SIGEVENT
+//#define HAVE_TYPE_TIMER_T
+//#define HAVE_STRUCT_ITIMERSPEC
 
-#ifdef NO_UNION_SIGVAL
+#ifndef HAVE_UNION_SIGVAL
 union sigval
 {
     int     sival_int;
     void   *sival_ptr;
 };
-#endif /* NO_UNION_SIGVAL */
+#endif /* HAVE_UNION_SIGVAL */
 
-#ifdef NO_STRUCT_SIGEVENT
+#ifndef HAVE_STRUCT_SIGEVENT
 struct sigevent
 {
     enum { SIGEV_SIGNAL = 1, SIGEV_THREAD, SIGEV_NONE };    // sigev_notify
@@ -53,22 +53,23 @@ struct sigevent
     void          (*sigev_notify_function)(union sigval);
     pthread_attr_t *sigev_notify_attributes;
 };
-#endif /* NO_STRUCT_SIGEVENT */
+#endif /* HAVE_STRUCT_SIGEVENT */
 
-#ifdef NO_TYPE_TIMER_T
+#ifndef HAVE_TYPE_TIMER_T
 typedef int timer_t;
-#endif /* NO_TYPE_TIMER_T */
+#endif /* HAVE_TYPE_TIMER_T */
 
-#ifdef NO_STRUCT_ITIMERSPEC
+#ifndef HAVE_STRUCT_ITIMERSPEC
 struct itimerspec
 {
     struct timespec it_value;
     struct timespec it_interval;
 };
-#endif /* NO_STRUCT_ITIMERSPEC */
+#endif /* HAVE_STRUCT_ITIMERSPEC */
 
-enum { CLOCK_REALTIME = 1, CLOCK_MONOTONIC };
-enum { TIMER_ABSTIME = 1 };
+/* These should be conditional too */
+enum { CLOCK_REALTIME = 1, CLOCK_MONOTONIC };   // timer_create() - type values
+enum { TIMER_ABSTIME = 1 };                     // timer_settime() - flags value
 
 extern int timer_create(int type, struct sigevent * restrict evp, timer_t * restrict trp);
 extern int timer_destroy(timer_t tr);
