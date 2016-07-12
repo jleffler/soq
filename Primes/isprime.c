@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include <time.h>
 
+/*
+** NB: setitimer() is marked obsolescent in POSIX 2008.  However, the
+** replacement (timer_create(), timer_delete(), timer_settime()) is not
+** available in Mac OS X 10.11.5 so using the obsolescent is more
+** portable than using the replacement.
+*/
 #ifndef NO_PROGRESS_REPORTING
 #include <signal.h>
 #include <sys/time.h>
