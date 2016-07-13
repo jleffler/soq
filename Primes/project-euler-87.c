@@ -78,7 +78,7 @@ int main(void)
     sieve[0] = 1;
     sieve[1] = 1;
     //printf("2\n");
-    for (int i = 2 * 2; i <= max; i += 2)
+    for (int i = 2 * 2; i < max; i += 2)
         sieve[i] = 1;
 
     for (int i = 3; i <= sqrt_max; i += 2)
