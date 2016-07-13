@@ -1,41 +1,30 @@
-# To suppress JL-specific options:
-# LDLIBS= LDFLAGS= IFLAGS=
+# SO 34959596 and SO 36116746
 
-CC     = gcc #/usr/bin/gcc
-RM_FR  = rm -fr --
-WFLAG1 = -Wall
-WFLAG2 = -Wextra
-WFLAG3 = -Wmissing-prototypes
-WFLAG4 = -Wstrict-prototypes
-WFLAG5 = -Wold-style-definition
-WFLAG6 = -Werror
-WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6}
-SFLAGS = -std=c11
-GFLAGS = -g
-OFLAGS = -O3
-UFLAGS = # Set on command line
-IFLAG1 = #-I${HOME}/inc
-IFLAGS = ${IFLAG1}
+include ../../etc/soq-head.mk
 
-LDFLAG1 = #-L${HOME}/lib/64
-LDLIB1  = #-ljl
-LDLIB2  = #-lcs50
-LDFLAGS = ${LDFLAG1}
-LDLIBS  = ${LDLIB1} ${LDLIB2}
+BASEDIR = ..
 
-CFLAGS  = ${OFLAGS} ${GFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
+PROG1 = avl1
+PROG2 = avl2
+PROG3 = avl3
+PROG4 = avl-tree
+PROG5 = avl-36116746
 
-all: avl1 avl2 avl3
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5}
+
+all: ${PROGRAMS}
 
 OBJECT.1 = AVL_tree.o test.o
 OBJECT.2 = AVL_tree.o avl2.o
 OBJECT.3 = AVL_tree.o avl3.o
 
-avl1: ${OBJECT.1}
+${PROG1}: ${OBJECT.1}
 	${CC} -o $@ ${CFLAGS} ${OBJECT.1} ${LDFLAGS} ${LDLIBS}
 
-avl2: ${OBJECT.2}
+${PROG2}: ${OBJECT.2}
 	${CC} -o $@ ${CFLAGS} ${OBJECT.2} ${LDFLAGS} ${LDLIBS}
 
-avl3: ${OBJECT.3}
+${PROG3}: ${OBJECT.3}
 	${CC} -o $@ ${CFLAGS} ${OBJECT.3} ${LDFLAGS} ${LDLIBS}
+
+include ../../etc/soq-tail.mk
