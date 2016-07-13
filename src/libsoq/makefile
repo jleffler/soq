@@ -19,12 +19,15 @@ FILES.c = \
 AUXFILES.c = \
 	errhelp.c \
 	filterio.c \
+	isqrt32.c \
+	isqrt64.c \
 	range2.c \
 	range3.c \
 	strtoi.c \
 	strtosize.c \
 
 AUXFILES.h = \
+	isqrt.h \
 	jlss.h \
 	posixver.h \
 	wraphead.h
