@@ -49,6 +49,7 @@ C_CXX_DUAL_PROGRAMS = \
 C_CXX_PROGRAMS = ${C_CXX_DUAL_PROGRAMS:=-cxx}
 
 C_ONLY_PROGRAMS = \
+	alt-min-primes \
 	isprime \
 	minimal-primes \
 	prime-factors \
