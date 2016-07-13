@@ -2,8 +2,6 @@
 
 include ../../etc/soq-head.mk
 
-BASEDIR = ..
-
 PROG1 = avl1
 PROG2 = avl2
 PROG3 = avl3

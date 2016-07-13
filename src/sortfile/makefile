@@ -1,4 +1,4 @@
-sortfile
+# sortfile
 
 include ../../etc/soq-head.mk
 
