@@ -2,13 +2,9 @@
 *.o
 *.out
 alt-min-primes
-eratosthenes-1
-eratosthenes-2
-eratosthenes-3
-eratosthenes-4
-eratosthenes-5
-eratosthenes-6
+eratosthenes-?
 eratosthenes-?-cxx
+eratosthenes-?-cxx.cpp
 isprime
 list.of.primes.bz2
 minimal-primes
