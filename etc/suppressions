@@ -490,3 +490,13 @@
    fun:__svfscanf_l
    fun:vsscanf_l
 }
+{
+    Mac-OS-X-10.11.5-Still-Reachable-030
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:malloc
+    fun:__smakebuf
+    fun:__srefill0
+    fun:__srefill
+    fun:__svfscanf_l
+}
