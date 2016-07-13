@@ -1,9 +1,10 @@
 /* Sieve of Eratosthenes */
 /* Byte per flag - odd numbers after 2 */
+#include <inttypes.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <inttypes.h>
+#include <unistd.h>
 
 enum { MAX_PRIME = 1000000000 };
 static char sieve[MAX_PRIME/2];
@@ -14,19 +15,41 @@ int main(int argc, char **argv)
     int max = MAX_PRIME;
     uint64_t sum = 0;
     uint64_t cnt = 0;
+    int opt;
+    int verbose = 0;
 
-    if (argc > 1)
-        max = atoi(argv[1]);
+    while ((opt = getopt(argc, argv, "v")) != -1)
+    {
+        switch (opt)
+        {
+        case 'v':
+            verbose = 1;
+            break;
+        default:
+            return 1;
+        }
+    }
+
+    if (optind == argc - 1)
+        max = atoi(argv[optind]);
+    else if (optind < argc - 1)
+    {
+        fprintf(stderr, "%s: Too many arguments!\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
     if (max > MAX_PRIME)
     {
         max = MAX_PRIME;
         printf("Reset max to %d\n", max);
     }
+
     if (max >= 2)
     {
         sum = 2;
         cnt = 1;
-        printf("2\n");
+        if (verbose)
+            printf("2\n");
         int sqrt_max = sqrt(max);
 
         for (i = 3; i <= sqrt_max; i += 2)
@@ -35,7 +58,8 @@ int main(int argc, char **argv)
             {
                 sum += i;
                 cnt++;
-                printf("%d\n", i);
+                if (verbose)
+                    printf("%d\n", i);
                 for (int j = i + i + i; j <= max; j += i + i)
                     sieve[j/2] = 1;
             }
@@ -47,7 +71,8 @@ int main(int argc, char **argv)
             {
                 sum += i;
                 cnt++;
-                printf("%d\n", i);
+                if (verbose)
+                    printf("%d\n", i);
             }
         }
     }
