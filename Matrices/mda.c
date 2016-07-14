@@ -1,3 +1,12 @@
+/*
+** Attempt to code up multi-dimensional array handling in C.
+**
+** Not specifically in response to any question.  Created prior to
+** 2013-04-16.  Code crashes — which is not what's supposed to happen.
+** In theory, it might even handle more than 3 dimensions; it crashes on
+** 3 at the moment.
+*/
+
 #include <assert.h>
 #include <inttypes.h>
 #include <stdarg.h>

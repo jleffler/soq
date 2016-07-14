@@ -2,6 +2,10 @@
 
 include ../../etc/soq-head.mk
 
+# Temporarily, the best way to build test programs is
+# rmk TFLAGS=-DTEST program ...
+#
+#TFLAGS  = -DTEST
 CP      = cp
 CPFLAGS = -fp
 
@@ -19,12 +23,15 @@ FILES.c = \
 AUXFILES.c = \
 	errhelp.c \
 	filterio.c \
+	isqrt32.c \
+	isqrt64.c \
 	range2.c \
 	range3.c \
 	strtoi.c \
 	strtosize.c \
 
 AUXFILES.h = \
+	isqrt.h \
 	jlss.h \
 	posixver.h \
 	wraphead.h
@@ -41,8 +48,8 @@ install: ${LIBNAME} ${FILES.h}
 	${CP} ${CPFLAGS} ${LIBNAME} ${LIBDIR}
 	${CP} ${CPFLAGS} ${FILES.h} ${HDRDIR}
 
-clean:
-	${RM_F} ${DEBRIS} ${FILES.o}
+PROGRAMS = ${FILES.c:.c=} ${AUXFILES.c:.c=}
 
-realclean: clean
-	${RM_F} ${LIBNAME}
+#${PROGRAMS}: CFLAGS += -DTEST
+
+include ../../etc/soq-tail.mk
