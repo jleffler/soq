@@ -38,21 +38,22 @@
 
 #if defined(DEBUG)
 #define DEBUG_OPT "d:"
-#define DEBUG_USE "[-d level]"
-#define DEBUG_HLP "  -d level  Enable debugging at level (0-4)\n"
+#define DEBUG_USE " [-d level]"
+#define DEBUG_HLP "  -d level    Enable debugging at level (0-4)\n"
 #else
 #define DEBUG_OPT ""
 #define DEBUG_USE ""
 #define DEBUG_HLP ""
 #endif /* DEBUG */
 
-static const char optstr[] = "hVu:" DEBUG_OPT;
-static const char usestr[] = "[-hV]" DEBUG_USE "[-u] upper";
+static const char optstr[] = "hVs:u:" DEBUG_OPT;
+static const char usestr[] = "[-hV]" DEBUG_USE " [-s segsize] [-u] upper";
 static const char hlpstr[] =
     DEBUG_HLP
-    "  -h        Print this help message and exit\n"
-    "  -u upper  Upper bound on range\n"
-    "  -V        Print version information and exit\n"
+    "  -h          Print this help message and exit\n"
+    "  -s segsize  Set segment size\n"
+    "  -u upper    Upper bound on range\n"
+    "  -V          Print version information and exit\n"
     ;
 
 //#define MAX_PRIME 1000_000_000_000ULL
@@ -184,6 +185,7 @@ int main(int argc, char **argv)
     err_setarg0(argv[0]);
 
     uint64_t max = MAX_PRIME;
+    uint64_t seg = 0;
     int opt;
 
     while ((opt = getopt(argc, argv, optstr)) != -1)
@@ -199,6 +201,9 @@ int main(int argc, char **argv)
         case 'V':
             err_version("ERATOSTHENES-6", &"@(#)$Revision$ ($Date$)"[4]);
             /*NOTREACHED*/
+        case 's':
+            seg = strtoull(optarg, 0, 0);
+            break;
         case 'u':
             max = strtoull(optarg, 0, 0);
             break;
@@ -230,7 +235,8 @@ int main(int argc, char **argv)
     ** Zero all the values.  Mark the non-primes.  Then deal with the primes.
     */
     enum { MAX_SEGMENT = 10000000 };  // Segment size is arbitrary, but less than MAX_PRIME
-    enum { MIN_SEGMENT = 10000 };     // Too small and it makes no sense to segment
+    //enum { MIN_SEGMENT = 10000 };     // Too small and it makes no sense to segment
+    enum { MIN_SEGMENT = 100 };     // Too small and it makes no sense to segment
     /* NB: make sure that testing works both above and below MIN_SEGMENT */
 
     struct prime_info info = { .sum0 = 0, .sum1 = 0, .count = 0 };
@@ -240,6 +246,9 @@ int main(int argc, char **argv)
         apply(3, &info);            // 3 is prime
 
     uint64_t csize = min_u64(MAX_SEGMENT, (max + 3) / 4);
+    if (seg != 0)
+        csize = seg;
+
     if (max < MIN_SEGMENT)
     {
         DB_TRACE(1, "Maximum number less than %d: just one segment\n", MIN_SEGMENT);
@@ -253,7 +262,7 @@ int main(int argc, char **argv)
     uint64_t *range = (uint64_t *)malloc(msize);    /*=C++=*/
     DB_TRACE(1, "csize %" PRIu64 ", rsize = %zu, msize = %zu\n", csize, rsize, msize);
 
-    for (uint64_t base = 0; base <= max; base += csize)
+    for (uint64_t base = 0; base < max; base += csize)
     {
         uint64_t limit = min_u64(base + csize, max);
         DB_TRACE(1, "Range: %" PRIu64 "-%" PRIu64 "\n", base, limit);
