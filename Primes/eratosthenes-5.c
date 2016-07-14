@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     uint64_t sum = 0;
     uint64_t cnt = 0;
     int opt;
-    int verbose;
+    int verbose = 0;
 
     while ((opt = getopt(argc, argv, "v")) != -1)
     {
