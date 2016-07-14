@@ -1,3 +1,41 @@
+/*
+** Stack Overflow question - since deleted.
+** Title: "Access Violation error. AVL TREE during insertion"
+** Body:
+** So I got an AVL tree online for a project, and I am trying to insert
+** elements with a loop to see if it works.  Obviously it's not working;
+** I am getting an access violation error.
+**
+** Here is the tree.  The code is long, I know, but I can tell you that
+** it's in the insert function not the others.
+**
+** This is the loop I have.
+**
+**      MY_TREE pRoot=NULL;
+**
+**      //pRoot = my_tree_init_default();
+**      for (i = 0;  i < 99; i++){
+**          number = i;
+**          pRoot=pRoot->insert(pRoot, number, pResult);
+**          printf("a");
+**      }
+**
+** It's crashing before 1 element is added.  However, when I do the init
+** function, 1 element is added before it crashes.  I think it has to do
+** with the function pointers.
+**
+** Traces found at:
+** http://vbnetlocal.blogspot.com/2015/06/access-violation-error-avl-tree-during.html
+** Also previously found at:
+** http://eclipsexina.blogspot.com/2015/06/access-violation-error-avl-tree-during.html
+** Still no question number - grrrr!
+** The code crashes as advertised.
+**
+** I've done an indeterminate amount of work done on the code.  The
+** function declarations at the top have been cleaned up (duplicate
+** removed), and the code overall has been run through 'decrust'.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,14 +48,13 @@ typedef struct node Node;
 
 MY_TREE deldata(MY_TREE pRoot, int, int *);
 MY_TREE delete_node(MY_TREE pRoot, MY_TREE hNode, int *);
-Node_ptr balright(Node_ptr pRoot, int *);
-Node_ptr balleft(Node_ptr pRoot, int *);
-void display(MY_TREE pRoot);
-void tree_destroy(MY_TREE pRoot);
-Node_ptr  balleft(Node_ptr pRoot, int *h);
 MY_TREE insert(MY_TREE hRoot, int data, int *h);
-void init_tree_functions(Node_ptr pRoot);
 MY_TREE my_tree_init_default(int data);
+Node_ptr balleft(Node_ptr pRoot, int *h);
+Node_ptr balright(Node_ptr pRoot, int *);
+void display(MY_TREE pRoot);
+void init_tree_functions(Node_ptr pRoot);
+void tree_destroy(MY_TREE pRoot);
 
 struct node
 {

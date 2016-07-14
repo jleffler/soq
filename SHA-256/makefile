@@ -35,9 +35,8 @@ FILES.c = \
 FILES.o = ${FILES.c:.c=.o}
 
 PROG1 = shatest-ietf
-PROG2 = so-20020953-sha256
 
-PROGRAMS = ${PROG1} ${PROG2}
+PROGRAMS = ${PROG1}
 
 all: ${PROGRAMS}
 
