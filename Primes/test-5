@@ -2,8 +2,10 @@
 
 count=${1:-1000}
 
-if rmk -q eratosthenes-5 ||
-   rmk    eratosthenes-5
+: "${MAKE:=make}"
+
+if ${MAKE} -q eratosthenes-5 ||
+   ${MAKE}    eratosthenes-5
 then
     timecmd -m -- eratosthenes-5 $count
     timecmd -m -- test-0 $count

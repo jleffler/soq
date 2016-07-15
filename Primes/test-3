@@ -2,8 +2,10 @@
 
 count=${1:-1000}
 
-if rmk -q eratosthenes-3 ||
-   rmk    eratosthenes-3
+: "${MAKE:=make}"
+
+if ${MAKE} -q eratosthenes-3 ||
+   ${MAKE}    eratosthenes-3
 then
     eratosthenes-3 $count | grep -v '^[0-9]'
 fi
