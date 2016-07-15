@@ -5,6 +5,6 @@ count=${1:-1000}
 if rmk -q eratosthenes-5 ||
    rmk    eratosthenes-5
 then
-    eratosthenes-5 $count
-    test-0 $count
+    timecmd -m -- eratosthenes-5 $count
+    timecmd -m -- test-0 $count
 fi

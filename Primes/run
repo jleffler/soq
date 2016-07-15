@@ -1,6 +1,4 @@
 #!/bin/bash
 
 blanklines
-date
-echo
-"$@"
+timecmd -m -- "$@"
