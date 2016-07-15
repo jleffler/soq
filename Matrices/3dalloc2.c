@@ -1,4 +1,12 @@
 /* SO 18579583 Segmentation fault error in 3d array memory allocation */
+/*
+** It appears that 3dalloc2.c was known-to-be-buggy in the releasing of
+** memory on allocation failure, and 3dalloc3.c contained the fix for
+** the problem.  Careful testing of 3dalloc2.c showed the bug, and
+** fixing produced essentially the same fix a second time.  Mildly
+** exasperating that there was no annotation about this.  So, after some
+** work, the files 3dalloc2.c and 3dalloc3.c are the same.
+*/
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,16 +66,16 @@ static int ***allocate_3d_array(int no1, int ****a)
         {
             if (((*a)[l][h]=(int*)xmalloc(2*sizeof(int))) == 0)
             {
-                /* Release prior items in current row */
+                /* Release prior items in current (partial) row */
                 for (int h1 = 0; h1 < h; h1++)
                     xfree((*a)[l][h1]);
-                /* Release items in prior rows */
+                /* Release items in prior (complete) rows */
                 for (int l1 = 0; l1 < l; l1++)
                 {
                     for (int h1 = 0; h1 < no1; h1++)
                         xfree((*a)[l1][h1]);
                 }
-                /* Release all the rows */
+                /* Release entries in first (complete) level of array */
                 for (int l0 = 0; l0 < no1; l0++)
                     xfree((*a)[l0]);
                 xfree(*a);

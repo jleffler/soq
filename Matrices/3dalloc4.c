@@ -1,10 +1,26 @@
 /* SO 18579583 Segmentation fault error in 3d array memory allocation */
+/*
+** Closely related to 3dalloc2.c and 3dalloc3.c, but using far fewer
+** memory allocations, which dramatically simplifies the error recovery.
+*/
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static int fail_after = 0;
 static int num_allocs = 0;
+static int debug = 0;
+
+static void xfree(void *vp)
+{
+    if (debug)
+    {
+        static int free_counter = 0;
+        printf("free :%.2d: %p\n", ++free_counter, vp);
+    }
+    free(vp);
+}
 
 static void *xmalloc(size_t size)
 {
@@ -13,7 +29,13 @@ static void *xmalloc(size_t size)
         fputs("Out of memory\n", stdout);
         return 0;
     }
-    return malloc(size);
+    void *vp = malloc(size);
+    if (debug)
+    {
+        static int alloc_counter = 0;
+        printf("alloc:%.2d: %p (%zu)\n", ++alloc_counter, vp, size);
+    }
+    return vp;
 }
 
 static int ***allocate_3d_array(int no1, int ****a)
@@ -24,9 +46,9 @@ static int ***allocate_3d_array(int no1, int ****a)
 
     if (d0 == 0 || d1 == 0 || d2 == 0)
     {
-        free(d0);
-        free(d1);
-        free(d2);
+        xfree(d0);
+        xfree(d1);
+        xfree(d2);
         *a = 0;
         return 0;
     }
@@ -50,9 +72,9 @@ static void destroy_3d_array(int ***a)
 {
     if (a != 0)
     {
-        free(a[0][0]);
-        free(a[0]);
-        free(a);
+        xfree(a[0][0]);
+        xfree(a[0]);
+        xfree(a);
     }
 }
 
@@ -81,17 +103,48 @@ static void test_allocation(int no1)
     destroy_3d_array(a);
 }
 
+static const char helpstr[] =
+    "  -d       Turn debug printing on\n"
+    "  -h       Print this help message and exit\n"
+    "  -n loop  Minimum number of failures (default 0)\n"
+    "  -s size  Size of array to allocate (default 5)\n"
+    "  -x loop  Maximum number of failures (default 33)\n"
+    ;
+
 int main(int argc, char **argv)
 {
     int no1 = 5;
-    int fail_limit = 4;
+    int min = 0;
+    int max = 33;
+    int opt;
 
-    if (argc == 2)
-        fail_limit = atoi(argv[1]);
-
-    for (fail_after = 0; fail_after < fail_limit; fail_after++)
+    while ((opt = getopt(argc, argv, "dhn:s:x:")) != -1)
     {
-        printf("Fail after: %d\n", fail_after);
+        switch (opt)
+        {
+        case 'd':
+            debug = 1;
+            break;
+        case 'h':
+            puts(helpstr);
+            return EXIT_SUCCESS;
+        case 'n':
+            min = atoi(optarg);
+            break;
+        case 's':
+            no1 = atoi(optarg);
+            break;
+        case 'x':
+            max = atoi(optarg);
+            break;
+        default:
+            return EXIT_FAILURE;
+        }
+    }
+
+    for (fail_after = min; fail_after < max; fail_after++)
+    {
+        printf("Fail after: %d (size %d)\n", fail_after, no1);
         num_allocs = 0;
         test_allocation(no1);
     }
