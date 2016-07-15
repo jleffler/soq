@@ -15,6 +15,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-002
    Memcheck:Leak
@@ -32,6 +33,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-003
    Memcheck:Leak
@@ -49,6 +51,7 @@
    fun:map_images_nolock
    fun:_ZL25batchFinalizeOnTwoThreadsP14_malloc_zone_tPFvP16auto_zone_cursorPFvPvS3_ES3_ES2_m
 }
+
 {
    Mac-OS-X-10.11.4-Leak-004
    Memcheck:Leak
@@ -66,6 +69,7 @@
    fun:_ZN4dyld36registerImageStateBatchChangeHandlerE17dyld_image_statesPFPKcS0_jPK15dyld_image_infoE
    fun:dyld_register_image_state_change_handler
 }
+
 {
    Mac-OS-X-10.11.4-Leak-005
    Memcheck:Leak
@@ -83,6 +87,7 @@
    fun:_ZN4dyld36registerImageStateBatchChangeHandlerE17dyld_image_statesPFPKcS0_jPK15dyld_image_infoE
    fun:dyld_register_image_state_change_handler
 }
+
 {
    Mac-OS-X-10.11.4-Leak-006
    Memcheck:Leak
@@ -100,6 +105,7 @@
    fun:_os_object_init
    fun:libdispatch_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-007
    Memcheck:Leak
@@ -117,6 +123,7 @@
    fun:_os_object_init
    fun:libdispatch_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-008
    Memcheck:Leak
@@ -134,6 +141,7 @@
    fun:map_images_nolock
    fun:_ZL25batchFinalizeOnTwoThreadsP14_malloc_zone_tPFvP16auto_zone_cursorPFvPvS3_ES3_ES2_m
 }
+
 {
    Mac-OS-X-10.11.4-Leak-009
    Memcheck:Leak
@@ -151,6 +159,7 @@
    fun:_ZL25batchFinalizeOnTwoThreadsP14_malloc_zone_tPFvP16auto_zone_cursorPFvPvS3_ES3_ES2_m
    fun:_ZN4dyldL18notifyBatchPartialE17dyld_image_statesbPFPKcS0_jPK15dyld_image_infoE
 }
+
 {
    Mac-OS-X-10.11.4-Leak-010
    Memcheck:Leak
@@ -168,6 +177,7 @@
    fun:_ZL22copySwiftV1MangledNamePKcb
    fun:_read_images
 }
+
 {
    Mac-OS-X-10.11.4-Leak-011
    Memcheck:Leak
@@ -185,6 +195,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-012
    Memcheck:Leak
@@ -202,6 +213,7 @@
    fun:_ZN16ImageLoaderMachO16doInitializationERKN11ImageLoader11LinkContextE
    fun:_ZN11ImageLoader23recursiveInitializationERKNS_11LinkContextEjRNS_21InitializerTimingListERNS_15UninitedUpwardsE
 }
+
 {
    Mac-OS-X-10.11.4-Leak-013
    Memcheck:Leak
@@ -219,6 +231,7 @@
    fun:_os_object_init
    fun:libdispatch_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-014
    Memcheck:Leak
@@ -236,6 +249,7 @@
    fun:_ZN16ImageLoaderMachO18doModInitFunctionsERKN11ImageLoader11LinkContextE
    fun:_ZN16ImageLoaderMachO16doInitializationERKN11ImageLoader11LinkContextE
 }
+
 {
    Mac-OS-X-10.11.4-Leak-015
    Memcheck:Leak
@@ -253,6 +267,7 @@
    fun:dyld_register_image_state_change_handler
    fun:_objc_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-016
    Memcheck:Leak
@@ -270,6 +285,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-017
    Memcheck:Leak
@@ -287,6 +303,7 @@
    fun:_ZL22copySwiftV1MangledNamePKcb
    fun:_ZL22copySwiftV1MangledNamePKcb
 }
+
 {
    Mac-OS-X-10.11.4-Leak-018
    Memcheck:Leak
@@ -304,6 +321,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-019
    Memcheck:Leak
@@ -321,6 +339,7 @@
    fun:_os_object_init
    fun:libdispatch_init
 }
+
 {
    Mac-OS-X-10.11.4-Leak-020
    Memcheck:Leak
@@ -338,6 +357,7 @@
    fun:libdispatch_init
    fun:libSystem_initializer
 }
+
 {
    Mac-OS-X-10.11.4-Leak-021
    Memcheck:Leak
@@ -355,6 +375,7 @@
    fun:_ZN4dyld5_mainEPK12macho_headermiPPKcS5_S5_Pm
    fun:_ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm
 }
+
 {
    Mac-OS-X-10.11.4-Leak-020a
    Memcheck:Leak
@@ -372,6 +393,7 @@
    fun:libdispatch_init
    fun:libSystem_initializer
 }
+
 {
    Mac-OS-X-10.11.4-Leak-021a
    Memcheck:Leak
@@ -389,6 +411,7 @@
    fun:_ZN4dyld5_mainEPK12macho_headermiPPKcS5_S5_Pm
    fun:_ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm
 }
+
 {
    Mac-OS-X-10.11.4-Leak-022
    Memcheck:Leak
@@ -398,6 +421,7 @@
    fun:__swsetup
    fun:__sfvwrite
 }
+
 {
    Mac-OS=X=10.11.4-Leak-023
    Memcheck:Leak
@@ -415,6 +439,7 @@
    fun:_os_object_init
    fun:libdispatch_init
 }
+
 {
    Mac-OS-X-10.11.5-Leak-024
    Memcheck:Leak
@@ -490,13 +515,14 @@
    fun:__svfscanf_l
    fun:vsscanf_l
 }
+
 {
-    Mac-OS-X-10.11.5-Still-Reachable-030
+    Mac-OS-X-10.11.5-Reachable-030
     Memcheck:Leak
     match-leak-kinds: reachable
     fun:malloc
     fun:__smakebuf
     fun:__srefill0
     fun:__srefill
-    fun:__svfscanf_l
 }
+
