@@ -27,7 +27,6 @@
 #include <stdint.h>
 /*
  * If you do not have the ISO standard stdint.h header file, then you
-
  * must typedef the following:
  *    name              meaning
  *  uint64_t         unsigned 64 bit integer
