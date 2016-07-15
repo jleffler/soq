@@ -4,6 +4,8 @@ The Primes directory contains a number of programs related to generating
 primes.
 There are vast chunks of overlap between them.
 
+### C (and C++) Programs
+
 The first set of programs are the Sieves of Eratosthenes in various
 forms.
 These programs all take an option `-v` to actually print the primes, but
@@ -59,17 +61,6 @@ optimizing anything away — the numbers found are used.
   Compile with `-DDEBUG` to get some (not readily intelligible)
   information about the segmentation process.
 
-* C++ variants
-
-  The files `eratosthenes-1-cxx.cpp`, `eratosthenes-2-cxx.cpp`,
-  `eratosthenes-3-cxx.cpp`, `eratosthenes-4-cxx.cpp`,
-  `eratosthenes-5-cxx.cpp`, `eratosthenes-6-cxx.cpp` are links to the
-  equivalent name minus the `-cxx`, and are used to demonstrate that the
-  code can be compiled as a C++ program as well as a C program.
-  No claims are made that the C++ code is idiomatic modern C++ &mdash;
-  it is not!
-  But it does compile and run and produce the same answers.
-
 * `isprime.c`
 
   Test harness for various 'is prime' functions.
@@ -82,7 +73,7 @@ optimizing anything away — the numbers found are used.
   [`timer_create()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_create.html),
   [`timer_destroy()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_destroy.html),
   [`timer_settime()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_settime.html)
-  functions are not available, so the code instead uses 
+  functions are not available, so the code instead uses
   [`setitimer()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/setitimer.html).
 
   The files `posix-progress.c` and `posix-timer.h` are untested code (as
@@ -150,6 +141,17 @@ optimizing anything away — the numbers found are used.
   The output should be the count of the numbers in the inclusive range
   [a, b] that have c distinct prime factors.
 
+### C++ variants
+
+  The files `eratosthenes-1-cxx.cpp`, `eratosthenes-2-cxx.cpp`,
+  `eratosthenes-3-cxx.cpp`, `eratosthenes-4-cxx.cpp`,
+  `eratosthenes-5-cxx.cpp`, `eratosthenes-6-cxx.cpp` are links to the
+  equivalent name minus the `-cxx`, and are used to demonstrate that the
+  code can be compiled as a C++ program as well as a C program.
+  No claims are made that the C++ code is idiomatic modern C++ &mdash;
+  it is not!
+  But it does compile and run and produce the same answers.
+
 ### Scripts
 
 These scripts use a program `timecmd` which is not yet in the
@@ -176,6 +178,6 @@ elapsed time.
   commands with a default size argument of 1000.
   The later scripts run multiple programs to get the results, and use
   `timecmd` again on each program separately.
-  The scripts apart from `test-0` ensure the programs are up to date
-  using `make`.
+  The scripts apart from `test-0` ensure that the programs are up to
+  date using `make`.
 
