@@ -58,10 +58,10 @@ static bool subsequence_find(const int num, bool (*checker)(int))
     {
         int subsequence = extract_digit(num, i);
 
-        if ( (*checker)(subsequence) )
+        if ((*checker)(subsequence))
             return true;
 
-        if (subsequence_find(subsequence, checker) )
+        if (subsequence_find(subsequence, checker))
             return true;
     }
 
@@ -70,7 +70,7 @@ static bool subsequence_find(const int num, bool (*checker)(int))
 
 static bool is_minimal_prime(const int candidate)
 {
-    if (!is_prime(candidate) )
+    if (!is_prime(candidate))
         return false;
 
     return !subsequence_find(candidate, &is_prime);
@@ -87,7 +87,7 @@ int main(const int argc, const char *argv[])
 
     for (int i = 0; i < upto; i++)
     {
-        if (is_minimal_prime(i) )
+        if (is_minimal_prime(i))
         {
             printf("%d is minimal\n", i);
         }
