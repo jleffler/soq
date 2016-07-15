@@ -3,8 +3,7 @@
 
 include etc/soq-head.mk
 
-IFLAGS  = -I./inc
-LDFLAG1 = -L./lib
+BASEDIR = .
 
 default:
 	@echo "You must specify a target to build"
