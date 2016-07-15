@@ -2,8 +2,10 @@
 
 count=${1:-1000}
 
-if rmk -q eratosthenes-6 eratosthenes-5 ||
-   rmk    eratosthenes-6 eratosthenes-5
+: "${MAKE:=make}"
+
+if ${MAKE} -q eratosthenes-6 eratosthenes-5 ||
+   ${MAKE}    eratosthenes-6 eratosthenes-5
 then
     #valgrind --suppressions=../suppressions eratosthenes-6 $count
     timecmd -m -- eratosthenes-6 ${E6_DEBUG} $count
