@@ -123,6 +123,7 @@ SO_DIRECTORIES = \
 BUILD_DIRECTORIES = \
 	libcs50 \
 	libsoq \
+	matrices \
 	miscellany \
 	primes \
 	sortfile \
