@@ -16,6 +16,7 @@ PROG09 = matmul99
 PROG10 = mda
 PROG11 = vlamat
 PROG12 = vlastruct
+PROG13 = alloc3dmat
 
 PROGRAMS = \
 	${PROG01} \
@@ -29,6 +30,7 @@ PROGRAMS = \
 	${PROG10} \
 	${PROG11} \
 	${PROG12} \
+	${PROG13} \
 
 all: ${PROGRAMS}
 
