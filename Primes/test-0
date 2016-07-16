@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Generate the count and sum of primes up to a given value.
+#
+# Uses quasi-independent program 'primes' to generate a list of prime
+# numbers, and then 'wc' and 'total' to count and sum the values.
+# The output is similar to what the eratosthenes-N programs generate.
 
 count=${1:-1000}
 

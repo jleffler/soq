@@ -86,6 +86,9 @@ optimizing anything away — the numbers found are used.
   command line, or the numbers from a built-in list.
   It works with 64-bit unsigned integers.
 
+  Amongst others, see SO 0002-3287 -- though I don't think this was a
+  result of answering that question.
+
 * `minimal-primes.c`
 
   SO 3383-8621 seeks minimal prime numbers, which are numbers that are
