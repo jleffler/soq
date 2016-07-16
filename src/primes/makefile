@@ -1,6 +1,6 @@
 # Primes - various prime number programs
 
-include ../etc/soq-head.mk
+include ../../etc/soq-head.mk
 
 BASEDIR = ..
 
@@ -53,4 +53,4 @@ OUTFILES = \
 	eratosthenes-5-cxx.cpp \
 	eratosthenes-6-cxx.cpp \
 
-include ../etc/soq-tail.mk
+include ../../etc/soq-tail.mk

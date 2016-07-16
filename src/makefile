@@ -124,6 +124,7 @@ BUILD_DIRECTORIES = \
 	libcs50 \
 	libsoq \
 	miscellany \
+	primes \
 	sortfile \
 	sorttest \
 	${SO_DIRECTORIES} \
