@@ -2,8 +2,6 @@
 
 include ../../etc/soq-head.mk
 
-BASEDIR = ..
-
 CXX_ONLY_PROGRAMS = \
 	so28005392 \
 
