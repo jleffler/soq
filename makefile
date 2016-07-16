@@ -8,8 +8,10 @@ BASEDIR = .
 default:
 	@echo "You must specify a target to build"
 
-.DEFAULT:
+all:
 	+cd src; ${MAKE} $@
+	+cd Primes; ${MAKE} $@
+	+cd Matrices; ${MAKE} $@
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
@@ -17,3 +19,8 @@ remove:
 
 clean:
 	${RM_FR} ${DEBRIS} *.dSYM
+
+realclean:
+	+cd src; ${MAKE} clean
+	+cd Primes; ${MAKE} clean
+	+cd Matrices; ${MAKE} clean
