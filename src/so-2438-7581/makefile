@@ -69,3 +69,6 @@ remove:
 clean:
 	${RM_FR} *.o *.dSYM core a.out ${PROGRAM1}.out ${PROGRAM2}.out
 	${RM_FR} ${PROGRAMS} ${LIBRARY1} ${LIBRARY2}
+
+.DEFAULT:
+	@echo "No commands specified for building $@"
