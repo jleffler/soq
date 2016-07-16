@@ -1,2 +1,6 @@
+chk-utf8-test
+chk-wchar-test
 output
 output.nolocale
+utf8-test
+wchar-test
