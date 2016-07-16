@@ -1,8 +1,6 @@
 # Questions about multi-dimensional arrays in C
 
-include ../etc/soq-head.mk
-
-BASEDIR = ..
+include ../../etc/soq-head.mk
 
 PROG01 = 2da
 PROG02 = 3dalloc1
@@ -32,4 +30,4 @@ PROGRAMS = \
 
 all: ${PROGRAMS}
 
-include ../etc/soq-tail.mk
+include ../../etc/soq-tail.mk
