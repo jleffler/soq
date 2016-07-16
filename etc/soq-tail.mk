@@ -6,6 +6,9 @@
 # OUTFILES is set per makefile to hold output file names that should be
 # cleaned.
 
+.DEFAULT:
+	@echo "No commands specified for building $@"
+
 clean:
 	${RM_F} *.o *.a ${DEBRIS} ${OUTFILES}
 	${RM_F} ${PROGRAMS}
