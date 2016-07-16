@@ -4,6 +4,12 @@ These are assorted answers to questions about matrix handling in C.
 It would not be surprising to find that there are other answers in the
 src/so-abcd-wxyz directories that should be here too.
 
+NB: In this directory, the term matrix is used to describe both arrays
+of pointers (to arrays of pointers (to ...)) to elements, and also to
+simple blocks of elements.
+Both are accessed using the multiple square bracket notation &mdash; the
+underlying access mechanics are different, though.
+
 ### SO 1719-2011
 
 * `matmul89.c` &mdash; variable-dimension 2D array multiplication in strict C89.
@@ -22,6 +28,15 @@ failure.
 * `3dalloc4.c` &mdash; Dramatically reduced memory allocations, dramatically simplifying recovery.
 * `matmake3d.c` &mdash; Another crack at this issue.
     Not sure about its relation to the `3dalloc?.c` code.
+
+### SO 2881-8521
+
+* `alloc3dmat.c` &mdash; Allocate a 3D matrix in a single memory allocation.
+
+  The code makes some mostly excusable (though not strictly justifiable)
+  assumptions about alignment requirements, namely that pointers are as
+  stringently aligned as type `double`.  Fixing that would not be all that
+  easy, though neither would it be impossible.
 
 ### SO 2635-0717
 
