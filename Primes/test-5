@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Run eratosthenes-5 and show the count and sum
+# Validate with 'test-0'
+#
+# Originally needed to eliminate the list of prime numbers, but the
+# program only generates them now if invoked with the -v option (hence
+# you might run: eratosthenes-5 "-v 1000" for example).
 
 count=${1:-1000}
 

@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Run eratosthenes-1 and show the count and sum
+#
+# Originally needed to eliminate the list of prime numbers, but the
+# program only generates them now if invoked with the -v option (hence
+# you might run: eratosthenes-1 "-v 1000" for example).
 
 count=${1:-1000}
 
@@ -7,5 +13,5 @@ count=${1:-1000}
 if ${MAKE} -q eratosthenes-1 ||
    ${MAKE}    eratosthenes-1
 then
-    eratosthenes-1 $count | grep -v '^[0-9]'
+    eratosthenes-1 $count
 fi

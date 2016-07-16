@@ -1,11 +1,18 @@
 #!/bin/bash
+#
+# Run eratosthenes-6 (segmented sieve) and show the count and sum
+# Validate against eratosthenes-5 and test-0
+#
+# Originally needed to eliminate the list of prime numbers, but the
+# program only generates them now if invoked with the -v option (hence
+# you might run: eratosthenes-6 "-v 1000" for example).
 
 count=${1:-1000}
 
 : "${MAKE:=make}"
 
 if ${MAKE} -q eratosthenes-6 eratosthenes-5 ||
-   ${MAKE}    eratosthenes-6 eratosthenes-5
+   ${MAKE}    eratosthenes-6 eratosthenes-5 UFLAGS=-DDEBUG
 then
     #valgrind --suppressions=../suppressions eratosthenes-6 $count
     timecmd -m -- eratosthenes-6 ${E6_DEBUG} $count
