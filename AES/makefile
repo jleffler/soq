@@ -2,8 +2,8 @@ include ../etc/soq-head.mk
 
 BASEDIR = ..
 
-TFLAGS = -DTEST
-XFLAGS = -DFIXED_TABLES
+VFLAG1 = -DTEST
+VFLAG2 = -DFIXED_TABLES
 
 OUTFILES = ${PROG2}.c ${FILES.c}
 
@@ -31,14 +31,17 @@ ${FILE1.c}: ${PROG1}.c
 ${FILE2.c}: ${PROG2}.c
 	${LN} -s ${PROG2}.c ${FILE2.c}
 
+${PROG1}: ${PROG1}.c
+	${CC} -o $@ ${CFLAGS} ${VFLAG1} $@.c ${LDFLAGS} ${LDLIBS}
+
 ${PROG2}: ${PROG2}.c
-	${CC} -o $@ ${CFLAGS} ${XFLAGS} $@.c ${LDFLAGS} ${LDLIBS}
+	${CC} -o $@ ${CFLAGS} ${VFLAG1} ${VFLAG2} $@.c ${LDFLAGS} ${LDLIBS}
 
 ${FILE1.o}: ${FILE1.c}
 	${CC} -c ${CFLAGS} $*.c
 
 ${FILE2.o}: ${FILE2.c}
-	${CC} -c ${CFLAGS} ${XFLAGS} $*.c
+	${CC} -c ${CFLAGS} ${VFLAG2} $*.c
 
 test: all
 	time ${PROG1}
