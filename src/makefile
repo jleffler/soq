@@ -119,6 +119,7 @@ SO_DIRECTORIES = \
 	so-3799-7620 \
 	so-3804-4987 \
 	so-3807-9550 \
+	so-3842-7289 \
 
 BUILD_DIRECTORIES = \
 	libcs50 \
