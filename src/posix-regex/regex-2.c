@@ -79,9 +79,10 @@ int main(int argc, char **argv)
     compile_regex(&r, regex_text);
 
     char line[1024];
-    struct AddressRange addresses[100];
+    enum { MAX_RANGE = 100 };
+    struct AddressRange addresses[MAX_RANGE];
     size_t n_addr = 0;
-    while (fgets(line, sizeof(line), fp) != NULL)
+    while (fgets(line, sizeof(line), fp) != NULL && n_addr < MAX_RANGE)
     {
         if (match_regex(&r, line, &addresses[n_addr]))
             n_addr++;
