@@ -1,11 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static int verbose = 0;
 
-/* Compile the regular expression described by "regex_text" into "r". */
+/* Compile the regular expression or report error and exit */
 static void compile_regex(regex_t *r, const char *regex_text)
 {
     int status = regcomp(r, regex_text, REG_EXTENDED | REG_NEWLINE);
@@ -19,10 +18,7 @@ static void compile_regex(regex_t *r, const char *regex_text)
     }
 }
 
-/*
-   Match the string in "to_match" against the compiled regular
-   expression in "r".
- */
+/* Match the string against the compiled regular expression */
 static void match_regex(regex_t *r, const char *to_match)
 {
     const char *p = to_match;
@@ -61,16 +57,16 @@ int main(int argc, char **argv)
 
     if (fp == NULL)
     {
-        perror(filename); // print the error message on stderr.
+        perror(filename);
         return 1;
     }
 
     regex_t r;
-    const char *regex_text = "\\[(0x[0-9a-fA-F]+) - (0x[0-9a-fA-F]+)\\].*\\[stack\\]";
+    const char regex_text[] = "\\[(0x[0-9a-fA-F]+) - (0x[0-9a-fA-F]+)\\].*\\[stack\\]";
     compile_regex(&r, regex_text);
 
     char line[1024];
-    while (fgets(line, sizeof(line), fp) != NULL)     /* read a line from a file */
+    while (fgets(line, sizeof(line), fp) != NULL)
         match_regex(&r, line);
 
     fclose(fp);
