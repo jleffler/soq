@@ -34,7 +34,7 @@ static void match_regex(regex_t *r, const char *to_match)
 
     while (regexec(r, p, n_matches, match, 0) == 0)
     {
-        for (int i = 0; i < n_matches && match[i].rm_so != -1; i++)
+        for (int i = (verbose ? 0 : 1); i < n_matches && match[i].rm_so != -1; i++)
         {
             int start = match[i].rm_so + (p - to_match);
             int finish = match[i].rm_eo + (p - to_match);
