@@ -126,6 +126,7 @@ BUILD_DIRECTORIES = \
 	libsoq \
 	matrices \
 	miscellany \
+	posix-regex \
 	primes \
 	sortfile \
 	sorttest \
