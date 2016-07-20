@@ -1,8 +1,15 @@
+#include <inttypes.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 static int verbose = 0;
+
+struct AddressRange
+{
+    uint64_t lo;
+    uint64_t hi;
+};
 
 /* Compile the regular expression or report error and exit */
 static void compile_regex(regex_t *r, const char *regex_text)
@@ -19,29 +26,35 @@ static void compile_regex(regex_t *r, const char *regex_text)
 }
 
 /* Match the string against the compiled regular expression */
-static void match_regex(regex_t *r, const char *to_match)
+static int match_regex(regex_t *r, const char *to_match, struct AddressRange *addr)
 {
-    const char *p = to_match;
     const int n_matches = 10;
     regmatch_t match[n_matches];
+    int rc = 0;
 
     if (verbose)
         printf("-->> %s:\n", __func__);
 
-    while (regexec(r, p, n_matches, match, 0) == 0)
+    if (regexec(r, to_match, n_matches, match, 0) == 0)
     {
+        uint64_t values[3] = { 0, 0, 0 };
         for (int i = (verbose ? 0 : 1); i < n_matches && match[i].rm_so != -1; i++)
         {
-            int start = match[i].rm_so + (p - to_match);
-            int finish = match[i].rm_eo + (p - to_match);
-            printf("$%d = (%2d:%-2d) '%.*s'\n",
-                   i, start, finish, finish - start, to_match + start);
+            int start = match[i].rm_so;
+            int finish = match[i].rm_eo;
+            if (verbose)
+                printf("$%d = (%2d:%-2d) '%.*s'\n",
+                       i, start, finish, finish - start, to_match + start);
+            values[i] = strtoul(to_match + start, 0, 16);
         }
-        p += match[0].rm_eo;
+        addr->lo = values[1];
+        addr->hi = values[2];
+        rc = 1;
     }
 
     if (verbose)
-        printf("<<-- %s:\n", __func__);
+        printf("<<-- %s: %d\n", __func__, rc);
+    return rc;
 }
 
 int main(int argc, char **argv)
@@ -66,11 +79,22 @@ int main(int argc, char **argv)
     compile_regex(&r, regex_text);
 
     char line[1024];
+    struct AddressRange addresses[100];
+    size_t n_addr = 0;
     while (fgets(line, sizeof(line), fp) != NULL)
-        match_regex(&r, line);
+    {
+        if (match_regex(&r, line, &addresses[n_addr]))
+            n_addr++;
+    }
 
     fclose(fp);
     regfree(&r);
+
+    for (size_t i = 0; i < n_addr; i++)
+    {
+        printf("[%2zu] [0x%12" PRIX64 " - 0x%12" PRIX64 "]\n",
+               i, addresses[i].lo, addresses[i].hi);
+    }
 
     return 0;
 }
