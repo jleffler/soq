@@ -1,9 +1,13 @@
 ### POSIX Regex
 
 Question from Ramarao C <dramaraopatients@gmail.com> sent to my Gmail.
+The question arrived out of thin air - I assumed it was someone from SO
+but subsequent emails suggested maybe not - about POSIX regular
+expressions.
 
-Question arrived out of thin air - I assumed it was someone from SO but
-subsequent emails suggested maybe not - about POSIX regular expressions.
+On further review, this is clearly a follow-up to SO 3843-9698, which
+asked how to read the contents of a text file into a single string so
+that the data can be parsed with POSIX regular expressions.
 
 The data is in `jain.txt`.
 
