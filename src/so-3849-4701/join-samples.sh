@@ -3,7 +3,7 @@
 # SO 38494701
 
 tmp=$(mktemp ./tmp.XXXXXX)
-trap 'rm -f "$tmp".?; exit 1' 0 1 2 3 13 15
+trap 'rm -f "$tmp" "$tmp".?; exit 1' 0 1 2 3 13 15
 
 sed 's/[[:space:]].*//' "$@" | sort -u > $tmp.0
 
@@ -29,5 +29,5 @@ done
 # invokes this script (same as you specify the input file names on the command line).
 sed 's/,/    /g' "$tmp.1" # > integrate.file
 
-rm -f "$tmp".?
+rm -f "$tmp" "$tmp".?
 trap 0 1 2 3 13 15
