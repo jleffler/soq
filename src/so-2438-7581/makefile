@@ -15,7 +15,7 @@ SFLAGS = -std=c11
 GFLAGS = -g
 OFLAGS = -O3
 UFLAGS = # Set on command line
-IFLAG1 = -I${HOME}/inc
+IFLAG1 = #-I${HOME}/inc
 IFLAGS = ${IFLAG1}
 
 SOEXT   = dylib
@@ -43,6 +43,8 @@ PROGRAM2 = test2
 PROGRAMS = ${PROGRAM1} ${PROGRAM2}
 
 all: headers programs
+
+test: all
 	${PROGRAM1} | tee ${PROGRAM1}.out
 	${PROGRAM2} | tee ${PROGRAM2}.out
 	diff -u ${PROGRAM1}.out ${PROGRAM2}.out || true
