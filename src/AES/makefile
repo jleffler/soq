@@ -1,6 +1,4 @@
-include ../etc/soq-head.mk
-
-BASEDIR = ..
+include ../../etc/soq-head.mk
 
 VFLAG1 = -DTEST
 VFLAG2 = -DFIXED_TABLES
@@ -47,4 +45,4 @@ test: all
 	time ${PROG1}
 	time ${PROG2}
 
-include ../etc/soq-tail.mk
+include ../../etc/soq-tail.mk
