@@ -123,6 +123,8 @@ SO_DIRECTORIES = \
 	so-3849-4701 \
 
 BUILD_DIRECTORIES = \
+	AES \
+	SHA-256 \
 	libcs50 \
 	libsoq \
 	matrices \

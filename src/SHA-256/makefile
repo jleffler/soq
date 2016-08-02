@@ -1,4 +1,6 @@
-CC     = gcc #/usr/bin/gcc
+# Makefile for reference SHA-256 implementation from IETF RFC 4634
+
+CC     = gcc
 RM_FR  = rm -fr --
 WFLAG1 = -Wall
 WFLAG2 = -Wextra
@@ -11,19 +13,16 @@ SFLAGS = -std=c11
 GFLAGS = -g
 OFLAGS = -O3
 UFLAGS = # Set on command line
-IFLAG1 = -I${HOME}/inc
-IFLAGS = #${IFLAG1}
+IFLAGS =
 
-LDFLAG1 = -L${HOME}/lib/64
-LDLIB1  = -ljl
-LDFLAGS = #${LDFLAG1}
-LDLIBS  = #${LDLIB1}
+LDFLAGS =
+LDLIBS  =
 
 CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${UFLAGS}
 
 FILES.h = \
 	sha-private.h \
-	sha.h
+	sha.h \
 
 FILES.c = \
 	hmac.c \
@@ -31,7 +30,8 @@ FILES.c = \
 	sha224-256.c \
 	sha384-512.c \
 	shatest-ietf.c \
-	usha.c
+	usha.c \
+
 FILES.o = ${FILES.c:.c=.o}
 
 PROG1 = shatest-ietf
