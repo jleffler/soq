@@ -1,23 +1,10 @@
-# @(#)$Id: makefile,v 1.3 2016/01/23 20:24:55 jleffler Exp $
+# @(#)SO 2438-7581 - Cross-library Linking
 #
 # Makefile for demonstrating cross-library linking
 
-CC     = gcc #/usr/bin/gcc
-RM_FR  = rm -fr --
-WFLAG1 = -Wall
-WFLAG2 = -Wextra
-WFLAG3 = -Wmissing-prototypes
-WFLAG4 = -Wstrict-prototypes
-WFLAG5 = -Wold-style-definition
-WFLAG6 = -Werror
-WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6}
-SFLAGS = -std=c11
-GFLAGS = -g
-OFLAGS = -O3
-UFLAGS = # Set on command line
-IFLAG1 = #-I${HOME}/inc
-IFLAGS = ${IFLAG1}
+include ../../etc/soq-head.mk
 
+# Configured for Mac OS X - specify SOEXT=so or equivalent on other platforms
 SOEXT   = dylib
 LDFLAG1 = -L.
 LDLIB1  = -lrary1
@@ -25,8 +12,6 @@ LDLIB2  = -lrary2
 LDFLAGS = ${LDFLAG1}
 LDLIBS1 = ${LDLIB1} ${LDLIB2}
 LDLIBS2 = ${LDLIB2} ${LDLIB1}
-
-CFLAGS  = ${OFLAGS} ${GFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
 LNKSHLIB = -shared
 
@@ -41,6 +26,8 @@ TEST1.o = ${PROGRAM1}.o
 PROGRAM1 = test1
 PROGRAM2 = test2
 PROGRAMS = ${PROGRAM1} ${PROGRAM2}
+
+OUTFILES = ${LIBRARY1} ${LIBRARY2} ${PROGRAM1}.out ${PROGRAM2}.out
 
 all: headers programs
 
@@ -64,13 +51,4 @@ ${LIBRARY1}: ${LIB1.o} ${LIBRARY2}
 ${LIBRARY2}: ${LIB2.o}
 	${CC} ${CFLAGS} ${LNKSHLIB} -o $@ ${LIB2.o}
 
-remove:
-	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
-	${RM_FR} ${PROG} ${PROG}.*
-
-clean:
-	${RM_FR} *.o *.dSYM core a.out ${PROGRAM1}.out ${PROGRAM2}.out
-	${RM_FR} ${PROGRAMS} ${LIBRARY1} ${LIBRARY2}
-
-.DEFAULT:
-	@echo "No commands specified for building $@"
+include ../../etc/soq-tail.mk
