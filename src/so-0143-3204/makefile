@@ -1,3 +1,8 @@
+# Makefile for SO 0143-3204 (How to use extern to share variables in C)
+
+# NB: The mkdep program used may not have exactly the same interface as
+#     the 'standard' versions of the program.
+
 PERL   = perl
 UNIQ   = uniq
 MKDEP  = mkdep
@@ -14,13 +19,10 @@ SFLAGS = -std=c11
 GFLAGS = -g
 OFLAGS = -O3
 UFLAGS = # Set on command line
-IFLAG1 = #-I${HOME}/inc
-IFLAGS = ${IFLAG1}
+IFLAGS = # -I/where/ever
 
-LDFLAG1 = #-L${HOME}/lib/64
-LDLIB1  = #-ljl
-LDFLAGS = ${LDFLAG1}
-LDLIBS  = ${LDLIB1}
+LDFLAGS = # -L/some/directory
+LDLIBS  = # -lsome
 
 CFLAGS  = ${OFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
