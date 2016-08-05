@@ -82,10 +82,7 @@ void db_print(int level, const char *fmt,...)
         fflush(stdout);
         fputs(db_indent(), fp);
         va_start(args, fmt);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
         vfprintf(fp, fmt, args);
-#pragma GCC diagnostic pop
         va_end(args);
         fflush(fp);
     }

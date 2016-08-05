@@ -270,10 +270,7 @@ static void (err_stdio)(FILE *fp, int flags, int errnum, const char *format, va_
     }
     if (flags & ERR_PID)
         fprintf(fp, "pid=%d: ", (int)getpid());
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
     vfprintf(fp, format, args);
-#pragma GCC diagnostic pop
     if (flags & ERR_ERRNO)
         fprintf(fp, "error (%d) %s\n", errnum, strerror(errnum));
 }
