@@ -2,8 +2,8 @@
 
 include ../../etc/soq-head.mk
 
-PROG01 = #incunabulum
-PROG02 = #modern-incunabulum
+PROG01 = #incunabulum-ancient
+PROG02 = #incunabulum-modern
 PROG03 = stld
 PROG04 = rangesquash1
 PROG05 = rangesquash2
