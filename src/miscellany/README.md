@@ -22,9 +22,13 @@ context that suggests it was related to SO.
 
   Assembled in response to questions by Saurabh (look in gmail).
 
-* incunabulum.c:
+* incunabulum-ancient.c:
 
   Need to track down the origin of this (arcane, pre-standard K&R C).
+
+* incunabulum-modern.c:
+
+  Partial translation of incunabulum-ancient.c into standard C.
 
 * lcm20.c:
 
@@ -33,10 +37,6 @@ context that suggests it was related to SO.
 * map.cpp:
 
   Toying with C++ map<T1, T2> and sorting, etc.
-
-* modern-incunabulum.c:
-
-  Partial translation of incunabulum.c into standard C.
 
 * pbb.c:
 
