@@ -25,6 +25,7 @@ core
 cscope.out
 data
 file
+file.[0-9]
 inc/*.h
 junk
 script.awk
