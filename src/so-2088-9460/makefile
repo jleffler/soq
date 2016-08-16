@@ -12,7 +12,8 @@ all: ${PROGRAMS}
 
 HEADER1   = class_a.hpp
 HEADER2   = class_b.hpp
-HEADERS   = ${HEADER1} ${HEADER2}
+HEADER3   = class_c.hpp
+HEADERS   = ${HEADER1} ${HEADER2} ${HEADER3}
 SOURCE    = example.cpp
 
 MKPATH    = mkdir -p
