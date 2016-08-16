@@ -4,10 +4,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+/*
+** POSIX lists async-signal safe functions.
+**
+** Curiously, amongst the many omissions, you find that the str*()
+** functions are not safe (officially).  It's hard to see how strlen()
+** could be a problem, though strxfrm() would be a different matter.
+**
+** How to format a string for printing with write()?  Messy!
+*/
+
+static inline void rev_str(char *bgn, char *end)
+{
+    while (bgn < end)
+    {
+        char t = *bgn;
+        *bgn++ = *end;
+        *end-- = t;
+    }
+}
+
+static inline char *cpy_str(char *dst, const char *src)
+{
+    while ((*dst++ = *src++) != '\0')
+        ;
+    return dst - 1;
+}
+
+static inline char *cvt_uns(char *dst, unsigned val)
+{
+    char *bgn = dst;
+    do
+    {
+        *dst++ = val % 10 + '0';
+        val /= 10;
+    } while (val != 0);
+    rev_str(bgn, dst-1);
+    *dst = '\0';
+    return dst;
+}
 
 static void sigIntHandler(int signum)
 {
-    fprintf(stderr, "Ctrl-C (%d)\n", signum);
+    char buffer[128];
+    char *dst = buffer;
+    dst = cpy_str(dst, "Ctrl-C (");
+    dst = cvt_uns(dst, (unsigned)signum);
+    dst = cpy_str(dst, ")\n");
+
+    /*fprintf(stderr, "Ctrl-C (%d)\n", signum);*/
+    write(STDERR_FILENO, buffer, dst - buffer);
 }
 
 int main(void)
