@@ -89,11 +89,15 @@ int main(void)
             }
         }
 
-        if (!strcmp(block, "exit\n"))
+        int len = strlen(block);
+        if (len > 0 && block[len-1] == '\n')
+            block[--len] = '\0';
+        if (strcmp(block, "exit") == 0)
         {
             fprintf(stderr, "Exiting\n");
             exit(1);
         }
-        printf("Read: [%.*s]\n", (int)(strlen(block) - 1), block);
+        printf("Read: %d [%.*s]\n", len, len, block);
     }
+    return 0;
 }
