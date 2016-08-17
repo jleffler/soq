@@ -28,7 +28,9 @@ file
 file.[0-9]
 inc/*.h
 junk
+reversi
 script.awk
 script.sed
 script.sh
 sed.script
+tmp/
