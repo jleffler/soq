@@ -513,7 +513,6 @@
    fun:malloc
    fun:__parsefloat_buf
    fun:__svfscanf_l
-   fun:vsscanf_l
 }
 
 {
