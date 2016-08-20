@@ -4,7 +4,7 @@ include ../../etc/soq-head.mk
 
 PROG1 = readdir
 PROG2 = rename
-PROG3 = make.files.sh
+PROG3 = make.files
 
 PROGRAMS = ${PROG1} ${PROG2} ${PROG3}
 
