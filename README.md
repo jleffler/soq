@@ -27,11 +27,15 @@ number abcdwxyz is saved in src/so-abcd-wxyz (e.g. the code for [SO
 `src/so-3333-8314`).
 Note that SO does not recognize the punctuation in the number.
 
-The `inc` top-level directory contains common headers (but the source
-for them is in `src/libsoq` and `src/libcs50` or other locations as
-appropriate).
-The `lib` top-level directory contains the compiled libraries of common
-code (but the source for it is in `src/libsoq` and `src/libcs50`).
+The `inc` top-level directory is the directory where common headers are
+installed (but the source for them is in `src/libsoq` and `src/libcs50`
+or other locations as appropriate).
+Similarly, the `lib` top-level directory contains the installed
+libraries of common code (but the source for it is in `src/libsoq` and
+`src/libcs50`).
+The headers and libraries are installed by running `make install` in the
+relevant source directories.
+
 The `etc` directory contains miscellaneous files, such as the common
 makefile control information and also [`valgrind`](http://valgrind.org/)
 suppressions file for Mac OS X 10.11.6.
