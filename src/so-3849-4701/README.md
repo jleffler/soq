@@ -1,4 +1,4 @@
-## SO 3849-4701 Joining multiple files
+## [SO 3849-4701](http://stackoverflow.com/q/38494701) Joining multiple files
 
 The question asks about joining three files which can be done
 non-iteratively - hence three-file-solution.sh.

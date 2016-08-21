@@ -3,7 +3,7 @@
 Miscellaneous bits of AVL tree code, all of them non-operational, and
 not written by Jonathan Leffler (and not yet debugged or rewritten).
 
-### SO 3495-9596
+### [SO 3495-9596](http://stackoverflow.com/q/34959596)
 
 This question is still on SO.
 
@@ -24,7 +24,7 @@ The official accepted answer is a self-answer:
   code is replace pointer to pointer by just pointer and update pointer
   by returning value.
 
-### SO 3611-6746
+### [SO 3611-6746](http://stackoverflow.com/q/36116746)
 
 * `avl-36116746.c`
   Deleted (but identified) question on SO.  Crashes.
