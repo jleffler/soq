@@ -1,4 +1,4 @@
-# SO 3901-5527 &mdash; Is it safe to rename files while using readdir?
+# [SO 3901-5527](http://stackoverflow.com/q/39015527) &mdash; Is it safe to rename files while using readdir?
 
 A simple question couched in terms of Perl rather than C.
 

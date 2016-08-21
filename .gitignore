@@ -1,4 +1,5 @@
 *.a
+*.bak
 *.bundle
 *.bz2
 *.dSYM
@@ -7,6 +8,7 @@
 *.lz
 *.o
 *.orig
+*.out
 *.so
 *.tar
 *.tgz
@@ -28,7 +30,6 @@ file
 file.[0-9]
 inc/*.h
 junk
-reversi
 script.awk
 script.sed
 script.sh
