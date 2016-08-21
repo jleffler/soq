@@ -14,8 +14,8 @@ Note that some questions have been deleted and therefore users with less
 than 10K of Stack Overflow reputation will not be able to see the
 referenced question.
 
-As of 2016-08-20, the repository is mostly stable, now.
-Most of the material is present in a separate source directory for each
+As of 2016-08-20, the repository is mostly stable.
+Most of the material is present with a separate source directory for each
 question, such as src/so-3567-8399.
 There are some exceptions to this in the src directory, with composite
 directories containing code related to multiple SO questions, or no SO
