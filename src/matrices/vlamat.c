@@ -3,12 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct
-{
-    int nr, nc;
-    void *data;     // Actually double a[nr][nc]
-} Matrix;
-
 static double variant1(int nr, int nc, int r, int c)
 {
     assert(nr != 0);
@@ -33,7 +27,7 @@ static void mat_init(int nr, int nc, double m[nr][nc], Initializer init)
         {
             double v = init(nr, nc, i, j);
             m[i][j] = v;
-            printf(" %6.1f", v);
+            printf(" %6.0f", v);
         }
         putchar('\n');
     }
@@ -47,7 +41,7 @@ static void mat_dump(const char *tag, int nr, int nc, double m[nr][nc])
     {
         printf("[%d]:", i);
         for (int j = 0; j < nc; j++)
-            printf(" %6.1f", m[i][j]);
+            printf(" %6.0f", m[i][j]);
         putchar('\n');
     }
 }
@@ -72,12 +66,19 @@ static void mat_multiply(int r1, int c1, double m1[r1][c1],
     }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     int r1 = 3;
     int c1 = 5;
-    int r2 = c1;
     int c2 = 4;
+    if (argc == 4)
+    {
+        r1 = atoi(argv[1]);
+        c1 = atoi(argv[2]);
+        c2 = atoi(argv[3]);
+        assert(r1 > 0 && r1 < 100 && c1 > 0 && c1 < 100 && c2 > 0 && c2 < 100);
+    }
+    int r2 = c1;
     int r3 = r1;
     int c3 = c2;
 

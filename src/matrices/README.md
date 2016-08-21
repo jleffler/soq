@@ -15,6 +15,12 @@ underlying access mechanics are different, though.
 * `matmul89.c` &mdash; variable-dimension 2D array multiplication in strict C89.
 * `matmul99.c` &mdash; variable-dimension 2D array multiplication in C99 using VLA.
 
+These programs show the difference between coding in C89 and C99 for
+variable size arrays.
+The C89 code uses a simple pointer to `float` and explicitly computes
+the subscript corresponding to a given row and column number.
+The C99 code simply uses the row and column subscripts.
+
 ### SO 1857-9583
 
 There are multiple answers for the question.
@@ -42,6 +48,9 @@ failure.
 
 * `2da.c` &mdash; memory allocation for a 2D array of arrays with negative indices.
 
+This code allocates an array and then adjusts things so that it is legitimate to
+use negative indexes into the array.
+
 ### SO 3256-5694
 
 * `vlastruct.c` &mdash; another variable-dimension 2D array multiplication in C99 using VLA. 
@@ -49,4 +58,20 @@ failure.
 ### SO 3259-8224
 
 * `vlamat.c` &mdash; and another variable-dimension 2D array multiplication in C99 using VLA.
+
+This code accepts 3 command line arguments, all of which must be numbers
+in the range 1..99.
+These control the size of the arrays worked with.
+If the arguments are N1, N2, N3, then the size of the first matrix is
+N1xN2, the size of the second is N2xN3, and the size of the result
+(obviously) is N1xN3.
+With any other number of arguments, the code runs with N1 = 3, N2 = 5,
+N3 = 4.
+
+### `mda.c`
+
+The code in `mda.c` is not operational (it crashes).
+It's an attempt to code up arbitrary dimensional arrays (e.g. 3D or 4D
+or 5D) using a single structure, though there are numerous issues still
+to resolve.
 
