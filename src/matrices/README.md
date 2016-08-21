@@ -10,7 +10,7 @@ simple blocks of elements.
 Both are accessed using the multiple square bracket notation &mdash; the
 underlying access mechanics are different, though.
 
-### SO 1719-2011
+### [SO 1719-2011](http://stackoverflow.com/q/17192011)
 
 * `matmul89.c` &mdash; variable-dimension 2D array multiplication in strict C89.
 * `matmul99.c` &mdash; variable-dimension 2D array multiplication in C99 using VLA.
@@ -21,7 +21,7 @@ The C89 code uses a simple pointer to `float` and explicitly computes
 the subscript corresponding to a given row and column number.
 The C99 code simply uses the row and column subscripts.
 
-### SO 1857-9583
+### [SO 1857-9583](http://stackoverflow.com/q/18579583)
 
 There are multiple answers for the question.
 The crux seems to be about handling recovery from memory allocation
@@ -35,7 +35,7 @@ failure.
 * `matmake3d.c` &mdash; Another crack at this issue.
     Not sure about its relation to the `3dalloc?.c` code.
 
-### SO 2881-8521
+### [SO 2881-8521](http://stackoverflow.com/q/28818521)
 
 * `alloc3dmat.c` &mdash; Allocate a 3D matrix in a single memory allocation.
 
@@ -44,18 +44,18 @@ failure.
   stringently aligned as type `double`.  Fixing that would not be all that
   easy, though neither would it be impossible.
 
-### SO 2635-0717
+### [SO 2635-0717](http://stackoverflow.com/q/26350717)
 
 * `2da.c` &mdash; memory allocation for a 2D array of arrays with negative indices.
 
 This code allocates an array and then adjusts things so that it is legitimate to
 use negative indexes into the array.
 
-### SO 3256-5694
+### [SO 3256-5694](http://stackoverflow.com/q/32565694)
 
 * `vlastruct.c` &mdash; another variable-dimension 2D array multiplication in C99 using VLA. 
 
-### SO 3259-8224
+### [SO 3259-8224](http://stackoverflow.com/q/32598224)
 
 * `vlamat.c` &mdash; and another variable-dimension 2D array multiplication in C99 using VLA.
 
