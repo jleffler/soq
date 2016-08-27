@@ -28,8 +28,11 @@ cscope.out
 data
 file
 file.[0-9]
+file[0-9]
 inc/*.h
+input
 junk
+output
 script.awk
 script.sed
 script.sh
