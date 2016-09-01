@@ -20,17 +20,17 @@ int inner_one(const char *s1, const char *s2)
         return 2;
 }
 
-//int one(const char *s1, const char *s2)
-//{
-    //return inner_one(s1, s2) == 1 ? 1 : 0;
-//}
-
 int one(const char *s1, const char *s2)
 {
-    int result = inner_one(s1, s2) == 1 ? 1 : 0;
-    printf("%d\n", result);
-    return result;
+    return inner_one(s1, s2) == 1 ? 1 : 0;
 }
+
+//int one(const char *s1, const char *s2)
+//{
+//    int result = inner_one(s1, s2) == 1 ? 1 : 0;
+//    printf("%d\n", result);
+//    return result;
+//}
 
 static int test_one(const char *s1, const char *s2, int answer)
 {
@@ -80,6 +80,8 @@ int main(void)
         { "wxyz",   "bccc",  0 },
         { "wx",     "bc",    0 },
         { "wx",     "b",     0 },
+        { "bx",     "b",     1 },
+        { "wb",     "b",     1 },
         { "",       "",      0 },
         { "w",      "b",     1 },
         { "abbb",   "bccc",  0 },
