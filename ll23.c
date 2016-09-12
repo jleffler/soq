@@ -26,8 +26,9 @@ struct BST_node *Insert(struct BST_node *rootptr, datatype_t *d)
         rootptr = (struct BST_node *)malloc(sizeof(struct BST_node));
         rootptr->name1 = d->name;
         rootptr->data1 = d->data;
-        printf("%s 1\n", rootptr->name1);
         rootptr->left = rootptr->right = NULL;
+        printf("%s 1\n", rootptr->name1);
+        free(d);
     }
     else if (strcmp(rootptr->name1, d->name) < 0)
     {
@@ -42,6 +43,9 @@ struct BST_node *Insert(struct BST_node *rootptr, datatype_t *d)
     else
     {
         assert(strcmp(rootptr->name1, d->name) == 0);
+        free(d->name);
+        free(d->data);
+        free(d);
         printf("duplicate\n");
     }
     return rootptr;
@@ -72,6 +76,7 @@ static void BST_free(struct BST_node *node)
 }
 
 datatype_t *read(FILE* fp);
+
 datatype_t *read(FILE* fp)
 {
     char name[65];
@@ -87,28 +92,31 @@ datatype_t *read(FILE* fp)
 
 int main(void)
 {
-    /*
-    datatype_t earth[] =
-    {
-        { "Dave", "Studying at UCLA" },
-        { "John", "Works at Google" },
-        { "Mike", "School teacher" },
-    };
-    enum { NUM_LINES = sizeof(earth) / sizeof(earth[0]) };
-    */
-
-    datatype_t *earth;
     struct BST_node *root = NULL;
-    while ((earth = read(stdin)) != NULL)
-    //for (int index = 0; index < NUM_LINES; index++)
+
+    enum { MAX_NUM_LINE = 1000 };
+
+    datatype_t **earth = (datatype_t **)malloc(MAX_NUM_LINE * sizeof(datatype_t *));
+    assert(earth != NULL);
+
+    datatype_t *earth_one;
+    size_t index = 0;
+
+    while ((earth_one = read(stdin)) != NULL)
     {
+        earth[index] = earth_one;
+
         if (root != NULL)
             printf("Root node: %s\n", (root->name1));
-        //root = Insert(root, &earth[index]);
-        root = Insert(root, earth);
+        root = Insert(root, earth[index]);
         BST_print_inorder("Insert complete", root);
+        index++;
+        assert(index < MAX_NUM_LINE);
     }
+    printf("%zu nodes\n", index);
 
     BST_free(root);
+    free(earth);
+
     return 0;
 }
