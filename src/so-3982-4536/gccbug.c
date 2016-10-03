@@ -25,29 +25,21 @@ static void read_header(header *hdr)
 
     if (getline(&buffer, &buflen, stdin) == -1)
         err_error("Failed to read header line");
-    int c_index = 0;
-    printf("HL[%s]\n", buffer);
-    if (sscanf(buffer + c_index, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->r_name, &delim, &c_index) != 2)
+    int offset = 0;
+    if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->r_name, &delim, &offset) != 2)
         err_format("header row name", buffer);
 
-    assert(c_index > 0);
-    printf("O[%d] N[%s] R[%s]\n", c_index, hdr->r_name, buffer + c_index);
-    assert(!isspace(buffer[c_index]));
+    printf("O[%d] N[%s] R[%s]\n", offset, hdr->r_name, buffer + offset);
     for (int i = 0; i < MAX_VALUES; i++)
     {
         int extra;
-        assert(buffer[c_index] != '\0');
-        if (sscanf(buffer + c_index, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->c_name[i], &delim, &extra) != 2)
-        {
-            fprintf(stderr, "Column %d\n", i);
+        if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->c_name[i], &delim, &extra) != 2)
             err_format("header column name", buffer);
-        }
 
-        assert(extra > 0);
-        c_index += extra;
-        printf("%.2d: O[%d] E[%d] N[%s] R[%s]\n", i, c_index, extra, hdr->c_name[i], buffer + c_index);
-        fflush(0);
-        assert(!isspace(buffer[c_index]));
+        offset += extra;
+        printf("%.2d: O[%d] E[%d] N[%s] R[%s]\n", i, offset, extra, hdr->c_name[i], buffer + offset);
+        //fflush(0);
+        assert(!isspace(buffer[offset]));
     }
     free(buffer);
 }
