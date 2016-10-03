@@ -25,11 +25,12 @@ static void read_header(header *hdr)
 
     if (getline(&buffer, &buflen, stdin) == -1)
         err_error("Failed to read header line");
+    buffer[strcspn(buffer, "\n")] = '\t';
     int offset = 0;
     if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->r_name, &delim, &offset) != 2)
         err_format("header row name", buffer);
 
-    printf("O[%d] N[%s] R[%s]\n", offset, hdr->r_name, buffer + offset);
+    printf("    O[%2d]      N[%s] R[%s]\n", offset, hdr->r_name, buffer + offset);
     for (int i = 0; i < MAX_VALUES; i++)
     {
         int extra;
@@ -37,8 +38,7 @@ static void read_header(header *hdr)
             err_format("header column name", buffer);
 
         offset += extra;
-        printf("%.2d: O[%d] E[%d] N[%s] R[%s]\n", i, offset, extra, hdr->c_name[i], buffer + offset);
-        //fflush(0);
+        printf("%.2d: O[%2d] E[%d] N[%s] R[%s]\n", i, offset, extra, hdr->c_name[i], buffer + offset);
         assert(!isspace(buffer[offset]));
     }
     free(buffer);
