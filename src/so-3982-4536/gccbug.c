@@ -4,14 +4,9 @@
 enum { MAX_VALUES = 5 };
 enum { MAX_NAMELEN = 32 };
 
-typedef struct header
-{
-    char    c_name[MAX_VALUES][MAX_NAMELEN];
-} header;
-
 int main(void)
 {
-    header  hdr;
+    char    c_name[MAX_VALUES][MAX_NAMELEN];
     char   *buffer = 0;
     size_t  buflen = 0;
     char    delim;
@@ -23,21 +18,21 @@ int main(void)
     int offset = 0;
 
 #ifndef SKIP_FIRST_SSCANF
-    if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr.c_name[0], &delim, &offset) != 2)
+    if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", c_name[0], &delim, &offset) != 2)
         return 1;
-    printf("    O[%2d]      N[%s] R[%s]\n", offset, hdr.c_name[0], buffer + offset);
+    printf("    O[%2d]      N[%s] R[%s]\n", offset, c_name[0], buffer + offset);
 #endif
 
     for (int i = 1; i < MAX_VALUES; i++)
     {
         int extra;
-        if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr.c_name[i], &delim, &extra) != 2)
+        if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", c_name[i], &delim, &extra) != 2)
         {
             fprintf(stderr, "sscanf() failed (field %d, offset %d) at [%s]\n", i, offset, buffer + offset);
             return 1;
         }
         offset += extra;
-        printf("%.2d: O[%2d] E[%d] N[%s] R[%s]\n", i, offset, extra, hdr.c_name[i], buffer + offset);
+        printf("%.2d: O[%2d] E[%d] N[%s] R[%s]\n", i, offset, extra, c_name[i], buffer + offset);
     }
     return 0;
 }
