@@ -1,12 +1,11 @@
 /* SO 3982-4536 */
 #include <stdio.h>
 
-enum { MAX_VALUES = 4 };
+enum { MAX_VALUES = 5 };
 enum { MAX_NAMELEN = 32 };
 
 typedef struct header
 {
-    char    r_name[MAX_NAMELEN];
     char    c_name[MAX_VALUES][MAX_NAMELEN];
 } header;
 
@@ -24,12 +23,12 @@ int main(void)
     int offset = 0;
 
 #ifndef SKIP_FIRST_SSCANF
-    if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr.r_name, &delim, &offset) != 2)
+    if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr.c_name[0], &delim, &offset) != 2)
         return 1;
-    printf("    O[%2d]      N[%s] R[%s]\n", offset, hdr.r_name, buffer + offset);
+    printf("    O[%2d]      N[%s] R[%s]\n", offset, hdr.c_name[0], buffer + offset);
 #endif
 
-    for (int i = 0; i < MAX_VALUES; i++)
+    for (int i = 1; i < MAX_VALUES; i++)
     {
         int extra;
         if (sscanf(buffer + offset, "%31[^\t\n\r]%1[\t\n\r]%n", hdr.c_name[i], &delim, &extra) != 2)
