@@ -65,7 +65,7 @@ static size_t read_samples(size_t max_rows, sample *data)
     {
         int offset;
         char delim[2];
-        if (sscanf(buffer, " %31[^\t\n\r]%1[\t\n\r]%n", data[numrow].r_name, delim, &offset) != 2)
+        if (sscanf(buffer, "%31[^\t\n\r]%1[\t\n\r]%n", data[numrow].r_name, delim, &offset) != 2)
             err_format("row name", buffer);
         for (int i = 0; i < MAX_VALUES; i++)
         {
