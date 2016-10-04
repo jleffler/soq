@@ -33,14 +33,14 @@ static void read_header(header *hdr)
 {
     char   *buffer = 0;
     size_t  buflen = 0;
-    char    delim;
+    char    delim[2];
     if (getline(&buffer, &buflen, stdin) == -1)
         err_error("Failed to read header line");
     int c_index = 0;
     //printf("HL[%s]\n", buffer);
-    if (sscanf(buffer + c_index, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->r_name, &delim, &c_index) != 2)
+    if (sscanf(buffer + c_index, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->r_name, delim, &c_index) != 2)
         err_format("header row name", buffer);
-    if (strchr("\t\n\r", delim) == 0)
+    if (strchr("\t\n\r", *delim) == 0)
         err_format("unexpected delimiter", buffer);
     //assert(c_index > 0);
     //printf("O[%d] N[%s] R[%s]\n", c_index, hdr->r_name, buffer + c_index);
@@ -49,12 +49,12 @@ static void read_header(header *hdr)
     {
         int extra;
         //assert(buffer[c_index] != '\0');
-        if (sscanf(buffer + c_index, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->c_name[i], &delim, &extra) != 2)
+        if (sscanf(buffer + c_index, "%31[^\t\n\r]%1[\t\n\r]%n", hdr->c_name[i], delim, &extra) != 2)
         {
             fprintf(stderr, "Column %d\n", i);
             err_format("header column name", buffer);
         }
-        if (strchr("\t\n\r", delim) == 0)
+        if (strchr("\t\n\r", *delim) == 0)
             err_format("unexpected delimiter", buffer);
         //assert(extra > 0);
         //int o_index = c_index;
