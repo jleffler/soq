@@ -64,15 +64,15 @@ static size_t read_samples(size_t max_rows, sample *data)
     while (getline(&buffer, &buflen, stdin) != -1 && numrow < max_rows)
     {
         int offset;
-        char delim;
-        if (sscanf(buffer, " %31[^\t\n\r]%1[\t\n\r]%n", data[numrow].r_name, &delim, &offset) != 2)
+        char delim[2];
+        if (sscanf(buffer, " %31[^\t\n\r]%1[\t\n\r]%n", data[numrow].r_name, delim, &offset) != 2)
             err_format("row name", buffer);
         for (int i = 0; i < MAX_VALUES; i++)
         {
             int extra;
             if (sscanf(buffer + offset, "%lf%n", &data[numrow].value[i], &extra) != 1)
                 err_format("value", buffer);
-            if (strchr("\t\n\r", delim) == 0)
+            if (strchr("\t\n\r", *delim) == 0)
                 err_format("unexpected delimiter", buffer);
             assert(extra > 0);
             offset += extra;
