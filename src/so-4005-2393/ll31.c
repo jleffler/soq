@@ -16,8 +16,9 @@ static void prnode(const char *tag, struct s_node *root)
     printf("%s  R 0x%.12" PRIXPTR, tag, (uintptr_t)root);
     if (root != NULL)
     {
-        printf("; N 0x%.12" PRIXPTR "; P 0x%.12" PRIXPTR "; V 0x%.12" PRIXPTR,
-               (uintptr_t)root->next, (uintptr_t)root->prev, (uintptr_t)root->elem);
+        printf("; N 0x%.12" PRIXPTR "; P 0x%.12" PRIXPTR "; V 0x%.12" PRIXPTR "; %s",
+               (uintptr_t)root->next, (uintptr_t)root->prev, (uintptr_t)root->elem,
+               (char *)root->elem);
     }
     putchar('\n');
 }
@@ -65,7 +66,7 @@ void *remove_node2(struct s_node **node)
         if (prev != NULL)
             prev->next = next;
     }
-    free(*node);
+    free(curr);
     return data;
 }
 
@@ -74,9 +75,10 @@ void *remove_node3(struct s_node **node)
     if (node == NULL || *node == NULL) // || (*node)->elem == NULL)
         return NULL;
 
-    printf("remove_node3: %p\n", (void *)*node);
+    struct s_node *curr = *node;
+    printf("remove_node3: %p\n", (void *)curr);
 
-    void *data = (*node)->elem;
+    void *data = curr->elem;
 
 //    struct s_node *curr = *node;
 //
@@ -94,22 +96,24 @@ void *remove_node3(struct s_node **node)
 //        prnode("prev 2", curr->prev);
 //    }
 
-    if ((*node)->prev != NULL || (*node)->next != NULL)
+    if (curr->prev != NULL || curr->next != NULL)
     {
-        prnode("prev 1", (*node)->prev);
-        prnode("curr 1", (*node));
-        prnode("next 1", (*node)->next);
-        if ((*node)->prev != NULL)
-            (*node)->prev->next = (*node)->next;
-        prnode("prev 2", (*node)->prev);
-        prnode("curr 2", (*node));
-        prnode("next 2", (*node)->next);
-        if ((*node)->next != NULL)
-            (*node)->next->prev = (*node)->prev;
-        prnode("prev 3", (*node)->prev);
-        prnode("curr 3", (*node));
-        prnode("next 3", (*node)->next);
+        prnode("prev 1", curr->prev);
+        prnode("curr 1", curr);
+        prnode("next 1", curr->next);
+        if (curr->prev != NULL)
+            curr->prev->next = curr->next;
+        prnode("prev 2", curr->prev);
+        prnode("curr 2", curr);
+        prnode("next 2", curr->next);
+        if (curr->next != NULL)
+            curr->next->prev = curr->prev;
+        prnode("prev 3", curr->prev);
+        prnode("curr 3", curr);
+        prnode("next 3", curr->next);
     }
+    else
+        *node = NULL;
 
 #if 0
 remove_node3: 0x7f97ffc02820
@@ -125,8 +129,8 @@ next 3  R 0x000000000000
 free: 0x7f97ffc02840
 #endif
 
-    printf("free: %p\n", (void *)*node);
-    free(*node);
+    printf("free: %p\n", (void *)curr);
+    free(curr);
     return data;
 }
 
@@ -136,12 +140,13 @@ void *remove_node4(struct s_node **node)
     if (node != NULL && *node != NULL && (*node)->elem != NULL)
     {
         void *data = (*node)->elem;
+        struct s_node *curr = *node;
         if ((*node)->prev != NULL)
             (*node)->prev->next = (*node)->next;
         if ((*node)->next != NULL)
             (*node)->next->prev = (*node)->prev;
-        free(*node);
-        *node = NULL;                                      /* safely, cannot hurt */
+        free(curr);
+        //*node = NULL;                                      /* safely, cannot hurt */
         return data;
     }
     else
@@ -158,7 +163,7 @@ static void prlist(const char *tag, struct s_node *root)
         prnode("", root);
         root = root->next;
     }
-    printf("%s done:\n", tag);
+    printf("%s done\n", tag);
 }
 
 static struct s_node *mklist(void)
@@ -207,13 +212,14 @@ static void test_list(int num, void *(*function)(struct s_node **))
     assert(data != NULL);
     prlist("After", list);
     rmlist(list);
+    printf("List %d finished\n\n", num);
 }
 
 int main(void)
 {
     //test_list(1, remove_node1);
-    //test_list(2, remove_node2);
+    test_list(2, remove_node2);
     test_list(3, remove_node3);
-    //test_list(4, remove_node4);
+    test_list(4, remove_node4);
     return 0;
 }

@@ -203,7 +203,8 @@ static void test_list(int num, void *(*function)(struct s_node **))
     printf("List %d:\n", num);
     struct s_node *list = mklist();
     prlist("Before", list);
-    void *data = function(&list->next->next);
+    struct s_node *node = list->next->next;
+    void *data = function(&node);
     assert(data != NULL);
     prlist("After", list);
     rmlist(list);
@@ -211,9 +212,9 @@ static void test_list(int num, void *(*function)(struct s_node **))
 
 int main(void)
 {
-    //test_list(1, remove_node1);
-    //test_list(2, remove_node2);
+    test_list(1, remove_node1);
+    test_list(2, remove_node2);
     test_list(3, remove_node3);
-    //test_list(4, remove_node4);
+    test_list(4, remove_node4);
     return 0;
 }
