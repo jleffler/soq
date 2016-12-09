@@ -11,6 +11,9 @@
 /*TABSTOP=4*/
 /* SO 41032621 */
 
+#undef TEST         /* Temporary */
+#define TEST        /* Temporary */
+
 #include "udn.h"
 #include <assert.h>
 #include <stdio.h>

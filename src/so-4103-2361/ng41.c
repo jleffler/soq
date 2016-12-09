@@ -1,3 +1,5 @@
+/* SO 41032621 */
+/* Variant 1 - printing without leading blanks */
 #include <stdio.h>
 #include <stdbool.h>
 

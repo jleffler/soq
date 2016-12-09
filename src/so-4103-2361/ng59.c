@@ -1,4 +1,5 @@
 /* SO 41032621 */
+/* Variant 1 - factored into functions */
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>

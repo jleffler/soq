@@ -2,18 +2,30 @@
 
 include ../../etc/soq-head.mk
 
-PROG1 = ng37
-PROG2 = ng41
-PROG3 = ng41a
-PROG4 = ng43
-PROG5 = ng43a
-PROG6 = ng47
-PROG7 = ng47a
-PROG8 = ng53
-PROG9 = ng59
+PROG01 = ng37
+PROG02 = ng41
+PROG03 = ng41a
+PROG04 = ng43
+PROG05 = ng43a
+PROG06 = ng47
+PROG07 = ng47a
+PROG08 = ng53
+PROG09 = ng59
 PROG10 = ng61
+PROG11 = udn
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6} ${PROG7} ${PROG8} ${PROG9} ${PROG10}
+PROGRAMS = \
+	${PROG01} \
+	${PROG02} \
+	${PROG03} \
+	${PROG04} \
+	${PROG05} \
+	${PROG06} \
+	${PROG07} \
+	${PROG08} \
+	${PROG09} \
+	${PROG10} \
+	${PROG11} \
 
 all: ${PROGRAMS}
 

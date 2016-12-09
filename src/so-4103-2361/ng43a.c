@@ -1,3 +1,5 @@
+/* SO 41032621 */
+/* Variant 2 - minimal printing */
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
