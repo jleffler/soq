@@ -13,6 +13,7 @@ PROG08 = ng53
 PROG09 = ng59
 PROG10 = ng61
 PROG11 = udn
+PROG12 = logcntr
 
 PROGRAMS = \
 	${PROG01} \
@@ -26,6 +27,7 @@ PROGRAMS = \
 	${PROG09} \
 	${PROG10} \
 	${PROG11} \
+	${PROG12} \
 
 all: ${PROGRAMS}
 
