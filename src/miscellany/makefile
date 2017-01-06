@@ -20,6 +20,7 @@ PROG15 = uint128
 PROG16 = rev
 PROG17 = revlist
 PROG18 = select
+PROG19 = factorial
 
 PROGRAMS = \
 	${PROG01} \
@@ -40,6 +41,7 @@ PROGRAMS = \
 	${PROG16} \
 	${PROG17} \
 	${PROG18} \
+	${PROG19} \
 
 all: ${PROGRAMS}
 
