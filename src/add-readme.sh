@@ -3,7 +3,12 @@
 # Find official description of SO questions for README.md file
 
 site="http://stackoverflow.com"
-for dir in so-*
+
+case "$#" in
+(0) set -- so-*;;
+esac
+
+for dir in "$@"
 do
     [ -h "$dir" ] && continue;
     [ -f "$dir/README.md" ] && continue;
