@@ -64,6 +64,25 @@ static void dump_data(const char *tag, size_t size, const char *data[size])
         printf("%zu: [%s]\n", i, data[i]);
 }
 
+/* Based on example from https://blog.codinghorror.com/the-danger-of-naivete/ */
+static void danger_of_naivete(void)
+{
+    printf("The danger of naivete\n");
+    int count[322] = { 0 };
+    for (int i = 0; i < 1000000; i++)
+    {
+        int data[3] = { 1, 2, 3 };
+        shuffle(&data[0], 3, sizeof(data[0]), rand_int);
+        int n = (data[0] * 10 + data[1]) * 10 + data[2];
+        count[n]++;
+    }
+    for (int i = 0; i < 322; i++)
+    {
+        if (count[i] != 0)
+            printf("%d = %6d\n", i, count[i]);
+    }
+}
+
 int main(int argc, char **argv)
 {
     enum { MATRIX_DIM = 4 };
@@ -104,6 +123,8 @@ int main(int argc, char **argv)
     dump_data("Before", DATA_SIZE, data);
     shuffle(data, DATA_SIZE, sizeof(data[0]), rand_int);
     dump_data("After", DATA_SIZE, data);
+
+    danger_of_naivete();
 
     return 0;
 }
