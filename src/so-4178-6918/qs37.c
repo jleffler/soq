@@ -1,3 +1,4 @@
+#include "qs-mon.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -66,23 +67,6 @@
 **  Note difference between Lomuto and Hoare in post-partition boundaries!
 */
 
-static void dump_data(const char *tag, int *data, int start, int end)
-{
-    printf("%s (%d):", tag, end - start + 1);
-    for (int i = start; i <= end; i++)
-    {
-        printf(" %d", data[i]);
-    }
-    putchar('\n');
-}
-
-static void swap_ints(int *A, int i, int j)
-{
-    int t = A[i];
-    A[i] = A[j];
-    A[j] = t;
-}
-
 static int partition(int a[], int start, int end)
 {
     int pivot = a[start]; // select first elem as the pivot
@@ -115,9 +99,7 @@ static int partition(int a[], int start, int end)
     return j;
 }
 
-void quick_sort(int arr[], int start, int end);
-
-void quick_sort(int arr[], int start, int end)
+void quicksort(int arr[], int start, int end)
 {
     if (start < end)
     {
@@ -125,25 +107,9 @@ void quick_sort(int arr[], int start, int end)
         int boundary = partition(arr, start, end);
         printf("QS Partition: %d:%d:%d\n", start, boundary, end);
         dump_data("QS Pre-recursion L", arr, start, boundary);
-        quick_sort(arr, start, boundary);
+        quicksort(arr, start, boundary);
         dump_data("QS Pre-recursion H", arr, boundary + 1, end);
-        quick_sort(arr, boundary + 1, end);
+        quicksort(arr, boundary + 1, end);
         dump_data("QS Post-Sort", arr, start, end);
     }
-}
-
-int main(void)
-{
-    int data[] =
-    {
-        9, 7, 0, 9, 5, 4, 8, 7, 9, 9,
-        2, 9, 9, 7, 0, 3, 9, 6, 8, 5,
-    };
-    enum { NUM_DATA = sizeof(data) / sizeof(data[0]) };
-
-    dump_data("Before", data, 0, NUM_DATA - 1);
-    quick_sort(data, 0, NUM_DATA - 1);
-    dump_data("After", data, 0, NUM_DATA - 1);
-
-    return 0;
 }
