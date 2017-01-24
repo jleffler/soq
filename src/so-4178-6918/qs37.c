@@ -70,32 +70,31 @@
 static int partition(int a[], int start, int end)
 {
     int pivot = a[start]; // select first elem as the pivot
-    printf("-->> P(%d,%d) - pivot %d\n", start, end, pivot);
+    //printf("-->> P(%d,%d) - pivot %d\n", start, end, pivot);
     int i = start - 1;      // point i and j to before/after start end of the arr
     int j = end + 1;
 
     while (true)
     {
-        //printf("---- a[%d]=%d, a[%d]=%d\n", i, a[i], j, a[j]);
         do
         {
             j--;
-            printf("---- j a[%d] = %d\n", j, a[j]);
+            //printf("---- j a[%d] = %d\n", j, a[j]);
         } while (a[j] > pivot);
         do
         {
             i++;
-            printf("---- i a[%d] = %d\n", i, a[i]);
+            //printf("---- i a[%d] = %d\n", i, a[i]);
         } while (a[i] < pivot);
         if (i >= j)
             break;
-        printf("-<>- a[%d]=%d, a[%d]=%d\n", j, a[j], i, a[i]);
+        //printf("-<>- a[%d]=%d, a[%d]=%d\n", j, a[j], i, a[i]);
         swap_ints(a, i, j);
-        printf("-><- a[%d]=%d, a[%d]=%d\n", j, a[j], i, a[i]);
-        dump_data("Post-swap", a, start, end);
+        //printf("-><- a[%d]=%d, a[%d]=%d\n", j, a[j], i, a[i]);
+        //dump_data("Post-swap", a, start, end);
     }
-    dump_data("Partition", a, start, end);
-    printf("<<-- P(%d) = %d\n", j, a[j]);
+    //dump_data("Partition", a, start, end);
+    //printf("<<-- P(%d) = %d\n", j, a[j]);
     return j;
 }
 
