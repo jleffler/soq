@@ -27,6 +27,32 @@
 **              return j
 **
 **          swap A[i] with A[j]
+**
+** Variant picking largest (from 'Quicksort is Optimal')
+** No separate partition function
+**
+**  void quicksort(Item a[], int l, int r)
+**  {
+**      int i = l-1, j = r; Item v = a[r];
+**      if (r <= l)
+**          return;
+**      for (;;)
+**      {
+**          while (a[++i] < v)
+**              ;
+**          while (v < a[--j])
+**              if (j == l)
+**                  break;
+**          if (i >= j)
+**              break;
+**          exch(a[i], a[j]);
+**      }
+**      exch(a[i], a[r]);
+**      quicksort(a, l, i-1);
+**      quicksort(a, i+1, r);
+**  }
+**
+** Note that this excludes a[i] from recursion.
 */
 
 #include "qs-mon.h"
@@ -36,7 +62,7 @@
 static int partition(int *A, int lo, int hi)
 {
     int pivot = A[lo];
-    printf("-->> P(%d,%d) - pivot %d\n", lo, hi, pivot);
+    printf("-->> Partition [%d..%d] pivot %d\n", lo, hi, pivot);
     int i = lo - 1;
     int j = hi + 1;
     while (true)
