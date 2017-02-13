@@ -145,6 +145,7 @@ BUILD_DIRECTORIES = \
 	miscellany \
 	posix-regex \
 	primes \
+	scripts \
 	sortfile \
 	sorttest \
 	${SO_DIRECTORIES} \
