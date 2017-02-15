@@ -29,7 +29,7 @@
 **          swap A[i] with A[j]
 */
 
-#include "qs-mon.h"
+#include "qs-main.h"
 #include <stdbool.h>
 #include <stdio.h>
 

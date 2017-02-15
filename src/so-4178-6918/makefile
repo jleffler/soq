@@ -5,7 +5,7 @@ include ../../etc/soq-head.mk
 PROG1 = qs-hp37
 PROG2 = qs37
 
-OBJS0 = qs-mon.o qs-main.o
+OBJS0 = qs-main.o
 OBJS1 = qs-hp37.o ${OBJS0}
 OBJS2 = qs37.o    ${OBJS0}
 
