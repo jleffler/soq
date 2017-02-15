@@ -10,6 +10,7 @@ PROG02 = posixfun
 PROG03 = posixhdr
 PROG04 = wso
 PROG05 = so
+PROG06 = sops
 
 PROGRAMS = \
 	${PROG01} \
@@ -17,6 +18,7 @@ PROGRAMS = \
 	${PROG03} \
 	${PROG04} \
 	${PROG05} \
+	${PROG06} \
 
 all: ${PROGRAMS}
 
