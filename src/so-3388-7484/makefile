@@ -2,11 +2,19 @@
 
 include ../../etc/soq-head.mk
 
+# This works on the development machine, but not yet via GitHub
+LDLIB2 = -ljl
+IFLAGS = -I${INCDIR} -I${HOME}/inc
+LDFLAGS = ${LDFLAG1} -L${HOME}/lib/64
+
+# At the moment, ratcalc includes so.33887484.c directly.
+# Clearly, this is not the long-term way; the code in so.33887484.c would be in a library.
+# Unless you believe in SQLite Amalgamations as the way to go for everything.
 PROG1 = ratcalc
 PROG2 = rational
-PROG3 = so.33887484
+#PROG3 = so.33887484
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3}
+PROGRAMS = ${PROG1} ${PROG2} #${PROG3}
 
 all: ${PROGRAMS}
 

@@ -75,7 +75,7 @@ int main(void)
                     break;
                 default:
                     printf("Invalid operation %c - try again\n", op);
-                    goto next_line;;
+                    goto next_line;
             }
             printf("res = %s (op = '%c')\n\n", ri_fmt(res, buffer, sizeof(buffer)), op);
             lhs = res;

@@ -95,9 +95,9 @@ static void ri_chk(RationalInt val)
 RationalInt ri_new(int numerator, int denominator)
 {
     assert(denominator != 0);
-    assert(denominator != INT_MIN && denominator != INT_MIN);
+    assert(denominator != INT_MIN && numerator != INT_MIN);
     RationalInt ri;
-    /* Handle invalid inputs as 0 if assertions are not enabled */
+    /* Handle invalid inputs (and zero inputs) as 0 if assertions are not enabled */
     if (numerator   == 0 || numerator   == INT_MIN ||
         denominator == 0 || denominator == INT_MIN)
     {
