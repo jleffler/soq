@@ -17,7 +17,7 @@ ${CS50NAME}:	${FILES.o}
 
 install: ${CS50NAME} ${FILES.h}
 	${CP} ${CPFLAGS} ${CS50NAME} ${LIBDIR}
-	${CP} ${CPFLAGS} ${FILES.h}  ${HDRDIR}
+	${CP} ${CPFLAGS} ${FILES.h}  ${INCDIR}
 
 clean:
 	${RM_F} ${DEBRIS} ${FILES.o}
