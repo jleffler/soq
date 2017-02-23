@@ -4,7 +4,7 @@
 
 BASEDIR = ../..
 LIBDIR  = ${BASEDIR}/lib
-HDRDIR  = ${BASEDIR}/inc
+INCDIR  = ${BASEDIR}/inc
 
 SOQBASE = soq
 SOQNAME = lib${SOQBASE}.a
@@ -21,7 +21,7 @@ CS50PATH = ${LIBDIR}/${CS50NAME}
 
 CC     = gcc
 GFLAGS = -g
-IFLAGS = -I${HDRDIR}
+IFLAGS = -I${INCDIR}
 OFLAGS = -O3
 SFLAGS = -std=c11
 TFLAGS = # Set to -DTEST (or similar) when needed
