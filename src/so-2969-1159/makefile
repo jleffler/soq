@@ -9,7 +9,7 @@ PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
-FILES.c = shm-master.c so-stderr.c
+FILES.c = shm-master.c
 FILES.o = ${FILES.c:.c=.o}
 
 ${PROG1}: ${FILES.o}

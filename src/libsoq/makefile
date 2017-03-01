@@ -46,7 +46,7 @@ ${LIBNAME}:	${FILES.o}
 
 install: ${LIBNAME} ${FILES.h}
 	${CP} ${CPFLAGS} ${LIBNAME} ${LIBDIR}
-	${CP} ${CPFLAGS} ${FILES.h} ${HDRDIR}
+	${CP} ${CPFLAGS} ${FILES.h} ${INCDIR}
 
 PROGRAMS = ${FILES.c:.c=} ${AUXFILES.c:.c=}
 

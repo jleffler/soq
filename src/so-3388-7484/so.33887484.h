@@ -22,7 +22,7 @@ extern void ri_mod(const RationalInt *lhs, const RationalInt *rhs, RationalInt *
 ** If the user manually, explicitly initializes an improper
 ** RationalInt, then these may do something more interesting.
 */
-extern int  ri_gcd(const RationalInt *val);      /* Exercise in futility */
+extern int  ri_gcd(const RationalInt *val);     /* Exercise in futility */
 extern void ri_normalize(RationalInt *val);     /* Exercise in futility */
 
 extern char *ri_fmt(RationalInt val, char *buffer, size_t buflen);

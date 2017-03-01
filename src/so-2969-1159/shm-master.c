@@ -1,14 +1,15 @@
 /*
-@(#)File:           $RCSfile$
-@(#)Version:        $Revision$
-@(#)Last changed:   $Date$
-@(#)Purpose:        Create and attach to a shared memory segment
+@(#)File:           shm-master.c,v
+@(#)Purpose:        Manipulate shared memory segments
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015
-@(#)Product:        :PRODUCT:
+@(#)Copyright:      (C) JLSS 2015-2017
+@(#)Derivation:     shm-master.c,v 1.3 2017/02/15 20:10:15
 */
 
 /*TABSTOP=4*/
+
+/* Based on SO 2969-1159 Making a shared data structure in C */
+/* See also SO 4225-8485 Detaching from shared memory before removing it */
 
 #include "posixver.h"
 #include <inttypes.h>
@@ -19,32 +20,24 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "so-stderr.h"
+#include "stderr.h"
 
 enum { DEFAULT_SHM_SIZE = 65536 };
 enum { DEFAULT_FTOK_ID = 0 };
 static const char default_filename[] = "/etc/passwd";
 
-static const char usestr[] = "[-adx][-f file][-s size][-i id]";
-static const char optstr[] = "adf:s:x";
-//static const char usestr[] = "[-adhxV][-f file][-s size][-i id]";
-//static const char optstr[] = "adf:hs:xV";
-//static const char hlpstr[] =
-//    "  -a       Attach only (segment must already exist)\n"
-//    "  -d       Delete the shared memory chunk\n"
-//    "  -f file  File name to be used to create shared memory ID\n"
-//    "  -h       Print this help and exit\n"
-//    "  -i id    Integer ID used with ftok()\n"
-//    "  -s size  How big the shared memory chunk should be\n"
-//    "  -x       Fail if shared memory already exists\n"
-//    "  -V       Print version information and exit\n"
-//    ;
-
-//#ifndef lint
-///* Prevent over-aggressive optimizers from eliminating ID string */
-//extern const char jlss_id_shm_master_c[];
-//const char jlss_id_shm_master_c[] = "@(#)$Id$";
-//#endif /* lint */
+static const char usestr[] = "[-adhx][-f file][-s size][-i id][-t time]";
+static const char optstr[] = "adf:hs:t:x";
+static const char hlpstr[] =
+    "  -a       Attach only (segment must already exist)\n"
+    "  -d       Delete the shared memory chunk\n"
+    "  -f file  File name to create shared memory ID (default: /etc/passwd)\n"
+    "  -h       Print this help and exit\n"
+    "  -i id    Integer ID used with ftok()\n"
+    "  -s size  How big the shared memory chunk should be (default: 65536)\n"
+    "  -t time  Sleep for time seconds after attaching to shared memory (default: 0)\n"
+    "  -x       Fail if shared memory already exists\n"
+    ;
 
 int main(int argc, char **argv)
 {
@@ -55,6 +48,7 @@ int main(int argc, char **argv)
     size_t size = DEFAULT_SHM_SIZE;
     const char *file = default_filename;
     int opt;
+    int doze = 0;
 
     err_setarg0(argv[0]);
     while ((opt = getopt(argc, argv, optstr)) != -1)
@@ -70,9 +64,9 @@ int main(int argc, char **argv)
         case 'f':
             file = optarg;
             break;
-        //case 'h':
-        //    err_help(usestr, hlpstr);
-        //    /*NOTREACHED*/
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
         case 'i':
             id = atoi(optarg);
             break;
@@ -81,12 +75,12 @@ int main(int argc, char **argv)
             if (size == 0)
                 err_error("Invalid size (%s) evaluates to zero\n", optarg);
             break;
+        case 't':
+            doze = atoi(optarg);
+            break;
         case 'x':
             xflag = 1;
             break;
-        //case 'V':
-        //    err_version("SHM-MASTER", &"@(#)$Revision$ ($Date$)"[4]);
-        //    /*NOTREACHED*/
         default:
             err_usage(usestr);
             /*NOTREACHED*/
@@ -125,6 +119,12 @@ int main(int argc, char **argv)
             err_syserr("Failed to attach to shared memory: ");
         printf("Shared memory allocated at 0x%" PRIXPTR "\n", (uintptr_t)space);
         memset(space, '\0', size);
+        if (doze > 0)
+        {
+            printf("Sleeping for %d seconds\n", doze);
+            fflush(stdout);
+            sleep(doze);
+        }
         int rc = shmdt(space);
         if (rc != 0)
             err_syserr("Failed to detach from shared memory: ");
