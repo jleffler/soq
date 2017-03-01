@@ -43,10 +43,8 @@ void printResult(FILE *file, struct node *r)
             word[k] = i + 'a';
             temp = k;
             k++;
-            p = c;
-            printResult(file, p);
+            printResult(file, c);
             k = temp;
-            p = p->parent;
         }
         if (c->isword == 1 && c->leaf == 0)
         {
@@ -56,10 +54,8 @@ void printResult(FILE *file, struct node *r)
             k++;
             c->isword = 0;
             fprintf(file, "%s %d %d\n", word, c->occurrence, c->super);
-            p = c;
-            printResult(file, p);
+            printResult(file, c);
             k = temp;
-            p = p->parent;
         }
     }
 }
