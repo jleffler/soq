@@ -26,36 +26,37 @@ void printResult(FILE *file, struct node *r)
     int temp;
     for (int i = 0; i < 26; i++)
     {
-        if (p->child[i] == NULL)
+        struct node *c = p->child[i];
+        if (c == NULL)
         {
             continue;
         }
-        if (p->child[i]->isword == 1 && p->child[i]->leaf == 1)
+        if (c->isword == 1 && c->leaf == 1)
         {
             word[k] = i + 'a';
             word[k + 1] = '\0';
-            fprintf(file, "%s %d %d\n", word, p->child[i]->occurrence, p->child[i]->super);
+            fprintf(file, "%s %d %d\n", word, c->occurrence, c->super);
             continue;
         }
-        if (p->child[i]->isword == 0)
+        if (c->isword == 0)
         {
             word[k] = i + 'a';
             temp = k;
             k++;
-            p = p->child[i];
+            p = c;
             printResult(file, p);
             k = temp;
             p = p->parent;
         }
-        if (p->child[i]->isword == 1 && p->child[i]->leaf == 0)
+        if (c->isword == 1 && c->leaf == 0)
         {
             word[k] = i + 'a';
             word[k + 1] = '\0';
             temp = k;
             k++;
-            p->child[i]->isword = 0;
-            fprintf(file, "%s %d %d\n", word, p->child[i]->occurrence, p->child[i]->super);
-            p = p->child[i];
+            c->isword = 0;
+            fprintf(file, "%s %d %d\n", word, c->occurrence, c->super);
+            p = c;
             printResult(file, p);
             k = temp;
             p = p->parent;
