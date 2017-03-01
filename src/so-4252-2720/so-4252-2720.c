@@ -7,20 +7,26 @@
 struct node
 {
     struct node *parent;
-    int noempty;
+    int noempty;        // Redundant with leaf
     int isword;
-    int super;
-    int occurrence;
-    int leaf;
+    int super;          // Essentially unused
+    int occurrence;     // Essentially unused
+    int leaf;           // Redundant with noempty
     struct node *child[26];
 };
 
 static
 void printResult(FILE *file, struct node *r, char *word, int k)
 {
+    assert((r->leaf == 0 && r->noempty != 0) ||
+           (r->leaf != 0 && r->noempty == 0));
     if (r->isword == 1)
         fprintf(file, "%s %d %d\n", word, r->occurrence, r->super);
 
+    if (r->leaf == 1)
+        return;
+
+    assert(r->noempty > 0);
     word[k+1] = '\0';
     for (int i = 0; i < 26; i++)
     {
@@ -36,10 +42,9 @@ void printResult(FILE *file, struct node *r, char *word, int k)
 static
 struct node *insert(struct node *root, char *c)
 {
-    int i = 0;
     struct node *temp = root;
     int l = strlen(c);
-    while (i != l)
+    for (int i = 0; i < l; i++)
     {
         if (!isalpha((unsigned char)c[i]))
             break;
@@ -59,7 +64,6 @@ struct node *insert(struct node *root, char *c)
             temp->leaf = 0;
         }
         temp = temp->child[index];
-        i++;
     }
     if (temp->noempty == 0)
     {
