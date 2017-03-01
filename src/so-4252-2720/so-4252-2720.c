@@ -22,11 +22,10 @@ static int k = 0;
 static
 void printResult(FILE *file, struct node *r)
 {
-    struct node *p = r;
     int temp;
     for (int i = 0; i < 26; i++)
     {
-        struct node *c = p->child[i];
+        struct node *c = r->child[i];
         if (c == NULL)
         {
             continue;
@@ -55,6 +54,7 @@ void printResult(FILE *file, struct node *r)
             c->isword = 0;
             fprintf(file, "%s %d %d\n", word, c->occurrence, c->super);
             printResult(file, c);
+            c->isword = 1;
             k = temp;
         }
     }
@@ -106,15 +106,7 @@ int main(void)
         root = insert(root, line);
     }
 
-    FILE *file;
-    char name[1024];
-    int num = 0;
-    sprintf(name, "man%d.txt", num);
-    file = fopen(name, "w");
-
-    printResult(file, root);
-
-    fclose(file);
+    printResult(stdout, root);
 
     return 0;
 }
