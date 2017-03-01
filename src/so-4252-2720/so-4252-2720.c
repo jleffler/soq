@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -40,6 +41,9 @@ struct node *insert(struct node *root, char *c)
     int l = strlen(c);
     while (i != l)
     {
+        if (!isalpha((unsigned char)c[i]))
+            break;
+        c[i] = tolower((unsigned char)c[i]);
         int index = c[i] - 'a';
         if (temp->child[index] == NULL)
         {
