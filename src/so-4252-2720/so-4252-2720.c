@@ -20,16 +20,16 @@ void printResult(FILE *file, struct node *r, char *word, int k)
     if (r->isword == 1)
         fprintf(file, "%s %d %d\n", word, r->occurrence, r->super);
 
+    word[k+1] = '\0';
     for (int i = 0; i < 26; i++)
     {
         if (r->child[i] != NULL)
         {
-            word[k++] = i + 'a';
-            word[k] = '\0';
-            printResult(file, r->child[i], word, k);
-            word[--k] = '\0';
+            word[k] = i + 'a';
+            printResult(file, r->child[i], word, k+1);
         }
     }
+    word[k] = '\0';
 }
 
 static
