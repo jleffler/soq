@@ -48,6 +48,8 @@ struct node *insert(struct node *root, char *c)
         if (temp->child[index] == NULL)
         {
             struct node *n = (struct node *)malloc(sizeof(struct node));
+            assert(n != 0);
+            memset(n, '\0', sizeof(*n));
             n->parent = temp;
             temp->child[index] = n;
             temp->noempty = 1;
