@@ -3,8 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define length(x) strlen(x)
-
 struct node
 {
     struct node *parent;
@@ -39,7 +37,7 @@ struct node *insert(struct node *root, char *c)
 {
     int i = 0;
     struct node *temp = root;
-    int l = length(c);
+    int l = strlen(c);
     while (i != l)
     {
         int index = c[i] - 'a';
