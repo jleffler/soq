@@ -22,40 +22,17 @@ static int k = 0;
 static
 void printResult(FILE *file, struct node *r)
 {
-    int temp;
+    if (r->isword == 1)
+        fprintf(file, "%s %d %d\n", word, r->occurrence, r->super);
+
     for (int i = 0; i < 26; i++)
     {
-        struct node *c = r->child[i];
-        if (c == NULL)
+        if (r->child[i] != NULL)
         {
-            continue;
-        }
-        if (c->isword == 1 && c->leaf == 1)
-        {
-            word[k] = i + 'a';
-            word[k + 1] = '\0';
-            fprintf(file, "%s %d %d\n", word, c->occurrence, c->super);
-            continue;
-        }
-        if (c->isword == 0)
-        {
-            word[k] = i + 'a';
-            temp = k;
-            k++;
-            printResult(file, c);
-            k = temp;
-        }
-        if (c->isword == 1 && c->leaf == 0)
-        {
-            word[k] = i + 'a';
-            word[k + 1] = '\0';
-            temp = k;
-            k++;
-            c->isword = 0;
-            fprintf(file, "%s %d %d\n", word, c->occurrence, c->super);
-            printResult(file, c);
-            c->isword = 1;
-            k = temp;
+            word[k++] = i + 'a';
+            word[k] = '\0';
+            printResult(file, r->child[i]);
+            word[--k] = '\0';
         }
     }
 }
