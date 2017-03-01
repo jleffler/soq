@@ -7,26 +7,31 @@
 struct node
 {
     struct node *parent;
-    int noempty;        // Redundant with leaf
     int isword;
     int super;          // Essentially unused
     int occurrence;     // Essentially unused
-    int leaf;           // Redundant with noempty
+    int leaf;
     struct node *child[26];
 };
+
+static struct node *new_node(void)
+{
+    struct node *n = (struct node *)malloc(sizeof(struct node));
+    assert(n != 0);
+    memset(n, '\0', sizeof(*n));
+    n->leaf = 1;
+    return n;
+}
 
 static
 void printResult(FILE *file, struct node *r, char *word, int k)
 {
-    assert((r->leaf == 0 && r->noempty != 0) ||
-           (r->leaf != 0 && r->noempty == 0));
     if (r->isword == 1)
         fprintf(file, "%s %d %d\n", word, r->occurrence, r->super);
 
     if (r->leaf == 1)
         return;
 
-    assert(r->noempty > 0);
     word[k+1] = '\0';
     for (int i = 0; i < 26; i++)
     {
@@ -47,27 +52,20 @@ struct node *insert(struct node *root, char *c)
     for (int i = 0; i < l; i++)
     {
         if (!isalpha((unsigned char)c[i]))
+        {
+            fprintf(stderr, "Non-alphanumeric %c in [%s]\n", c[i], c);
             break;
+        }
         c[i] = tolower((unsigned char)c[i]);
         int index = c[i] - 'a';
         if (temp->child[index] == NULL)
         {
-            struct node *n = (struct node *)malloc(sizeof(struct node));
-            assert(n != 0);
-            memset(n, '\0', sizeof(*n));
+            struct node *n = new_node();
             n->parent = temp;
             temp->child[index] = n;
-            temp->noempty = 1;
-        }
-        if (i != l && temp->leaf == 1)
-        {
             temp->leaf = 0;
         }
         temp = temp->child[index];
-    }
-    if (temp->noempty == 0)
-    {
-        temp->leaf = 1;
     }
     temp->isword = 1;
     return root;
