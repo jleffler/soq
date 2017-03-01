@@ -16,11 +16,8 @@ struct node
     struct node *child[26];
 };
 
-static char word[1024];
-static int k = 0;
-
 static
-void printResult(FILE *file, struct node *r)
+void printResult(FILE *file, struct node *r, char *word, int k)
 {
     if (r->isword == 1)
         fprintf(file, "%s %d %d\n", word, r->occurrence, r->super);
@@ -31,7 +28,7 @@ void printResult(FILE *file, struct node *r)
         {
             word[k++] = i + 'a';
             word[k] = '\0';
-            printResult(file, r->child[i]);
+            printResult(file, r->child[i], word, k);
             word[--k] = '\0';
         }
     }
@@ -83,7 +80,8 @@ int main(void)
         root = insert(root, line);
     }
 
-    printResult(stdout, root);
+    char word[1024] = "";
+    printResult(stdout, root, word, 0);
 
     return 0;
 }
