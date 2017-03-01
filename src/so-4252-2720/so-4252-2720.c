@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,12 +16,11 @@ struct node
     struct node *child[26];
 };
 
-static struct node *root = 0;
 static char word[1024];
 static int k = 0;
 
 static
-void printResult(FILE * file, struct node *r)
+void printResult(FILE *file, struct node *r)
 {
     struct node *p = r;
     int i = 0;
@@ -36,12 +36,8 @@ void printResult(FILE * file, struct node *r)
         {
             word[k] = i + 'a';
             word[k + 1] = '\0';
-            fprintf(file, "%s", word);
-            fprintf(file, "%s", " ");
-            fprintf(file, "%d", p->child[i]->occurrence);
-            fprintf(file, "%s", " ");
-            fprintf(file, "%d\n", p->child[i]->super);
-            i++;
+            fprintf(file, "%s %d %d\n", word, p->child[i]->occurrence, p->child[i]->super);
+			i++;
             continue;
         }
         if (p->child[i]->isword == 0)
@@ -61,11 +57,7 @@ void printResult(FILE * file, struct node *r)
             temp = k;
             k++;
             p->child[i]->isword = 0;
-            fprintf(file, "%s", word);
-            fprintf(file, "%s", " ");
-            fprintf(file, "%d", p->child[i]->occurrence);
-            fprintf(file, "%s", " ");
-            fprintf(file, "%d\n", p->child[i]->super);
+            fprintf(file, "%s %d %d\n", word, p->child[i]->occurrence, p->child[i]->super);
             p = p->child[i];
             printResult(file, p);
             k = temp;
@@ -110,7 +102,8 @@ struct node *insert(struct node *root, char *c)
 
 int main(void)
 {
-    root = (struct node *)malloc(sizeof(struct node));
+    struct node *root = (struct node *)malloc(sizeof(struct node));
+    assert(root != 0);
     memset(root, '\0', sizeof(*root));
 
     char line[1024];
