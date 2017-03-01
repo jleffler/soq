@@ -23,13 +23,11 @@ static
 void printResult(FILE *file, struct node *r)
 {
     struct node *p = r;
-    int i = 0;
     int temp;
-    while (i != 26)
+    for (int i = 0; i < 26; i++)
     {
         if (p->child[i] == NULL)
         {
-            i++;
             continue;
         }
         if (p->child[i]->isword == 1 && p->child[i]->leaf == 1)
@@ -37,7 +35,6 @@ void printResult(FILE *file, struct node *r)
             word[k] = i + 'a';
             word[k + 1] = '\0';
             fprintf(file, "%s %d %d\n", word, p->child[i]->occurrence, p->child[i]->super);
-			i++;
             continue;
         }
         if (p->child[i]->isword == 0)
@@ -63,7 +60,6 @@ void printResult(FILE *file, struct node *r)
             k = temp;
             p = p->parent;
         }
-        i++;
     }
 }
 
@@ -78,13 +74,11 @@ struct node *insert(struct node *root, char *c)
         int index = c[i] - 'a';
         if (temp->child[index] == NULL)
         {
-// New Node
             struct node *n = (struct node *)malloc(sizeof(struct node));
             n->parent = temp;
             temp->child[index] = n;
             temp->noempty = 1;
         }
-// Node Exist
         if (i != l && temp->leaf == 1)
         {
             temp->leaf = 0;
