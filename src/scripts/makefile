@@ -2,6 +2,7 @@
 
 include ../../etc/soq-head.mk
 
+CP      = cp
 BINDIR  = ../../bin
 CPFLAGS = -pf
 
@@ -11,6 +12,7 @@ PROG03 = posixhdr
 PROG04 = wso
 PROG05 = so
 PROG06 = sops
+PROG07 = sow
 
 PROGRAMS = \
 	${PROG01} \
@@ -19,6 +21,7 @@ PROGRAMS = \
 	${PROG04} \
 	${PROG05} \
 	${PROG06} \
+	${PROG07} \
 
 all: ${PROGRAMS}
 
