@@ -28,7 +28,8 @@ static int IsPrime0(unsigned number)
 {
     for (unsigned i = 2; i < number; i++)
     {
-        if (number % i == 0 && i != number)
+        if (number % i == 0)
+        //if (number % i == 0 && i != number)
             return 0;
     }
     return 1;

@@ -1,3 +1,4 @@
+/* A multitude of string reversal algorithms */
 #include <stdio.h>
 #include <string.h>
 

@@ -40,7 +40,7 @@ int main(void)
                     if (stack[sp-1] != o_bracket[n])
                     {
                         int cb = strchr(o_bracket, stack[sp-1]) - o_bracket;
-                        printf("Oops: unbalanced bracket '%c' at offset %zu (should be %c)\n",
+                        printf("Oops: unbalanced bracket '%c' at offset %zu (should be '%c')\n",
                                c, i, c_bracket[cb]);
                     }
                     else
