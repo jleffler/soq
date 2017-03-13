@@ -34,7 +34,8 @@ AUXFILES.h = \
 	isqrt.h \
 	jlss.h \
 	posixver.h \
-	wraphead.h
+	reldiff.h \
+	wraphead.h \
 
 FILES.o = ${FILES.c:.c=.o} ${AUXFILES.c:.c=.o}
 FILES.h = ${FILES.c:.c=.h} ${AUXFILES.h}
