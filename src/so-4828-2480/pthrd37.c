@@ -15,8 +15,15 @@
 #include <time.h>
 #include "stderr.h"
 
-enum { MAX_THREADS = 3 };
-enum { MAX_CYCLES  = 5 };
+#ifndef NUM_THREADS
+#define NUM_THREADS 3
+#endif
+#ifndef NUM_CYCLES
+#define NUM_CYCLES 5
+#endif
+
+enum { MAX_THREADS = NUM_THREADS };
+enum { MAX_CYCLES  = NUM_CYCLES  };
 
 static pthread_mutex_t mtx_waiting = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  cnd_waiting = PTHREAD_COND_INITIALIZER;
