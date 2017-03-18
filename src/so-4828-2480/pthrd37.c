@@ -151,6 +151,7 @@ int main(int argc, char **argv)
 
     err_setlogopts(ERR_NOARG0|ERR_MICRO);
     err_stderr(stdout);
+    err_settimeformat("%H:%M:%S");
 
     pthread_t thread[n_threads];
 
