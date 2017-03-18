@@ -2,7 +2,7 @@
 @(#)File:           stderr.c
 @(#)Purpose:        Error reporting routines
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1988-91,1996-99,2001,2003,2005-11,2013,2015-16
+@(#)Copyright:      (C) JLSS 1988-2017
 @(#)Derivation:     stderr.c 10.14 2015/06/02 03:04:32
 */
 
@@ -10,6 +10,7 @@
 
 #include "posixver.h"
 #include "stderr.h"     /* Includes config.h if available */
+#include "kludge.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -219,16 +220,19 @@ static Time now(void)
 {
     Time clk;
 #if defined(HAVE_CLOCK_GETTIME)
+    FEATURE("Subsecond times using clock_gettime()");
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     clk.tv_sec = ts.tv_sec;
     clk.tv_nsec = ts.tv_nsec;
 #elif defined(HAVE_GETTIMEOFDAY)
+    FEATURE("Subsecond times using gettimeofday()");
     struct timeval tv;
     gettimeofday(&tv, 0);
     clk.tv_sec = tv.tv_sec;
     clk.tv_nsec = 1000 * tv.tv_usec;
 #else
+    FEATURE("No subsecond times");
     clk.tv_sec = time(0);
     clk.tv_nsec = 0;
 #endif
