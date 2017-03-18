@@ -26,6 +26,7 @@
 
 enum { MAX_THREADS = NUM_THREADS };
 enum { MAX_CYCLES  = NUM_CYCLES  };
+enum { T_UNSTARTED, T_RUNNING, T_FINISHED, T_JOINED };
 
 static int n_threads = MAX_THREADS;
 static int n_cycles  = MAX_CYCLES;
@@ -34,6 +35,11 @@ static pthread_mutex_t mtx_waiting = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  cnd_waiting = PTHREAD_COND_INITIALIZER;
 static int             num_waiting = 0;
 static int             cycle   = -1;
+
+static pthread_mutex_t mtx_state = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  cnd_state = PTHREAD_COND_INITIALIZER;
+static int            *arr_state = 0;
+static int             num_unjoined = 0;
 
 static float gl_rand = 0;
 static long  gl_long = 0;
@@ -80,14 +86,21 @@ static void *thread_function(void *vp)
     for (int i = 0; i < n_cycles; i++)
     {
         float f = next_iteration_random_number(tid, i);
-        err_remark("TID %d at work: I = %d, F = %g\n", tid, i, f);
-        fflush(stdout);
         struct timespec rq;
         rq.tv_sec = 0;
-        rq.tv_nsec = (((gl_long & 0xFF) + (0xF * i))) % 200 * 50000000;
+        rq.tv_nsec = (((gl_long & 0xFF) + (0xF * tid))) % 200 * 50000000;
         assert(rq.tv_nsec >= 0 && rq.tv_nsec < 10000000000);
+        err_remark("TID %d at work: I = %d, F = %g, t = 0.%06d\n",
+                   tid, i, f, (int)(rq.tv_nsec / 1000));
+        fflush(stdout);
         nanosleep(&rq, 0);
     }
+
+    pthread_mutex_lock(&mtx_state);
+    arr_state[tid] = T_FINISHED;
+    pthread_cond_signal(&cnd_state);
+    err_remark("TID %d finished\n", tid);
+    pthread_mutex_unlock(&mtx_state);
 
     return 0;
 }
@@ -132,6 +145,10 @@ int main(int argc, char **argv)
 
     printf("Threads = %d, Cycles = %d\n", n_threads, n_cycles);
 
+    arr_state = calloc(n_threads, sizeof(int));
+    if (arr_state == 0)
+        err_syserr("Out of memory");
+
     err_setlogopts(ERR_NOARG0|ERR_MICRO);
     err_stderr(stdout);
 
@@ -146,20 +163,42 @@ int main(int argc, char **argv)
             err_stderr(stderr);
             err_syserr("failed to create TID %d", i);
         }
+        /*
+        ** When this code was in the thread_function(), the
+        ** main thread exited too soon because (presumably)
+        ** num_unjoined was still zero.  Putting it in the
+        ** main thread ensures that num_unjoined is not zero.
+        */
+        pthread_mutex_lock(&mtx_state);
+        arr_state[i] = T_RUNNING;
+        num_unjoined++;
+        pthread_mutex_unlock(&mtx_state);
     }
 
-    for (int i = 0; i < n_threads; i++)
+    pthread_mutex_lock(&mtx_state);
+    err_remark("Main thread waiting for children to signal\n");
+    while (num_unjoined > 0)
     {
-        void *vp;
-        int rc = pthread_join(thread[i], &vp);
-        if (rc != 0)
+        pthread_cond_wait(&cnd_state, &mtx_state);
+        for (int i = 0; i < n_threads; i++)
         {
-            errno = rc;
-            err_stderr(stderr);
-            err_syserr("Failed to join TID %d", i);
+            if (arr_state[i] == T_FINISHED)
+            {
+                void *vp;
+                int rc = pthread_join(thread[i], &vp);
+                if (rc != 0)
+                {
+                    errno = rc;
+                    err_stderr(stderr);
+                    err_syserr("Failed to join TID %d", i);
+                }
+                num_unjoined--;
+                arr_state[i] = T_JOINED;
+                err_remark("TID %d returned %p\n", i, vp);
+            }
         }
-        err_remark("TID %d returned %p\n", i, vp);
     }
+    pthread_mutex_unlock(&mtx_state);
 
     return 0;
 }
