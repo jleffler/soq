@@ -43,17 +43,17 @@ static float next_iteration_random_number(int tid, int iteration)
     pthread_mutex_lock(&mtx_waiting);
     assert(cycle == iteration || cycle == iteration - 1);
     num_waiting++;
-    printf("-->> TID %d, I = %d (C = %d, W = %d)\n",
+    err_remark("-->> TID %d, I = %d (C = %d, W = %d)\n",
            tid, iteration, cycle, num_waiting);
     while (cycle != iteration && num_waiting != n_threads)
     {
         assert(num_waiting > 0 && num_waiting <= n_threads);
-        printf("-CW- TID %d, I = %d (C = %d, W = %d)\n",
+        err_remark("-CW- TID %d, I = %d (C = %d, W = %d)\n",
                tid, iteration, cycle, num_waiting);
         pthread_cond_wait(&cnd_waiting, &mtx_waiting);
     }
     assert(cycle == iteration || num_waiting == n_threads);
-    printf("---- TID %d, I = %d (C = %d, W = %d)\n",
+    err_remark("---- TID %d, I = %d (C = %d, W = %d)\n",
            tid, iteration, cycle, num_waiting);
 
     if (cycle != iteration)
@@ -62,12 +62,12 @@ static float next_iteration_random_number(int tid, int iteration)
         gl_rand = (float)gl_long;
         num_waiting = 0;
         cycle = iteration;
-        printf("---- TID %d generates cycle %d: L = %ld, F = %g\n",
+        err_remark("---- TID %d generates cycle %d: L = %ld, F = %g\n",
                tid, cycle, gl_long, gl_rand);
         pthread_cond_broadcast(&cnd_waiting);
     }
 
-    printf("<<-- TID %d, I = %d (C = %d, W = %d) L = %ld, F = %g\n",
+    err_remark("<<-- TID %d, I = %d (C = %d, W = %d) L = %ld, F = %g\n",
            tid, iteration, cycle, num_waiting, gl_long, gl_rand);
     pthread_mutex_unlock(&mtx_waiting);
     return gl_rand;
@@ -80,7 +80,7 @@ static void *thread_function(void *vp)
     for (int i = 0; i < n_cycles; i++)
     {
         float f = next_iteration_random_number(tid, i);
-        printf("TID %d at work: I = %d, F = %g\n", tid, i, f);
+        err_remark("TID %d at work: I = %d, F = %g\n", tid, i, f);
         fflush(stdout);
         struct timespec rq;
         rq.tv_sec = 0;
@@ -132,6 +132,9 @@ int main(int argc, char **argv)
 
     printf("Threads = %d, Cycles = %d\n", n_threads, n_cycles);
 
+    err_setlogopts(ERR_NOARG0|ERR_MICRO);
+    err_stderr(stdout);
+
     pthread_t thread[n_threads];
 
     for (int i = 0; i < n_threads; i++)
@@ -140,7 +143,8 @@ int main(int argc, char **argv)
         if (rc != 0)
         {
             errno = rc;
-            err_syserr("failed to create thread %d", i);
+            err_stderr(stderr);
+            err_syserr("failed to create TID %d", i);
         }
     }
 
@@ -151,9 +155,10 @@ int main(int argc, char **argv)
         if (rc != 0)
         {
             errno = rc;
+            err_stderr(stderr);
             err_syserr("Failed to join TID %d", i);
         }
-        printf("TID %d returned %p\n", i, vp);
+        err_remark("TID %d returned %p\n", i, vp);
     }
 
     return 0;
