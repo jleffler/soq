@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #include "stderr.h"
 
 #ifndef NUM_THREADS
@@ -25,6 +26,9 @@
 
 enum { MAX_THREADS = NUM_THREADS };
 enum { MAX_CYCLES  = NUM_CYCLES  };
+
+static int n_threads = MAX_THREADS;
+static int n_cycles  = MAX_CYCLES;
 
 static pthread_mutex_t mtx_waiting = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  cnd_waiting = PTHREAD_COND_INITIALIZER;
@@ -41,14 +45,14 @@ static float next_iteration_random_number(int tid, int iteration)
     num_waiting++;
     printf("-->> TID %d, I = %d (C = %d, W = %d)\n",
            tid, iteration, cycle, num_waiting);
-    while (cycle != iteration && num_waiting != MAX_THREADS)
+    while (cycle != iteration && num_waiting != n_threads)
     {
-        assert(num_waiting > 0 && num_waiting <= MAX_THREADS);
+        assert(num_waiting > 0 && num_waiting <= n_threads);
         printf("-CW- TID %d, I = %d (C = %d, W = %d)\n",
                tid, iteration, cycle, num_waiting);
         pthread_cond_wait(&cnd_waiting, &mtx_waiting);
     }
-    assert(cycle == iteration || num_waiting == MAX_THREADS);
+    assert(cycle == iteration || num_waiting == n_threads);
     printf("---- TID %d, I = %d (C = %d, W = %d)\n",
            tid, iteration, cycle, num_waiting);
 
@@ -73,7 +77,7 @@ static void *thread_function(void *vp)
 {
     int tid = (int)(uintptr_t)vp;     // Thuggish!
 
-    for (int i = 0; i < MAX_CYCLES; i++)
+    for (int i = 0; i < n_cycles; i++)
     {
         float f = next_iteration_random_number(tid, i);
         printf("TID %d at work: I = %d, F = %g\n", tid, i, f);
@@ -88,14 +92,49 @@ static void *thread_function(void *vp)
     return 0;
 }
 
+static const char usestr[] = "[-n threads][-c cycles]";
+static const char optstr[] = "c:hn:";
+static const char hlpstr[] =
+    "  -c cycles   Number of iterations (default 5)\n"
+    "  -h          Print this help and exit\n"
+    "  -n threads  Number of threads (default 3)\n"
+    ;
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
-    assert(argc == 1);
+    int opt;
 
-    pthread_t thread[MAX_THREADS];
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'c':
+            n_cycles = atoi(optarg);
+            if (n_cycles < 1)
+                err_error("number of cycles '%s' should be at least 1\n", optarg);
+            break;
+        case 'n':
+            n_threads = atoi(optarg);
+            if (n_threads < 1)
+                err_error("number of threads '%s' should be at least 1\n", optarg);
+            break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
+    if (optind != argc)
+        err_usage(usestr);
 
-    for (int i = 0; i < MAX_THREADS; i++)
+    printf("Threads = %d, Cycles = %d\n", n_threads, n_cycles);
+
+    pthread_t thread[n_threads];
+
+    for (int i = 0; i < n_threads; i++)
     {
         int rc = pthread_create(&thread[i], 0, thread_function, (void *)(uintptr_t)i);
         if (rc != 0)
@@ -105,7 +144,7 @@ int main(int argc, char **argv)
         }
     }
 
-    for (int i = 0; i < MAX_THREADS; i++)
+    for (int i = 0; i < n_threads; i++)
     {
         void *vp;
         int rc = pthread_join(thread[i], &vp);
