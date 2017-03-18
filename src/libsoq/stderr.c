@@ -2,7 +2,7 @@
 @(#)File:           stderr.c
 @(#)Purpose:        Error reporting routines
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1988-91,1996-99,2001,2003,2005-11,2013,2015-16
+@(#)Copyright:      (C) JLSS 1988-2017
 @(#)Derivation:     stderr.c 10.14 2015/06/02 03:04:32
 */
 
@@ -10,6 +10,7 @@
 
 #include "posixver.h"
 #include "stderr.h"     /* Includes config.h if available */
+#include "kludge.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -31,6 +32,7 @@ enum { MAX_MSGLEN = 2048 };
 /* Uses <time.h> */
 #elif defined(HAVE_GETTIMEOFDAY)
 /* Mac OS X 10.10.3 does not have clock_gettime() yet */
+/* macOS Sierra 10.12.1 does have clock_gettime() now */
 #include <sys/time.h>
 #else
 /* No sub-second timing */
@@ -85,6 +87,23 @@ int err_setlogopts(int new_opts)
 int err_getlogopts(void)
 {
     return(err_flags);
+}
+
+/* Set time format - NULL implies default format */
+const char *err_settimeformat(const char *new_fmt)
+{
+    const char *old_fmt = tm_format;
+    if (new_fmt == NULL)
+        tm_format = def_format;
+    else
+        tm_format = new_fmt;
+    return old_fmt;
+}
+
+/* Set time format - NULL implies default format */
+const char *err_gettimeformat(void)
+{
+    return tm_format;
 }
 
 /* Change the definition of 'stderr', reporting on the old one too */
@@ -219,16 +238,19 @@ static Time now(void)
 {
     Time clk;
 #if defined(HAVE_CLOCK_GETTIME)
+    FEATURE("Subsecond times using clock_gettime()");
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     clk.tv_sec = ts.tv_sec;
     clk.tv_nsec = ts.tv_nsec;
 #elif defined(HAVE_GETTIMEOFDAY)
+    FEATURE("Subsecond times using gettimeofday()");
     struct timeval tv;
     gettimeofday(&tv, 0);
     clk.tv_sec = tv.tv_sec;
     clk.tv_nsec = 1000 * tv.tv_usec;
 #else
+    FEATURE("No subsecond times");
     clk.tv_sec = time(0);
     clk.tv_nsec = 0;
 #endif
@@ -261,6 +283,9 @@ static char *err_time(int flags, char *buffer, size_t buflen)
 /* err_stdio - report error via stdio */
 static void (err_stdio)(FILE *fp, int flags, int errnum, const char *format, va_list args)
 {
+#ifdef HAVE_FLOCKFILE
+    flockfile(fp);
+#endif
     if ((flags & ERR_NOARG0) == 0)
         fprintf(fp, "%s: ", arg0);
     if (flags & ERR_LOGTIME)
@@ -273,6 +298,10 @@ static void (err_stdio)(FILE *fp, int flags, int errnum, const char *format, va_
     vfprintf(fp, format, args);
     if (flags & ERR_ERRNO)
         fprintf(fp, "error (%d) %s\n", errnum, strerror(errnum));
+    fflush(fp);
+#ifdef HAVE_FLOCKFILE
+    funlockfile(fp);
+#endif
 }
 
 /* Most fundamental (and flexible) error message printing routine - always returns */

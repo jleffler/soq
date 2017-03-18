@@ -8,6 +8,7 @@ include ../../etc/soq-head.mk
 #TFLAGS  = -DTEST
 CP      = cp
 CPFLAGS = -fp
+CFLAGS += -DHAVE_CONFIG_H
 
 FILES.c = \
 	chkstrint.c \

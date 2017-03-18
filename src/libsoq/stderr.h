@@ -93,4 +93,8 @@ extern void err_sysremark(int errnum, const char *format, ...) PRINTFLIKE(2,3);
 extern int  err_getlogopts(void);           /* Get default log options */
 extern int  err_setlogopts(int new_opts);   /* Set default log options */
 
+/* Time format of NULL sets default format - returns previous format */
+extern const char *err_settimeformat(const char *new_fmt);
+extern const char *err_gettimeformat(void);
+
 #endif /* STDERR_H */
