@@ -1,6 +1,6 @@
-### Stack Overflow Question 4828-2480
+### Stack Overflow Question 4282-2480
 
-[SO 4828-2480](http://stackoverflow.com/q/48282480) &mdash;
+[SO 4282-2480](http://stackoverflow.com/q/42822480) &mdash;
 POSIX Threads, unique execution
 
 One major difficulty is tracking when to create a new random number.
@@ -37,3 +37,16 @@ Additionally, there's a pair of functions `err_settimeformat()` and
 `err_gettimeformat()` that allow you to control the format used when
 logging information.
 These features are used by `pthrd37.c`.
+
+Chapter 7 "Real Code" in the book [Programming with POSIX
+Threads](http://www.informit.com/store/programming-with-posix-threads-9780201633924)
+by David Butenhof describes and implements a 'barrier', which has pretty
+much the structure outlined in the solution here.
+There's the mutex, the condition, a counter, a threshold, and a cycle
+number — all as devised for this answer.
+The concepts are similar, but the barrier counts down to zero instead of
+up to the threshold as this code does.
+You can find the code (including the barrier code) at the linked site.
+It also provides better separation of 'start of new cycle' activities
+and 'continue with new cycle' activities.
+
