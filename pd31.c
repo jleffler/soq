@@ -61,14 +61,16 @@ static int isNeg_p(void *vp, int x) { assert(vp != 0); return x < 0; }
 static unsigned count_p(const int *xs, unsigned len, predicate_t *predicate)
 {
     int c = 0;
+    printf("  =");
     for (unsigned i = 0; i < len; i++)
     {
         if ((**predicate)(predicate, xs[i]))
         {
-            printf("  = %d matches predicate\n", xs[i]);
+            printf(" %2d", xs[i]);
             c++;
         }
     }
+    printf(" matches predicate: ");
     return c;
 }
 
@@ -119,6 +121,7 @@ int main(void)
     printf("Even && Negative: %d\n", count_p(xs, len, p2));
     printf(" Odd && Positive: %d\n", count_p(xs, len, p3));
     printf(" Odd && Negative: %d\n", count_p(xs, len, p4));
+    free(p1); free(p2); free(p3); free(p4);
 
     predicate_t *o1 = mk_predicate(fn_or, &x1, &x3);
     predicate_t *o2 = mk_predicate(fn_or, &x1, &x4);
@@ -129,6 +132,7 @@ int main(void)
     printf("Even || Negative: %d\n", count_p(xs, len, o2));
     printf(" Odd || Positive: %d\n", count_p(xs, len, o3));
     printf(" Odd || Negative: %d\n", count_p(xs, len, o4));
+    free(o1); free(o2); free(o3); free(o4);
 
     predicate_t *a1 = mk_predicate(fn_and, &x1, &x3);
     predicate_t *a2 = mk_predicate(fn_and, &x1, &x4);
@@ -139,6 +143,7 @@ int main(void)
     printf("Even || Negative: %d\n", count_p(xs, len, a2));
     printf(" Odd || Positive: %d\n", count_p(xs, len, a3));
     printf(" Odd || Negative: %d\n", count_p(xs, len, a4));
+    free(a1); free(a2); free(a3); free(a4);
 
     predicate_t *n1 = mk_predicate(fn_nota_and_b, &x1, &x3);
     predicate_t *n2 = mk_predicate(fn_nota_and_b, &x1, &x4);
@@ -149,9 +154,18 @@ int main(void)
     printf("!Even && Negative: %d\n", count_p(xs, len, n2));
     printf("! Odd && Positive: %d\n", count_p(xs, len, n3));
     printf("! Odd && Negative: %d\n", count_p(xs, len, n4));
-
-    free(p1); free(p2); free(p3); free(p4);
-    free(o1); free(o2); free(o3); free(o4);
-    free(a1); free(a2); free(a3); free(a4);
     free(n1); free(n2); free(n3); free(n4);
+
+    predicate_t *m1 = mk_predicate(fn_nota_and_b, &x3, &x1);
+    predicate_t *m2 = mk_predicate(fn_nota_and_b, &x4, &x1);
+    predicate_t *m3 = mk_predicate(fn_nota_and_b, &x3, &x2);
+    predicate_t *m4 = mk_predicate(fn_nota_and_b, &x4, &x2);
+
+    printf("!Positive && Even: %d\n", count_p(xs, len, m1));
+    printf("!Negative && Even: %d\n", count_p(xs, len, m2));
+    printf("!Positive &&  Odd: %d\n", count_p(xs, len, m3));
+    printf("!Negative &&  Odd: %d\n", count_p(xs, len, m4));
+    free(m1); free(m2); free(m3); free(m4);
+
+    return 0;
 }
