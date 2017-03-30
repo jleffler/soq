@@ -139,10 +139,11 @@ int main(void)
     predicate_t *a3 = mk_predicate(fn_and, &x2, &x3);
     predicate_t *a4 = mk_predicate(fn_and, &x2, &x4);
 
-    printf("Even || Positive: %d\n", count_p(xs, len, a1));
-    printf("Even || Negative: %d\n", count_p(xs, len, a2));
-    printf(" Odd || Positive: %d\n", count_p(xs, len, a3));
-    printf(" Odd || Negative: %d\n", count_p(xs, len, a4));
+    /* Show that mk_predicate() works as well as compse() */
+    printf("Even && Positive: %d\n", count_p(xs, len, a1));
+    printf("Even && Negative: %d\n", count_p(xs, len, a2));
+    printf(" Odd && Positive: %d\n", count_p(xs, len, a3));
+    printf(" Odd && Negative: %d\n", count_p(xs, len, a4));
     free(a1); free(a2); free(a3); free(a4);
 
     predicate_t *n1 = mk_predicate(fn_nota_and_b, &x1, &x3);
