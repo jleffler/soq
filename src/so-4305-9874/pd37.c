@@ -1,5 +1,7 @@
 /* SO Q 4305-9874 - closures in C, sort of */
 /* SO A 4306-0435 - https://stackoverflow.com/a/43060435 */
+/* pd37.c - starting to customize */
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,22 +14,12 @@ struct compose_fn_data
 };
 
 static int fn_and(void *data_, int x);
-predicate_t *compose(predicate_t *a, predicate_t *b);
 
 int fn_and(void *data_, int x)
 {
     struct compose_fn_data *data = data_;
 
     return (**data->a)(data->a, x) && (**data->b)(data->b, x);
-}
-
-predicate_t *compose(predicate_t *a, predicate_t *b)
-{
-    struct compose_fn_data *rv = malloc(sizeof *rv);
-    rv->fn = fn_and;
-    rv->a = a;
-    rv->b = b;
-    return &rv->fn;
 }
 
 static int fn_or(void *data_, int x)
@@ -112,10 +104,10 @@ int main(void)
     predicate_t x3 = isPos_p;
     predicate_t x4 = isNeg_p;
 
-    predicate_t *p1 = compose(&x1, &x3);
-    predicate_t *p2 = compose(&x1, &x4);
-    predicate_t *p3 = compose(&x2, &x3);
-    predicate_t *p4 = compose(&x2, &x4);
+    predicate_t *p1 = mk_predicate(fn_and, &x1, &x3);
+    predicate_t *p2 = mk_predicate(fn_and, &x1, &x4);
+    predicate_t *p3 = mk_predicate(fn_and, &x2, &x3);
+    predicate_t *p4 = mk_predicate(fn_and, &x2, &x4);
 
     printf("Even && Positive: %d\n", count_p(xs, len, p1));
     printf("Even && Negative: %d\n", count_p(xs, len, p2));
@@ -133,17 +125,6 @@ int main(void)
     printf(" Odd || Positive: %d\n", count_p(xs, len, o3));
     printf(" Odd || Negative: %d\n", count_p(xs, len, o4));
     free(o1); free(o2); free(o3); free(o4);
-
-    predicate_t *a1 = mk_predicate(fn_and, &x1, &x3);
-    predicate_t *a2 = mk_predicate(fn_and, &x1, &x4);
-    predicate_t *a3 = mk_predicate(fn_and, &x2, &x3);
-    predicate_t *a4 = mk_predicate(fn_and, &x2, &x4);
-
-    printf("Even || Positive: %d\n", count_p(xs, len, a1));
-    printf("Even || Negative: %d\n", count_p(xs, len, a2));
-    printf(" Odd || Positive: %d\n", count_p(xs, len, a3));
-    printf(" Odd || Negative: %d\n", count_p(xs, len, a4));
-    free(a1); free(a2); free(a3); free(a4);
 
     predicate_t *n1 = mk_predicate(fn_nota_and_b, &x1, &x3);
     predicate_t *n2 = mk_predicate(fn_nota_and_b, &x1, &x4);
