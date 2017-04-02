@@ -5,16 +5,39 @@
 #include <stdlib.h>
 #include "emalloc.h"
 
+/* -- SOF polynomial.h -- */
 typedef struct polynomial polynomial;
 
+typedef struct poly_pair
+{
+    polynomial *quotient;
+    polynomial *remainder;
+} poly_pair;
+
+typedef struct term
+{
+    unsigned int power;
+    int coeff;
+} term;
+
+/* What should be the exposed/exposable interface for creating a polynomial? */
+static void print_polynomial(const char *tag, const polynomial *poly);
+static polynomial *mul_polynomial(const polynomial *poly1, const polynomial *poly2);
+static polynomial *add_polynomial(const polynomial *poly1, const polynomial *poly2);
+static polynomial *sub_polynomial(const polynomial *poly1, const polynomial *poly2);
+static poly_pair   div_polynomial(const polynomial *poly1, const polynomial *poly2);
+static void free_polynomial(polynomial *poly);
+static void print_polynomial(const char *tag, const polynomial *poly);
+static polynomial *make_polynomial(int n_terms, const term *terms);
+/* -- EOF polynomial.h -- */
+
+/* -- SOF polynomial.c -- */
 struct polynomial
 {
     unsigned int power;
     int          coeff;
     polynomial  *next;
 };
-
-static void print_polynomial(const char *tag, const polynomial *poly);
 
 static polynomial *make_term(unsigned int power, int coeff, polynomial *next)
 {
@@ -57,40 +80,47 @@ static polynomial *add_term(polynomial *poly, unsigned int power, int coeff)
     return poly;
 }
 
-static polynomial *mult_polynomial(polynomial *poly1, polynomial *poly2)
+static polynomial *mul_polynomial(const polynomial *poly1, const polynomial *poly2)
 {
     assert(poly1 != NULL && poly2 != NULL);
     polynomial *result = NULL;
 
-    for (polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
+    for (const polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
     {
-        for (polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
+        for (const polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
             result = add_term(result, p1->power + p2->power, p1->coeff * p2->coeff);
     }
     return result;
 }
 
-static polynomial *add_polynomial(polynomial *poly1, polynomial *poly2)
+static polynomial *add_polynomial(const polynomial *poly1, const polynomial *poly2)
 {
     assert(poly1 != NULL && poly2 != NULL);
     polynomial *result = NULL;
 
-    for (polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
+    for (const polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
         result = add_term(result, p1->power, p1->coeff);
-    for (polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
+    for (const polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
         result = add_term(result, p2->power, p2->coeff);
     return result;
 }
 
-static polynomial *sub_polynomial(polynomial *poly1, polynomial *poly2)
+static polynomial *sub_polynomial(const polynomial *poly1, const polynomial *poly2)
 {
     assert(poly1 != NULL && poly2 != NULL);
     polynomial *result = NULL;
 
-    for (polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
+    for (const polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
         result = add_term(result, p1->power, p1->coeff);
-    for (polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
+    for (const polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
         result = add_term(result, p2->power, -p2->coeff);
+    return result;
+}
+
+static poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
+{
+    assert(poly1 != NULL && poly2 != NULL);
+    poly_pair result = { NULL, NULL };
     return result;
 }
 
@@ -136,29 +166,27 @@ static void free_polynomial(polynomial *poly)
     }
 }
 
-typedef struct term
+static polynomial *make_polynomial(int n_terms, const term *terms)
 {
-    unsigned int power;
-    int coeff;
-} term;
+    polynomial *poly = 0;
+    for (int i = 0; i < n_terms; i++)
+    {
+        printf("Term: %dx^%u\n", terms[i].coeff, terms[i].power);
+        fflush(stdout);
+        poly = add_term(poly, terms[i].power, terms[i].coeff);
+    }
+    return poly;
+}
+
+/* -- EOF polynomial.c -- */
+
+/* -- SOF polytest.c -- */
 
 typedef struct termlist
 {
     int n_terms;
     term *terms;
 } termlist;
-
-static polynomial *make_polynomial(termlist *terms)
-{
-    polynomial *poly = 0;
-    for (int i = 0; i < terms->n_terms; i++)
-    {
-        printf("Term: %dx^%u\n", terms->terms[i].coeff, terms->terms[i].power);
-        fflush(stdout);
-        poly = add_term(poly, terms->terms[i].power, terms->terms[i].coeff);
-    }
-    return poly;
-}
 
 int main(void)
 {
@@ -175,7 +203,7 @@ int main(void)
 
     for (int i = 0; i < NUM_POLYS; i++)
     {
-        poly[i] = make_polynomial(&p1[i]);
+        poly[i] = make_polynomial(p1[i].n_terms, p1[i].terms);
         print_polynomial("Building", poly[i]);
     }
 
@@ -191,7 +219,7 @@ int main(void)
         {
             print_polynomial("Term 1", poly[i]);
             print_polynomial("Term 2", poly[j]);
-            polynomial *prod = mult_polynomial(poly[i], poly[j]);
+            polynomial *prod = mul_polynomial(poly[i], poly[j]);
             print_polynomial("Product", prod);
             free_polynomial(prod);
         }
@@ -226,8 +254,26 @@ int main(void)
         putchar('\n');
     }
 
+    printf("Dividing polynomials:\n");
+    for (int i = 0; i < NUM_POLYS; i++)
+    {
+        for (int j = 0; j < NUM_POLYS; j++)
+        {
+            print_polynomial("Term 1", poly[i]);
+            print_polynomial("Term 2", poly[j]);
+            poly_pair qr = div_polynomial(poly[i], poly[j]);
+            print_polynomial("Quotient", qr.quotient);
+            print_polynomial("Remainder", qr.remainder);
+            free_polynomial(qr.quotient);
+            free_polynomial(qr.remainder);
+        }
+        putchar('\n');
+    }
+
     for (int i = 0; i < NUM_POLYS; i++)
         free_polynomial(poly[i]);
 
     return 0;
 }
+
+/* -- EOF polytest.c -- */
