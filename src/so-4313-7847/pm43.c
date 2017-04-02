@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "emalloc.h"
+#include "stderr.h"
 
 /* -- SOF polynomial.h -- */
 typedef struct polynomial polynomial;
@@ -29,6 +30,12 @@ static poly_pair   div_polynomial(const polynomial *poly1, const polynomial *pol
 static void free_polynomial(polynomial *poly);
 static void print_polynomial(const char *tag, const polynomial *poly);
 static polynomial *make_polynomial(int n_terms, const term *terms);
+static polynomial *copy_polynomial(const polynomial *poly1);
+
+static int degree_polynomial(const polynomial *poly);
+static bool zero_polynomial(const polynomial *poly);
+static int coeff_for_term_polynomial(const polynomial *poly, unsigned int power);
+
 /* -- EOF polynomial.h -- */
 
 /* -- SOF polynomial.c -- */
@@ -117,10 +124,92 @@ static polynomial *sub_polynomial(const polynomial *poly1, const polynomial *pol
     return result;
 }
 
+static polynomial *copy_polynomial(const polynomial *poly1)
+{
+    polynomial *result = NULL;
+    while (poly1 != NULL)
+    {
+        result = add_term(result, poly1->power, poly1->coeff);
+        poly1 = poly1->next;
+    }
+    return result;
+}
+
+static bool zero_polynomial(const polynomial *poly)
+{
+    while (poly != NULL)
+    {
+        if (poly->coeff != 0)
+            return false;
+        poly = poly->next;
+    }
+    return true;
+}
+
+static int coeff_for_term_polynomial(const polynomial *poly, unsigned int power)
+{
+    while (poly != NULL)
+    {
+        if (poly->power < power)
+            return 0;
+        if (poly->power == power)
+            return poly->coeff;
+        poly = poly->next;
+    }
+    return 0;
+}
+
+static int degree_polynomial(const polynomial *poly)
+{
+    while (poly != NULL)
+    {
+        if (poly->coeff != 0)
+            return poly->power;
+        poly = poly->next;
+    }
+    return 0;
+}
+
+/*
+** Pseudo-code algorithm from Wikipedia
+**
+**  function n / d:
+**    require d ≠ 0
+**    q ← 0
+**    r ← n       # At each step n = d × q + r
+**    while r ≠ 0 AND degree(r) ≥ degree(d):
+**      t ← lead(r)/lead(d)     # Divide the leading terms
+**      q ← q + t
+**      r ← r − t * d
+**    return (q, r)
+*/
+
 static poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
 {
     assert(poly1 != NULL && poly2 != NULL);
-    poly_pair result = { NULL, NULL };
+    poly_pair result = { NULL, copy_polynomial(poly1) };
+    int power_div = degree_polynomial(poly2);
+    int coeff_div = coeff_for_term_polynomial(poly2, power_div);
+    if (coeff_div == 0)
+    {
+        print_polynomial("Crasher", poly2);
+        printf("Power div = %d\n", power_div);
+    }
+    assert(coeff_div != 0);
+    int power_rem;
+    while (!zero_polynomial(result.remainder) &&
+           (power_rem = degree_polynomial(result.remainder)) >= power_div)
+    {
+        int coeff_rem = coeff_for_term_polynomial(poly2, power_rem);
+        if (coeff_rem % coeff_div != 0)
+            err_error("Ratio %d / %d requires rational arithmetic\n", coeff_rem, coeff_div);
+        result.quotient = add_term(result.quotient, power_rem - power_div, coeff_rem / coeff_div);
+        polynomial *t = make_polynomial(1, (term []){ { .power = power_rem - power_div, .coeff = coeff_rem / coeff_div } });
+        polynomial *td = mul_polynomial(poly2, t);
+        result.remainder = sub_polynomial(result.remainder, td);
+        free_polynomial(t);
+        free_polynomial(td);
+    }
     return result;
 }
 
@@ -188,8 +277,9 @@ typedef struct termlist
     term *terms;
 } termlist;
 
-int main(void)
+int main(int argc, char **argv)
 {
+    err_setarg0(argv[argc-argc]);
     termlist p1[] =
     {
         { .n_terms = 4, .terms = (term[]){ { 3, 2 }, { 2,  1 }, { 1,  4 }, { 0, -9 } } },
