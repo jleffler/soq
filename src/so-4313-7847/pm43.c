@@ -93,6 +93,38 @@ int main(int argc, char **argv)
     }
 
     printf("Dividing polynomials:\n");
+
+    // Wikipedia example:
+    // dividend: x^3 - 2x^2 - 4
+    // divisor:  x − 3
+    // quotient: x^2 + x + 3
+    // remainder: 5
+    struct termlist tl_top = { 3, (term []){ { 3, { 1, +1 } },
+                                            { 2, { 2, -1 } },
+                                            { 0, { 4, -1 } }, } };
+    struct termlist tl_bot = { 2, (term []){ { 1, { 1, +1 } },
+                                            { 0, { 3, -1 } }, } };
+    struct termlist tl_quo = { 3, (term []){ { 2, { 1, +1 } },
+                                            { 1, { 1, +1 } },
+                                            { 0, { 3, +1 } }, } };
+    struct termlist tl_rem = { 1, (term []){ { 0, { 5, +1 } }, } };
+    polynomial *w_top = make_polynomial(tl_top.n_terms, tl_top.terms);
+    polynomial *w_bot = make_polynomial(tl_bot.n_terms, tl_bot.terms);
+    polynomial *w_quo = make_polynomial(tl_quo.n_terms, tl_quo.terms);
+    polynomial *w_rem = make_polynomial(tl_rem.n_terms, tl_rem.terms);
+
+    printf("Wikipedia example:\n");
+    print_polynomial("Dividend", w_top);
+    print_polynomial("Divisor", w_bot);
+    poly_pair qr = div_polynomial(w_top, w_bot);
+    print_polynomial("Actual Quotient", qr.quotient);
+    print_polynomial("Actual Remainder", qr.remainder);
+    print_polynomial("Wanted Quotient", w_quo);
+    print_polynomial("Wanted Remainder", w_rem);
+    free_polynomial(qr.quotient);
+    free_polynomial(qr.remainder);
+
+#if 0
     for (int i = 0; i < NUM_POLYS; i++)
     {
         for (int j = 0; j < NUM_POLYS; j++)
@@ -107,6 +139,7 @@ int main(int argc, char **argv)
         }
         putchar('\n');
     }
+#endif
 
     for (int i = 0; i < NUM_POLYS; i++)
         free_polynomial(poly[i]);

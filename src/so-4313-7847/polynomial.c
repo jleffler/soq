@@ -111,7 +111,7 @@ bool zero_polynomial(const polynomial *poly)
 {
     while (poly != NULL)
     {
-        if (ri_cmp(poly->coeff, RI_ZERO()) == 0)
+        if (ri_cmp(poly->coeff, RI_ZERO()) != 0)
             return false;
         poly = poly->next;
     }
@@ -159,28 +159,50 @@ int degree_polynomial(const polynomial *poly)
 poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
 {
     assert(poly1 != NULL && poly2 != NULL);
-    poly_pair result = { NULL, copy_polynomial(poly1) };
+    poly_pair result = { .quotient = NULL, .remainder = copy_polynomial(poly1) };
+    printf("-->> %s:\n", __func__);
+    print_polynomial("Dividend", poly1);
+    print_polynomial("Divisor", poly2);
+    print_polynomial("Quotient", result.quotient);
+    print_polynomial("Remainder", result.remainder);
     int power_div = degree_polynomial(poly2);
+    printf("Degree divisor: %d\n", power_div);
     Rational coeff_div = coeff_for_term_polynomial(poly2, power_div);
+    printf("Term (divisor): ");
+    print_term(coeff_div, power_div); putchar('\n');
     assert(ri_cmp(coeff_div, RI_ZERO()) != 0);
-    int power_rem;
+    int power_rem = 0;
+    printf("zero_polynomial: %s\n", (zero_polynomial(result.remainder) ? "true" : "false"));
     while (!zero_polynomial(result.remainder) &&
            (power_rem = degree_polynomial(result.remainder)) >= power_div)
     {
+        printf("Degree remainder: %d\n", power_rem);
         Rational coeff_rem = coeff_for_term_polynomial(result.remainder, power_rem);
+        printf("Term (remainder): ");
+        print_term(coeff_rem, power_rem); putchar('\n');
         Rational coeff = ri_div(coeff_rem, coeff_div);
+        printf("Term (add to quotient): ");
+        print_term(coeff, power_rem - power_div); putchar('\n');
         result.quotient = add_term(result.quotient, power_rem - power_div, coeff);
+        print_polynomial("Quotient", result.quotient);
         polynomial *t = make_polynomial(1, (term []){ { .power = power_rem - power_div,
                                                         .coeff = coeff } });
-        //print_polynomial("t", t);
+        print_polynomial("t", t);
         //print_polynomial("quotient", result.quotient);
         //print_polynomial("remainder", result.remainder);
         //print_polynomial("poly2", poly2);
         polynomial *td = mul_polynomial(poly2, t);
+        print_polynomial("t * d", t);
         result.remainder = sub_polynomial(result.remainder, td);
+        print_polynomial("remainder", result.remainder);
         free_polynomial(t);
         free_polynomial(td);
     }
+    printf("zero_polynomial: %s\n", (zero_polynomial(result.remainder) ? "true" : "false"));
+    printf("Degree remainder: %d\n", power_rem);
+    print_polynomial("Final Quotient", result.quotient);
+    print_polynomial("Final Remainder", result.remainder);
+    printf("<<-- %s:\n", __func__);
     return result;
 }
 
