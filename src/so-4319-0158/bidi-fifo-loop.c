@@ -169,10 +169,10 @@ int main(int argc, char **argv)
         else if (pid == 0)
         {
             usleep((i + 1) * 100000);   // Tenths of a second
-            err_remark("Child process #%d (PID %d) at work\n", i, (int)pid);
+            err_remark("Child process #%d (PID %d) at work\n", i, (int)getpid());
             be_childish(n, i, tubes);
             int status = (i + 1) * 16;
-            err_remark("Child process #%d (PID %d) exiting with status 0x%.2X\n", i, (int)pid, status);
+            err_remark("Child process #%d (PID %d) exiting with status 0x%.2X\n", i, (int)getpid(), status);
             exit(status);
         }
         else
