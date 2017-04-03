@@ -28,13 +28,13 @@ static polynomial *add_polynomial(const polynomial *poly1, const polynomial *pol
 static polynomial *sub_polynomial(const polynomial *poly1, const polynomial *poly2);
 static poly_pair   div_polynomial(const polynomial *poly1, const polynomial *poly2);
 static void free_polynomial(polynomial *poly);
-static void print_polynomial(const char *tag, const polynomial *poly);
 static polynomial *make_polynomial(int n_terms, const term *terms);
 static polynomial *copy_polynomial(const polynomial *poly1);
 
 static int degree_polynomial(const polynomial *poly);
 static bool zero_polynomial(const polynomial *poly);
 static int coeff_for_term_polynomial(const polynomial *poly, unsigned int power);
+static void print_term(int coeff, unsigned int power);
 
 /* -- EOF polynomial.h -- */
 
@@ -190,27 +190,44 @@ static poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2
     poly_pair result = { NULL, copy_polynomial(poly1) };
     int power_div = degree_polynomial(poly2);
     int coeff_div = coeff_for_term_polynomial(poly2, power_div);
-    if (coeff_div == 0)
-    {
-        print_polynomial("Crasher", poly2);
-        printf("Power div = %d\n", power_div);
-    }
+    //if (coeff_div == 0)
+    //{
+        //print_polynomial("Crasher", poly2);
+        //printf("Power div = %d\n", power_div);
+    //}
     assert(coeff_div != 0);
     int power_rem;
     while (!zero_polynomial(result.remainder) &&
            (power_rem = degree_polynomial(result.remainder)) >= power_div)
     {
-        int coeff_rem = coeff_for_term_polynomial(poly2, power_rem);
+        int coeff_rem = coeff_for_term_polynomial(result.remainder, power_rem);
+        //printf("coeff_rem = %d; coeff_div = %d; power_rem = %d; power_div = %d; modulus = %d\n",
+        //        coeff_rem, coeff_div, power_rem, power_div, coeff_rem % coeff_div);
         if (coeff_rem % coeff_div != 0)
             err_error("Ratio %d / %d requires rational arithmetic\n", coeff_rem, coeff_div);
         result.quotient = add_term(result.quotient, power_rem - power_div, coeff_rem / coeff_div);
-        polynomial *t = make_polynomial(1, (term []){ { .power = power_rem - power_div, .coeff = coeff_rem / coeff_div } });
+        polynomial *t = make_polynomial(1, (term []){ { .power = power_rem - power_div,
+                                                        .coeff = coeff_rem / coeff_div } });
+        //print_polynomial("t", t);
+        //print_polynomial("quotient", result.quotient);
+        //print_polynomial("remainder", result.remainder);
+        //print_polynomial("poly2", poly2);
         polynomial *td = mul_polynomial(poly2, t);
         result.remainder = sub_polynomial(result.remainder, td);
         free_polynomial(t);
         free_polynomial(td);
     }
     return result;
+}
+
+static void print_term(int coeff, unsigned int power)
+{
+    if (power == 0)
+        printf("%d", coeff);
+    else if (power == 1)
+        printf("%dx", coeff);
+    else
+        printf("%dx^%u", coeff, power);
 }
 
 static void print_polynomial(const char *tag, const polynomial *poly)
@@ -228,12 +245,8 @@ static void print_polynomial(const char *tag, const polynomial *poly)
                 sign = '-';
                 coeff = -coeff;
             }
-            if (poly->power == 0)
-                printf(" %c %d", sign, coeff);
-            else if (poly->power == 1)
-                printf(" %c %dx", sign, coeff);
-            else
-                printf(" %c %dx^%u", sign, coeff, poly->power);
+            printf(" %c ", sign);
+            print_term(coeff, poly->power);
             printed++;
         }
         poly = poly->next;
@@ -260,7 +273,9 @@ static polynomial *make_polynomial(int n_terms, const term *terms)
     polynomial *poly = 0;
     for (int i = 0; i < n_terms; i++)
     {
-        printf("Term: %dx^%u\n", terms[i].coeff, terms[i].power);
+        printf("Term: ");
+        print_term(terms[i].coeff, terms[i].power);
+        putchar('\n');
         fflush(stdout);
         poly = add_term(poly, terms[i].power, terms[i].coeff);
     }
