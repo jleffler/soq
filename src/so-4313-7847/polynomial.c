@@ -7,16 +7,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void print_term(int coeff, unsigned int power);
+static void print_term(Rational coeff, unsigned int power);
+
+#define RI_ZERO()   ((Rational){ 0, 1 })
 
 struct polynomial
 {
     unsigned int power;
-    int          coeff;
+    Rational     coeff;
     polynomial  *next;
 };
 
-static polynomial *make_term(unsigned int power, int coeff, polynomial *next)
+static polynomial *make_term(unsigned int power, Rational coeff, polynomial *next)
 {
     polynomial *new_term = MALLOC(sizeof(*new_term));
     new_term->power = power;
@@ -25,9 +27,9 @@ static polynomial *make_term(unsigned int power, int coeff, polynomial *next)
     return new_term;
 }
 
-static polynomial *add_term(polynomial *poly, unsigned int power, int coeff)
+static polynomial *add_term(polynomial *poly, unsigned int power, Rational coeff)
 {
-    if (coeff == 0)
+    if (ri_cmp(coeff, RI_ZERO()) == 0)
         return poly;
     if (poly == NULL)
         return make_term(power, coeff, NULL);
@@ -43,7 +45,7 @@ static polynomial *add_term(polynomial *poly, unsigned int power, int coeff)
 
     if (term != NULL && term->power == power)
     {
-        term->coeff += coeff;
+        term->coeff = ri_add(term->coeff, coeff);
     }
     else
     {
@@ -65,7 +67,7 @@ polynomial *mul_polynomial(const polynomial *poly1, const polynomial *poly2)
     for (const polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
     {
         for (const polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
-            result = add_term(result, p1->power + p2->power, p1->coeff * p2->coeff);
+            result = add_term(result, p1->power + p2->power, ri_mul(p1->coeff, p2->coeff));
     }
     return result;
 }
@@ -90,7 +92,7 @@ polynomial *sub_polynomial(const polynomial *poly1, const polynomial *poly2)
     for (const polynomial *p1 = poly1; p1 != NULL; p1 = p1->next)
         result = add_term(result, p1->power, p1->coeff);
     for (const polynomial *p2 = poly2; p2 != NULL; p2 = p2->next)
-        result = add_term(result, p2->power, -p2->coeff);
+        result = add_term(result, p2->power, ri_neg(p2->coeff));
     return result;
 }
 
@@ -109,31 +111,31 @@ bool zero_polynomial(const polynomial *poly)
 {
     while (poly != NULL)
     {
-        if (poly->coeff != 0)
+        if (ri_cmp(poly->coeff, RI_ZERO()) == 0)
             return false;
         poly = poly->next;
     }
     return true;
 }
 
-int coeff_for_term_polynomial(const polynomial *poly, unsigned int power)
+Rational coeff_for_term_polynomial(const polynomial *poly, unsigned int power)
 {
     while (poly != NULL)
     {
         if (poly->power < power)
-            return 0;
+            return RI_ZERO();
         if (poly->power == power)
             return poly->coeff;
         poly = poly->next;
     }
-    return 0;
+    return RI_ZERO();
 }
 
 int degree_polynomial(const polynomial *poly)
 {
     while (poly != NULL)
     {
-        if (poly->coeff != 0)
+        if (ri_cmp(poly->coeff, RI_ZERO()) != 0)
             return poly->power;
         poly = poly->next;
     }
@@ -159,25 +161,17 @@ poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
     assert(poly1 != NULL && poly2 != NULL);
     poly_pair result = { NULL, copy_polynomial(poly1) };
     int power_div = degree_polynomial(poly2);
-    int coeff_div = coeff_for_term_polynomial(poly2, power_div);
-    //if (coeff_div == 0)
-    //{
-        //print_polynomial("Crasher", poly2);
-        //printf("Power div = %d\n", power_div);
-    //}
-    assert(coeff_div != 0);
+    Rational coeff_div = coeff_for_term_polynomial(poly2, power_div);
+    assert(ri_cmp(coeff_div, RI_ZERO()) != 0);
     int power_rem;
     while (!zero_polynomial(result.remainder) &&
            (power_rem = degree_polynomial(result.remainder)) >= power_div)
     {
-        int coeff_rem = coeff_for_term_polynomial(result.remainder, power_rem);
-        //printf("coeff_rem = %d; coeff_div = %d; power_rem = %d; power_div = %d; modulus = %d\n",
-        //        coeff_rem, coeff_div, power_rem, power_div, coeff_rem % coeff_div);
-        if (coeff_rem % coeff_div != 0)
-            err_error("Ratio %d / %d requires rational arithmetic\n", coeff_rem, coeff_div);
-        result.quotient = add_term(result.quotient, power_rem - power_div, coeff_rem / coeff_div);
+        Rational coeff_rem = coeff_for_term_polynomial(result.remainder, power_rem);
+        Rational coeff = ri_div(coeff_rem, coeff_div);
+        result.quotient = add_term(result.quotient, power_rem - power_div, coeff);
         polynomial *t = make_polynomial(1, (term []){ { .power = power_rem - power_div,
-                                                        .coeff = coeff_rem / coeff_div } });
+                                                        .coeff = coeff } });
         //print_polynomial("t", t);
         //print_polynomial("quotient", result.quotient);
         //print_polynomial("remainder", result.remainder);
@@ -190,14 +184,16 @@ poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
     return result;
 }
 
-static void print_term(int coeff, unsigned int power)
+static void print_term(Rational coeff, unsigned int power)
 {
+    char buffer[32];
+    ri_fmt(coeff, buffer, sizeof(buffer));
     if (power == 0)
-        printf("%d", coeff);
+        printf("%s", buffer);
     else if (power == 1)
-        printf("%dx", coeff);
+        printf("%s.x", buffer);
     else
-        printf("%dx^%u", coeff, power);
+        printf("%s.x^%u", buffer, power);
 }
 
 void print_polynomial(const char *tag, const polynomial *poly)
@@ -207,13 +203,13 @@ void print_polynomial(const char *tag, const polynomial *poly)
     char sign = ' ';
     while (poly != NULL)
     {
-        int coeff = poly->coeff;
-        if (coeff != 0)
+        Rational coeff = poly->coeff;
+        if (ri_cmp(poly->coeff, RI_ZERO()) != 0)
         {
-            if (sign != ' ' && coeff < 0)
+            if (sign != ' ' && ri_cmp(poly->coeff, RI_ZERO()) < 0)
             {
                 sign = '-';
-                coeff = -coeff;
+                coeff = ri_neg(coeff);
             }
             printf(" %c ", sign);
             print_term(coeff, poly->power);

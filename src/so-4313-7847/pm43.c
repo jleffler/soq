@@ -19,11 +19,22 @@ int main(int argc, char **argv)
     err_setarg0(argv[argc-argc]);
     termlist p1[] =
     {
-        { .n_terms = 4, .terms = (term[]){ { 3, 2 }, { 2,  1 }, { 1,  4 }, { 0, -9 } } },
-        { .n_terms = 3, .terms = (term[]){ { 2, 3 }, { 1, -4 }, { 0,  8 } } },
-        { .n_terms = 3, .terms = (term[]){ { 1, 5 }, { 0,  3 }, { 2, -4 } } },
-        { .n_terms = 2, .terms = (term[]){ { 4, 5 }, { 0, -5 } } },
-        { .n_terms = 4, .terms = (term[]){ { 3, 2 }, { 2,  1 }, { 1,  4 }, { 2, -9 } } },
+        { .n_terms = 4, .terms = (term[]){ { 3, { 2, +1 } },
+                                           { 2, { 1, +1 } },
+                                           { 1, { 4, +1 } },
+                                           { 0, { 9, -1 } } } },
+        { .n_terms = 3, .terms = (term[]){ { 2, { 3, +1 } },
+                                           { 1, { 4, -1 } },
+                                           { 0, { 8,  1 } } } },
+        { .n_terms = 3, .terms = (term[]){ { 1, { 5, +1 } },
+                                           { 0, { 3, +1 } },
+                                           { 2, { 4, -1 } } } },
+        { .n_terms = 2, .terms = (term[]){ { 4, { 5, +1 } },
+                                           { 0, { 5, -1 } } } },
+        { .n_terms = 4, .terms = (term[]){ { 3, { 2, +1 } },
+                                           { 2, { 1, +1 } },
+                                           { 1, { 4,  1 } },
+                                           { 2, { 9, -1 } } } },
     };
     enum { NUM_POLYS = sizeof(p1) / sizeof(p1[0]) };
     polynomial *poly[NUM_POLYS] = { 0 };

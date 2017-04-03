@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "rational.h"
 
-/* -- SOF polynomial.h -- */
+typedef RationalInt Rational;       // Abbreviate!
 typedef struct polynomial polynomial;
 
 typedef struct poly_pair
@@ -18,10 +18,9 @@ typedef struct poly_pair
 typedef struct term
 {
     unsigned int power;
-    int coeff;
+    Rational     coeff;
 } term;
 
-/* What should be the exposed/exposable interface for creating a polynomial? */
 extern void print_polynomial(const char *tag, const polynomial *poly);
 extern polynomial *mul_polynomial(const polynomial *poly1, const polynomial *poly2);
 extern polynomial *add_polynomial(const polynomial *poly1, const polynomial *poly2);
@@ -33,6 +32,6 @@ extern polynomial *copy_polynomial(const polynomial *poly1);
 
 extern int degree_polynomial(const polynomial *poly);
 extern bool zero_polynomial(const polynomial *poly);
-extern int coeff_for_term_polynomial(const polynomial *poly, unsigned int power);
+extern Rational coeff_for_term_polynomial(const polynomial *poly, unsigned int power);
 
 #endif /* POLYNOMIAL_H_INCLUDED */
