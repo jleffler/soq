@@ -10,6 +10,7 @@
 static void print_term(Rational coeff, unsigned int power);
 
 #define RI_ZERO()   ((Rational){ 0, 1 })
+#define RI_ONE() ((Rational){ 1, 1 })
 
 struct polynomial
 {
@@ -46,6 +47,14 @@ static polynomial *add_term(polynomial *poly, unsigned int power, Rational coeff
     if (term != NULL && term->power == power)
     {
         term->coeff = ri_add(term->coeff, coeff);
+        if (ri_cmp(term->coeff, RI_ZERO()) == 0)
+        {
+            if (prev == NULL)
+                poly = term->next;
+            else
+                prev->next = term->next;
+            free(term);
+        }
     }
     else
     {
@@ -192,7 +201,7 @@ poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
         //print_polynomial("remainder", result.remainder);
         //print_polynomial("poly2", poly2);
         polynomial *td = mul_polynomial(poly2, t);
-        print_polynomial("t * d", t);
+        print_polynomial("t * d", td);
         result.remainder = sub_polynomial(result.remainder, td);
         print_polynomial("remainder", result.remainder);
         free_polynomial(t);
@@ -209,11 +218,16 @@ poly_pair div_polynomial(const polynomial *poly1, const polynomial *poly2)
 static void print_term(Rational coeff, unsigned int power)
 {
     char buffer[32];
-    ri_fmt(coeff, buffer, sizeof(buffer));
+    ri_fmt(coeff, buffer, sizeof(buffer), "");
+    /* Much room for improvement here! */
     if (power == 0)
         printf("%s", buffer);
+    else if (ri_cmp(coeff, RI_ONE()) == 0 && power == 1)
+        printf("x");
     else if (power == 1)
         printf("%s.x", buffer);
+    else if (ri_cmp(coeff, RI_ONE()) == 0)
+        printf("x^%u", power);
     else
         printf("%s.x^%u", buffer, power);
 }
@@ -261,10 +275,10 @@ polynomial *make_polynomial(int n_terms, const term *terms)
     polynomial *poly = 0;
     for (int i = 0; i < n_terms; i++)
     {
-        printf("Term: ");
-        print_term(terms[i].coeff, terms[i].power);
-        putchar('\n');
-        fflush(stdout);
+        //printf("Term: ");
+        //print_term(terms[i].coeff, terms[i].power);
+        //putchar('\n');
+        //fflush(stdout);
         poly = add_term(poly, terms[i].power, terms[i].coeff);
     }
     return poly;

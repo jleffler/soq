@@ -166,7 +166,6 @@ int main(int argc, char **argv)
     wikipedia_example_1();
     wikipedia_example_2();
 
-#if 0
     for (int i = 0; i < NUM_POLYS; i++)
     {
         for (int j = 0; j < NUM_POLYS; j++)
@@ -181,7 +180,6 @@ int main(int argc, char **argv)
             putchar('\n');
         }
     }
-#endif
 
     for (int i = 0; i < NUM_POLYS; i++)
         free_polynomial(poly[i]);
