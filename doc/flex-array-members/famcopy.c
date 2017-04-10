@@ -79,7 +79,7 @@ int main(void)
         dump_fam("After: f2", f2);
     }
 
-    /* One advantages of FAM over other techniques is the ease of freeing */
+    /* One advantage of FAM over other techniques is the ease of freeing */
     /* Even if either or both allocations failed, the calls to free are OK */
     free(f1);
     free(f2);
