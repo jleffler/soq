@@ -1,28 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define cmp cmpint
-static
-#include "altcmp2.c"
-
-#if 0
-static int cmpint(const void *v1, const void *v2) /* Ascending */
-{
-    int i1 = *(int *)v1;
-    int i2 = *(int *)v2;
-    // return *(int *)v1 - *(int *)v2; // NBG - UB on overflow!
-    // Could be OK if you know that the data will always be such that
-    // neither max - min nor min - max will trigger integer overflow.
-    // This algorithm works for any type (unsigned integers, double).
-    // The subtraction doesn't work well for unsigned integers.
-    if (i1 < i2)
-        return -1;
-    else if (i1 > i2)
-        return +1;
-    else
-        return 0;
-}
+#ifndef COMPARATOR_SOURCE
+#define COMPARATOR_SOURCE "altcmp2.c"
 #endif
+
+static
+#include COMPARATOR_SOURCE
 
 static void print_idata(const char *tag, int size, int *data)
 {

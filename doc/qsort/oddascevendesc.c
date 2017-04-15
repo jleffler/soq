@@ -34,8 +34,8 @@ static int evendesc_oddasc(const void *vp1, const void *vp2)
     }
     /* Both odd or both even */
     if ((v1 & 1) == 1)
-        return (v1 < v2) ? -1 : (v1 > v2) ? +1 : 0;     /* Ascending */
-    return (v1 < v2) ? +1 : (v1 > v2) ? -1 : 0;         /* Descending */
+        return (v1 > v2) - (v1 < v2);     /* Ascending */
+    return (v1 < v2) - (v1 > v2);         /* Descending */
 }
 
 static void dump_array(const char *tag, int num, int *data)
