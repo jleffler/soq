@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int cmpint(const void *v1, const void *v2)   /* Ascending */
+#define cmp cmpint
+static
+#include "altcmp2.c"
+
+#if 0
+static int cmpint(const void *v1, const void *v2) /* Ascending */
 {
     int i1 = *(int *)v1;
     int i2 = *(int *)v2;
@@ -17,6 +22,7 @@ static int cmpint(const void *v1, const void *v2)   /* Ascending */
     else
         return 0;
 }
+#endif
 
 static void print_idata(const char *tag, int size, int *data)
 {
