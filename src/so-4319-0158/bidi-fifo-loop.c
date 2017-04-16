@@ -71,7 +71,7 @@ static inline void recv_info(int num, int fd)
     int nbytes;
     if ((nbytes = read(fd, buffer, sizeof(buffer))) <= 0)
         err_syserr("P%d failed to read anything on fd %d: ", num, fd);
-    err_remark("P%d received %d bytes: [%.*s]\n", num, nbytes, nbytes, buffer);
+    err_remark("P%d read  %d bytes: [%.*s]\n", num, nbytes, nbytes, buffer);
 }
 
 static inline void send_info(int num, int fd, const char *dir)
@@ -82,7 +82,7 @@ static inline void send_info(int num, int fd, const char *dir)
     int nbytes;
     if ((nbytes = write(fd, buffer, buflen)) != buflen)
         err_syserr("Failed to write properly on fd %d (%d vs %d wanted): ", fd, nbytes, buflen);
-    err_remark("P%d sent %d bytes: [%.*s]\n", num, nbytes, nbytes, buffer);
+    err_remark("P%d wrote %d bytes: [%.*s]\n", num, nbytes, nbytes, buffer);
 }
 
 static void be_childish(int max, int num, char tubes[][MAX_TUBENAMELEN])
