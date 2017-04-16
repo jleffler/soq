@@ -3,7 +3,7 @@
 @(#)Purpose:        Error reporting routines
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1988-2017
-@(#)Derivation:     stderr.c 10.14 2015/06/02 03:04:32
+@(#)Derivation:     stderr.c 10.18 2017/04/04 18:34:01
 */
 
 /*TABSTOP=4*/
@@ -25,14 +25,17 @@
 extern int getpid(void);
 #endif /* HAVE_UNISTD_H */
 
-enum { MAX_MSGLEN = 2048 };
+#ifndef ERR_MAXMSGLEN
+#define ERR_MAXMSGLEN 2048
+#endif
+enum { MAX_MSGLEN = ERR_MAXMSGLEN };
 
 /* Find sub-second timing mechanism */
 #if defined(HAVE_CLOCK_GETTIME)
 /* Uses <time.h> */
 #elif defined(HAVE_GETTIMEOFDAY)
-/* Mac OS X 10.10.3 does not have clock_gettime() yet */
-/* macOS Sierra 10.12.1 does have clock_gettime() now */
+/* Mac OS X up to version 10.11 does not have clock_gettime() */
+/* macOS Sierra 10.12 and up does have clock_gettime() */
 #include <sys/time.h>
 #else
 /* No sub-second timing */
@@ -174,7 +177,7 @@ const char *(err_rcs_string)(const char *s2, char *buffer, size_t buflen)
 
     /*
     ** Bother RCS!  We've probably been given something like:
-    ** "$Revision: 10.14 $ ($Date: 2015/06/02 03:04:32 $)"
+    ** "$Revision: 7.5 $ ($Date: 2001/08/11 06:25:48 $)"
     ** We only want to emit "7.5 (2001/08/11 06:25:48)".
     ** Skip the components between '$' and ': ', copy up to ' $',
     ** repeating as necessary.  And we have to test for overflow!
@@ -267,41 +270,80 @@ static char *err_time(int flags, char *buffer, size_t buflen)
     if (flags & (ERR_NANO | ERR_MICRO | ERR_MILLI))
     {
         char subsec[12];
-        size_t ss_len;
+        int ss_len;
         if (flags & ERR_NANO)
             ss_len = snprintf(subsec, sizeof(subsec), ".%.9ld", clk.tv_nsec);
         else if (flags & ERR_MICRO)
             ss_len = snprintf(subsec, sizeof(subsec), ".%.6ld", clk.tv_nsec / 1000);
         else /* (flags & ERR_MILLI) */
             ss_len = snprintf(subsec, sizeof(subsec), ".%.3ld", clk.tv_nsec / (1000 * 1000));
-        if (ss_len + nb + 1 < buflen)
+        if (ss_len > 0 && (size_t)ss_len + nb + 1 < buflen)
             strcpy(buffer + nb, subsec);
     }
     return(buffer);
 }
 
-/* err_stdio - report error via stdio */
-static void (err_stdio)(FILE *fp, int flags, int errnum, const char *format, va_list args)
+static char *fmt_string(char *curr, const char *end, const char *format, va_list args)
 {
-#ifdef HAVE_FLOCKFILE
-    flockfile(fp);
-#endif
+    char *new_end = curr;
+    if (curr < end - 1)
+    {
+        size_t size = (size_t)(end - curr);
+        int more = vsnprintf(curr, size, format, args);
+        if (more >= 0)
+            new_end += ((size_t)more >= size) ? size : (size_t)more;
+    }
+    return(new_end);
+}
+
+static char *fmt_strdots(char *curr, const char *end, const char *format, ...)
+{
+    va_list args;
+    char *new_end;
+    va_start(args, format);
+    new_end = fmt_string(curr, end, format, args);
+    va_end(args);
+    return new_end;
+}
+
+static size_t err_fmtmsg(char *buffer, size_t buflen, int flags, int errnum, const char *format, va_list args)
+{
+    char *curpos = buffer;
+    char *bufend = buffer + buflen;
+
+    buffer[0] = '\0';   /* Not strictly necessary */
     if ((flags & ERR_NOARG0) == 0)
-        fprintf(fp, "%s: ", arg0);
+        curpos = fmt_strdots(curpos, bufend, "%s: ", arg0);
     if (flags & ERR_LOGTIME)
     {
-        char timbuf[48];
-        fprintf(fp, "%s - ", err_time(flags, timbuf, sizeof(timbuf)));
+        char timbuf[32];
+        curpos = fmt_strdots(curpos, bufend,
+                             "%s - ", err_time(flags, timbuf, sizeof(timbuf)));
     }
     if (flags & ERR_PID)
-        fprintf(fp, "pid=%d: ", (int)getpid());
-    vfprintf(fp, format, args);
+        curpos = fmt_strdots(curpos, bufend,
+                             "pid=%d: ", (int)getpid());
+    curpos = fmt_string(curpos, bufend, format, args);
     if (flags & ERR_ERRNO)
-        fprintf(fp, "error (%d) %s\n", errnum, strerror(errnum));
+        curpos = fmt_strdots(curpos, bufend,
+                             "error (%d) %s\n", errnum, strerror(errnum));
+    assert(curpos >= buffer);
+    return((size_t)(curpos - buffer));
+}
+
+/*
+** err_stdio - report error via stdio
+** Using fflush(fp) ensures that the message is flushed even if the
+** stream is fully buffered.
+** No longer need explicit flockfile() and funlockfile() because there's
+** only a single call to fprintf() and that must lock the stream anyway.
+*/
+static void (err_stdio)(FILE *fp, int flags, int errnum, const char *format, va_list args)
+{
+    char buffer[MAX_MSGLEN];
+    err_fmtmsg(buffer, sizeof(buffer), flags, errnum, format, args);
+    fprintf(fp, "%s", buffer);
     fflush(fp);
-#ifdef HAVE_FLOCKFILE
-    funlockfile(fp);
-#endif
 }
 
 /* Most fundamental (and flexible) error message printing routine - always returns */
