@@ -1,9 +1,10 @@
-RCS
 bible.counts
+bm
 kmp
 malloc.log
 mmf
 ptest
 ptest.*.log
+ptest.segfaults
 ptest0
 ptest2
