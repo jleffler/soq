@@ -6,12 +6,11 @@ Documentation on Stack Overflow related to the `qsort()` function.
 The source code in qs-07-int.c can use the cmpint() function from any of
 the files altcmp?.c.
 
-The command line to do so is a tad intricate:
+The command line to do so is:
 
-    rmk UFLAGS="'-DCOMPARATOR_SOURCE=\"altcmp4.c\"'" -u qs-07-int
+    rmk COMPARATOR_SOURCE=altcmp4.c -u qs-07-int
 
-This may be improved by upgrading the makefile.
-
+Any other source could be used that provides a function 'cmpint'.
 
 * `altcmp1.c` &mdash; a first variant of integer comparison ascending
 * `altcmp2.c` &mdash; a second variant of integer comparison ascending
