@@ -4,7 +4,7 @@ include ../../etc/soq-head.mk
 
 PROG1 = multi-pipe-sort
 
-PROGRAMS = ${PROG1} ${PROG2}
+PROGRAMS = ${PROG1}
 
 all: ${PROGRAMS}
 
