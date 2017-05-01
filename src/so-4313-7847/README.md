@@ -25,15 +25,16 @@ It gives the pseudo-code algorithm:
 Returning a pair of values in C requires a structure.  So, the type
 `poly_pair` (name subject to revision) is defined.
 
-The code is now split into header polynomial.h (where the polynomial
-type is opaque), and polynomial.c and pm43.c for the test code.
+The code is now split into header polynomial.h where the polynomial type
+is opaque, source file polynomial.c for the implementation of polynomial
+arithmetic, and source file pm43.c for the test code.
 The polynomial type was upgraded to use rational numbers — using an
 improved version of the code from SO 3388-7484 (rational.c, rational.h,
-actually from $HOME/lib/JL and not yet from soq/src/libsoq.
+actually from $HOME/lib/JL and not yet from soq/src/libsoq).
 This can probably be fixed at some time.
 Function `ri_neg()` was added, and `ri_chk()` exposed — though this
 might be a temporary phenomenon.
-Function `ri_fmt()` and `ri_fmtproper()` have been upgrade to take an
+Function `ri_fmt()` and `ri_fmtproper()` have been upgraded to take an
 extra argument that specifies the string to print in front of positive
 fractions.
 This might sanely be "" (empty string, used by polynomial printing), " "
