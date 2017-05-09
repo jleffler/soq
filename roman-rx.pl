@@ -12,10 +12,10 @@ use strict;
 #my $qr4 = qr/(?i:I[XV]|V?I{0,3})?/;
 
 # Working, but more stringent than intended
-my $qr1 = qr/M{0,3}/;
-my $qr2 = qr/(?:C[MD]|D?C{0,3})?/;
-my $qr3 = qr/(?:X[CL]|L?X{0,3})?/;
-my $qr4 = qr/(?:I[XV]|V?I{0,3})?/;
+my $qr1 = qr/(?i:M{0,3})/;
+my $qr2 = qr/(?i:C[MD]|D?C{0,3})?/;
+my $qr3 = qr/(?i:X[CL]|L?X{0,3})?/;
+my $qr4 = qr/(?i:I[XV]|V?I{0,3})?/;
 
 my $qr = qr/^($qr1$qr2$qr3$qr4)$/;
 
