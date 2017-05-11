@@ -18,7 +18,8 @@
 .DS_Store
 ?
 ??
-???
+# Adding ??? rule precludes adding files under src directory
+#???
 Osiris/
 Safe/
 Sphinx/
