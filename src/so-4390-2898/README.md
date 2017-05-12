@@ -1,4 +1,8 @@
-What does (?^:…) mean in a Perl qr// Regex?
+# What does (?^:…) mean in a Perl qr// Regex?
+
+Text of question [SO 4390-2898](https://stackoverflow.com/q/43902898).
+
+<hr>
 
 Consider this script, which is based on an answer to
 [SO 267399](https://stackoverflow.com/q/267399) about parsing Roman
@@ -78,4 +82,22 @@ There are two parts to my question:
 1. What is the significance of the caret in `(?^:…)` and what caused
    it to be added to the `qr//` regexes?
 2. If it matters, how do you stop it from being added to the `qr//` regexes?
+
+<hr>
+
+The short [answer](http://stackoverflow.com/a/43902948/) is that I
+missed it in the documentation:
+
+> Basically it means the default flags apply (even if it gets
+> interpolated into a regex that specifies differently).
+> Before it was introduced, qr would produce something like (?-ismx: and
+> a new flag being added to Perl would make that change, which m ade
+> keeping tests up to date a pain.
+
+> * http://perldoc.perl.org/perlre.html#Extended-Patterns:
+
+> Starting in Perl 5.14, a "^" (caret or circumflex accent) immediately
+> after the "?" is a shorthand equivalent to d-imnsx .
+> Flags (except "d" ) may follow the caret to override it.
+> But a minus sign is not legal with it.
 
