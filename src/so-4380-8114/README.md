@@ -71,7 +71,7 @@ I gave was:
 >         -Wstrict-prototypes -Wold-style-definition -DDO_NOT_FIX_THE_BUG=1 \
 >         ms11.c -o ms11
 
-> You can drop the `-D` option to get the code compiled without the fix.
+> You can drop the `-D` option to get the code compiled with the fix.
 
 > One of the key observations was that the output for the failing version
 > contained:
