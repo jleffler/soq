@@ -17,6 +17,20 @@ case "$0" in
 (*)         suffix="";
 esac
 
-name="${1:-xx}$(ddpr)$suffix"
+count=0
+while name="${1:-xx}$(ddpr)$suffix"; [ -f "$name" ]
+do
+    # Try a new name since that one exists.
+    # There are 21 primes between 11 and 97.
+    # No; 20 attempts doesn't guarantee that
+    # all have been tried, but most have.
+    if [ $((count++)) -gt 20 ]
+    then
+        echo "/dev/null"    # It is used in redirections; this is fairly safe
+        echo "$0: too many attempts to create a name like $name" >&2
+        exit 1
+    fi
+done
+
 echo "$name"
 echo "$name" >&2

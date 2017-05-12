@@ -1,7 +1,14 @@
+ddpr
 posixcmd
 posixfun
 posixhdr
 rfn
+rfn-c
+rfn-cpp
+rfn-h
+rfn-pl
+rfn-sh
+rfn-sql
 so
 sops
 sow
