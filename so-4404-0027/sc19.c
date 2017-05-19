@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -29,6 +30,7 @@ void build_trie(char s[])
         int pos = s[i] - 'a';
         if (trie[t][pos] == 0)
         {
+            assert(next < MAX_NUMBER_OF_NODES);
             trie[t][pos] = ++next;
         }
         t = trie[t][pos];
@@ -53,14 +55,21 @@ ll contains(char s[])
 }
 
 ll current_pos = 0;
+
+static inline int f_getc(FILE *fp)
+{
+    int c = fgetc(fp);
+    if (c != EOF)
+        current_pos++;
+    return c;
+}
+
 ll get_word(char s[], FILE *in)
 {
     ll c, begin_of_word = 0, lim = MAX_LENGTH_OF_WORD;
     char *w = s;
-    while (isspace(c = fgetc(in)) || isdigit(c))    /* Skips spaces and digits. */
-    {
-        ++current_pos;
-    }
+    while (isspace(c = f_getc(in)) || isdigit(c))    /* Skips spaces and digits. */
+        ;
     if (c != EOF)
     {
         *w++ = tolower(c);
@@ -73,14 +82,15 @@ ll get_word(char s[], FILE *in)
     }
     for ( ; --lim > 0; ++w)
     {
-        if (!isalpha(c = fgetc(in)))   /* End of word. */
+        if (!isalpha(c = f_getc(in)))   /* End of word. */
         {
-            current_pos = w + 1 - s + begin_of_word;
+            //current_pos = w + 1 - s + begin_of_word;
             break;
         }
         *w = tolower(c);
     }
     *w = '\0';
+    printf("%s: %lld %zu [%s]\n", __func__, begin_of_word, strlen(s), s);
     return begin_of_word;
 }
 
@@ -102,6 +112,7 @@ int ll_cmp(const void *p1, const void *p2)
 }
 
 WrongWord *wrong_word_list[MAX_NUMBER_OF_WRONG_WORDS];
+
 void spell_check(void)
 {
     /* Builds the trie from dictionary.txt .*/
@@ -118,6 +129,7 @@ void spell_check(void)
         build_trie(word);
     }
     fclose(dict);
+
     FILE *in = fopen("article.txt", "r");
     if (!in)
     {
@@ -131,12 +143,17 @@ void spell_check(void)
     {
         if (!contains(str))
         {
-            WrongWord *wwp = malloc(sizeof wrong_word_list[0]);
+            //WrongWord *wwp = malloc(sizeof wrong_word_list[0]);
+            WrongWord *wwp = malloc(sizeof(*wwp));
+            static int done = 0;
+            if (!done)
+                printf("Sizes: %zu %zu %zu\n", sizeof(wrong_word_list[0]), sizeof(*wwp), sizeof(WrongWord)), done++;
             if (!wwp)
             {
                 fprintf(stderr, "Memory error!\n");
                 return;
             }
+            printf("%s: %lld %zu [%s] %lld\n", __func__, begin_of_word, strlen(str), str, wrong_word_count+1);
             strcpy(wwp->word, str);
             wwp->pos = begin_of_word;
             wrong_word_list[wrong_word_count++] = wwp;
@@ -173,10 +190,12 @@ void spell_check(void)
             count = 0;
             strcpy(last_word, wrong_word_list[i]->word);
             pos[count++] = wrong_word_list[i]->pos;
+            assert(count < MAX_OCCURENCE_OF_SAME_WRONG_WORD);
         }
         else      /* Same word. */
         {
             pos[count++] = wrong_word_list[i]->pos;
+            assert(count < MAX_OCCURENCE_OF_SAME_WRONG_WORD);
         }
     }
     fclose(out);
