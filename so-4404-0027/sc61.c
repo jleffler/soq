@@ -206,11 +206,17 @@ void spell_check(const char *dictionary, const char *article, const char *misspe
     fclose(out);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     const char *dictionary = "dictionary.txt";
     const char *article = "article.txt";
     const char *misspelling = "misspelling.txt";
+    if (argc > 1)
+        dictionary = argv[1];
+    if (argc > 2)
+        article = argv[2];
+    if (argc > 3)
+        misspelling = argv[3];
     spell_check(dictionary, article, misspelling);
     return 0;
 }
