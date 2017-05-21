@@ -1,8 +1,9 @@
 #include <assert.h>
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 enum {
     MAX_NUMBER_OF_NODES = 1500000, NUM_OF_ALPHA = 26, MAX_LENGTH_OF_WORD = 100,
@@ -12,7 +13,7 @@ int trie[MAX_NUMBER_OF_NODES][NUM_OF_ALPHA + 1], next = 0;
 typedef long long ll;
 
 void build_trie(char s[]);
-ll contains(char s[]);
+bool contains(char s[]);
 ll get_word(char s[], FILE *in);
 int wrong_word_cmp(const void *p1, const void *p2);
 int ll_cmp(const void *p1, const void *p2);
@@ -37,21 +38,26 @@ void build_trie(char s[])
     }
 }
 
-/* Checks if the trie contains the string s.
- * Returns 1 if contains; 0 if not. */
-ll contains(char s[])
+/* Check if the trie contains the string s */
+bool contains(char s[])
 {
     ll i, t = 1;
     for (i = 0; s[i] != '\0'; ++i)
     {
-        int pos = s[i] - 'a';
+        assert(isalpha((unsigned char)s[i]));
+        int pos = tolower((unsigned char)s[i]) - 'a';
+        if (pos < 0 || pos > NUM_OF_ALPHA)
+        {
+            fprintf(stderr, "Assertion: [%s] %lld == %c (pos = %d)\n", s, i, s[i], pos);
+        }
+        assert(pos >= 0 && pos <= NUM_OF_ALPHA);
         if (trie[t][pos] == 0)
         {
-            return 0;
+            return false;
         }
         t = trie[t][pos];
     }
-    return 1;
+    return true;
 }
 
 ll current_pos = 0;
@@ -68,18 +74,16 @@ ll get_word(char s[], FILE *in)
 {
     ll c, begin_of_word = 0, lim = MAX_LENGTH_OF_WORD;
     char *w = s;
-    while (isspace(c = f_getc(in)) || isdigit(c))    /* Skips spaces and digits. */
+    while (!isalpha(c = f_getc(in)) && c != EOF)
         ;
-    if (c != EOF)
-    {
-        *w++ = tolower(c);
-        begin_of_word = current_pos;
-    }
-    if (!isalpha(c))
+    assert(isalpha(c) || c == EOF);
+    if (c == EOF)
     {
         *w = '\0';
         return c;
     }
+    *w++ = tolower(c);
+    begin_of_word = current_pos;
     for ( ; --lim > 0; ++w)
     {
         if (!isalpha(c = f_getc(in)))   /* End of word. */
@@ -164,6 +168,7 @@ void spell_check(const char *dictionary, const char *article, const char *misspe
             wrong_word_list[wrong_word_count++] = wwp;
         }
     }
+    fclose(in);
     qsort(wrong_word_list, wrong_word_count, sizeof wrong_word_list[0], wrong_word_cmp);
 
     /* Adds a sentinel node. */
@@ -204,6 +209,14 @@ void spell_check(const char *dictionary, const char *article, const char *misspe
         }
     }
     fclose(out);
+
+    /* free wrong word list */
+    for (int i = 0; i < wrong_word_count; i++)
+    {
+        free(wrong_word_list[i]);
+    }
+    wrong_word_count = 0;
+
 }
 
 int main(int argc, char **argv)
