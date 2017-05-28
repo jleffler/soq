@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include "stderr.h"
 
 enum {
     MAX_NUMBER_OF_NODES = 1500000, NUM_OF_ALPHA = 26, MAX_LENGTH_OF_WORD = 100,
@@ -12,14 +14,16 @@ enum {
 int trie[MAX_NUMBER_OF_NODES][NUM_OF_ALPHA + 1], next = 0;
 typedef long long ll;
 
-void build_trie(char s[]);
-bool contains(char s[]);
-ll get_word(char s[], FILE *in);
-int wrong_word_cmp(const void *p1, const void *p2);
-int ll_cmp(const void *p1, const void *p2);
-void spell_check(const char *dictionary, const char *article, const char *misspelling);
+static void build_trie(char s[]);
+static bool contains(char s[]);
+static ll get_word(char s[], FILE *in);
+static int wrong_word_cmp(const void *p1, const void *p2);
+static int ll_cmp(const void *p1, const void *p2);
+static void spell_check(const char *dictionary, const char *article, const char *misspelling);
 
-void build_trie(char s[])
+static int debug = 0;
+
+static void build_trie(char s[])
 {
     ll i, t = 1;
     for (i = 0; s[i] != '\0'; ++i)
@@ -39,7 +43,7 @@ void build_trie(char s[])
 }
 
 /* Check if the trie contains the string s */
-bool contains(char s[])
+static bool contains(char s[])
 {
     ll i, t = 1;
     for (i = 0; s[i] != '\0'; ++i)
@@ -47,9 +51,7 @@ bool contains(char s[])
         assert(isalpha((unsigned char)s[i]));
         int pos = tolower((unsigned char)s[i]) - 'a';
         if (pos < 0 || pos > NUM_OF_ALPHA)
-        {
             fprintf(stderr, "Assertion: [%s] %lld == %c (pos = %d)\n", s, i, s[i], pos);
-        }
         assert(pos >= 0 && pos <= NUM_OF_ALPHA);
         if (trie[t][pos] == 0)
         {
@@ -60,7 +62,7 @@ bool contains(char s[])
     return true;
 }
 
-ll current_pos = 0;
+static ll current_pos = 0;
 
 static inline int f_getc(FILE *fp)
 {
@@ -70,7 +72,7 @@ static inline int f_getc(FILE *fp)
     return c;
 }
 
-ll get_word(char s[], FILE *in)
+static ll get_word(char s[], FILE *in)
 {
     ll c, begin_of_word = 0, lim = MAX_LENGTH_OF_WORD;
     char *w = s;
@@ -92,7 +94,8 @@ ll get_word(char s[], FILE *in)
         *w = tolower(c);
     }
     *w = '\0';
-    printf("%s: %lld %zu [%s]\n", __func__, begin_of_word, strlen(s), s);
+    if (debug)
+        printf("%s: %lld %zu [%s]\n", __func__, begin_of_word, strlen(s), s);
     return begin_of_word;
 }
 
@@ -103,26 +106,23 @@ struct WrongWord
     ll pos;
 };
 
-int wrong_word_cmp(const void *p1, const void *p2)
+static int wrong_word_cmp(const void *p1, const void *p2)
 {
     return strcmp((*(const WrongWord **)p1)->word, (*(const WrongWord **)p2)->word);
 }
 
-int ll_cmp(const void *p1, const void *p2)
+static int ll_cmp(const void *p1, const void *p2)
 {
     return *((const ll **)p1) - *((const ll **)p2);
 }
 
-WrongWord *wrong_word_list[MAX_NUMBER_OF_WRONG_WORDS];
+static WrongWord *wrong_word_list[MAX_NUMBER_OF_WRONG_WORDS];
 
 static void read_dictionary(const char *dictionary)
 {
     FILE *dict = fopen(dictionary, "r");
     if (dict == NULL)
-    {
-        fprintf(stderr, "file '%s' cannot be opened for reading\n", dictionary);
-        return;
-    }
+        err_syserr("file '%s' cannot be opened for reading\n", dictionary);
     char word[MAX_LENGTH_OF_WORD];
     while (fgets(word, sizeof word, dict))
     {
@@ -132,17 +132,14 @@ static void read_dictionary(const char *dictionary)
     fclose(dict);
 }
 
-void spell_check(const char *dictionary, const char *article, const char *misspelling)
+static void spell_check(const char *dictionary, const char *article, const char *misspelling)
 {
     /* Builds the trie from dictionary .*/
     read_dictionary(dictionary);
 
     FILE *in = fopen(article, "r");
     if (!in)
-    {
-        fprintf(stderr, "file '%s' cannot be opened for reading\n", article);
-        return;
-    }
+        err_syserr("file '%s' cannot be opened for reading\n", article);
     char str[MAX_LENGTH_OF_WORD];
     ll begin_of_word = 0;
     ll wrong_word_count = 0;
@@ -153,14 +150,12 @@ void spell_check(const char *dictionary, const char *article, const char *misspe
             //WrongWord *wwp = malloc(sizeof wrong_word_list[0]);
             WrongWord *wwp = malloc(sizeof(*wwp));
             static int done = 0;
-            if (!done)
+            if (debug && !done)
                 printf("Sizes: %zu %zu %zu\n", sizeof(wrong_word_list[0]), sizeof(*wwp), sizeof(WrongWord)), done++;
             if (!wwp)
-            {
-                fprintf(stderr, "Memory error!\n");
-                return;
-            }
-            printf("%s: %lld %zu [%s] %lld\n", __func__, begin_of_word, strlen(str), str, wrong_word_count+1);
+                err_error("Out of memory error!\n");
+            if (debug)
+                printf("%s: %lld %zu [%s] %lld\n", __func__, begin_of_word, strlen(str), str, wrong_word_count+1);
             strcpy(wwp->word, str);
             wwp->pos = begin_of_word;
             wrong_word_list[wrong_word_count++] = wwp;
@@ -176,10 +171,7 @@ void spell_check(const char *dictionary, const char *article, const char *misspe
     /* Prints the result into misspelling.txt */
     FILE *out = fopen(misspelling, "w");
     if (!out)
-    {
-        fprintf(stderr, "file '%s' cannot be opened for writing\n", misspelling);
-        return;
-    }
+        err_syserr("file '%s' cannot be opened for writing\n", misspelling);
     char last_word[MAX_LENGTH_OF_WORD] = "";
     ll i, j, pos[MAX_OCCURENCE_OF_SAME_WRONG_WORD], count = 0;
     for (i = 0; i < wrong_word_count; ++i)
@@ -217,17 +209,62 @@ void spell_check(const char *dictionary, const char *article, const char *misspe
 
 }
 
+static const char optstr[] = "Dd:ha:o:";
+static const char usestr[] = "[-Dh][-d dictionary][-a article][-o output]";
+static const char hlpstr[] =
+    "  -d dictionary  Use named dictionary file (default dictionary.txt)\n"
+    "  -D             Enable debug output\n"
+    "  -a article     Use named article file (default article.txt)\n"
+    "  -h             Print this help message and exit\n"
+    "  -o output      Use named file for output (default misspelling.txt)\n"
+    ;
+
 int main(int argc, char **argv)
 {
-    const char *dictionary = "dictionary.txt";
-    const char *article = "article.txt";
-    const char *misspelling = "misspelling.txt";
-    if (argc > 1)
-        dictionary = argv[1];
-    if (argc > 2)
-        article = argv[2];
-    if (argc > 3)
-        misspelling = argv[3];
+    const char *def_dictionary = "dictionary.txt";
+    const char *def_article = "article.txt";
+    const char *def_misspelling = "misspelling.txt";
+    const char *dictionary = 0;
+    const char *article = 0;
+    const char *misspelling = 0;
+
+    err_setarg0(argv[0]);
+
+    int opt;
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'D':
+            debug = 1;
+            break;
+        case 'd':
+            dictionary = optarg;
+            break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'a':
+            article = optarg;
+            break;
+        case 'o':
+            misspelling = optarg;
+            break;
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
+    if (argc != optind)
+        err_usage(usestr);
+
+    if (dictionary == 0)
+        dictionary = def_dictionary;
+    if (article == 0)
+        article = def_article;
+    if (misspelling == 0)
+        misspelling = def_misspelling;
+
     spell_check(dictionary, article, misspelling);
     return 0;
 }
