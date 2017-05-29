@@ -7,11 +7,14 @@
 #include <unistd.h>
 #include "stderr.h"
 
-enum {
-    MAX_NUMBER_OF_NODES = 1500000, NUM_OF_ALPHA = 26, MAX_LENGTH_OF_WORD = 100,
-    MAX_OCCURENCE_OF_SAME_WRONG_WORD = 10000, MAX_NUMBER_OF_WRONG_WORDS = 600000,
+enum
+{
+    MAX_NUMBER_OF_NODES = 1500000,
+    NUM_OF_ALPHA = 26,
+    MAX_LENGTH_OF_WORD = 100,
+    MAX_OCCURENCE_OF_SAME_WRONG_WORD = 10000,
+    MAX_NUMBER_OF_WRONG_WORDS = 600000,
 };
-int trie[MAX_NUMBER_OF_NODES][NUM_OF_ALPHA + 1], next = 0;
 typedef long long ll;
 
 static void build_trie(char s[]);
@@ -21,15 +24,21 @@ static int wrong_word_cmp(const void *p1, const void *p2);
 static int ll_cmp(const void *p1, const void *p2);
 static void spell_check(const char *dictionary, const char *article, const char *misspelling);
 
+static int trie[MAX_NUMBER_OF_NODES][NUM_OF_ALPHA + 1];
+static int next = 0;
 static int debug = 0;
 static char *trigger = "";
 static int trigger_debug = 0;
 
 static void build_trie(char s[])
 {
-    ll i, t = 1;
+    int i, t = 0;
+    if (debug)
+        printf("Build trie for: [%s]\n", s);
     for (i = 0; s[i] != '\0'; ++i)
     {
+        if (debug)
+            printf("Processing %d '%c': ", i, s[i]);
         if (isupper(s[i]))
         {
             s[i] = tolower(s[i]);
@@ -40,14 +49,35 @@ static void build_trie(char s[])
             assert(next < MAX_NUMBER_OF_NODES);
             trie[t][pos] = ++next;
         }
+        if (debug)
+            printf("t = %d, p = %d, trie[t][p] = %d\n", t, pos, trie[t][pos]);
         t = trie[t][pos];
     }
+    trie[t][NUM_OF_ALPHA] = 1;
+}
+
+static void dump_trie_from(const char *sofar, int node)
+{
+    int len = strlen(sofar);
+    char buffer[len+2];
+    strcpy(buffer, sofar);
+    buffer[len + 1] = '\0';
+    printf("sofar = [%s] (node %d) (%s)\n", sofar, node, trie[node][NUM_OF_ALPHA] == 1 ? "word" : "prefix");
+    for (int i = 0; i < NUM_OF_ALPHA; i++)
+    {
+        if (trie[node][i] != 0)
+        {
+            buffer[len] = i + 'a';
+            dump_trie_from(buffer, trie[node][i]);
+        }
+    }
+    printf("finish [%s] (node %d)\n", sofar, node);
 }
 
 /* Check if the trie contains the string s */
 static bool contains(char s[])
 {
-    ll i, t = 1;
+    ll i, t = 0;
     if (trigger_debug)
         printf("Scan for: [%s]\n", s);
     for (i = 0; s[i] != '\0'; ++i)
@@ -63,12 +93,20 @@ static bool contains(char s[])
             printf("t = %lld, pos = %d, trie[t][pos] = %d\n", t, pos, trie[t][pos]);
         if (trie[t][pos] == 0)
         {
-            if (trigger_debug) printf("return false\n");
+            if (trigger_debug)
+                printf("return false\n");
             return false;
         }
         t = trie[t][pos];
     }
-    if (trigger_debug) printf("return true\n");
+    if (trie[t][NUM_OF_ALPHA] == 0)
+    {
+        if (trigger_debug)
+            printf("return false\n");
+        return false;
+    }
+    if (trigger_debug)
+        printf("return true\n");
     return true;
 }
 
@@ -140,6 +178,8 @@ static void read_dictionary(const char *dictionary)
         build_trie(word);
     }
     fclose(dict);
+    if (debug)
+        dump_trie_from("", 0);
 }
 
 static void spell_check(const char *dictionary, const char *article, const char *misspelling)
@@ -250,6 +290,7 @@ int main(int argc, char **argv)
         switch (opt)
         {
         case 'D':
+            trigger_debug = 1;
             debug = 1;
             break;
         case 'd':
