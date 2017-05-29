@@ -27,18 +27,12 @@ static void spell_check(const char *dictionary, const char *article, const char 
 static int trie[MAX_NUMBER_OF_NODES][NUM_OF_ALPHA + 1];
 static int next = 0;
 static int debug = 0;
-static char *trigger = "";
-static int trigger_debug = 0;
 
 static void build_trie(char s[])
 {
     int i, t = 0;
-    if (debug)
-        printf("Build trie for: [%s]\n", s);
     for (i = 0; s[i] != '\0'; ++i)
     {
-        if (debug)
-            printf("Processing %d '%c': ", i, s[i]);
         if (isupper(s[i]))
         {
             s[i] = tolower(s[i]);
@@ -49,8 +43,6 @@ static void build_trie(char s[])
             assert(next < MAX_NUMBER_OF_NODES);
             trie[t][pos] = ++next;
         }
-        if (debug)
-            printf("t = %d, p = %d, trie[t][p] = %d\n", t, pos, trie[t][pos]);
         t = trie[t][pos];
     }
     trie[t][NUM_OF_ALPHA] = 1;
@@ -62,7 +54,8 @@ static void dump_trie_from(const char *sofar, int node)
     char buffer[len+2];
     strcpy(buffer, sofar);
     buffer[len + 1] = '\0';
-    printf("sofar = [%s] (node %d) (%s)\n", sofar, node, trie[node][NUM_OF_ALPHA] == 1 ? "word" : "prefix");
+    if (trie[node][NUM_OF_ALPHA] == 1)
+        printf("word: [%s]\n", sofar);
     for (int i = 0; i < NUM_OF_ALPHA; i++)
     {
         if (trie[node][i] != 0)
@@ -71,42 +64,25 @@ static void dump_trie_from(const char *sofar, int node)
             dump_trie_from(buffer, trie[node][i]);
         }
     }
-    printf("finish [%s] (node %d)\n", sofar, node);
 }
 
 /* Check if the trie contains the string s */
 static bool contains(char s[])
 {
     ll i, t = 0;
-    if (trigger_debug)
-        printf("Scan for: [%s]\n", s);
     for (i = 0; s[i] != '\0'; ++i)
     {
-        if (trigger_debug)
-            printf("Check '%c': ", s[i]);
         assert(isalpha((unsigned char)s[i]));
         int pos = tolower((unsigned char)s[i]) - 'a';
         if (pos < 0 || pos > NUM_OF_ALPHA)
             fprintf(stderr, "Assertion: [%s] %lld == %c (pos = %d)\n", s, i, s[i], pos);
         assert(pos >= 0 && pos <= NUM_OF_ALPHA);
-        if (trigger_debug)
-            printf("t = %lld, pos = %d, trie[t][pos] = %d\n", t, pos, trie[t][pos]);
         if (trie[t][pos] == 0)
-        {
-            if (trigger_debug)
-                printf("return false\n");
             return false;
-        }
         t = trie[t][pos];
     }
     if (trie[t][NUM_OF_ALPHA] == 0)
-    {
-        if (trigger_debug)
-            printf("return false\n");
         return false;
-    }
-    if (trigger_debug)
-        printf("return true\n");
     return true;
 }
 
@@ -195,8 +171,6 @@ static void spell_check(const char *dictionary, const char *article, const char 
     ll wrong_word_count = 0;
     while ((begin_of_word = get_word(str, in)) != EOF)
     {
-        if (strcasecmp(trigger, str) == 0)
-            trigger_debug = 1;
         if (!contains(str))
         {
             //WrongWord *wwp = malloc(sizeof wrong_word_list[0]);
@@ -212,7 +186,6 @@ static void spell_check(const char *dictionary, const char *article, const char 
             wwp->pos = begin_of_word;
             wrong_word_list[wrong_word_count++] = wwp;
         }
-        trigger_debug = 0;
     }
     fclose(in);
     qsort(wrong_word_list, wrong_word_count, sizeof wrong_word_list[0], wrong_word_cmp);
@@ -259,18 +232,16 @@ static void spell_check(const char *dictionary, const char *article, const char 
         free(wrong_word_list[i]);
     }
     wrong_word_count = 0;
-
 }
 
-static const char optstr[] = "Dd:ha:o:t:";
-static const char usestr[] = "[-Dh][-d dictionary][-a article][-o output][-t trigger]";
+static const char optstr[] = "Dd:ha:o:";
+static const char usestr[] = "[-Dh][-d dictionary][-a article][-o output]";
 static const char hlpstr[] =
     "  -d dictionary  Use named dictionary file (default dictionary.txt)\n"
     "  -D             Enable debug output\n"
     "  -a article     Use named article file (default article.txt)\n"
     "  -h             Print this help message and exit\n"
     "  -o output      Use named file for output (default misspelling.txt)\n"
-    "  -t trigger     Turn on detailed debugging when trigger word is read\n"
     ;
 
 int main(int argc, char **argv)
@@ -290,7 +261,6 @@ int main(int argc, char **argv)
         switch (opt)
         {
         case 'D':
-            trigger_debug = 1;
             debug = 1;
             break;
         case 'd':
@@ -304,9 +274,6 @@ int main(int argc, char **argv)
             break;
         case 'o':
             misspelling = optarg;
-            break;
-        case 't':
-            trigger = optarg;
             break;
         default:
             err_usage(usestr);
