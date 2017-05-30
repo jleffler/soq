@@ -6,14 +6,15 @@
 #include <string.h>
 #include <unistd.h>
 #include "stderr.h"
+#include "timer.h"
 
 enum
 {
-    MAX_NUMBER_OF_NODES = 1500000,
+    MAX_NUMBER_OF_NODES = 1200000,
     NUM_OF_ALPHA = 26,
     MAX_LENGTH_OF_WORD = 100,
     MAX_OCCURENCE_OF_SAME_WRONG_WORD = 10000,
-    MAX_NUMBER_OF_WRONG_WORDS = 600000,
+    MAX_NUMBER_OF_WRONG_WORDS = 15000,
 };
 typedef long long ll;
 
@@ -27,6 +28,8 @@ static void spell_check(const char *dictionary, const char *article, const char 
 static int trie[MAX_NUMBER_OF_NODES][NUM_OF_ALPHA + 1];
 static int next = 0;
 static int debug = 0;
+static bool timing = false;
+static bool sizing = false;
 
 static void build_trie(char s[])
 {
@@ -154,15 +157,29 @@ static void read_dictionary(const char *dictionary)
         build_trie(word);
     }
     fclose(dict);
+    if (sizing)
+        printf("Trie size: %d (out of %d: %6.2f%%)\n", next, MAX_NUMBER_OF_NODES,
+               ((100.0 * next) / MAX_NUMBER_OF_NODES));
     if (debug)
         dump_trie_from("", 0);
 }
 
 static void spell_check(const char *dictionary, const char *article, const char *misspelling)
 {
-    /* Builds the trie from dictionary .*/
-    read_dictionary(dictionary);
+    Clock clk;
+    clk_init(&clk);
 
+    /* Builds the trie from dictionary .*/
+    clk_start(&clk);
+    read_dictionary(dictionary);
+    clk_stop(&clk);
+    if (timing)
+    {
+        char buffer[32];
+        printf("Build: %s s\n", clk_elapsed_us(&clk, buffer, sizeof(buffer)));
+    }
+
+    clk_start(&clk);
     FILE *in = fopen(article, "r");
     if (!in)
         err_syserr("file '%s' cannot be opened for reading\n", article);
@@ -188,6 +205,17 @@ static void spell_check(const char *dictionary, const char *article, const char 
         }
     }
     fclose(in);
+    clk_stop(&clk);
+    if (timing)
+    {
+        char buffer[32];
+        printf("Scan: %s s\n", clk_elapsed_us(&clk, buffer, sizeof(buffer)));
+    }
+    if (sizing)
+        printf("Number of wrong words: %lld (out of %d: %6.2f%%)\n", wrong_word_count, MAX_NUMBER_OF_WRONG_WORDS,
+               ((100.0 * wrong_word_count) / MAX_NUMBER_OF_WRONG_WORDS));
+
+    clk_start(&clk);
     qsort(wrong_word_list, wrong_word_count, sizeof wrong_word_list[0], wrong_word_cmp);
 
     /* Adds a sentinel node. */
@@ -225,6 +253,12 @@ static void spell_check(const char *dictionary, const char *article, const char 
         }
     }
     fclose(out);
+    clk_stop(&clk);
+    if (timing)
+    {
+        char buffer[32];
+        printf("Print: %s s\n", clk_elapsed_us(&clk, buffer, sizeof(buffer)));
+    }
 
     /* free wrong word list */
     for (int i = 0; i < wrong_word_count; i++)
@@ -234,14 +268,16 @@ static void spell_check(const char *dictionary, const char *article, const char 
     wrong_word_count = 0;
 }
 
-static const char optstr[] = "Dd:ha:o:";
-static const char usestr[] = "[-Dh][-d dictionary][-a article][-o output]";
+static const char optstr[] = "Dd:ha:o:st";
+static const char usestr[] = "[-Dhst][-d dictionary][-a article][-o output]";
 static const char hlpstr[] =
     "  -d dictionary  Use named dictionary file (default dictionary.txt)\n"
     "  -D             Enable debug output\n"
     "  -a article     Use named article file (default article.txt)\n"
     "  -h             Print this help message and exit\n"
     "  -o output      Use named file for output (default misspelling.txt)\n"
+    "  -s             Print sizing information\n"
+    "  -t             Time dictionary loading, article scanning, printing\n"
     ;
 
 int main(int argc, char **argv)
@@ -274,6 +310,12 @@ int main(int argc, char **argv)
             break;
         case 'o':
             misspelling = optarg;
+            break;
+        case 's':
+            sizing = true;
+            break;
+        case 't':
+            timing = true;
             break;
         default:
             err_usage(usestr);
