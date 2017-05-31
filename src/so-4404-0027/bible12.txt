@@ -1,1 +1,1 @@
-../src/data-files/bible12.txt
+../data-files/bible12.txt

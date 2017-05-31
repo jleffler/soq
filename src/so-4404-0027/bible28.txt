@@ -1,1 +1,0 @@
-../src/data-files/bible-be.txt
