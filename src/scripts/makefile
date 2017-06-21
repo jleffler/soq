@@ -17,6 +17,7 @@ PROG06 = sops
 PROG07 = sow
 PROG08 = rfn
 PROG09 = ddpr
+PROG10 = so-late
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -43,6 +44,7 @@ PROGRAMS = \
 	${PROG07} \
 	${PROG08} \
 	${PROG09} \
+	${PROG10} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
