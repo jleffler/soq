@@ -33,6 +33,7 @@ inc/*.h
 input
 junk
 output
+qs8m
 script.awk
 script.sed
 script.sh

@@ -16,6 +16,7 @@ PROG09 = ls79
 PROG10 = oddascevendesc
 PROG11 = qs79
 PROG12 = sr19
+PROG13 = qs8m
 
 COMPARATOR_SOURCE = altcmp1.c
 
@@ -33,6 +34,7 @@ PROGRAMS = \
 	${PROG10} \
 	${PROG11} \
 	${PROG12} \
+	${PROG13} \
 
 all: ${PROGRAMS}
 
