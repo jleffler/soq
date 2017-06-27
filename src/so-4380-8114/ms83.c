@@ -142,7 +142,8 @@ static void print_timestamp(void)
 int main(void)
 {
     int min = -1000, max = 1000;
-    int arr[10], arr2[10], arr3[10];
+    enum { ARRAY_SIZE = 500 };
+    int arr[ARRAY_SIZE], arr2[ARRAY_SIZE], arr3[ARRAY_SIZE];
     int i, r;
     int arr_size = sizeof(arr) / sizeof(arr[0]);
     int id1, id2;
