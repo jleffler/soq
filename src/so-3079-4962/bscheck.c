@@ -3,13 +3,23 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
+#include "stderr.h"
 
 extern int binary_search(const int *base, int num, int value);
 
 #include "bsearch.c"
 
-int main(void)
+static const char optstr[] = "hx";
+static const char usestr[] = "[-hx]";
+static const char hlpstr[] =
+    "  -h  Print this help message and exit\n"
+    "  -x  Print verbose information\n"
+    ;
+
+int main(int argc, char **argv)
 {
+    int trace = 0;
     const int data[] =
     {
         10, 12, 12, 12, 13, 14, 14, 17, 19, 19,
@@ -25,11 +35,31 @@ int main(void)
     };
     enum { DATA_SIZE = sizeof(data) / sizeof(data[0]) };
 
+    err_setarg0(argv[0]);
+
+    int opt;
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'x':
+            trace = 1;
+            break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
+
     /* Check monotonic non-decreasing data */
     for (int j = 0; j < DATA_SIZE - 1; j++)
         assert(data[j] <= data[j+1]);
 
     /* Every starting point in the data array */
+    int test_count = 0;
     for (int j = 0; j < DATA_SIZE; j++)
     {
         const int *base = &data[j];
@@ -39,18 +69,25 @@ int main(void)
             int lo = base[0] - 1;
             int hi = base[k-1] + 2;
 
-            printf("N = %d", k);
-            for (int m = 0; m < k; m++)
-                printf(" A[%d]: %d", m, base[m]);
-            putchar('\n');
+            if (trace)
+            {
+                printf("N = %d", k);
+                for (int m = 0; m < k; m++)
+                    printf(" A[%d]: %d", m, base[m]);
+                putchar('\n');
+            }
 
             /* For every value from 1 less than the minimum to one more than the maximum */
             for (int i = lo; i < hi; i++)
             {
+                test_count++;
                 int r = binary_search(base, k, i);
-                printf("V = %2d, : R = %2d, C = %2d : %s\n",
-                        i, r, (r < 0) ? -1 : base[r],
-                        (r < 0) ? "missing" : "found");
+                if (trace)
+                {
+                    printf("V = %2d, : R = %2d, C = %2d : %s\n",
+                            i, r, (r < 0) ? -1 : base[r],
+                            (r < 0) ? "missing" : "found");
+                }
                 if (r == -1)
                 {
                     for (int n = 0; n < k; n++)
@@ -65,6 +102,7 @@ int main(void)
             }
         }
     }
+    printf("All %d tests passed\n", test_count);
 
     return 0;
 }
