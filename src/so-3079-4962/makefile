@@ -7,11 +7,14 @@ include ../../etc/soq-head.mk
 PROGRAMS = \
 	binsearch-speed \
 	bs-files \
+	bscheck \
 	bsmax \
 	bsmin \
 	modbinsearch \
 	shiftbinsearch \
 
 all: ${PROGRAMS}
+
+bscheck: bscheck.c bsearch.c
 
 include ../../etc/soq-tail.mk
