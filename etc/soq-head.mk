@@ -33,8 +33,8 @@ WFLAG2 = -Wextra
 WFLAG3 = -Werror
 WFLAG4 = -Wmissing-prototypes
 WFLAG5 = -Wstrict-prototypes
-WFLAG6 = #-Wold-style-declaration # Strict GCC only (not clang, it would seem).
-WFLAG7 = -Wold-style-definition
+WFLAG6 = #-Wold-style-declaration   # Strict GCC only (not clang, it would seem).
+WFLAG7 = #-Wold-style-definition    # Part of -Wextra in GCC 7.1.0
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} ${WFLAG7}
 
 GXXFLAGS = -g
