@@ -69,4 +69,7 @@ enum CPD_OpCode
     CPD_STATUS,
 };
 
+/* This can't be an enum — the value needs to be stringized by the preprocessor */
+#define CPD_DEFAULT_PORT 30991
+
 #endif /* CPD_H_INCLUDED */

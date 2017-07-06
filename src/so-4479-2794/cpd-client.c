@@ -14,23 +14,20 @@
 #include "cpd.h"
 #include "stderr.h"
 #include "unpv13e.h"
-//#include <arpa/inet.h>
 #include <assert.h>
 #include <ftw.h>
 #include <errno.h>
-//#include <limits.h>
-//#include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/socket.h>
 #include <sys/stat.h>
-//#include <sys/types.h>
+#include <sys/uio.h>
 #include <unistd.h>
 
 static const char optstr[] = "hvVl:s:p:S:T:";
 static const char usestr[] = "[-hvV][-l log][-s host][-p port][-S source][-T target]";
-static const char hlpstr[] = 
+static const char hlpstr[] =
     "  -h         Print this help message and exit\n"
     "  -l log     Record errors in log file\n"
     "  -p port    Connect to cpd-server on this port (default 30991)\n"
@@ -41,21 +38,20 @@ static const char hlpstr[] =
     "  -V         Print version information and exit\n"
     ;
 
-static const char default_source[] = ".";
-static const char default_target[] = ".";
-static const char default_server[] = "localhost";
-static const char default_logger[] = "/dev/null";
-
 #define EVALUATE_STRING(x)    #x
 #define STRINGIZE(x)    EVALUATE_STRING(x)
 
-static const char default_port[] = STRINGIZE(CPD_DEFAULT_PORT);
+static char default_source[] = ".";
+static char default_target[] = ".";
+static char default_server[] = "localhost";
+static char default_logger[] = "/dev/null";
+static char default_portno[] = STRINGIZE(CPD_DEFAULT_PORT);
 
-static const char *source = default_source;
-static const char *target = default_target;
-static const char *server = default_server;
-static const char *logger = default_logger;
-static const char *port   = default_port;
+static char *source = default_source;
+static char *target = default_target;
+static char *server = default_server;
+static char *logger = default_logger;
+static char *portno = default_portno;
 
 static int cpd_fd = -1;
 static int verbose = 0;
@@ -77,26 +73,26 @@ int main(int argc, char **argv)
     {
         switch (opt)
         {
-        case 's':
-            server = optarg;
-            break;
-        case 'S':
-            source = optarg;
-            break;
-        case 'T':
-            target = optarg;
-            break;
-        case 'p':
-            port = optarg;
-            break;
         case 'h':
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
         case 'l':
             logger = optarg;
             break;
+        case 'p':
+            portno = optarg;
+            break;
+        case 's':
+            server = optarg;
+            break;
         case 'v':
             verbose = 1;
+            break;
+        case 'S':
+            source = optarg;
+            break;
+        case 'T':
+            target = optarg;
             break;
         case 'V':
             err_version("CPD-CLIENT", &"@(#)$Revision$ ($Date$)"[4]);
@@ -137,9 +133,31 @@ static int ftw_callback(const char *file, const struct stat *ptr, int flag)
     return 0;
 }
 
-static void cpd_send_target(const char *target)
+static inline void st_int2(char *buffer, uint16_t data)
+{
+    buffer[0] = (data >> 8) & 0xFF;
+    buffer[1] = (data >> 0) & 0xFF;
+}
+
+static void cpd_send_target(char *target)
 {
     assert(target != 0);
+    size_t len0 = 1;
+    size_t len1 = 2;
+    size_t len2 = strlen(target) + 1;
+    char opcode[1] = { CPD_TARGETDIR };
+    char tgtlen[2];
+    st_int2(tgtlen, len2);
+    assert(len2 <= UINT16_MAX);
+    ssize_t explen = len0 + len1 + len2;
+    struct iovec iov[3] =
+    {
+        { .iov_len = len0, .iov_base = opcode },
+        { .iov_len = len1, .iov_base = tgtlen },
+        { .iov_len = len2, .iov_base = target },
+    };
+    if (writev(cpd_fd, iov, 3) != explen)
+        err_syserr("write error to server (%zu bytes): ", len0 + len1 + len2);
 }
 
 static void cpd_send_finished(void)
@@ -149,7 +167,7 @@ static void cpd_send_finished(void)
 static void cpd_client(void)
 {
     /* tcp_connect() does not return if it fails to connect */
-    cpd_fd = tcp_connect(server, port);
+    cpd_fd = tcp_connect(server, portno);
     cpd_send_target(target);
     if (verbose)
         err_remark("The directory being copied is: %s\n", source);
