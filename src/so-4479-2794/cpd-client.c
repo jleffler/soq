@@ -1,151 +1,164 @@
-Client.c
- // I didn't use ftw() as i dont know how to return the name of the files. This code opens a directory and sends the files in it to the server.
- 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+/*
+@(#)File:           $RCSfile$
+@(#)Version:        $Revision$
+@(#)Last changed:   $Date$
+@(#)Purpose:        CPD Client for SO 4479-2794
+@(#)Author:         J Leffler
+@(#)Copyright:      (C) JLSS 2017
+@(#)Product:        :PRODUCT:
+*/
+
+/*TABSTOP=4*/
+
+#include "posixver.h"
+#include "cpd.h"
+#include "stderr.h"
+#include "unpv13e.h"
+//#include <arpa/inet.h>
+#include <assert.h>
+#include <ftw.h>
+#include <errno.h>
+//#include <limits.h>
+//#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/types.h>
-#include<stdlib.h>
-#include<limits.h>
+//#include <sys/socket.h>
 #include <sys/stat.h>
-#include<dirent.h>
- 
-void error(char *msg)
+//#include <sys/types.h>
+#include <unistd.h>
+
+static const char optstr[] = "hvVl:s:p:S:T:";
+static const char usestr[] = "[-hvV][-l log][-s host][-p port][-S source][-T target]";
+static const char hlpstr[] = 
+    "  -h         Print this help message and exit\n"
+    "  -l log     Record errors in log file\n"
+    "  -p port    Connect to cpd-server on this port (default 30991)\n"
+    "  -s host    Connect to cpd-server on this host (default localhost)\n"
+    "  -v         Set verbose mode\n"
+    "  -S source  Source directory (default .)\n"
+    "  -T target  Target directory (default - realpath for .)\n"
+    "  -V         Print version information and exit\n"
+    ;
+
+static const char default_source[] = ".";
+static const char default_target[] = ".";
+static const char default_server[] = "localhost";
+static const char default_logger[] = "/dev/null";
+
+#define EVALUATE_STRING(x)    #x
+#define STRINGIZE(x)    EVALUATE_STRING(x)
+
+static const char default_port[] = STRINGIZE(CPD_DEFAULT_PORT);
+
+static const char *source = default_source;
+static const char *target = default_target;
+static const char *server = default_server;
+static const char *logger = default_logger;
+static const char *port   = default_port;
+
+static int cpd_fd = -1;
+static int verbose = 0;
+
+static void cpd_client(void);
+
+#ifndef lint
+/* Prevent over-aggressive optimizers from eliminating ID string */
+extern const char jlss_id_cpd_client_c[];
+const char jlss_id_cpd_client_c[] = "@(#)$Id$";
+#endif /* lint */
+
+int main(int argc, char **argv)
 {
-  perror(msg);
-  exit(1);
- 
+    err_setarg0(argv[0]);
+
+    int opt;
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 's':
+            server = optarg;
+            break;
+        case 'S':
+            source = optarg;
+            break;
+        case 'T':
+            target = optarg;
+            break;
+        case 'p':
+            port = optarg;
+            break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'l':
+            logger = optarg;
+            break;
+        case 'v':
+            verbose = 1;
+            break;
+        case 'V':
+            err_version("CPD-CLIENT", &"@(#)$Revision$ ($Date$)"[4]);
+            /*NOTREACHED*/
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
+
+    if (optind != argc)
+    {
+        err_remark("Extraneous arguments, starting with '%s'\n", argv[optind]);
+        err_usage(usestr);
+    }
+
+    FILE *log_fp = stderr;
+    if (logger != default_logger)
+    {
+        if ((log_fp = fopen(logger, "a")) == 0)
+            err_syserr("failed to open log file '%s': ", logger);
+        err_stderr(log_fp);
+    }
+
+    cpd_client();
+
+    if (log_fp != stderr)
+        fclose(log_fp);
+
+    return 0;
 }
- 
- 
-int main(int argc, char* argv[])
+
+static int ftw_callback(const char *file, const struct stat *ptr, int flag)
 {
-  struct stat statbuf;
-  int sockfd = 0;
-  int bytesReceived = 0;
-  char recvBuff[256];
-  memset(recvBuff, '0', sizeof(recvBuff));
-  struct sockaddr_in serv_addr;
-  char buf[PATH_MAX];
-  size_t fnlen = 0;
-  char *endptr = NULL, *fname = NULL, *p = NULL;
-  struct dirent *de;
-  DIR *dr;
-  unsigned char buffer[4096];
-  /* Create a socket first */
-  if((sockfd = socket(AF_INET, SOCK_STREAM, 0))< 0)
-  {
-    printf("\n Error : Could not create socket \n");
-    return 1;
-  }
- 
-  /* Initialize sockaddr_in data structure */
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(5000); // port
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
- 
-  /* Attempt a connection */
-  if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0)
-  {
-    printf("\n Error : Connect Failed \n");
-    return 1;
-  }
- 
- 
-  if (argc < 2) { /* validate at least 3 arguments, argv[0] is exe name */
-    fprintf (stderr, "error: insufficient input.\n");
-    return 1;
-  }
- 
-   char *path = NULL;
-   path=argv[1];
-   printf("The path of the file is : %s\n" , path);
- 
-  while(1){
- 
-    DIR *dr = opendir (path);
- 
-    if (dr == NULL) {
-      fprintf (stderr, "Could not open current directory.\n");
-      return 1;   /* returning a positive number indicates error */
-    }
- 
-    while ((de = readdir(dr)) != NULL) {
-      char buf[PATH_MAX] = "";    /* buf to hold "path/fname" */
- 
-      /* build relative filename (e.g. "path/fname")  */
-      strcpy (buf, path);         /* copy path to buf */
-      strcat (buf, "/");          /* concat dir sep   */
-      strcat (buf, de->d_name);   /* concat filename  */
- 
-      /* skip dot files */
-      if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
-      continue;
- 
-      stat(de->d_name,&statbuf);
- 
-      printf("d_ino of File is %ld \n", de->d_ino);
- 
- 
-      FILE *pf;
-      unsigned long fsize;
- 
-      pf = fopen(buf, "rb+");
-      if (pf == NULL)
-      {
-        printf("File not found!\n");
-        printf("The file is :%s \n",buf);
-        return 1;
-      }
-      else
-      {
-        printf("Found file: %s\n", buf);
-        fseek(pf, 0, SEEK_END);
-        fsize = ftell(pf);
-        rewind(pf);
- 
-        printf("File contains %ld bytes\n", fsize);
-        printf("Sending the file.....\n");
- 
-      }
- 
-      while (1){
- 
-        int bytes_read = fread(buffer, sizeof(char),sizeof(buffer), pf);
-        if (bytes_read == 0)
-        break;
- 
-        if (bytes_read < 0)
-        {
-          error("ERROR reading from file");
-        }
- 
-        void *p = buffer;
-        while (bytes_read > 0)
-        {
-          int bytes_written = write(sockfd, buffer, bytes_read);
-          if (bytes_written <= 0)
-          {
-            error("ERROR writing to socket\n");
- 
-          }
-          bytes_read -= bytes_written;
-          p += bytes_written;
-        }
-      }
-      printf("The File has been sent\n");
-      printf("Closing Connection.\n");
-      fclose(pf);
-      close(sockfd);
- 
-    }
- 
- 
-  }
-  return 0;
+    assert(file != 0);
+    assert(ptr != 0);
+    assert(flag == flag);   /* tautology */
+    return 0;
 }
+
+static void cpd_send_target(const char *target)
+{
+    assert(target != 0);
+}
+
+static void cpd_send_finished(void)
+{
+}
+
+static void cpd_client(void)
+{
+    /* tcp_connect() does not return if it fails to connect */
+    cpd_fd = tcp_connect(server, port);
+    cpd_send_target(target);
+    if (verbose)
+        err_remark("The directory being copied is: %s\n", source);
+    if (ftw(source, ftw_callback, 10) != 0)
+        err_error("failed to traverse directory tree\n");
+    cpd_send_finished();
+    if (close(cpd_fd) != 0)
+        err_syserr("failed to close socket: ");
+    if (verbose)
+        err_remark("Directory %s has been copied\n", source);
+}
+
