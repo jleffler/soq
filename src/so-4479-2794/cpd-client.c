@@ -140,41 +140,41 @@ static int ftw_callback(const char *file, const struct stat *ptr, int flag)
     assert(file != 0);
     assert(ptr != 0);
     assert(flag == flag);   /* tautology */
-    printf("Name [%s]\n", file);
+    printf("FTW-CB: Name [%s]\n", file);
     return 0;
-}
-
-static inline void st_int2(char *buffer, uint16_t data)
-{
-    buffer[0] = (data >> 8) & 0xFF;
-    buffer[1] = (data >> 0) & 0xFF;
 }
 
 static void cpd_send_target(char *target)
 {
+    err_sysrem("Sending target [%s]\n", target);
     assert(target != 0);
     size_t len0 = 1;
     size_t len1 = 2;
     size_t len2 = strlen(target) + 1;
-    char opcode[1] = { CPD_TARGETDIR };
-    char tgtlen[2];
+    Byte opcode[1] = { CPD_TARGETDIR };
+    Byte tgtlen[2];
     st_int2(tgtlen, len2);
     assert(len2 <= UINT16_MAX);
     ssize_t explen = len0 + len1 + len2;
+    ssize_t actlen;
     struct iovec iov[3] =
     {
-        { .iov_len = len0, .iov_base = opcode },
-        { .iov_len = len1, .iov_base = tgtlen },
-        { .iov_len = len2, .iov_base = target },
+        { .iov_len = len0, .iov_base = (char *)opcode },
+        { .iov_len = len1, .iov_base = (char *)tgtlen },
+        { .iov_len = len2, .iov_base = (char *)target },
     };
-    if (writev(cpd_fd, iov, 3) != explen)
-        err_syserr("write error to server (%zu bytes): ", len0 + len1 + len2);
+    actlen = writev(cpd_fd, iov, 3);
+    if (actlen != explen)
+        err_syserr("write error to server (wanted: %zu bytes, actual: %zd): ",
+                   len0 + len1 + len2, actlen);
+    err_remark("Target [%s] sent\n", target);
 }
 
 static void cpd_send_finished(void)
 {
+    printf("Sending finished\n");
     assert(target != 0);
-    char opcode[1] = { CPD_FINISHED };
+    Byte opcode[1] = { CPD_FINISHED };
     if (write(cpd_fd, &opcode, sizeof(opcode)) != sizeof(opcode))
         err_syserr("write error to server (%zu bytes): ", sizeof(opcode));
 }
@@ -183,7 +183,9 @@ static void cpd_client(void)
 {
     /* tcp_connect() does not return if it fails to connect */
     cpd_fd = tcp_connect(server, portno);
+    assert(cpd_fd >= 0);
     cpd_send_target(target);
+    err_remark("Sending request\n");
     if (verbose)
         err_remark("The directory being copied is: %s\n", source);
     if (ftw(source, ftw_callback, 10) != 0)

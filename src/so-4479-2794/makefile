@@ -1,5 +1,6 @@
-# To suppress JL-specific options:
-# LDLIBS= LDFLAGS= IFLAGS=
+# Makefile for SO 4479-2794
+#
+# Copy directory hierarchy — client/server
 
 include ../../etc/soq-head.mk
 
@@ -12,3 +13,6 @@ LDLIB2 = -ljl
 PROGRAMS = cpd-client cpd-server client-20170706 server-20170706
 
 all: ${PROGRAMS}
+
+cpd-client: cpd.h
+cpd-server: cpd.h

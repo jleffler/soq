@@ -52,10 +52,17 @@
 **
 ** EINVAL and other appropriate error codes will be reported by server when client
 ** abuses protocol.
+**
+** Note that lengths are sent in big-endian order (hence st_int2(),
+** st_int4(), ld_int2(), ld_int4()).
 */
 
 #ifndef CPD_H_INCLUDED
 #define CPD_H_INCLUDED
+
+#include <stdint.h>
+
+typedef unsigned char Byte;
 
 enum CPD_OpCode
 {
@@ -74,5 +81,38 @@ enum CPD_OpCode
 
 #define EVALUATE_STRING(x)    #x
 #define STRINGIZE(x)    EVALUATE_STRING(x)
+
+/* Functions managing big-endian byte order for data transmission */
+static inline void st_int2(Byte *buffer, uint16_t data)
+{
+    buffer[0] = (data >> 8) & 0xFF;
+    buffer[1] = (data >> 0) & 0xFF;
+}
+
+static inline void st_int4(Byte *buffer, uint32_t data)
+{
+    buffer[0] = (data >> 24) & 0xFF;
+    buffer[1] = (data >> 16) & 0xFF;
+    buffer[2] = (data >>  8) & 0xFF;
+    buffer[3] = (data >>  0) & 0xFF;
+}
+
+static inline uint16_t ld_int2(Byte *buffer)
+{
+    uint16_t data;
+    data = (buffer[0] << 8) |
+           (buffer[1] << 0);
+    return data;
+}
+
+static inline uint32_t ld_int4(Byte *buffer)
+{
+    uint32_t data;
+    data = (buffer[0] << 24) |
+           (buffer[1] << 16) |
+           (buffer[2] <<  8) |
+           (buffer[3] <<  0);
+    return data;
+}
 
 #endif /* CPD_H_INCLUDED */
