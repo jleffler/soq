@@ -146,7 +146,7 @@ static int ftw_callback(const char *file, const struct stat *ptr, int flag)
 
 static void cpd_send_target(char *target)
 {
-    err_sysrem("Sending target [%s]\n", target);
+    err_remark("Sending target [%s]\n", target);
     assert(target != 0);
     size_t len0 = 1;
     size_t len1 = 2;
