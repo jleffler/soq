@@ -1,4 +1,16 @@
 client-20170706
+config.h
 cpd-client
 cpd-server
+daemonize.c
+errhelp.c
+libpcd.a
+posixver.h
 server-20170706
+stderr.c
+stderr.h
+tcp_accept.c
+tcp_connect.c
+tcp_listen.c
+unp.h
+unpv13e.h
