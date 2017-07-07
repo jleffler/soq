@@ -10,6 +10,19 @@
 
 /*TABSTOP=4*/
 
+
+/*
+** NB: This code uses some of the code from Stevens et al "Unix Network
+** Programming, Volume 1, 3rd Edition" (aka UNP, or UNPv13e).
+** Specifically, this code uses (a much cut down variant of) the unp.h
+** header and four functions:
+**  -  tcp_connect()
+**  -  tcp_listen()
+**  -  daemon_init() - renamed to daemonize() when imported to JLSS
+**  -  Accept() - renamed to tcp_accept() when imported to JLSS, and
+**     modified to handle SIGCHLD signals, unlike the book's version.
+*/
+
 #include "posixver.h"
 #include "cpd.h"
 #include "stderr.h"
@@ -37,9 +50,6 @@ static const char hlpstr[] =
     "  -T target  Target directory (default - realpath for .)\n"
     "  -V         Print version information and exit\n"
     ;
-
-#define EVALUATE_STRING(x)    #x
-#define STRINGIZE(x)    EVALUATE_STRING(x)
 
 static char default_source[] = ".";
 static char default_target[] = ".";
@@ -130,6 +140,7 @@ static int ftw_callback(const char *file, const struct stat *ptr, int flag)
     assert(file != 0);
     assert(ptr != 0);
     assert(flag == flag);   /* tautology */
+    printf("Name [%s]\n", file);
     return 0;
 }
 
@@ -162,6 +173,10 @@ static void cpd_send_target(char *target)
 
 static void cpd_send_finished(void)
 {
+    assert(target != 0);
+    char opcode[1] = { CPD_FINISHED };
+    if (write(cpd_fd, &opcode, sizeof(opcode)) != sizeof(opcode))
+        err_syserr("write error to server (%zu bytes): ", sizeof(opcode));
 }
 
 static void cpd_client(void)

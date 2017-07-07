@@ -12,13 +12,12 @@ Because I'm stupid, that's why!
 
 ### Command line interface for cpd-server
 
-    cpd-server [-dhvV][-p port][-s host][-l log]
+    cpd-server [-dhvV][-p port][-l log]
 
     -d       Daemonize process
     -h       Print this help message and exit
     -l log   Record errors in log file
     -p port  Listen on this port (default 30991 - arbitrary)
-    -s host  Listen on this network interface (default all)
     -v       Set verbose mode
     -V       Print version information and exit
 

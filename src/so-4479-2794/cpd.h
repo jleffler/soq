@@ -72,4 +72,7 @@ enum CPD_OpCode
 /* This can't be an enum — the value needs to be stringized by the preprocessor */
 #define CPD_DEFAULT_PORT 30991
 
+#define EVALUATE_STRING(x)    #x
+#define STRINGIZE(x)    EVALUATE_STRING(x)
+
 #endif /* CPD_H_INCLUDED */
