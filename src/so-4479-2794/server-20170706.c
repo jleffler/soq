@@ -1,16 +1,15 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <limits.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
-#include <dirent.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 //int main(int argc, char *argv[])
 int main(void)

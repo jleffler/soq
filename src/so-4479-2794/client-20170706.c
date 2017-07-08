@@ -1,16 +1,15 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <limits.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
-#include <dirent.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 static void error(char *msg)
 {
@@ -53,7 +52,6 @@ int main(int argc, char *argv[])
         printf("\n Error : Connect Failed \n");
         return 1;
     }
-
 
     if (argc < 2) /* validate at least 3 arguments, argv[0] is exe name */
     {
@@ -120,10 +118,8 @@ int main(int argc, char *argv[])
             sprintf(byte, "%ld", fsize);
             strcat(message, byte);
 
-
             send(sockfd, message, strlen(message), 0);
             printf("the message to be sent is %s \n", message);
-
 
             while (1)
             {

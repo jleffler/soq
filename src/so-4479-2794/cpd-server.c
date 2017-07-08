@@ -24,21 +24,20 @@
 
 #include "posixver.h"
 #include "cpd.h"
+#include "mkpath.h"
 #include "stderr.h"
 #include "unpv13e.h"
-#include <arpa/inet.h>
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/uio.h>
 #include <unistd.h>
 
 static const char optstr[] = "dhvVp:l:";
@@ -139,6 +138,36 @@ static int chk_close(int fd)
     return(rc);
 }
 
+static void cpd_send_status(int fd, int errnum, char *msgtxt)
+{
+    assert(msgtxt != 0);
+    assert(errnum >= 0 && errnum < UINT16_MAX);
+    err_remark("Sending status %d [%s]\n", errnum, msgtxt);
+    size_t len0 = 1;
+    size_t len1 = 2;
+    size_t len2 = 2;
+    size_t len3 = strlen(msgtxt) + (msgtxt[0] != '\0');
+    Byte opcode[1] = { CPD_STATUS };
+    Byte ercode[2];
+    st_int2(ercode, errnum);
+    Byte msglen[2];
+    st_int2(msglen, len3);
+    assert(len3 <= UINT16_MAX);
+    ssize_t explen = len0 + len1 + len2 + len3;
+    struct iovec iov[4] =
+    {
+        { .iov_len = len0, .iov_base = (char *)opcode },
+        { .iov_len = len1, .iov_base = (char *)ercode },
+        { .iov_len = len2, .iov_base = (char *)msglen },
+        { .iov_len = len3, .iov_base = (char *)msgtxt },
+    };
+    ssize_t actlen = writev(fd, iov, 4);
+    if (actlen != explen)
+        err_syserr("write error to server (wanted: %zu bytes, actual: %zd): ",
+                len0 + len1 + len2, actlen);
+    err_remark("Status %d [%s] sent\n", errnum, msgtxt);
+}
+
 /* Code ignores the possibility of 16-bit ints */
 static void cpd_recv_targetdir(int fd)
 {
@@ -153,6 +182,15 @@ static void cpd_recv_targetdir(int fd)
     assert(buffer[length-1] == '\0');
     printf("Target Directory (%d) [%s]\n", length, buffer);
     /* Do things like create the directory */
+    int status = 0;
+    char msg[1024] = "";
+    if (mkpath(buffer, 0755) != 0)
+    {
+        status = errno;
+        snprintf(msg, sizeof(msg), "failed to create path %s\n%d: %s\n",
+                 buffer, status, strerror(status));
+    }
+    cpd_send_status(fd, status, msg);
 }
 
 static noreturn void be_childish(int fd, struct sockaddr_storage *client, socklen_t len)
@@ -164,7 +202,10 @@ static noreturn void be_childish(int fd, struct sockaddr_storage *client, sockle
     while (read(fd, &opcode, sizeof(opcode)) == sizeof(opcode))
     {
         if (opcode == CPD_FINISHED || opcode == CPD_EXIT)
+        {
+            cpd_send_status(fd, 0, "");
             break;
+        }
         switch (opcode)
         {
         case CPD_TARGETDIR:

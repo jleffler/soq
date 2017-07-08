@@ -10,7 +10,6 @@
 
 /*TABSTOP=4*/
 
-
 /*
 ** NB: This code uses some of the code from Stevens et al "Unix Network
 ** Programming, Volume 1, 3rd Edition" (aka UNP, or UNPv13e).
@@ -144,7 +143,7 @@ static int ftw_callback(const char *file, const struct stat *ptr, int flag)
     return 0;
 }
 
-static void cpd_send_target(char *target)
+static void cpd_send_target(int fd, char *target)
 {
     err_remark("Sending target [%s]\n", target);
     assert(target != 0);
@@ -163,20 +162,69 @@ static void cpd_send_target(char *target)
         { .iov_len = len1, .iov_base = (char *)tgtlen },
         { .iov_len = len2, .iov_base = (char *)target },
     };
-    actlen = writev(cpd_fd, iov, 3);
+    actlen = writev(fd, iov, 3);
     if (actlen != explen)
         err_syserr("write error to server (wanted: %zu bytes, actual: %zd): ",
                    len0 + len1 + len2, actlen);
     err_remark("Target [%s] sent\n", target);
 }
 
-static void cpd_send_finished(void)
+static void cpd_send_finished(int fd)
 {
     printf("Sending finished\n");
     assert(target != 0);
     Byte opcode[1] = { CPD_FINISHED };
-    if (write(cpd_fd, &opcode, sizeof(opcode)) != sizeof(opcode))
+    if (write(fd, &opcode, sizeof(opcode)) != sizeof(opcode))
         err_syserr("write error to server (%zu bytes): ", sizeof(opcode));
+}
+
+static void cpd_recv_status(int fd, int *errnum, char **msgtxt)
+{
+    assert(fd >= 0);
+    assert(errnum != 0);
+    assert(msgtxt != 0);
+    Byte err[2];
+    if (read(fd, err, sizeof(err)) != sizeof(err))
+        err_syserr("failed to read %zu bytes\n", sizeof(err));
+    *errnum = ld_int2(err);
+    Byte len[2];
+    if (read(fd, len, sizeof(len)) != sizeof(len))
+        err_syserr("failed to read %zu bytes\n", sizeof(err));
+    uint16_t msglen = ld_int2(len);
+    if (msglen == 0)
+        *msgtxt = 0;
+    else
+    {
+        *msgtxt = malloc(msglen);
+        if (*msgtxt == 0)
+            err_syserr("failed to allocate %d bytes\n", msglen);
+        if (read(fd, *msgtxt, msglen) != msglen)
+            err_syserr("failed to read %d bytes\n", msglen);
+        assert((*msgtxt)[msglen - 1] == '\0');
+    }
+    printf("%s: status %d L = %d [%s]\n", __func__, *errnum, msglen, *msgtxt ? *msgtxt : "");
+}
+
+static void cpd_recv_message(int fd)
+{
+    assert(fd >= 0);
+    Byte opcode;
+    if (read(fd, &opcode, sizeof(opcode)) != sizeof(opcode))
+        err_syserr("failed to read any response: ");
+    switch (opcode)
+    {
+    case CPD_STATUS:
+        {
+        int errnum;
+        char *msgtxt;
+        cpd_recv_status(fd, &errnum, &msgtxt);
+        free(msgtxt);
+        }
+        break;
+    default:
+        err_internal(__func__, "Unexpected opcode %d (0x%.2X)\n", opcode, opcode);
+        /*NOTREACHED*/
+    }
 }
 
 static void cpd_client(void)
@@ -184,13 +232,15 @@ static void cpd_client(void)
     /* tcp_connect() does not return if it fails to connect */
     cpd_fd = tcp_connect(server, portno);
     assert(cpd_fd >= 0);
-    cpd_send_target(target);
+    cpd_send_target(cpd_fd, target);
+    cpd_recv_message(cpd_fd);
     err_remark("Sending request\n");
     if (verbose)
         err_remark("The directory being copied is: %s\n", source);
     if (ftw(source, ftw_callback, 10) != 0)
         err_error("failed to traverse directory tree\n");
-    cpd_send_finished();
+    cpd_send_finished(cpd_fd);
+    cpd_recv_message(cpd_fd);
     if (close(cpd_fd) != 0)
         err_syserr("failed to close socket: ");
     if (verbose)

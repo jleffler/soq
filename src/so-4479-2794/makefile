@@ -16,7 +16,10 @@ LDLIB2 = -l${LIBBASE}
 
 LIBOBJ = \
 	daemonize.o \
+	emalloc.o \
 	errhelp.o \
+	estrdup.o \
+	mkpath.o \
 	stderr.o \
 	tcp_accept.o \
 	tcp_connect.o \

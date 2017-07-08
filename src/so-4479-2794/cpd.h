@@ -8,17 +8,20 @@
 **   length bytes of data
 **   -- server creates directory if it can
 **   -- server rejects request if directory doesn't exist and cannot be created
+**   -- future: mode, uid, gid
 ** CPD_REGNAME:
 **   2 bytes name length (including null byte) - path relative to target directory
 **   2 bytes file mode (permissions)
 **   name length bytes of data (file name)
 **   -- server creates regular file if it can
 **   -- server rejects request if the file cannot be created
+**   -- future: mode, uid, gid
 ** CPD_DIRNAME:
 **   2 bytes name length (including null byte) - path relative to target directory
 **   name length bytes of data (file name)
 **   -- server creates directory if it does not exist
 **   -- server rejects request if directory doesn't exist and cannot be created
+**   -- future: mode, uid, gid
 ** CPD_REGFILE4:
 **   4 bytes file length (up to 2^31-1 bytes)
 **   file length bytes of data (file body)
