@@ -142,7 +142,7 @@ static void cpd_send_status(int fd, int errnum, char *msgtxt)
 {
     assert(msgtxt != 0);
     assert(errnum >= 0 && errnum < UINT16_MAX);
-    err_remark("Sending status %d [%s]\n", errnum, msgtxt);
+    //err_remark("Sending status %d [%s]\n", errnum, msgtxt);
     size_t len0 = 1;
     size_t len1 = 2;
     size_t len2 = 2;
@@ -182,13 +182,22 @@ static void cpd_recv_targetdir(int fd)
     assert(buffer[length-1] == '\0');
     printf("Target Directory (%d) [%s]\n", length, buffer);
     /* Do things like create the directory */
+    /* Should probably be in a separate function */
     int status = 0;
-    char msg[1024] = "";
+    char msg[2048] = "";
     if (mkpath(buffer, 0755) != 0)
     {
         status = errno;
         snprintf(msg, sizeof(msg), "failed to create path %s\n%d: %s\n",
                  buffer, status, strerror(status));
+    }
+    else if (chdir(buffer) != 0)
+    {
+        char cwd[1024];
+        status = errno;
+        getcwd(cwd, sizeof(cwd));
+        snprintf(msg, sizeof(msg), "failed to change directory to %s\nfrom directory %s\n%d: %s\n",
+                 buffer, cwd, status, strerror(status));
     }
     cpd_send_status(fd, status, msg);
 }

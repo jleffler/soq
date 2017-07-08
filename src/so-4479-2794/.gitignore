@@ -12,6 +12,7 @@ kludge.h
 libpcd.a
 mkpath.c
 mkpath.h
+pater-familias
 posixver.h
 server-20170706
 stderr.c
