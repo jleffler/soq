@@ -199,6 +199,12 @@ static void cpd_recv_targetdir(int fd)
         snprintf(msg, sizeof(msg), "failed to change directory to %s\nfrom directory %s\n%d: %s\n",
                  buffer, cwd, status, strerror(status));
     }
+    else
+    {
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+        err_remark("Changed directory to %s\n", cwd);
+    }
     cpd_send_status(fd, status, msg);
 }
 
