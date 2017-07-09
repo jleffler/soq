@@ -176,10 +176,10 @@ static void cpd_send_directory(int fd, const char *directory, mode_t mode)
     ssize_t actlen;
     struct iovec iov[] =
     {
-        { .iov_len = len0, .iov_base = (char *)opcode  },
-        { .iov_len = len1, .iov_base = (char *)dirlen  },
-        { .iov_len = len2, .iov_base = (char *)target  },
-        { .iov_len = len3, .iov_base = (char *)dirmode },
+        { .iov_len = len0, .iov_base = (char *)opcode    },
+        { .iov_len = len1, .iov_base = (char *)dirlen    },
+        { .iov_len = len2, .iov_base = (char *)directory },
+        { .iov_len = len3, .iov_base = (char *)dirmode   },
     };
     enum { NUM_IOV = sizeof(iov) / sizeof(iov[0]) };
     actlen = writev(fd, iov, NUM_IOV);
@@ -274,12 +274,12 @@ static void cpd_send_regular(int fd, const char *file, mode_t mode, off_t size)
     size_t len4 = 8;    // file size
     Byte op_code[1] = { CPD_REGULAR };
     Byte name_len[2];
-    st_uint16(name_len, len1);
-    assert(len1 <= UINT16_MAX);
+    st_uint16(name_len, len2);
+    assert(len2 <= UINT16_MAX);
     Byte filemode[2];
     st_uint16(filemode, mode & (S_IRWXO|S_IRWXU|S_IRWXG|S_ISUID|S_ISGID|S_ISVTX));
     Byte filesize[8];
-    st_uint64(filesize, len4);
+    st_uint64(filesize, size);
     ssize_t explen = len0 + len1 + len2 + len3 + len4;
     struct iovec iov[] =
     {
@@ -304,7 +304,7 @@ static void cpd_send_regular(int fd, const char *file, mode_t mode, off_t size)
         else if (write_all(fd, buffer, n_bytes) != n_bytes)
             err_syserr("short write for file '%s': ", file);
     }
-    err_remark("File [%s] sent\n", target);
+    err_remark("File [%s] sent\n", file);
 }
 
 static void cpd_xfer_regular(int fd, const char *file, const struct stat *ptr)

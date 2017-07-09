@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
@@ -195,12 +196,30 @@ static void cpd_recv_name(int fd, char **name, size_t *length)
     *name = MALLOC(*length);
     if (read(fd, *name, *length) != (ssize_t)*length)
         err_sysrem("failed to read %zu bytes\n", *length);
+    //err_remark("Name (%zu) [%s]\n", *length, *name);
     assert((*name)[*length-1] == '\0');
 }
 
 static inline mode_t cpd_recv_mode(int fd)
 {
     return cpd_recv_uint16(fd);
+}
+
+static void cpd_set_status(int *status, char *buffer, size_t buflen, int errnum, const char *fmt, ...)
+{
+    *status = errnum;
+    va_list args;
+    va_start(args, fmt);
+    size_t nbytes = vsnprintf(buffer, buflen, fmt, args);
+    va_end(args);
+    if (errnum != 0 && nbytes < buflen - sizeof(": 1234567890"))
+    {
+        buffer += nbytes;
+        buflen -= nbytes;
+        nbytes = snprintf(buffer, buflen, ": %d %s", errnum, strerror(errnum));
+        if (nbytes < buflen - 2)
+            strcpy(buffer + nbytes, "\n");
+    }
 }
 
 /* Receive directory name, create it, and chdir into it */
@@ -216,18 +235,15 @@ static void cpd_recv_targetdir(int fd)
     int status = 0;
     char msg[2048] = "";
     if (mkpath(buffer, 0755) != 0)
-    {
-        status = errno;
-        snprintf(msg, sizeof(msg), "failed to create path %s\n%d: %s\n",
-                 buffer, status, strerror(status));
-    }
+        cpd_set_status(&status, msg, sizeof(msg), errno, "failed to create path %s", buffer);
     else if (chdir(buffer) != 0)
     {
         char cwd[1024];
         status = errno;
         getcwd(cwd, sizeof(cwd));
-        snprintf(msg, sizeof(msg), "failed to change directory to %s\nfrom directory %s\n%d: %s\n",
-                 buffer, cwd, status, strerror(status));
+        cpd_set_status(&status, msg, sizeof(msg), status,
+                       "failed to change directory to %s\nfrom directory %s\n",
+                       buffer, cwd);
     }
     else
     {
@@ -251,14 +267,12 @@ static void cpd_recv_directory(int fd)
     int status = 0;
     char msg[2048] = "";
     if (mkpath(directory, mode) != 0)
-    {
-        status = errno;
-        snprintf(msg, sizeof(msg), "failed to create path %s\n%d: %s\n",
-                 directory, status, strerror(status));
-    }
+        cpd_set_status(&status, msg, sizeof(msg), errno, "failed to create path %s", directory);
     cpd_send_status(fd, status, msg);
     free(directory);
 }
+
+static inline size_t min_size(size_t x, size_t y) { return x < y ? x : y; }
 
 static void cpd_recv_regular(int fd)
 {
@@ -273,17 +287,24 @@ static void cpd_recv_regular(int fd)
     if (o_fd < 0)
         err_syserr("failed to create file '%s' for writing: ", file);
     err_remark("Receiving regular file (%zu) [%s]\n", size, file);
-    size_t t_bytes = 0;
-    ssize_t n_bytes;
     char buffer[65536];
-    while ((n_bytes = read(fd, buffer, sizeof(buffer))) > 0)
+    size_t t_bytes = 0;
+    size_t r_bytes = min_size(sizeof(buffer), size);
+    ssize_t n_bytes = 0;
+    err_remark("size    = %6zu; t_bytes = %6zu; r_bytes = %6zu\n", size, t_bytes, r_bytes);
+    while (r_bytes > 0 && (n_bytes = read(fd, buffer, r_bytes)) > 0)
     {
-        if (t_bytes + n_bytes > size)
-            err_error("file '%s' grew while being copied\n", file);
-        else if (write(o_fd, buffer, n_bytes) != n_bytes)
+        err_remark("n_bytes = %6zu\n", n_bytes);
+        if (write(o_fd, buffer, n_bytes) != n_bytes)
             err_syserr("short write for file '%s': ", file);
+        t_bytes += n_bytes;
+        r_bytes = min_size(sizeof(buffer), size - t_bytes);
+        err_remark("size    = %6zu; t_bytes = %6zu; r_bytes = %6zu\n", size, t_bytes, r_bytes);
     }
-    err_remark("File [%s] sent\n", file);
+    if (n_bytes < 0)
+        err_syserr("failed to write to file '%s'\n", file);
+    err_remark("File [%s] received\n", file);
+    cpd_send_status(fd, 0, "");
     free(file);
 }
 
