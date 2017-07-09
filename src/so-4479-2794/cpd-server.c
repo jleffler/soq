@@ -291,15 +291,15 @@ static void cpd_recv_regular(int fd)
     size_t t_bytes = 0;
     size_t r_bytes = min_size(sizeof(buffer), size);
     ssize_t n_bytes = 0;
-    err_remark("size    = %6zu; t_bytes = %6zu; r_bytes = %6zu\n", size, t_bytes, r_bytes);
+    //err_remark("size    = %6zu; t_bytes = %6zu; r_bytes = %6zu\n", size, t_bytes, r_bytes);
     while (r_bytes > 0 && (n_bytes = read(fd, buffer, r_bytes)) > 0)
     {
-        err_remark("n_bytes = %6zu\n", n_bytes);
+        //err_remark("n_bytes = %6zu\n", n_bytes);
         if (write(o_fd, buffer, n_bytes) != n_bytes)
             err_syserr("short write for file '%s': ", file);
         t_bytes += n_bytes;
         r_bytes = min_size(sizeof(buffer), size - t_bytes);
-        err_remark("size    = %6zu; t_bytes = %6zu; r_bytes = %6zu\n", size, t_bytes, r_bytes);
+        //err_remark("size    = %6zu; t_bytes = %6zu; r_bytes = %6zu\n", size, t_bytes, r_bytes);
     }
     if (n_bytes < 0)
         err_syserr("failed to write to file '%s'\n", file);

@@ -385,7 +385,9 @@ static void cpd_client(void)
     err_remark("Sending request\n");
     if (verbose)
         err_remark("The directory being copied is: %s\n", source);
-    if (ftw(source, ftw_callback, 10) != 0)
+    if (chdir(source) != 0)
+        err_syserr("failed to change directory to '%s'\n", source);
+    if (ftw(".", ftw_callback, 10) != 0)
         err_error("failed to traverse directory tree\n");
     cpd_send_finished(cpd_fd);
     cpd_recv_message(cpd_fd);
