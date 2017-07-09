@@ -14,12 +14,8 @@
 ** NB: This code uses some of the code from Stevens et al "Unix Network
 ** Programming, Volume 1, 3rd Edition" (aka UNP, or UNPv13e).
 ** Specifically, this code uses (a much cut down variant of) the unp.h
-** header and four functions:
+** header and one function:
 **  -  tcp_connect()
-**  -  tcp_listen()
-**  -  daemon_init() - renamed to daemonize() when imported to JLSS
-**  -  Accept() - renamed to tcp_accept() when imported to JLSS, and
-**     modified to handle SIGCHLD signals, unlike the book's version.
 */
 
 #include "posixver.h"
@@ -27,8 +23,10 @@
 #include "stderr.h"
 #include "unpv13e.h"
 #include <assert.h>
-#include <ftw.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <ftw.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -134,15 +132,6 @@ int main(int argc, char **argv)
     return 0;
 }
 
-static int ftw_callback(const char *file, const struct stat *ptr, int flag)
-{
-    assert(file != 0);
-    assert(ptr != 0);
-    assert(flag == flag);   /* tautology */
-    printf("FTW-CB: Name [%s]\n", file);
-    return 0;
-}
-
 static void cpd_send_target(int fd, char *target)
 {
     err_remark("Sending target [%s]\n", target);
@@ -152,7 +141,7 @@ static void cpd_send_target(int fd, char *target)
     size_t len2 = strlen(target) + 1;
     Byte opcode[1] = { CPD_TARGETDIR };
     Byte tgtlen[2];
-    st_int2(tgtlen, len2);
+    st_uint16(tgtlen, len2);
     assert(len2 <= UINT16_MAX);
     ssize_t explen = len0 + len1 + len2;
     ssize_t actlen;
@@ -165,8 +154,39 @@ static void cpd_send_target(int fd, char *target)
     actlen = writev(fd, iov, 3);
     if (actlen != explen)
         err_syserr("write error to server (wanted: %zu bytes, actual: %zd): ",
-                   len0 + len1 + len2, actlen);
+                   explen, actlen);
     err_remark("Target [%s] sent\n", target);
+}
+
+static void cpd_send_directory(int fd, const char *directory, mode_t mode)
+{
+    err_remark("Sending directory [%s]\n", directory);
+    assert(directory != 0);
+    size_t len0 = 1;
+    size_t len1 = 2;
+    size_t len2 = strlen(directory) + 1;
+    size_t len3 = 2;
+    Byte opcode[1] = { CPD_DIRECTORY };
+    Byte dirlen[2];
+    st_uint16(dirlen, len2);
+    Byte dirmode[2];
+    st_uint16(dirmode, mode & (S_IRWXU | S_IRWXG | S_IRWXO | S_ISUID | S_ISGID | S_ISVTX));
+    assert(len2 <= UINT16_MAX);
+    ssize_t explen = len0 + len1 + len2 + len3;
+    ssize_t actlen;
+    struct iovec iov[] =
+    {
+        { .iov_len = len0, .iov_base = (char *)opcode  },
+        { .iov_len = len1, .iov_base = (char *)dirlen  },
+        { .iov_len = len2, .iov_base = (char *)target  },
+        { .iov_len = len3, .iov_base = (char *)dirmode },
+    };
+    enum { NUM_IOV = sizeof(iov) / sizeof(iov[0]) };
+    actlen = writev(fd, iov, NUM_IOV);
+    if (actlen != explen)
+        err_syserr("write error to server (wanted: %zu bytes, actual: %zd): ",
+                   explen, actlen);
+    err_remark("Directory [%s] sent\n", directory);
 }
 
 static void cpd_send_finished(int fd)
@@ -186,11 +206,11 @@ static void cpd_recv_status(int fd, int *errnum, char **msgtxt)
     Byte err[2];
     if (read(fd, err, sizeof(err)) != sizeof(err))
         err_syserr("failed to read %zu bytes\n", sizeof(err));
-    *errnum = ld_int2(err);
+    *errnum = ld_uint16(err);
     Byte len[2];
     if (read(fd, len, sizeof(len)) != sizeof(len))
         err_syserr("failed to read %zu bytes\n", sizeof(err));
-    uint16_t msglen = ld_int2(len);
+    uint16_t msglen = ld_uint16(len);
     if (msglen == 0)
         *msgtxt = 0;
     else
@@ -225,6 +245,134 @@ static void cpd_recv_message(int fd)
         err_internal(__func__, "Unexpected opcode %d (0x%.2X)\n", opcode, opcode);
         /*NOTREACHED*/
     }
+}
+
+static inline ssize_t write_all(int fd, const char *buffer, ssize_t size)
+{
+    ssize_t w_bytes = size;
+    ssize_t n_bytes;
+    while (w_bytes > 0 && (n_bytes = write(fd, buffer, w_bytes)) > 0)
+        w_bytes -= n_bytes;
+    return size - w_bytes;
+}
+
+static void cpd_send_regular(int fd, const char *file, mode_t mode, off_t size)
+{
+    /* assume off_t is equivalent to signed 64-bit integer; OK for macOS Sierra */
+    assert(fd >= 0);
+    assert(file != 0);
+    assert(size == size);   /* tautology */
+    assert(S_ISREG(mode));
+    int i_fd = open(file, O_RDONLY);
+    if (i_fd < 0)
+        err_syserr("failed to open file '%s' for reading: ", file);
+    err_remark("Sending regular file [%s]\n", file);
+    size_t len0 = 1;    // opcode
+    size_t len1 = 2;    // name length
+    size_t len2 = strlen(file) + 1;
+    size_t len3 = 2;    // mode
+    size_t len4 = 8;    // file size
+    Byte op_code[1] = { CPD_REGULAR };
+    Byte name_len[2];
+    st_uint16(name_len, len1);
+    assert(len1 <= UINT16_MAX);
+    Byte filemode[2];
+    st_uint16(filemode, mode & (S_IRWXO|S_IRWXU|S_IRWXG|S_ISUID|S_ISGID|S_ISVTX));
+    Byte filesize[8];
+    st_uint64(filesize, len4);
+    ssize_t explen = len0 + len1 + len2 + len3 + len4;
+    struct iovec iov[] =
+    {
+        { .iov_len = len0, .iov_base = (char *)op_code  },
+        { .iov_len = len1, .iov_base = (char *)name_len },
+        { .iov_len = len2, .iov_base = (char *)file     },
+        { .iov_len = len3, .iov_base = (char *)filemode },
+        { .iov_len = len4, .iov_base = (char *)filesize },
+    };
+    enum { NUM_IOV = sizeof(iov) / sizeof(iov[0]) };
+    ssize_t actlen = writev(fd, iov, NUM_IOV);
+    if (actlen != explen)
+        err_syserr("write error to server (wanted: %zu bytes, actual: %zd): ",
+                   explen, actlen);
+    size_t t_bytes = 0;
+    ssize_t n_bytes;
+    char buffer[65536];
+    while ((n_bytes = read(i_fd, buffer, sizeof(buffer))) > 0)
+    {
+        if (t_bytes + n_bytes > (size_t)size)
+            err_error("file '%s' grew while being copied\n", file);
+        else if (write_all(fd, buffer, n_bytes) != n_bytes)
+            err_syserr("short write for file '%s': ", file);
+    }
+    err_remark("File [%s] sent\n", target);
+}
+
+static void cpd_xfer_regular(int fd, const char *file, const struct stat *ptr)
+{
+    assert(fd >= 0);
+    assert(file != 0);
+    assert(ptr != 0);
+    //int errnum = 0;;
+    //char *msgtxt = 0;
+    cpd_send_regular(fd, file, ptr->st_mode, ptr->st_size);
+    cpd_recv_message(fd);
+    //cpd_recv_message(fd, &errnum, &msgtxt);
+    //if (errnum != 0)
+        //err_remark("failed to copy %" PRId64 " bytes for file %s\n", (int64_t)ptr->st_size, file);
+    //else
+        //printf("Copied %" PRId64 " bytes of %s OK\n", (int64_t)ptr->st_size, file);
+}
+
+static void cpd_xfer_directory(int fd, const char *directory, const struct stat *ptr)
+{
+    assert(fd >= 0);
+    assert(directory != 0);
+    assert(ptr != 0);
+    //int errnum = 0;;
+    //char *msgtxt = 0;
+    cpd_send_directory(fd, directory, ptr->st_mode);
+    cpd_recv_message(fd);
+    //cpd_recv_message(fd, &errnum, &msgtxt);
+    //if (errnum != 0)
+        //err_remark("failed to create directory %s\n", directory);
+    //else
+        //
+   printf("Created directory %s OK\n", directory);
+}
+
+static int ftw_callback(const char *file, const struct stat *ptr, int flag)
+{
+    assert(file != 0);
+    assert(ptr != 0);
+    printf("FTW-CB: Name [%s]\n", file);
+    switch (flag)
+    {
+    case FTW_F:
+        cpd_xfer_regular(cpd_fd, file, ptr);
+        break;
+    case FTW_D:
+        cpd_xfer_directory(cpd_fd, file, ptr);
+        break;
+    case FTW_DNR:
+        err_remark("Cannot read directory %s\n", file);
+        break;
+    case FTW_DP:
+        err_internal(__func__, "post-order directory - cannot happen!\n");
+        /*NOTREACHED*/
+    case FTW_NS:
+        err_remark("Could not get status for file %s\n", file);
+        break;
+    case FTW_SL:
+        err_remark("Ignoring symlink %s pro tem\n", file);
+        break;
+    case FTW_SLN:
+        err_remark("Ignoring broken symlink %s pro tem\n", file);
+        break;
+    default:
+        err_internal(__func__, "unexpected flag value %d received\n", flag);
+        /*NOTREACHED*/
+    }
+    return 0;
 }
 
 static void cpd_client(void)

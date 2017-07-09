@@ -23,13 +23,16 @@
 */
 
 #include "posixver.h"
+#include "emalloc.h"
 #include "cpd.h"
 #include "mkpath.h"
 #include "stderr.h"
 #include "unpv13e.h"
+
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdio.h>
@@ -149,9 +152,9 @@ static void cpd_send_status(int fd, int errnum, char *msgtxt)
     size_t len3 = strlen(msgtxt) + (msgtxt[0] != '\0');
     Byte opcode[1] = { CPD_STATUS };
     Byte ercode[2];
-    st_int2(ercode, errnum);
+    st_uint16(ercode, errnum);
     Byte msglen[2];
-    st_int2(msglen, len3);
+    st_uint16(msglen, len3);
     assert(len3 <= UINT16_MAX);
     ssize_t explen = len0 + len1 + len2 + len3;
     struct iovec iov[4] =
@@ -168,19 +171,46 @@ static void cpd_send_status(int fd, int errnum, char *msgtxt)
     err_remark("Status %d [%s] sent\n", errnum, msgtxt);
 }
 
-/* Code ignores the possibility of 16-bit ints */
+static uint16_t cpd_recv_uint16(int fd)
+{
+    Byte buffer[2];
+    if (read(fd, buffer, sizeof(buffer)) != sizeof(buffer))
+        err_sysrem("failed to read %zu bytes\n", sizeof(buffer));
+    uint16_t value = ld_uint16(buffer);
+    return value;
+}
+
+static uint64_t cpd_recv_uint64(int fd)
+{
+    Byte buffer[8];
+    if (read(fd, buffer, sizeof(buffer)) != sizeof(buffer))
+        err_sysrem("failed to read %zu bytes\n", sizeof(buffer));
+    uint64_t value = ld_uint64(buffer);
+    return value;
+}
+
+static void cpd_recv_name(int fd, char **name, size_t *length)
+{
+    *length = cpd_recv_uint16(fd);
+    *name = MALLOC(*length);
+    if (read(fd, *name, *length) != (ssize_t)*length)
+        err_sysrem("failed to read %zu bytes\n", *length);
+    assert((*name)[*length-1] == '\0');
+}
+
+static inline mode_t cpd_recv_mode(int fd)
+{
+    return cpd_recv_uint16(fd);
+}
+
+/* Receive directory name, create it, and chdir into it */
 static void cpd_recv_targetdir(int fd)
 {
-    assert(fd >= 0);
-    Byte len[2];
-    if (read(fd, len, sizeof(len)) != sizeof(len))
-        err_sysrem("failed to read %zu bytes\n", sizeof(len));
-    uint16_t length = ld_int2(len);
-    char buffer[length];
-    if (read(fd, buffer, length) != length)
-        err_sysrem("failed to read %u bytes\n", length);
-    assert(buffer[length-1] == '\0');
-    printf("Target Directory (%d) [%s]\n", length, buffer);
+    char   *buffer;
+    size_t  length;
+    cpd_recv_name(fd, &buffer, &length);
+
+    printf("Target Directory (%zu) [%s]\n", length, buffer);
     /* Do things like create the directory */
     /* Should probably be in a separate function */
     int status = 0;
@@ -206,6 +236,55 @@ static void cpd_recv_targetdir(int fd)
         err_remark("Changed directory to %s\n", cwd);
     }
     cpd_send_status(fd, status, msg);
+    free(buffer);
+}
+
+/* Receive directory name and permissions and create it */
+static void cpd_recv_directory(int fd)
+{
+    char *directory;
+    size_t length;
+
+    cpd_recv_name(fd, &directory, &length);
+    err_remark("Receiving directory %zu [%s]\n", length, directory);
+    mode_t mode = cpd_recv_mode(fd);
+    int status = 0;
+    char msg[2048] = "";
+    if (mkpath(directory, mode) != 0)
+    {
+        status = errno;
+        snprintf(msg, sizeof(msg), "failed to create path %s\n%d: %s\n",
+                 directory, status, strerror(status));
+    }
+    cpd_send_status(fd, status, msg);
+    free(directory);
+}
+
+static void cpd_recv_regular(int fd)
+{
+    char  *file;
+    size_t length;
+
+    cpd_recv_name(fd, &file, &length);
+    mode_t mode = cpd_recv_mode(fd);
+    size_t size = cpd_recv_uint64(fd);
+
+    int o_fd = open(file, O_WRONLY|O_EXCL|O_CREAT, mode);
+    if (o_fd < 0)
+        err_syserr("failed to create file '%s' for writing: ", file);
+    err_remark("Receiving regular file (%zu) [%s]\n", size, file);
+    size_t t_bytes = 0;
+    ssize_t n_bytes;
+    char buffer[65536];
+    while ((n_bytes = read(fd, buffer, sizeof(buffer))) > 0)
+    {
+        if (t_bytes + n_bytes > size)
+            err_error("file '%s' grew while being copied\n", file);
+        else if (write(o_fd, buffer, n_bytes) != n_bytes)
+            err_syserr("short write for file '%s': ", file);
+    }
+    err_remark("File [%s] sent\n", file);
+    free(file);
 }
 
 static noreturn void be_childish(int fd, struct sockaddr_storage *client, socklen_t len)
@@ -225,6 +304,12 @@ static noreturn void be_childish(int fd, struct sockaddr_storage *client, sockle
         {
         case CPD_TARGETDIR:
             cpd_recv_targetdir(fd);
+            break;
+        case CPD_REGULAR:
+            cpd_recv_regular(fd);
+            break;
+        case CPD_DIRECTORY:
+            cpd_recv_directory(fd);
             break;
         default:
             err_internal(__func__, "Unimplemented opcode %d received\n", opcode);
