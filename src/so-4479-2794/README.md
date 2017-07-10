@@ -5,9 +5,7 @@ Transferring a directory through sockets
 
 <hr>
 
-Frustrating — the guy won't try on his own (probably doesn't know how
-to, but is not heeding the questions asked, etc).
-Why do anything?
+Why am I doing anything about this?
 Because I'm stupid, that's why!
 
 ### Command line interface for cpd-server
