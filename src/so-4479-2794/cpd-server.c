@@ -240,7 +240,8 @@ static void cpd_recv_targetdir(int fd)
     {
         char cwd[1024];
         status = errno;
-        getcwd(cwd, sizeof(cwd));
+        if (getcwd(cwd, sizeof(cwd)) == 0)
+            strcpy(cwd, "[getcwd() failed]");
         cpd_set_status(&status, msg, sizeof(msg), status,
                        "failed to change directory to %s\nfrom directory %s\n",
                        buffer, cwd);
@@ -248,7 +249,8 @@ static void cpd_recv_targetdir(int fd)
     else
     {
         char cwd[1024];
-        getcwd(cwd, sizeof(cwd));
+        if (getcwd(cwd, sizeof(cwd)) == 0)
+            strcpy(cwd, "[getcwd() failed]");
         err_remark("Changed directory to %s\n", cwd);
     }
     cpd_send_status(fd, status, msg);

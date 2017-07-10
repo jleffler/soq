@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
