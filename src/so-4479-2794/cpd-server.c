@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-static int chk_close(int fd) 
+static int chk_close(int fd)
 {
     int rc = close(fd);
 
@@ -255,6 +255,12 @@ static void cpd_recv_targetdir(int fd)
     free(buffer);
 }
 
+static void cpd_set_mode(const char *name, mode_t mode, int *status, char *buffer, size_t buflen)
+{
+    if (chmod(name, mode) != 0)
+       cpd_set_status(status, buffer, buflen, errno, "failed to set permission on '%s'", name);
+}
+
 /* Receive directory name and permissions and create it */
 static void cpd_recv_directory(int fd)
 {
@@ -268,6 +274,8 @@ static void cpd_recv_directory(int fd)
     char msg[2048] = "";
     if (mkpath(directory, mode) != 0)
         cpd_set_status(&status, msg, sizeof(msg), errno, "failed to create path %s", directory);
+    else
+        cpd_set_mode(directory, mode, &status, msg, sizeof(msg));
     cpd_send_status(fd, status, msg);
     free(directory);
 }
@@ -282,6 +290,17 @@ static void cpd_recv_regular(int fd)
     cpd_recv_name(fd, &file, &length);
     mode_t mode = cpd_recv_mode(fd);
     size_t size = cpd_recv_uint64(fd);
+
+    char *eop = strrchr(file, '/');
+    if (eop != 0)
+    {
+        size_t dirlen = eop - file + 1;
+        char buffer[dirlen];
+        memmove(buffer, file, dirlen);
+        buffer[dirlen-1] = '\0';
+        if (mkpath(buffer, 0755) != 0)
+            err_syserr("failed to create directory %s for file %s", buffer, eop+1);
+    }
 
     int o_fd = open(file, O_WRONLY|O_EXCL|O_CREAT, mode);
     if (o_fd < 0)
@@ -306,6 +325,7 @@ static void cpd_recv_regular(int fd)
     err_remark("File [%s] received\n", file);
     cpd_send_status(fd, 0, "");
     free(file);
+    close(o_fd);
 }
 
 static noreturn void be_childish(int fd, struct sockaddr_storage *client, socklen_t len)

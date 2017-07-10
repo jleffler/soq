@@ -305,6 +305,7 @@ static void cpd_send_regular(int fd, const char *file, mode_t mode, off_t size)
             err_syserr("short write for file '%s': ", file);
     }
     err_remark("File [%s] sent\n", file);
+    close(i_fd);
 }
 
 static void cpd_xfer_regular(int fd, const char *file, const struct stat *ptr)
@@ -335,30 +336,26 @@ static void cpd_xfer_directory(int fd, const char *directory, const struct stat 
     //cpd_recv_message(fd, &errnum, &msgtxt);
     //if (errnum != 0)
         //err_remark("failed to create directory %s\n", directory);
-    //else
-        //
    printf("Created directory %s OK\n", directory);
 }
 
-static int ftw_callback(const char *file, const struct stat *ptr, int flag)
+static int nftw_callback(const char *file, const struct stat *ptr, int flag, struct FTW *loc)
 {
     assert(file != 0);
     assert(ptr != 0);
-    printf("FTW-CB: Name [%s]\n", file);
+    printf("FTW-CB: Name [%s] (%d: %s)\n", file, loc->level, &file[loc->base]);
     switch (flag)
     {
     case FTW_F:
         cpd_xfer_regular(cpd_fd, file, ptr);
         break;
     case FTW_D:
+    case FTW_DP:
         cpd_xfer_directory(cpd_fd, file, ptr);
         break;
     case FTW_DNR:
         err_remark("Cannot read directory %s\n", file);
         break;
-    case FTW_DP:
-        err_internal(__func__, "post-order directory - cannot happen!\n");
-        /*NOTREACHED*/
     case FTW_NS:
         err_remark("Could not get status for file %s\n", file);
         break;
@@ -387,7 +384,7 @@ static void cpd_client(void)
         err_remark("The directory being copied is: %s\n", source);
     if (chdir(source) != 0)
         err_syserr("failed to change directory to '%s'\n", source);
-    if (ftw(".", ftw_callback, 10) != 0)
+    if (nftw(".", nftw_callback, 10, FTW_DEPTH|FTW_PHYS) != 0)
         err_error("failed to traverse directory tree\n");
     cpd_send_finished(cpd_fd);
     cpd_recv_message(cpd_fd);
