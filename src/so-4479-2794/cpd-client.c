@@ -102,7 +102,7 @@ int main(int argc, char **argv)
             target = optarg;
             break;
         case 'V':
-            err_version("CPD-CLIENT", &"@(#)$Revision$ ($Date$)"[4]);
+            err_version("CPD-Client", &"@(#)$Revision$ ($Date$)"[4]);
             /*NOTREACHED*/
         default:
             err_usage(usestr);

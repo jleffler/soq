@@ -96,7 +96,7 @@ int main(int argc, char **argv)
                 err_help(usestr, hlpstr);
                 /*NOTREACHED*/
             case 'V':
-                err_version("PROG", &"@(#)$Revision$ ($Date$)"[4]);
+                err_version("CPD-Server", &"@(#)$Revision$ ($Date$)"[4]);
                 /*NOTREACHED*/
             default:
                 err_usage(usestr);
