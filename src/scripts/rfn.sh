@@ -33,4 +33,4 @@ do
 done
 
 echo "$name"
-echo "$name" >&2
+[ -t 1 ] || echo "$name" >&2
