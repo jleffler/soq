@@ -10,6 +10,7 @@ esac
 
 for d in "${@}"
 do
+    [ -d "$d" ] || continue
     if [ ! -f $d/makefile ]
     then
         (
