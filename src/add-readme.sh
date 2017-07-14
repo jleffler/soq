@@ -10,8 +10,9 @@ esac
 
 for dir in "$@"
 do
-    [ -h "$dir" ] && continue;
-    [ -f "$dir/README.md" ] && continue;
+    [ -h "$dir" ] && continue
+    [ ! -d "$dir" ] && continue
+    [ -f "$dir/README.md" ] && continue
     echo $dir
     (
     qd=${dir#so-}
