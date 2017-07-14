@@ -2,7 +2,7 @@
 #
 # Find official description of SO questions for README.md file
 
-site="http://stackoverflow.com"
+site="https://stackoverflow.com"
 
 case "$#" in
 (0) set -- so-*;;
@@ -23,7 +23,7 @@ do
             perl -lne 'print $1 if m/<title>(?:[^-]*? - )?(.+?) - [^-]*<\/title>.*/')
     echo "### Stack Overflow Question $qd"
     echo
-    echo "[SO $qd](http://stackoverflow.com/q/$qn) &mdash;"
+    echo "[SO $qd](https://stackoverflow.com/q/$qn) &mdash;"
     echo "$title"
     ) > $dir/README.md
 done
