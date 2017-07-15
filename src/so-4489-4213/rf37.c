@@ -4,6 +4,8 @@
 #include <string.h>
 #include <time.h>
 
+// Q: https://stackoverflow.com/q/779875
+// A: https://stackoverflow.com/a/779960
 static char *replace1(char *orig, char *rep, char *with)
 {
     char *result;
@@ -35,7 +37,6 @@ static char *replace1(char *orig, char *rep, char *with)
 
     while (count--)
     {
-
         ins = strstr(orig, rep);
         len_front = ins - orig;
         tmp = strncpy(tmp, orig, len_front) + len_front;
@@ -46,29 +47,158 @@ static char *replace1(char *orig, char *rep, char *with)
     return result;
 }
 
-static char *replace8(char *str, char *old, char *new)
+// Q: https://stackoverflow.com/q/779875
+// A: https://stackoverflow.com/a/780024
+static char *replace2(char *original, char *pattern, char *replacement)
 {
-    int i, count = 0;
-    int newlen = strlen(new);
-    int oldlen = strlen(old);
-    for (i = 0; str[i]; ++i)
-        if (strstr(&str[i], old) == &str[i])
-            ++count, i += oldlen - 1;
+    size_t replen = strlen(replacement);
+    size_t patlen = strlen(pattern);
+    size_t orilen = strlen(original);
+    size_t patcnt = 0;
+    char *oriptr;
+    char *patloc;
 
-    char *ret = (char *)calloc(i + 1 + count * (newlen - oldlen), sizeof(char));
-    if (!ret)
-        return "";
-    i = 0;
-    while (*str)
-        if (strstr(str, old) == str)
-            strcpy(&ret[i], new),
-            i += newlen,
-            str += oldlen;
-        else
-            ret[i++] = *str++;
+    for (oriptr = original; (patloc = strstr(oriptr, pattern)) != 0; oriptr = patloc + patlen)
+    {
+        patcnt++;
+    }
+    {
+        size_t retlen = orilen + patcnt * (replen - patlen);
+        char *const returned = (char *)malloc(sizeof(char) * (retlen + 1));
+        if (returned != NULL)
+        {
+            char *retptr = returned;
+            for (oriptr = original; (patloc = strstr(oriptr, pattern)) != 0; oriptr = patloc + patlen)
+            {
+                size_t skplen = patloc - oriptr;
+                strncpy(retptr, oriptr, skplen);
+                retptr += skplen;
+                strncpy(retptr, replacement, replen);
+                retptr += replen;
+            }
+            strcpy(retptr, oriptr);
+        }
+        return returned;
+    }
+}
 
-    ret[i] = '\0';
-    return ret;
+#if 0
+static char* replace3(char* s, char* term, char* new_term)
+{
+    //error
+    char *nw = NULL, *pos;
+    char *cur = s;
+    while(pos = strstr(cur, term))
+    {
+        nw = (char*)realloc(nw, pos - cur + strlen(new_term));
+        strncat(nw, cur, pos-cur);
+        strcat(nw, new_term);
+        cur = pos + strlen(term);
+    }
+    strcat(nw, cur);
+    //free(s);
+    return nw;
+}
+#endif
+
+/*
+** If there's no match, this code leaks horribly.  Also, if there's no
+** match, it is not clear that it is safe to free the return value.  Yet
+** normally, the return value should be freed.
+*/
+static char *replace4(char *string, char *oldpiece, char *newpiece)
+{
+    int str_index, newstr_index, oldpiece_index, end,
+        new_len, old_len, cpy_len;
+    char *c;
+    char *newstring = malloc(10000);
+    //static char newstring[10000];
+    if ((c = (char *)strstr(string, oldpiece)) == NULL)
+        return string;
+    new_len        = strlen(newpiece);
+    old_len        = strlen(oldpiece);
+    end            = strlen(string) - old_len;
+
+    oldpiece_index = c - string;
+    newstr_index = 0;
+    str_index = 0;
+    while (str_index <= end && c != NULL)
+    {
+        cpy_len = oldpiece_index - str_index;
+        strncpy(newstring + newstr_index, string + str_index, cpy_len);
+        newstr_index += cpy_len;
+        str_index    += cpy_len;
+
+        strcpy(newstring + newstr_index, newpiece);
+        newstr_index += new_len;
+        str_index    += old_len;
+
+        if ((c = (char *)strstr(string + str_index, oldpiece)) != NULL)
+            oldpiece_index = c - string;
+    }
+
+    strcpy(newstring + newstr_index,
+           string + str_index);
+    return newstring;
+}
+
+static char *replace5(char *orig, char *rep, char *with)
+{
+    char *result;
+    char *ins;
+    char *tmp;
+    int len_rep;
+    int len_with;
+    int len_front;
+    int count;
+
+    if (!orig)
+        return NULL;
+    if (!rep)
+        rep = "";
+    len_rep = strlen(rep);
+    if (!with)
+        with = "";
+    len_with = strlen(with);
+    ins = orig;
+    for (count = 0; (tmp = strstr(ins, rep)); ++count)
+    {
+        ins = tmp + len_rep;
+    }
+    tmp = result = malloc(strlen(orig) + (len_with - len_rep) * count + 1);
+    if (!result)
+        return NULL;
+    while (count--)
+    {
+        ins = strstr(orig, rep);
+        len_front = ins - orig;
+        tmp = strncpy(tmp, orig, len_front) + len_front;
+        tmp = strcpy(tmp, with) + len_with;
+        orig += len_front + len_rep;
+    }
+    strcpy(tmp, orig);
+    return result;
+}
+
+/*
+** As with replace4(), if there's no match, this code leaks horribly.
+** Also, if there's no match, it is not clear that it is safe to free
+** the return value.  Yet normally, the return value should be freed.
+**
+** replace6() only replaces one occurrence of the pattern, not all.
+** That explains why it is so fast!
+*/
+static char *replace6(char *st, char *orig, char *repl)
+{
+    //static char buffer[4000];
+    char *buffer = malloc(4000);
+    char *ch;
+    if (!(ch = strstr(st, orig)))
+        return st;
+    strncpy(buffer, st, ch - st);
+    buffer[ch - st] = 0;
+    sprintf(buffer + (ch - st), "%s%s", repl, ch + strlen(orig));
+    return buffer;
 }
 
 static char *replace7(char *orig, char *rep, char *with)
@@ -118,144 +248,29 @@ static char *replace7(char *orig, char *rep, char *with)
     return result;
 }
 
-static char *replace6(char *st, char *orig, char *repl)
+static char *replace8(char *str, char *old, char *new)
 {
-    //static char buffer[4000];
-    char *buffer = malloc(4000);
-    char *ch;
-    if (!(ch = strstr(st, orig)))
-        return st;
-    strncpy(buffer, st, ch - st);
-    buffer[ch - st] = 0;
-    sprintf(buffer + (ch - st), "%s%s", repl, ch + strlen(orig));
-    return buffer;
-}
+    int i, count = 0;
+    int newlen = strlen(new);
+    int oldlen = strlen(old);
+    for (i = 0; str[i]; ++i)
+        if (strstr(&str[i], old) == &str[i])
+            ++count, i += oldlen - 1;
 
-#if 0
-static char* replace3(char* s, char* term, char* new_term)
-{
-    //error
-    char *nw = NULL, *pos;
-    char *cur = s;
-    while(pos = strstr(cur, term))
-    {
-        nw = (char*)realloc(nw, pos - cur + strlen(new_term));
-        strncat(nw, cur, pos-cur);
-        strcat(nw, new_term);
-        cur = pos + strlen(term);
-    }
-    strcat(nw, cur);
-    //free(s);
-    return nw;
-}
-#endif
+    char *ret = (char *)calloc(i + 1 + count * (newlen - oldlen), sizeof(char));
+    if (!ret)
+        return "";
+    i = 0;
+    while (*str)
+        if (strstr(str, old) == str)
+            strcpy(&ret[i], new),
+            i += newlen,
+            str += oldlen;
+        else
+            ret[i++] = *str++;
 
-static char *replace2(char *original, char *pattern, char *replacement)
-{
-    size_t replen = strlen(replacement);
-    size_t patlen = strlen(pattern);
-    size_t orilen = strlen(original);
-    size_t patcnt = 0;
-    char *oriptr;
-    char *patloc;
-
-    for (oriptr = original; (patloc = strstr(oriptr, pattern)) != 0; oriptr = patloc + patlen)
-    {
-        patcnt++;
-    }
-    {
-        size_t retlen = orilen + patcnt * (replen - patlen);
-        char *const returned = (char *)malloc(sizeof(char) * (retlen + 1));
-        if (returned != NULL)
-        {
-            char *retptr = returned;
-            for (oriptr = original; (patloc = strstr(oriptr, pattern)) != 0; oriptr = patloc + patlen)
-            {
-                size_t skplen = patloc - oriptr;
-                strncpy(retptr, oriptr, skplen);
-                retptr += skplen;
-                strncpy(retptr, replacement, replen);
-                retptr += replen;
-            }
-            strcpy(retptr, oriptr);
-        }
-        return returned;
-    }
-}
-
-static char *replace4(char *string, char *oldpiece, char *newpiece)
-{
-    int str_index, newstr_index, oldpiece_index, end,
-        new_len, old_len, cpy_len;
-    char *c;
-    char *newstring = malloc(10000);
-    //static char newstring[10000];
-    if ((c = (char *)strstr(string, oldpiece)) == NULL)
-        return string;
-    new_len        = strlen(newpiece);
-    old_len        = strlen(oldpiece);
-
-    end            = strlen(string) - old_len;
-
-    oldpiece_index = c - string;
-    newstr_index = 0;
-    str_index = 0;
-    while (str_index <= end && c != NULL)
-    {
-        cpy_len = oldpiece_index - str_index;
-        strncpy(newstring + newstr_index, string + str_index, cpy_len);
-        newstr_index += cpy_len;
-        str_index    += cpy_len;
-
-        strcpy(newstring + newstr_index, newpiece);
-        newstr_index += new_len;
-        str_index    += old_len;
-
-        if ((c = (char *)strstr(string + str_index, oldpiece)) != NULL)
-            oldpiece_index = c - string;
-    }
-
-    strcpy(newstring + newstr_index,
-           string + str_index);
-    return newstring;
-}
-
-static char *replace5(char *orig, char *rep, char *with)
-{
-
-    char *result;
-    char *ins;
-    char *tmp;
-    int len_rep;
-    int len_with;
-    int len_front;
-    int count;
-    if (!orig)
-        return NULL;
-    if (!rep)
-        rep = "";
-    len_rep = strlen(rep);
-    if (!with)
-        with = "";
-    len_with = strlen(with);
-    ins = orig;
-    for (count = 0; (tmp = strstr(ins, rep)); ++count)
-    {
-        ins = tmp + len_rep;
-    }
-    tmp = result = malloc(strlen(orig) + (len_with - len_rep) * count + 1);
-    if (!result)
-        return NULL;
-    while (count--)
-    {
-        ins = strstr(orig, rep);
-        len_front = ins - orig;
-        tmp = strncpy(tmp, orig, len_front) + len_front;
-        tmp = strcpy(tmp, with) + len_with;
-        orig += len_front + len_rep;
-    }
-    strcpy(tmp, orig);
-    return result;
+    ret[i] = '\0';
+    return ret;
 }
 
 static char data[] =
