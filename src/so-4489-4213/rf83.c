@@ -1,7 +1,11 @@
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 enum { MAX_RESIDUE = 64 };
+
+static int debug = 0;
 
 static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 
@@ -11,27 +15,48 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
     size_t o_len = max_size(strlen(old_needle), 1);
     size_t n_len = strlen(new_needle);
 
-    size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
-    //printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
+    int null = *old_needle == '\0';
+    size_t r_len = max_size(h_len, (h_len / o_len + 1) * (n_len + null)) + 1;
+    if (debug)
+        printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
     char *result = malloc(r_len);
     if (result == 0)
         return 0;
     char *dst = result;
     const char *src = haystack;
+    const char *end = haystack + h_len;
     char *rep;
-    while ((rep = strstr(src, old_needle)) != 0)
+    if (debug)
+        printf("src = [%s]\n", src);
+    while (src < end && (rep = strstr(src, old_needle)) != 0)
     {
         size_t p_len = rep - src;
         memmove(dst, src, p_len);
         dst += p_len;
         memmove(dst, new_needle, n_len);
         dst += n_len;
+        if (null)
+        {
+            assert(o_len == 1);
+            memmove(dst, rep, 1);
+            dst++;
+        }
         src = rep + o_len;
-        //printf("res = [%.*s]\n", (int)(dst - result), result);
-        //printf("src = [%s]\n", src);
+#if 0
+        if (debug)
+            printf("res = [%.*s]\n", (int)(dst - result), result);
+#endif
+        if (debug)
+            printf("src = [%s]\n", src);
+    }
+    if (null)
+    {
+        memmove(dst, new_needle, n_len);
+        dst += n_len;
     }
     size_t t_len = h_len - (src - haystack) + 1;
-    //printf("src = %zu [%s]\n", strlen(src), src);
+    if (debug)
+        printf("src = %zu [%s]\n", strlen(src), src);
     memmove(dst, src, t_len);
     dst += t_len;
     size_t x_len = dst - result + 1;
@@ -46,7 +71,6 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
     return result;
 }
 
-#include <stdio.h>
 #include "timer.h"
 #include <time.h>
 
@@ -79,12 +103,17 @@ static char data[] =
     "Z 2345678901234567890123456789012345678901234567890 "
     ;
 
+#if 1
 enum { MAX_COUNT = 80000 };
+#else
+enum { MAX_COUNT = 1 };
+#endif
 
 typedef char *(Replace)(const char *haystack, const char *needle, const char *thread);
 
 static void test_replace(const char *tag, Replace replace)
 {
+    debug = 0;
     int len = strlen(data);
     char *source = strdup(data);
     Clock clk;
@@ -136,8 +165,20 @@ int main(void)
     test_replace_values("23456",   "orange",  str_gsub);
     test_replace_values("234567",  "yellow",  str_gsub);
     test_replace_values("1234567", "magenta", str_gsub);
-    //test_replace_values("",        "cyan",    str_gsub);
+    test_replace_values("",        "cyan",    str_gsub);
     test_replace_values("1234",    "",        str_gsub);
+
+    char same1[] = "AAAAAA";
+    printf("Source: [%s]\n", same1);
+    char *loop1 = str_gsub(same1, "A", "-quad-");
+    printf("Target: [%s]\n", loop1);
+    free(loop1);
+
+    debug = 1;
+    printf("Source: [%s]\n", same1);
+    char *loop2 = str_gsub(same1, "", "-none-");
+    printf("Target: [%s]\n", loop2);
+    free(loop2);
 
     return 0;
 }
