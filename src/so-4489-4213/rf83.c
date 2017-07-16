@@ -9,7 +9,7 @@ static int debug = 0;
 
 static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 
-static char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
+static char *str_gsub_matchnull(const char *haystack, const char *old_needle, const char *new_needle)
 {
     size_t h_len = strlen(haystack);
     size_t o_len = max_size(strlen(old_needle), 1);
@@ -53,6 +53,58 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
     {
         memmove(dst, new_needle, n_len);
         dst += n_len;
+    }
+    size_t t_len = h_len - (src - haystack) + 1;
+    if (debug)
+        printf("src = %zu [%s]\n", strlen(src), src);
+    memmove(dst, src, t_len);
+    dst += t_len;
+    size_t x_len = dst - result + 1;
+
+    if (r_len > MAX_RESIDUE && x_len < r_len - MAX_RESIDUE)
+    {
+        char *trunc = realloc(result, x_len);
+        if (trunc != 0)
+            result = trunc;
+    }
+
+    return result;
+}
+
+static char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
+{
+    size_t h_len = strlen(haystack);
+    size_t o_len = max_size(strlen(old_needle), 1);
+    size_t n_len = strlen(new_needle);
+
+    if (*old_needle == '\0')
+        return str_gsub_matchnull(haystack, old_needle, new_needle);
+    size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
+    if (debug)
+        printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
+    char *result = malloc(r_len);
+    if (result == 0)
+        return 0;
+    char *dst = result;
+    const char *src = haystack;
+    const char *end = haystack + h_len;
+    char *rep;
+    if (debug)
+        printf("src = [%s]\n", src);
+    while (src < end && (rep = strstr(src, old_needle)) != 0)
+    {
+        size_t p_len = rep - src;
+        memmove(dst, src, p_len);
+        dst += p_len;
+        memmove(dst, new_needle, n_len);
+        dst += n_len;
+        src = rep + o_len;
+#if 0
+        if (debug)
+            printf("res = [%.*s]\n", (int)(dst - result), result);
+#endif
+        if (debug)
+            printf("src = [%s]\n", src);
     }
     size_t t_len = h_len - (src - haystack) + 1;
     if (debug)
