@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,15 +5,14 @@ enum { MAX_RESIDUE = 64 };
 
 static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 
-char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle);
-char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
+static char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
 {
     size_t h_len = strlen(haystack);
     size_t o_len = max_size(strlen(old_needle), 1);
     size_t n_len = strlen(new_needle);
 
     size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
-    printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
+    //printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
     char *result = malloc(r_len);
     if (result == 0)
         return 0;
@@ -30,15 +28,15 @@ char *str_gsub(const char *haystack, const char *old_needle, const char *new_nee
         dst += n_len;
         src = rep + o_len;
         //printf("res = [%.*s]\n", (int)(dst - result), result);
-        printf("src = [%s]\n", src);
+        //printf("src = [%s]\n", src);
     }
     size_t t_len = h_len - (src - haystack) + 1;
-    printf("src = %zu [%s]\n", strlen(src), src);
+    //printf("src = %zu [%s]\n", strlen(src), src);
     memmove(dst, src, t_len);
     dst += t_len;
     size_t x_len = dst - result + 1;
 
-    if (dst < result + r_len - MAX_RESIDUE)
+    if (r_len > MAX_RESIDUE && x_len < r_len - MAX_RESIDUE)
     {
         char *trunc = realloc(result, x_len);
         if (trunc != 0)
@@ -48,12 +46,12 @@ char *str_gsub(const char *haystack, const char *old_needle, const char *new_nee
     return result;
 }
 
+#include <stdio.h>
 #include "timer.h"
 #include <time.h>
 
 static char data[] =
     "A 2345678901234567890123456789012345678901234567890 "
-#if 0
     "B 2345678901234567890123456789012345678901234567890 "
     "C 2345678901234567890123456789012345678901234567890 "
     "D 2345678901234567890123456789012345678901234567890 "
@@ -79,10 +77,9 @@ static char data[] =
     "X 2345678901234567890123456789012345678901234567890 "
     "Y 2345678901234567890123456789012345678901234567890 "
     "Z 2345678901234567890123456789012345678901234567890 "
-#endif
     ;
 
-enum { MAX_COUNT = 1 /* 80000 */ };
+enum { MAX_COUNT = 80000 };
 
 typedef char *(Replace)(const char *haystack, const char *needle, const char *thread);
 
@@ -120,6 +117,7 @@ static void test_replace_values(const char *needle, const char *thread, Replace 
         source[rand() % len] = (rand() % 10) + '0';
     printf("Source: [%s]\n", source);
     printf("Needle: [%s]\n", needle);
+    printf("Thread: [%s]\n", thread);
     char *temp = replace(source, needle, thread);
     printf("Target: [%s]\n", temp);
     free(temp);
