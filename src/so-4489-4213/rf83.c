@@ -9,9 +9,8 @@ static int debug = 0;
 
 static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 
-static char *str_gsub_matchnull(const char *haystack, const char *old_needle, const char *new_needle)
+static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
 {
-    assert(old_needle != 0 && *old_needle == '\0');
     size_t h_len = strlen(haystack);
     size_t o_len = 1;
     size_t n_len = strlen(new_needle);
@@ -75,7 +74,7 @@ static char *str_gsub_matchnull(const char *haystack, const char *old_needle, co
 static char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
 {
     if (*old_needle == '\0')
-        return str_gsub_matchnull(haystack, old_needle, new_needle);
+        return str_gsub_matchnull(haystack, new_needle);
     size_t h_len = strlen(haystack);
     size_t o_len = max_size(strlen(old_needle), 1);
     size_t n_len = strlen(new_needle);
