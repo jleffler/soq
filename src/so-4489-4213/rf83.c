@@ -14,6 +14,7 @@ char *str_gsub(const char *haystack, const char *old_needle, const char *new_nee
     size_t n_len = strlen(new_needle);
 
     size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
+    printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
     char *result = malloc(r_len);
     if (result == 0)
         return 0;
@@ -28,13 +29,18 @@ char *str_gsub(const char *haystack, const char *old_needle, const char *new_nee
         memmove(dst, new_needle, n_len);
         dst += n_len;
         src = rep + o_len;
+        //printf("res = [%.*s]\n", (int)(dst - result), result);
+        printf("src = [%s]\n", src);
     }
-    size_t t_len = r_len - (src - haystack) + 1;
+    size_t t_len = h_len - (src - haystack) + 1;
+    printf("src = %zu [%s]\n", strlen(src), src);
     memmove(dst, src, t_len);
+    dst += t_len;
+    size_t x_len = dst - result + 1;
 
-    if (r_len > MAX_RESIDUE && dst + t_len < result + r_len - MAX_RESIDUE)
+    if (dst < result + r_len - MAX_RESIDUE)
     {
-        char *trunc = realloc(result, dst - result + t_len);
+        char *trunc = realloc(result, x_len);
         if (trunc != 0)
             result = trunc;
     }
@@ -47,9 +53,9 @@ char *str_gsub(const char *haystack, const char *old_needle, const char *new_nee
 
 static char data[] =
     "A 2345678901234567890123456789012345678901234567890 "
+#if 0
     "B 2345678901234567890123456789012345678901234567890 "
     "C 2345678901234567890123456789012345678901234567890 "
-#if 0
     "D 2345678901234567890123456789012345678901234567890 "
     "E 2345678901234567890123456789012345678901234567890 "
     "F 2345678901234567890123456789012345678901234567890 "
@@ -102,10 +108,9 @@ static void test_replace(const char *tag, Replace replace)
     clk_stop(&clk);
     char buffer[32];
     printf("%-10s %12s\n", tag, clk_elapsed_us(&clk, buffer, sizeof(buffer)));
+    free(source);
 }
 
-
-#if 0
 static void test_replace_values(const char *needle, const char *thread, Replace replace)
 {
     int len = strlen(data);
@@ -118,8 +123,8 @@ static void test_replace_values(const char *needle, const char *thread, Replace 
     char *temp = replace(source, needle, thread);
     printf("Target: [%s]\n", temp);
     free(temp);
+    free(source);
 }
-#endif
 
 int main(void)
 {
@@ -127,16 +132,14 @@ int main(void)
 
     test_replace("str_gsub", str_gsub);
 
-#if 0
-    test_replace_values("23", "black", str_gsub);
-    test_replace_values("234", "white", str_gsub);
-    test_replace_values("2345", "green", str_gsub);
-    test_replace_values("23456", "orange", str_gsub);
-    test_replace_values("234567", "yellow", str_gsub);
+    test_replace_values("23",      "black",   str_gsub);
+    test_replace_values("234",     "white",   str_gsub);
+    test_replace_values("2345",    "green",   str_gsub);
+    test_replace_values("23456",   "orange",  str_gsub);
+    test_replace_values("234567",  "yellow",  str_gsub);
     test_replace_values("1234567", "magenta", str_gsub);
-    test_replace_values("", "cyan", str_gsub);
-    test_replace_values("12345678", "", str_gsub);
-#endif
+    //test_replace_values("",        "cyan",    str_gsub);
+    test_replace_values("1234",    "",        str_gsub);
 
     return 0;
 }
