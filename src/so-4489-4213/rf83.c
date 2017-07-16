@@ -12,13 +12,12 @@ static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
 {
     size_t h_len = strlen(haystack);
-    size_t o_len = 1;
     size_t n_len = strlen(new_needle);
 
     int null = 1;
-    size_t r_len = max_size(h_len, (h_len / o_len + 1) * (n_len + null)) + 1;
+    size_t r_len = max_size(h_len, (h_len + 1) * (n_len + null)) + 1;
     if (debug)
-        printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
+        printf("h_len = %zu; n_len = %zu; r_len = %zu\n", h_len, n_len, r_len);
     char *result = malloc(r_len);
     if (result == 0)
         return 0;
@@ -37,11 +36,10 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
         dst += n_len;
         if (null)
         {
-            assert(o_len == 1);
             memmove(dst, rep, 1);
             dst++;
         }
-        src = rep + o_len;
+        src = rep + 1;
 #if 0
         if (debug)
             printf("res = [%.*s]\n", (int)(dst - result), result);
