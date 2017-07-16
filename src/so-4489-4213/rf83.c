@@ -74,7 +74,7 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
 #include "timer.h"
 #include <time.h>
 
-static char data[] =
+static char speed[] =
     "A 2345678901234567890123456789012345678901234567890 "
     "B 2345678901234567890123456789012345678901234567890 "
     "C 2345678901234567890123456789012345678901234567890 "
@@ -102,6 +102,9 @@ static char data[] =
     "Y 2345678901234567890123456789012345678901234567890 "
     "Z 2345678901234567890123456789012345678901234567890 "
     ;
+static char correct[] =
+    "A 2345678901234567890123456789012345678901234567890 "
+    ;
 
 #if 1
 enum { MAX_COUNT = 80000 };
@@ -114,14 +117,14 @@ typedef char *(Replace)(const char *haystack, const char *needle, const char *th
 static void test_replace(const char *tag, Replace replace)
 {
     debug = 0;
-    int len = strlen(data);
-    char *source = strdup(data);
+    int len = strlen(speed);
+    char *source = strdup(speed);
     Clock clk;
     clk_init(&clk);
     clk_start(&clk);
     for (int current = 0; current < MAX_COUNT; current++)
     {
-        strcpy(source, data);
+        strcpy(source, speed);
         for (int i = 0; i < 20; i++)
             source[rand() % len] = (rand() % 10) + '0';
         //printf("Source: [%s]\n", source);
@@ -139,10 +142,10 @@ static void test_replace(const char *tag, Replace replace)
 
 static void test_replace_values(const char *needle, const char *thread, Replace replace)
 {
-    int len = strlen(data);
-    char *source = strdup(data);
-    strcpy(source, data);
-    for (int i = 0; i < 20; i++)
+    int len = strlen(correct);
+    char *source = strdup(correct);
+    strcpy(source, correct);
+    for (int i = 0; i < 4; i++)
         source[rand() % len] = (rand() % 10) + '0';
     printf("Source: [%s]\n", source);
     printf("Needle: [%s]\n", needle);
@@ -179,6 +182,11 @@ int main(void)
     char *loop2 = str_gsub(same1, "", "-none-");
     printf("Target: [%s]\n", loop2);
     free(loop2);
+
+    printf("Source: [%s]\n", "");
+    char *loop3 = str_gsub("", "", "-none-");
+    printf("Target: [%s]\n", loop3);
+    free(loop3);
 
     return 0;
 }
