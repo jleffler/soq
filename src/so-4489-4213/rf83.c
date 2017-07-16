@@ -11,11 +11,12 @@ static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 
 static char *str_gsub_matchnull(const char *haystack, const char *old_needle, const char *new_needle)
 {
+    assert(old_needle != 0 && *old_needle == '\0');
     size_t h_len = strlen(haystack);
-    size_t o_len = max_size(strlen(old_needle), 1);
+    size_t o_len = 1;
     size_t n_len = strlen(new_needle);
 
-    int null = *old_needle == '\0';
+    int null = 1;
     size_t r_len = max_size(h_len, (h_len / o_len + 1) * (n_len + null)) + 1;
     if (debug)
         printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
@@ -28,7 +29,7 @@ static char *str_gsub_matchnull(const char *haystack, const char *old_needle, co
     char *rep;
     if (debug)
         printf("src = [%s]\n", src);
-    while (src < end && (rep = strstr(src, old_needle)) != 0)
+    while (src < end && (rep = strstr(src, "")) != 0)
     {
         size_t p_len = rep - src;
         memmove(dst, src, p_len);
@@ -73,12 +74,12 @@ static char *str_gsub_matchnull(const char *haystack, const char *old_needle, co
 
 static char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
 {
+    if (*old_needle == '\0')
+        return str_gsub_matchnull(haystack, old_needle, new_needle);
     size_t h_len = strlen(haystack);
     size_t o_len = max_size(strlen(old_needle), 1);
     size_t n_len = strlen(new_needle);
 
-    if (*old_needle == '\0')
-        return str_gsub_matchnull(haystack, old_needle, new_needle);
     size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
     if (debug)
         printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
@@ -99,10 +100,6 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
         memmove(dst, new_needle, n_len);
         dst += n_len;
         src = rep + o_len;
-#if 0
-        if (debug)
-            printf("res = [%.*s]\n", (int)(dst - result), result);
-#endif
         if (debug)
             printf("src = [%s]\n", src);
     }
