@@ -23,42 +23,17 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
     char *dst = result;
     const char *src = haystack;
     const char *end = haystack + h_len;
-    char *rep;
     if (debug)
         printf("src = [%s]\n", src);
-    while (src < end && (rep = strstr(src, "")) != 0)
+    while (src < end)
     {
-        size_t p_len = rep - src;
-        memmove(dst, src, p_len);
-        dst += p_len;
         memmove(dst, new_needle, n_len);
         dst += n_len;
-        memmove(dst, rep, 1);
-        dst++;
-        src = rep + 1;
-#if 0
-        if (debug)
-            printf("res = [%.*s]\n", (int)(dst - result), result);
-#endif
+        *dst++ = *src++;
         if (debug)
             printf("src = [%s]\n", src);
     }
-    memmove(dst, new_needle, n_len);
-    dst += n_len;
-    size_t t_len = h_len - (src - haystack) + 1;
-    if (debug)
-        printf("src = %zu [%s]\n", strlen(src), src);
-    memmove(dst, src, t_len);
-    dst += t_len;
-    size_t x_len = dst - result + 1;
-
-    if (r_len > MAX_RESIDUE && x_len < r_len - MAX_RESIDUE)
-    {
-        char *trunc = realloc(result, x_len);
-        if (trunc != 0)
-            result = trunc;
-    }
-
+    memmove(dst, new_needle, n_len + 1);
     return result;
 }
 
