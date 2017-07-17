@@ -14,26 +14,19 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
     size_t h_len = strlen(haystack);
     size_t n_len = strlen(new_needle);
 
-    size_t r_len = max_size(h_len, (h_len + 1) * (n_len + 1)) + 1;
-    if (debug)
-        printf("h_len = %zu; n_len = %zu; r_len = %zu\n", h_len, n_len, r_len);
+    size_t r_len = (h_len + 1) * (n_len + 1);
     char *result = malloc(r_len);
     if (result == 0)
         return 0;
     char *dst = result;
     const char *src = haystack;
     const char *end = haystack + h_len;
-    if (debug)
-        printf("src = [%s]\n", src);
-    while (src < end)
+    while (src <= end)
     {
         memmove(dst, new_needle, n_len);
         dst += n_len;
         *dst++ = *src++;
-        if (debug)
-            printf("src = [%s]\n", src);
     }
-    memmove(dst, new_needle, n_len + 1);
     return result;
 }
 
@@ -42,7 +35,7 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
     if (*old_needle == '\0')
         return str_gsub_matchnull(haystack, new_needle);
     size_t h_len = strlen(haystack);
-    size_t o_len = max_size(strlen(old_needle), 1);
+    size_t o_len = strlen(old_needle);
     size_t n_len = strlen(new_needle);
 
     size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
@@ -77,6 +70,8 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
 
     if (r_len > MAX_RESIDUE && x_len < r_len - MAX_RESIDUE)
     {
+        if (debug)
+            printf("r_len = %zu; x_len = %zu; saving = %zu\n", r_len, x_len, r_len - x_len);
         char *trunc = realloc(result, x_len);
         if (trunc != 0)
             result = trunc;
@@ -185,13 +180,13 @@ int main(void)
     test_replace_values("",        "cyan",    str_gsub);
     test_replace_values("1234",    "",        str_gsub);
 
+    debug = 1;
     char same1[] = "AAAAAA";
     printf("Source: [%s]\n", same1);
     char *loop1 = str_gsub(same1, "A", "-quad-");
     printf("Target: [%s]\n", loop1);
     free(loop1);
 
-    debug = 1;
     printf("Source: [%s]\n", same1);
     char *loop2 = str_gsub(same1, "", "-none-");
     printf("Target: [%s]\n", loop2);
@@ -201,6 +196,21 @@ int main(void)
     char *loop3 = str_gsub("", "", "-none-");
     printf("Target: [%s]\n", loop3);
     free(loop3);
+
+    printf("Source: [%s]\n", "");
+    char *loop4 = str_gsub("", "", "");
+    printf("Target: [%s]\n", loop4);
+    free(loop4);
+
+    printf("Source: [%s]\n", correct);
+    char *loop5 = str_gsub(correct, "XYZ", "pqr");
+    printf("Target: [%s]\n", loop5);
+    free(loop5);
+
+    printf("Source: [%s]\n", speed);
+    char *loop6 = str_gsub(speed, "XYZ", "=wallaby=");
+    printf("Target: [%s]\n", loop6);
+    free(loop6);
 
     return 0;
 }
