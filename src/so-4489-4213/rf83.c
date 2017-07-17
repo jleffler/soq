@@ -14,8 +14,7 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
     size_t h_len = strlen(haystack);
     size_t n_len = strlen(new_needle);
 
-    int null = 1;
-    size_t r_len = max_size(h_len, (h_len + 1) * (n_len + null)) + 1;
+    size_t r_len = max_size(h_len, (h_len + 1) * (n_len + 1)) + 1;
     if (debug)
         printf("h_len = %zu; n_len = %zu; r_len = %zu\n", h_len, n_len, r_len);
     char *result = malloc(r_len);
@@ -34,11 +33,8 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
         dst += p_len;
         memmove(dst, new_needle, n_len);
         dst += n_len;
-        if (null)
-        {
-            memmove(dst, rep, 1);
-            dst++;
-        }
+        memmove(dst, rep, 1);
+        dst++;
         src = rep + 1;
 #if 0
         if (debug)
@@ -47,11 +43,8 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
         if (debug)
             printf("src = [%s]\n", src);
     }
-    if (null)
-    {
-        memmove(dst, new_needle, n_len);
-        dst += n_len;
-    }
+    memmove(dst, new_needle, n_len);
+    dst += n_len;
     size_t t_len = h_len - (src - haystack) + 1;
     if (debug)
         printf("src = %zu [%s]\n", strlen(src), src);
