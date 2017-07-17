@@ -1,3 +1,4 @@
+*.log
 __.SYMDEF SORTED
 client-20170706
 config.h
