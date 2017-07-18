@@ -323,6 +323,7 @@ static void test_replace(const char *tag, char *(*replace)(char *data, char *fin
     clk_stop(&clk);
     char buffer[32];
     printf("%-10s %12s\n", tag, clk_elapsed_us(&clk, buffer, sizeof(buffer)));
+    free(source);
 }
 
 int main(void)
