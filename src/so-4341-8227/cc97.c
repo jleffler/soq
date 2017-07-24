@@ -69,8 +69,6 @@ int main(int argc, char **argv)
             printf("Input:  %s (1s = %d, 0s = %d)\n", buffer, tot_1s, tot_0s);
         while (lm1 < buflen - tot_1s)
         {
-            if (verbose)
-                printf("Before: %s (count = %d; lm1 = %d)\n", buffer, count, lm1);
             while (buffer[lm1] == '0')
                 lm1++;
             int lm0 = lm1;
@@ -79,7 +77,7 @@ int main(int argc, char **argv)
             if (lm0 >= buflen)
                 break;
             assert(lm0 < buflen);
-            count++;    // select time
+            count++;        // select time
             buffer[lm0 - 1] = '0';
             while (buffer[lm0] == '0')
             {
