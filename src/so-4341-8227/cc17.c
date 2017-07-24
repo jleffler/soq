@@ -3,15 +3,33 @@
 /* Linear solution */
 
 /*
-** You need to see the slow quadratic solution in cc97.c at work
-** to stand much of a chance of understanding this algorithm.
-** However, this is fast because it is linear.  It takes about
-** 15 ms on a 10k data sample (and about 10 ms on tiny samples),
-** compared with 13 s on a 10k data sample.
+** You need to see the slow quadratic solution in cc97.c at work to
+** stand much of a chance of understanding this algorithm.  However,
+** this is fast because it is linear.  It takes about 15 ms on a 10k
+** data sample (and about 10 ms on tiny samples), compared with 13 s
+** for the quadratic algorithm on the same data.
 **
 ** The inspiration here is illustrated by the input:
 **
 **    0011100111000100
+**
+**    Input:  0011100111000100 (1s = 7, 0s = 9)
+**    After:  0011001111000100 (count = 3; lm1 = 2)
+**    After:  0010011111000100 (count = 6; lm1 = 2)
+**    After:  0000111111000100 (count = 9; lm1 = 2)
+**    After:  0000111110001100 (count = 13; lm1 = 4)
+**    After:  0000111100011100 (count = 17; lm1 = 4)
+**    After:  0000111000111100 (count = 21; lm1 = 4)
+**    After:  0000110001111100 (count = 25; lm1 = 4)
+**    After:  0000100011111100 (count = 29; lm1 = 4)
+**    After:  0000000111111100 (count = 33; lm1 = 4)
+**    After:  0000000111111001 (count = 36; lm1 = 7)
+**    After:  0000000111110011 (count = 39; lm1 = 7)
+**    After:  0000000111100111 (count = 42; lm1 = 7)
+**    After:  0000000111001111 (count = 45; lm1 = 7)
+**    After:  0000000110011111 (count = 48; lm1 = 7)
+**    After:  0000000100111111 (count = 51; lm1 = 7)
+**    After:  0000000001111111 (count = 54; lm1 = 7)
 **
 ** The leading zeroes are not material.
 **
