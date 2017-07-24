@@ -90,8 +90,8 @@ int main(void)
             }
             if (n0 == 0)
                 break;
-            int b0 = b1;
-            int c0 = count;
+            //int b0 = b1;
+            //int c0 = count;
             b1 += n1;
             count += b1 * (n0 + 1);
             //printf("i = %d; old(b1 = %d, count = %d); n1 = %d; n0 = %d; count = %d\n",
