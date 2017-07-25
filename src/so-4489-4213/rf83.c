@@ -1,3 +1,5 @@
+/* SO 4489-4213 */
+/* Code a globally search for literal string and replace function */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +11,14 @@ static int debug = 0;
 
 static inline size_t max_size(size_t x, size_t y) { return (x > y) ? x : y; }
 
+/*
+** str_gsub_matchnull()
+** Matching an empty string occurs before the first character and after
+** every character in the string.  It is sufficiently different from the
+** main process that it seems simpler to code it separately.  When coded
+** 'all in one', it complicated the main str_gsub() function.
+** See code at commit a1a04ccf.
+*/
 static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
 {
     size_t h_len = strlen(haystack);
@@ -30,6 +40,12 @@ static char *str_gsub_matchnull(const char *haystack, const char *new_needle)
     return result;
 }
 
+/*
+** str_gsub() - globally search and replace
+** Search for a literal string (old_needle) in haystack, and replace it with new_needle.
+** Always allocate space for new haystack, returning null only if that fails.
+** This would be the public function if this were library code.
+*/
 static char *str_gsub(const char *haystack, const char *old_needle, const char *new_needle)
 {
     if (*old_needle == '\0')
@@ -38,6 +54,15 @@ static char *str_gsub(const char *haystack, const char *old_needle, const char *
     size_t o_len = strlen(old_needle);
     size_t n_len = strlen(new_needle);
 
+    /*
+    ** For each possible occurrence of the old needle, allow enough
+    ** space for the new needle.  Recognize that the string might
+    ** shrink, and that there probably aren't that many matches.  If you
+    ** have a small old needle and a big haystack and a big new needle,
+    ** you can allocate a lot of unnecessary space.  If the over
+    ** allocation is more than MAX_RESIDUE, release superfluous space
+    ** before return.
+    */
     size_t r_len = max_size(h_len, (h_len / o_len + 1) * n_len) + 1;
     if (debug)
         printf("h_len = %zu; o_len = %zu; n_len = %zu; r_len = %zu\n", h_len, o_len, n_len, r_len);
