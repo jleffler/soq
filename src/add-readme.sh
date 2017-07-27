@@ -23,7 +23,7 @@ do
             perl -lne 'print $1 if m/<title>(?:[^-]*? - )?(.+?) - [^-]*<\/title>.*/')
     echo "### Stack Overflow Question $qd"
     echo
-    echo "[SO $qd](https://stackoverflow.com/q/$qn) &mdash;"
+    echo "[SO $qd]($site/q/$qn) &mdash;"
     echo "$title"
     ) > $dir/README.md
 done
