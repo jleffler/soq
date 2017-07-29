@@ -6,7 +6,7 @@ Multiplication of polynomial in C using list
 The code here is a complete rewrite of the code in the question, as
 noted in the spiel submitted with the program.
 
-Polynomial division was as an afterthought.
+Polynomial division was added as an afterthought.
 
 Wikipedia helps: [Polynomial long
 division](https://en.wikipedia.org/wiki/Polynomial_long_division).
