@@ -27,4 +27,12 @@ Brian W Kernighan, Rob Pike
 [The Practice of Programming](http://www.cs.princeton.edu/~bwk/tpop.webpage/)
 [The Practice of Programming](http://www.amazon.com/Practice-Programming-Addison-Wesley-Professional-Computing/dp/020161586X)
 
+CodeSourcery LLC
+[Advanced Linux Programming](http://advancedlinuxprogramming.com/)
+[Advanced Linux Programming](https://www.amazon.com/Advanced-Linux-Programming-CodeSourcery-LLC/dp/0735710430)
+by Mark Mitchell, Jeffrey Oldham, and Alex Samuel, of CodeSourcery LLC
+published by New Riders Publishing
+ISBN 0-7357-1043-0
+First Edition, June 2001
+
 EOF
