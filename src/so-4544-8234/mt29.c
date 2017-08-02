@@ -24,20 +24,55 @@ float min(int ndays, float temp[]);
 float avg(int ndays, float temp[]);
 int   cnt(int ndays, float temp[]);
 
+static inline int is_valid_temp(float temp)
+{
+    return(temp > MIN_VALID_TEMP && temp < MAX_VALID_TEMP);
+}
+
+static inline int is_leap_year(int year)
+{
+    if (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0))
+        return 0;
+    return 1;
+}
+
+static int days_in_month(int year, int month)
+{
+    static const int days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    assert(year > 0 && year <= 9999);
+    assert(month > 0 && month <= 12);
+    if (month != 2)
+        return(days[month - 1]);
+    else
+        return(days[month - 1] + is_leap_year(year));
+}
+
 static int scan_line(const char *buff, float *temp, int *month, int *year)
 {
-    int nf = sscanf(buff, "%d%d%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f",
-                    year, month,
-                    &temp[ 0], &temp[ 1], &temp[ 2], &temp[ 3],
-                    &temp[ 4], &temp[ 5], &temp[ 6], &temp[ 7],
-                    &temp[ 8], &temp[ 9], &temp[10], &temp[11],
-                    &temp[12], &temp[13], &temp[14], &temp[15],
-                    &temp[16], &temp[17], &temp[18], &temp[19],
-                    &temp[20], &temp[21], &temp[22], &temp[23],
-                    &temp[24], &temp[25], &temp[26], &temp[27],
-                    &temp[28], &temp[29], &temp[30]);
-    assert(nf >= 28 + 2 && nf <= 31 + 2);   // 28-31 days, plus year plus month
-    return nf - 2;
+    int offset = 0;
+    int nf = sscanf(buff, "%d%d%n", year, month, &offset);
+    if (nf != 2)
+    {
+        printf("nf = %d; year = %d, month = %d\n", nf, *year, *month);
+        return -1;
+    }
+    buff += offset;
+    int days = days_in_month(*year, *month);
+    for (int i = 0; i < days; i++)
+    {
+        if (sscanf(buff, "%f%n", &temp[i], &offset) != 1)
+        {
+            printf("failed: %s\n", buff + offset);
+            return -1;
+        }
+        if (!is_valid_temp(temp[i]))
+        {
+            printf("invalid: %6.2f\n", temp[i]);
+            return -1;
+        }
+        buff += offset;
+    }
+    return days;
 }
 
 static void dump_data(const char *tag, int n_months, float temp[][31], float d_min[], float d_max[], float d_avg[], int *d_count, int *d_year, int *d_month)
@@ -70,6 +105,8 @@ int main(void)
     {
         int year, month;
         int ndays = scan_line(buff, temp[j], &month, &year);
+        if (ndays < 0)
+            break;
         float maxt = max(ndays, temp[j]);
         float mint = min(ndays, temp[j]);
         float avgt = avg(ndays, temp[j]);
