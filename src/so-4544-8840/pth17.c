@@ -19,13 +19,13 @@ void *B();
 void *C();
 void *totalCalc();
 
-int main(){ 
+int main(){
 
     pthread_t tid1,
               tid2,
               tid3;
 
-    //pthread_setconcurrency(3); 
+    //pthread_setconcurrency(3);
 
     pthread_create(&tid1, NULL, (void *(*)(void *))A, NULL );
     pthread_create(&tid2, NULL, (void *(*)(void *))B, NULL );
@@ -84,7 +84,7 @@ void *B(){
             pthread_exit(0);
             printf("Thread B exited\n");
             return;
-        }           
+        }
         pthread_mutex_unlock(&mutex);
     }
 
@@ -109,8 +109,8 @@ void *C(){
             pthread_exit(0);
             printf("Thread C exited\n");
             return;
-        }           
-        pthread_mutex_unlock(&mutex);       
+        }
+        pthread_mutex_unlock(&mutex);
     }
 
     pthread_exit(0);

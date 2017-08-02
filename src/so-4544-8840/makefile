@@ -12,4 +12,7 @@ PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5}
 
 all: ${PROGRAMS}
 
+pth17:
+	${CC} -o $@ $*.c
+
 include ../../etc/soq-tail.mk
