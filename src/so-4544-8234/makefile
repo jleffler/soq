@@ -6,8 +6,9 @@ PROG1 = mt11
 PROG2 = gen.sinusoid
 PROG3 = mon.grouping
 PROG4 = mt89
+PROG5 = mt29
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5}
 
 all: ${PROGRAMS}
 

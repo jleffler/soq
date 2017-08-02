@@ -42,3 +42,9 @@ Output format should be by month.
 
 Monthly grouping presents its own little set of issues.
 
+### Programs
+
+* `mt11.c` — Modified code intended for generated data
+* `mt89.c` — Modified code handling 999.9 'no value' data; basis of main answer.
+* `mt29.c` — Revised to use `sscanf()` in a loop instead of the monster statement.
+
