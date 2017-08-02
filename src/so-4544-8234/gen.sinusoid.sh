@@ -2,11 +2,18 @@
 #
 # Generate a sinusoidal wave over Y days, min N, max X, low at L
 
-awk '
+
+case $# in
+(1) year="$1"; shift;;
+(*) year=$(date '+%Y');;
+esac
+
+awk -v year="$year" '
+function is_leap_year(y) { if (y % 4 != 0 || (y % 100 == 0 && y % 400 != 0)) return 0; return 1; }
 BEGIN {
     N = -4
     X = 28
-    Y = 365
+    Y = 365 + is_leap_year(year)
     L = 35
     r = (X - N) / 2
     m = (X + N) / 2

@@ -7,8 +7,9 @@ PROG2 = gen.sinusoid
 PROG3 = mon.grouping
 PROG4 = mt89
 PROG5 = mt29
+PROG6 = gen.data
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6}
 
 all: ${PROGRAMS}
 
