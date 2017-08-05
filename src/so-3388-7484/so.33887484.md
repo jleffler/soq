@@ -1,7 +1,16 @@
-Here's a very simple rational calculator.  It evaluates terms strictly left to right; no parentheses or anything.  It requires fractions to be enclosed in square brackets — you can consider that a quirk of the implementation.  It makes it easy to identify fractions from decimals (it works OK with decimals too).  I"m sure it could be upgraded not to need the brackets, or not to allow the brackets, but it definitely makes the parser harder in some respects.
+# SO 3388-7484
+
+Here's a very simple rational calculator.
+It evaluates terms strictly left to right; no parentheses or anything.
+It requires fractions to be enclosed in square brackets — you can
+consider that a quirk of the implementation.
+It makes it easy to identify fractions from decimals (it works OK with
+decimals too).
+I"m sure it could be upgraded not to need the brackets, or not to allow
+the brackets, but it definitely makes the parser harder in some
+respects.
 
 Sample run:
-
 
     $ ratcalc
     [1/2] * 2.735 + [-1 9/16] - [2/3] / [-3 3/79] % [5/197]
@@ -27,7 +36,18 @@ Sample run:
 
     $
 
-The main support code is in `so.33887487.c` and header `so.33887484.h`; it was written to conform to the requirements of this exercise as best I understand them.  I wrote (finished writing) a package `rational.c` and `rational.h` that has what I regard as a better interface.  It was code I'd started in September, and had not written the input scanning code for.  Note that the input scanning is far harder than the output formatting — by a huge margin.  This is often the case; with input, you are dealing with all the vagaries of what a user can throw at you, but with output, you've just got controlled data to work with.
+The main support code is in `so.33887487.c` and header `so.33887484.h`;
+it was written to conform to the requirements of this exercise as best I
+understand them.
+I wrote (finished writing) a package `rational.c` and `rational.h` that
+has what I regard as a better interface.
+It was code I'd started a while ago, and had not written the input
+scanning code for.
+Note that the input scanning is far harder than the output formatting,
+and by a huge margin.
+This is often the case; with input, you are dealing with all the
+vagaries of what a user can throw at you, but with output, you've just
+got controlled data to work with.
 
 ### `so.33887484.h`
 
@@ -66,7 +86,13 @@ The main support code is in `so.33887487.c` and header `so.33887484.h`; it was w
 
 ### `ratcalc.c`
 
-Note that for reasons of laziness, I didn't create myself a makefile to compile and link two modules separately (I used an existing makefile for building single-file programs), so the calculator includes the source of the support library directly.  I would _not_ do this is ordinary production code.  (It wasn't even a great help; when I edited the header or the library code, I had to force rebuild the calculator.)
+Note that for reasons of laziness, I didn't create myself a makefile to
+compile and link two modules separately (I used an existing makefile for
+building single-file programs), so the calculator includes the source of
+the support library directly.
+I would _not_ do this is ordinary production code.
+(It wasn't even a great help; when I edited the header or the library
+code, I had to force rebuild the calculator.)
 
     /* Crude calculator (left-to-right evaluation only) for SO 33887484 */
     #include "so.33887484.h"
@@ -620,4 +646,9 @@ Approximately 460 lines of code.
         return rv;
     }
 
-The original code also includes over 500 lines of test code encapsulating over 170 separate tests for the various functions (and some extras).  That in turn uses a generic 'phased test harness' I wrote which has about 3,000 lines of code in total — that's in a library, and the 3,000 lines includes test code for the phased test harness, etc.
+The original code also includes over 500 lines of test code
+encapsulating over 170 separate tests for the various functions (and
+some extras).
+That in turn uses a generic 'phased test harness' I wrote which has
+about 3,000 lines of code in total — that's in a library, and the
+3,000 lines includes test code for the phased test harness, etc.
