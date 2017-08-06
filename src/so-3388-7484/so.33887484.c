@@ -101,61 +101,61 @@ static bool chk_strtoi(const char *data, const char **eon, int base, int *result
     return rc;
 }
 
-/* -- RationalInt Functions -- */
+/* -- Fraction Functions -- */
 
-static void ri_chk(RationalInt val)
+static void ri_chk(Fraction val)
 {
-    assert(val.denominator != 0 && val.denominator != INT_MIN);
-    assert(val.numerator >= 0);
-    assert(val.numerator == 0 || gcd(iabs(val.numerator), iabs(val.denominator)) == 1);
+    assert(val.denom != 0 && val.denom != INT_MIN);
+    assert(val.numer >= 0);
+    assert(val.numer == 0 || gcd(iabs(val.numer), iabs(val.denom)) == 1);
 }
 
-/* Unimportant - because all functions already normalize RationalInt values, so GCD = 1 */
-int ri_gcd(const RationalInt *val)
+/* Unimportant - because all functions already normalize Fraction values, so GCD = 1 */
+int ri_gcd(const Fraction *val)
 {
-    assert(val->denominator != 0 && val->denominator != INT_MIN);
-    return gcd(iabs(val->numerator), iabs(val->denominator));
+    assert(val->denom != 0 && val->denom != INT_MIN);
+    return gcd(iabs(val->numer), iabs(val->denom));
 }
 
-static RationalInt ri_new(int numerator, int denominator)
+static Fraction ri_new(int numer, int denom)
 {
-    assert(denominator != 0);
-    assert(denominator != INT_MIN && denominator != INT_MIN);
-    RationalInt ri;
+    assert(denom != 0);
+    assert(denom != INT_MIN && denom != INT_MIN);
+    Fraction ri;
     /* Handle invalid inputs as 0 if assertions are not enabled */
-    if (numerator   == 0 || numerator   == INT_MIN ||
-        denominator == 0 || denominator == INT_MIN)
+    if (numer   == 0 || numer   == INT_MIN ||
+        denom == 0 || denom == INT_MIN)
     {
-        ri.numerator = 0;
-        ri.denominator = 1;
+        ri.numer = 0;
+        ri.denom = 1;
     }
     else
     {
-        int sign = signum(numerator) * signum(denominator);
+        int sign = signum(numer) * signum(denom);
         assert(sign == +1 || sign == -1);
-        int dv = gcd(iabs(numerator), iabs(denominator));
+        int dv = gcd(iabs(numer), iabs(denom));
         assert(dv != 0);
-        ri.numerator = iabs(numerator) / dv;
-        ri.denominator = sign * iabs(denominator) / dv;
+        ri.numer = iabs(numer) / dv;
+        ri.denom = sign * iabs(denom) / dv;
     }
     return ri;
 }
 
-/* Unimportant - because all functions already normalize RationalInt values */
-void ri_normalize(RationalInt *val)
+/* Unimportant - because all functions already normalize Fraction values */
+void ri_normalize(Fraction *val)
 {
-    *val = ri_new(val->numerator, val->denominator);
+    *val = ri_new(val->numer, val->denom);
 }
 
-void ri_add(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
+void ri_add(const Fraction *lhs, const Fraction *rhs, Fraction *res)
 {
-    long long rn = (long long)lhs->numerator * rhs->denominator +
-                   (long long)rhs->numerator * lhs->denominator;
+    long long rn = (long long)lhs->numer * rhs->denom +
+                   (long long)rhs->numer * lhs->denom;
     if (rn == 0)
         *res = ri_new(0, 1);
     else
     {
-        long long rd = (long long)lhs->denominator * rhs->denominator;
+        long long rd = (long long)lhs->denom * rhs->denom;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -165,15 +165,15 @@ void ri_add(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
     }
 }
 
-void ri_sub(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
+void ri_sub(const Fraction *lhs, const Fraction *rhs, Fraction *res)
 {
-    long long rn = (long long)lhs->numerator * rhs->denominator -
-                   (long long)rhs->numerator * lhs->denominator;
+    long long rn = (long long)lhs->numer * rhs->denom -
+                   (long long)rhs->numer * lhs->denom;
     if (rn == 0)
         *res = ri_new(0, 1);
     else
     {
-        long long rd = (long long)lhs->denominator * rhs->denominator;
+        long long rd = (long long)lhs->denom * rhs->denom;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -183,16 +183,16 @@ void ri_sub(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
     }
 }
 
-void ri_mul(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
+void ri_mul(const Fraction *lhs, const Fraction *rhs, Fraction *res)
 {
-    long long rn = (long long)lhs->numerator * rhs->numerator;
+    long long rn = (long long)lhs->numer * rhs->numer;
     if (rn == 0)
     {
         *res = ri_new(0, 1);
     }
     else
     {
-        long long rd = (long long)lhs->denominator * rhs->denominator;
+        long long rd = (long long)lhs->denom * rhs->denom;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -202,15 +202,15 @@ void ri_mul(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
     }
 }
 
-void ri_div(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
+void ri_div(const Fraction *lhs, const Fraction *rhs, Fraction *res)
 {
-    assert(rhs->numerator != 0);
-    if (lhs->numerator == 0)     // Zero divided by anything is zero
+    assert(rhs->numer != 0);
+    if (lhs->numer == 0)     // Zero divided by anything is zero
         *res = ri_new(0, 1);
     else
     {
-        long long rn = (long long)lhs->numerator * rhs->denominator;
-        long long rd = (long long)lhs->denominator * rhs->numerator;
+        long long rn = (long long)lhs->numer * rhs->denom;
+        long long rd = (long long)lhs->denom * rhs->numer;
         long long dv = gcd_ll(rn, rd);
         long long nr = rn / dv;
         long long dr = rd / dv;
@@ -220,73 +220,73 @@ void ri_div(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
     }
 }
 
-static void ri_integer(const RationalInt *val, RationalInt *res)
+static void ri_integer(const Fraction *val, Fraction *res)
 {
-    *res = ri_new(val->numerator / val->denominator, 1);
+    *res = ri_new(val->numer / val->denom, 1);
 }
 
-static void ri_fraction(const RationalInt *val, RationalInt *res)
+static void ri_fraction(const Fraction *val, Fraction *res)
 {
-    *res = ri_new(val->numerator % val->denominator, val->denominator);
+    *res = ri_new(val->numer % val->denom, val->denom);
 }
 
-void ri_mod(const RationalInt *lhs, const RationalInt *rhs, RationalInt *res)
+void ri_mod(const Fraction *lhs, const Fraction *rhs, Fraction *res)
 {
-    assert(rhs->numerator != 0);
-    RationalInt rd;
+    assert(rhs->numer != 0);
+    Fraction rd;
     ri_div(lhs, rhs, &rd);
-    RationalInt ri;
+    Fraction ri;
     ri_integer(&rd, &ri);
-    RationalInt rm;
+    Fraction rm;
     ri_mul(&ri, rhs, &rm);
     ri_sub(lhs, &rm, res);
 }
 
 /* -- Format functions -- */
 
-char *ri_fmt(RationalInt val, char *buffer, size_t buflen)
+char *ri_fmt(Fraction val, char *buffer, size_t buflen)
 {
     assert(buflen > 0 && buffer != 0);
     ri_chk(val);
     if (buflen > 0 && buffer != 0)
     {
-        char sign = (val.denominator < 0) ? '-' : '+';
+        char sign = (val.denom < 0) ? '-' : '+';
         int len;
-        if (iabs(val.denominator) == 1)
-            len = snprintf(buffer, buflen, "[%c%d]", sign, val.numerator);
+        if (iabs(val.denom) == 1)
+            len = snprintf(buffer, buflen, "[%c%d]", sign, val.numer);
         else
             len = snprintf(buffer, buflen, "[%c%d/%d]",
-                           sign, iabs(val.numerator), iabs(val.denominator));
+                           sign, iabs(val.numer), iabs(val.denom));
         if (len <= 0 || (size_t)len >= buflen)
             *buffer = '\0';
     }
     return buffer;
 }
 
-char *ri_fmtproper(RationalInt val, char *buffer, size_t buflen)
+char *ri_fmtproper(Fraction val, char *buffer, size_t buflen)
 {
     assert(buflen > 0 && buffer != 0);
     ri_chk(val);
-    RationalInt in;
+    Fraction in;
     ri_integer(&val, &in);
-    RationalInt fr;
+    Fraction fr;
     ri_fraction(&val, &fr);
-    char sign = (val.denominator < 0) ? '-' : '+';
+    char sign = (val.denom < 0) ? '-' : '+';
     int len;
-    assert(in.denominator == +1 || in.denominator == -1);
-    if (in.numerator != 0 && fr.numerator != 0)
+    assert(in.denom == +1 || in.denom == -1);
+    if (in.numer != 0 && fr.numer != 0)
     {
         len = snprintf(buffer, buflen, "[%c%d %d/%d]", sign,
-                       iabs(in.numerator), iabs(fr.numerator), iabs(fr.denominator));
+                       iabs(in.numer), iabs(fr.numer), iabs(fr.denom));
     }
-    else if (in.numerator != 0)
+    else if (in.numer != 0)
     {
-        len = snprintf(buffer, buflen, "[%c%d]", sign, iabs(in.numerator));
+        len = snprintf(buffer, buflen, "[%c%d]", sign, iabs(in.numer));
     }
-    else if (fr.numerator != 0)
+    else if (fr.numer != 0)
     {
         len = snprintf(buffer, buflen, "[%c%d/%d]",
-                       sign, iabs(val.numerator), iabs(val.denominator));
+                       sign, iabs(val.numer), iabs(val.denom));
     }
     else
     {
@@ -323,7 +323,7 @@ static inline int opt_sign(const char **str)
 }
 
 /* Scan fraction number: [I] or [N/D] or [I N/D] */
-static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
+static int ri_scnfrc(const char *str, const char **eor, Fraction *res)
 {
     assert(*str == '[');
     const char *eos = strchr(str, ']');
@@ -385,7 +385,7 @@ static int ri_scnfrc(const char *str, const char **eor, RationalInt *res)
 }
 
 /* Scan decimal number (no square brackets) */
-static int ri_scndec(const char *str, const char **eor, RationalInt *res)
+static int ri_scndec(const char *str, const char **eor, Fraction *res)
 {
     const char *ptr = str;
     int sign = opt_sign(&ptr);
@@ -444,7 +444,7 @@ static int ri_scndec(const char *str, const char **eor, RationalInt *res)
     return seteor_return(eor, ptr, 0, ENOERROR);
 }
 
-int ri_scn(const char *str, const char **eor, RationalInt *res)
+int ri_scn(const char *str, const char **eor, Fraction *res)
 {
     const char *ptr = str;
     while (isspace((unsigned char)*ptr))

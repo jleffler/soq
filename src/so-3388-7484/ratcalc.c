@@ -13,8 +13,8 @@ int main(void)
     char line[4096];
     while (fgets(line, sizeof(line), stdin) != 0)
     {
-        RationalInt lhs;
-        RationalInt rhs;
+        Fraction lhs;
+        Fraction rhs;
         const char *eon;
         const char *str = line;
 
@@ -55,7 +55,7 @@ int main(void)
             }
             printf("rhs = %s\n", ri_fmt(rhs, buffer, sizeof(buffer)));
 
-            RationalInt res;
+            Fraction res;
             switch (op)
             {
                 case '+':

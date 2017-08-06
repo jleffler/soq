@@ -55,10 +55,6 @@ This code contains a variant of the rational arithmetic functions using
 the interface demanded by the question — three-argument functions
 returning `void` rather than two-argument functions returning the
 result.
-It currently uses the type name `RationalInt` rather than `Fraction`,
-and the member names are `numerator` and `denominator` rather than
-`numer` and `denom` as in the question.  This might get fixed sometime,
-and would be fixed before posting an answer.
 
 The input scanning code in `ri_scn()` expects fractions to be enclosed in square
 brackets, such as `[165/7]` or `[23 4/7]` or `[23]`.
