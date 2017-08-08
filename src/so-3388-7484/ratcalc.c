@@ -11,10 +11,14 @@
 int main(void)
 {
     char line[4096];
+    printf("Fraction calculator: enter calculations such as:\n"
+           "[13/4] + [19/7] * [29/13] / [14/23]\n"
+           "which should yield the result [+111389/5096]\n");
     while (fgets(line, sizeof(line), stdin) != 0)
     {
-        RationalInt lhs;
-        RationalInt rhs;
+        line[strcspn(line, "\n")] = '\0';
+        Fraction lhs;
+        Fraction rhs;
         const char *eon;
         const char *str = line;
 
@@ -29,15 +33,17 @@ int main(void)
                 printf("%*.*s invalid (%d: %s)\n",
                         len, len, str, errnum, strerror(errnum));
             }
+            continue;
         }
 
         eon = skip_space(eon);
-        char buffer[32];
 
         while (*eon != '\0')
         {
+            char buffer[32];
             printf("lhs = %s\n", ri_fmt(lhs, buffer, sizeof(buffer)));
             int op = *eon;
+            printf("op  = '%c'\n", op);
             eon = skip_space(eon + 1);
 
             str = eon;
@@ -52,10 +58,11 @@ int main(void)
                     printf("%*.*s invalid (%d: %s)\n",
                             len, len, str, errnum, strerror(errnum));
                 }
+                continue;
             }
             printf("rhs = %s\n", ri_fmt(rhs, buffer, sizeof(buffer)));
 
-            RationalInt res;
+            Fraction res;
             switch (op)
             {
                 case '+':
@@ -79,7 +86,7 @@ int main(void)
             }
             printf("res = %s (op = '%c')\n\n", ri_fmt(res, buffer, sizeof(buffer)), op);
             lhs = res;
-            eon = skip_space(eon + 1);
+            eon = skip_space(eon);
         }
 next_line:
         putchar('\n');

@@ -18,4 +18,6 @@ PROGRAMS = ${PROG1} ${PROG2} #${PROG3}
 
 all: ${PROGRAMS}
 
+${PROG1}: so.33887484.c so.33887484.h
+
 include ../../etc/soq-tail.mk
