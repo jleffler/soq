@@ -571,7 +571,7 @@ Approximately 460 lines of code.
     }
 
     /* Scan decimal number (no square brackets) */
-    static int ri_scndec(const char *str, const char **eor, ationalInt *res)
+    static int ri_scndec(const char *str, const char **eor, Fraction *res)
     {
         const char *ptr = str;
         int sign = opt_sign(&ptr);
@@ -630,7 +630,7 @@ Approximately 460 lines of code.
         return seteor_return(eor, ptr, 0, ENOERROR);
     }
 
-    int ri_scn(const char *str, const char **eor, ationalInt *res)
+    int ri_scn(const char *str, const char **eor, Fraction *res)
     {
         const char *ptr = str;
         while (isspace((unsigned char)*ptr))
