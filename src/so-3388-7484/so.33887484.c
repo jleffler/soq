@@ -1,4 +1,4 @@
-/* SO 33887484 */
+/* SO 3388-7484 */
 /*
 ** Storage rules:
 ** 1. Denominator is never zero.
@@ -123,7 +123,7 @@ static Fraction ri_new(int numer, int denom)
     assert(denom != INT_MIN && denom != INT_MIN);
     Fraction ri;
     /* Handle invalid inputs as 0 if assertions are not enabled */
-    if (numer   == 0 || numer   == INT_MIN ||
+    if (numer == 0 || numer == INT_MIN ||
         denom == 0 || denom == INT_MIN)
     {
         ri.numer = 0;

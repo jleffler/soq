@@ -22,8 +22,8 @@ extern void ri_mod(const Fraction *lhs, const Fraction *rhs, Fraction *res);
 ** If the user manually, explicitly initializes an improper
 ** Fraction, then these may do something more interesting.
 */
-extern int  ri_gcd(const Fraction *val);     /* Exercise in futility */
-extern void ri_normalize(Fraction *val);     /* Exercise in futility */
+extern int  ri_gcd(const Fraction *val);    /* Exercise in futility */
+extern void ri_normalize(Fraction *val);    /* Exercise in futility */
 
 extern char *ri_fmt(Fraction val, char *buffer, size_t buflen);
 extern char *ri_fmtproper(Fraction val, char *buffer, size_t buflen);

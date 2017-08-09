@@ -14,10 +14,18 @@ PROG1 = ratcalc
 PROG2 = rational
 #PROG3 = so.33887484
 
+SOURCE = so.3388-7484.txt
+ANSWER = so.3388-7484.md
+INSERT = insert-code.pl
+PERL   = perl
+
 PROGRAMS = ${PROG1} ${PROG2} #${PROG3}
 
-all: ${PROGRAMS}
+all: ${PROGRAMS} ${ANSWER}
 
 ${PROG1}: so.33887484.c so.33887484.h
+
+${ANSWER}: ${SOURCE} ${INSERT} so.33887484.c so.33887484.h ratcalc.c
+	${PERL} ${INSERT} ${SOURCE} > ${ANSWER}
 
 include ../../etc/soq-tail.mk
