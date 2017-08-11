@@ -43,7 +43,7 @@ static void print_binary16(unsigned short x)
 }
 
 static
-void format_binary16(unsigned char x, char buffer[static 17])
+void format_binary16(unsigned short x, char buffer[static 17])
 {
     for (int b = 32768; b != 0; b /= 2)
     {
@@ -82,6 +82,16 @@ int main(void)
     char b2[] = "100";
     unsigned u1 = scan_binary16(b1);
     unsigned u2 = scan_binary16(b2);
+
+    /* Force use of print_binary16() and format_binary16() */
+    /* Demonstrates fixed bug in prior version of code */
+    printf("~u2 = 0b");
+    print_binary16(~u1);
+    putchar('\n');
+    char buffer[17];
+    format_binary16(~u2, buffer);
+    printf("~u2 = 0b%s\n", buffer);
+
     for (int i = 0; i < 16; i++)
     {
         if ((u1 & (1 << i)) == u2)
