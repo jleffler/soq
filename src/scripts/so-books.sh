@@ -35,4 +35,13 @@ published by New Riders Publishing
 ISBN 0-7357-1043-0
 First Edition, June 2001
 
+Jon Bentley
+[Programming Pearls, 2nd Edn](https://www.amazon.com/dp/0201657880/) 1999.
+
+Jon Bentley
+[Programming Pearls, 1st Edn](https://www.amazon.com/dp/B00RWQILIS/) 1986.
+
+Jon Bentley
+[More Programming Pearls](https://www.amazon.com/dp/0201118890/) 1988.
+
 EOF
