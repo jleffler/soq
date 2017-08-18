@@ -1,3 +1,4 @@
+/* SO 4574-5483 */
 #include "stderr.h"
 #include <fcntl.h>
 #include <math.h>
@@ -9,6 +10,24 @@
 #include <unistd.h>
 
 static const char filename[] = "pt-next.dat";
+static double last = 0.0;
+
+static void new_tree(int num);
+static void write_file(int num);
+
+int main(int argc, char *argv[])
+{
+    err_setarg0(argv[0]);
+    err_setlogopts(ERR_PID|ERR_MILLI);
+
+    int n = 4;
+    if (argc == 2)
+        n = atoi(argv[1]);
+    write_file(0);
+    last = pow(2, (n - 1));
+    new_tree(1);
+    return 0;
+}
 
 static void write_file(int num)
 {
@@ -19,24 +38,6 @@ static void write_file(int num)
         err_syserr("failed to write %d to file '%s'\n", num, filename);
     close(fd);
     err_remark("wrote %2d to '%s'\n", num, filename);
-}
-
-double last;
-
-void new_tree(int);
-
-int main(int argc, char *argv[])
-{
-    err_setarg0(argv[0]);
-    err_setlogopts(ERR_PID|ERR_MILLI);
-    int n = 4;
-
-    if (argc == 2)
-        n = atoi(argv[1]);
-    write_file(0);
-    last = pow(2, (n - 1));
-    new_tree(1);
-    return 0;
 }
 
 static int read_file(void)
@@ -63,7 +64,7 @@ static void wait_for_turn(int num)
     }
 }
 
-void new_tree(int x)
+static void new_tree(int x)
 {
     char buff[60];
     err_remark("Process = %2d\n", x);
@@ -85,6 +86,7 @@ void new_tree(int x)
         new_tree(2 * x + 1);
         exit(0);
     }
+
     int corpse, status;
     while ((corpse = wait(&status)) > 0)
         err_remark("child %5d exited with status 0x%.4X\n", corpse, status);
