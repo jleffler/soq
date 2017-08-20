@@ -44,4 +44,7 @@ Jon Bentley
 Jon Bentley
 [More Programming Pearls](https://www.amazon.com/dp/0201118890/) 1988.
 
+Andrew Koenig
+[C Traps and Pitfalls](https://www.amazon.com/gp/product/0201179288) 1989.
+
 EOF
