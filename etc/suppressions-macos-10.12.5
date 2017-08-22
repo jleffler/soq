@@ -171,3 +171,14 @@
     fun:_ZN11ImageLoader19processInitializersERKNS_11LinkContextEjRNS_21InitializerTimingListERNS_15UninitedUpwardsE
     fun:_ZN11ImageLoader15runInitializersERKNS_11LinkContextERNS_21InitializerTimingListE
 }
+
+{
+    macOS-Sierra-10.12.6-reachable.1
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:malloc
+    fun:__smakebuf
+    fun:__srefill0
+    fun:__srefill
+    fun:__svfscanf_l
+}
