@@ -23,3 +23,8 @@ but posted by [Tuminoid](https://stackoverflow.com/users/40657/tuminoid)
 — and that has a different interface.
 The functions from slts59.c are revised to match the `strstrip()`
 interface.
+
+Note that earlier question [SO
+0012-2616](https://stackoverflow.com/q/122616) also contains a load of
+string stripping code of various levels of usefulness.
+It should be regarded as the canonical Q&A.
