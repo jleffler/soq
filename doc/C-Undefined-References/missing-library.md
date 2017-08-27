@@ -98,11 +98,13 @@ the compilation is likely to fail — even if you specify `-I
 The header declares the facilities available to programs using the
 header.
 It does not necessarily provide the code that implements those
-facilities.
+facilities — in C, a header usually does not provide the code that
+implements the facilities.
 This is an area of difference between C and modern C++.
 Modern C++ has many 'header only' libraries where the code is mostly
-template definitions, and you don't actually have to provide the object
-code at link time; the C++ compiler does that for you.
+template definitions specified in the header file, and you don't
+actually have to provide the object code at link time; the C++ compiler
+does that for you.
 Header-only libraries are more of a rarity in C.
 
 ### You need to specify where the library is found and what its name is
@@ -208,6 +210,39 @@ Note that this depends on the platform and toolchain, and some versions
 of Linux behave differently from other versions of Linux, so simply
 testing on one platform is not necessarily sufficient to ensure it works
 on all.
+
+### Simple programs
+
+With simple programs, you might have a single source file using one
+library, and you might then compile and link all in a single command,
+and if all goes well, your compilation is complete.
+
+    $ gcc -std=c11 -g -O3 -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes \
+    >     -I/opt/project/include sets.c -L/opt/project/lib -lsoq
+    $
+
+Most big programs do not remain that simple for long and end up using multiple source files.
+You can then mix and match specifying source or object files on the command line. 
+Howver, conventional practice is to use a tool such as `make` to build each source file
+into an independent object file, and then link all the object files.  Hence, once you
+need `matches.c` included in the build too, you might compile using:
+
+
+    $ gcc -c -std=c11 -g -O3 -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes \
+    >     -I/opt/project/include sets.c
+    $ gcc -c -std=c11 -g -O3 -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes \
+    >     -I/opt/project/include matches.c
+    $ gcc -std=c11 -g -O3 -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes \
+    >     -I/opt/project/include sets.o matches.o -L/opt/project/lib -lsoq
+    $
+
+You probably could omit the `-W` and `-I` options from the linking
+command line, but it is safer to include them.
+You should omit the `-L` and `-l` options from compiling command lines.
+Many versions of GCC will complain about unused options/libraries if you
+include them.
+The `-g` option typically includes debug information in the object files
+and binary; it should be used all the time.
 
 ### Summary
 
