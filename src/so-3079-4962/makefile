@@ -10,6 +10,7 @@ PROGRAMS = \
 	bscheck \
 	bsmax \
 	bsmin \
+	bsrange \
 	modbinsearch \
 	shiftbinsearch \
 
