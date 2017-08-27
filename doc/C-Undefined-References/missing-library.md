@@ -255,5 +255,6 @@ and binary; it should be used all the time.
 
 ### Example questions where this was a problem
 
+* [SO 0066-7015](https://stackoverflow.com/q/667015)
 * …list to be filled out…
 
