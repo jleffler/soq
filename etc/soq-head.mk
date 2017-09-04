@@ -20,6 +20,7 @@ CS50NAME = lib${CS50BASE}.a
 CS50PATH = ${LIBDIR}/${CS50NAME}
 
 CC     = gcc
+DFLAGS = #-DHAVE_CONFIG_H
 GFLAGS = -g
 IFLAG1 = -I${INCDIR}
 IFLAG2 = #-I${HOME}/inc
@@ -37,6 +38,7 @@ WFLAG6 = #-Wold-style-declaration   # Strict GCC only (not clang, it would seem)
 WFLAG7 = #-Wold-style-definition    # Part of -Wextra in GCC 7.1.0
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} ${WFLAG7}
 
+DXXFLAGS = #-DHAVE_CONFIG_H
 GXXFLAGS = -g
 IXXFLAGS = ${IFLAGS}
 OXXFLAGS = -O3
@@ -56,8 +58,8 @@ LDLIB1  = -l${SOQBASE}
 LDLIB2  = #-l${CS50BASE}
 LDLIBS  = ${LDLIB1} ${LDLIB2}
 
-CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${TFLAGS}   ${UFLAGS}
-CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${TXXFLAGS} ${UXXFLAGS}
+CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${DFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${TFLAGS}   ${UFLAGS}
+CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${DXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${TXXFLAGS} ${UXXFLAGS}
 
 DEBRIS = core a.out *~ *.o
 RM_FR  = rm -fr
