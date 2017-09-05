@@ -30,6 +30,7 @@ AUXFILES.c = \
 	range3.c \
 	strtoi.c \
 	strtosize.c \
+	strupper.c \
 
 AUXFILES.h = \
 	isqrt.h \

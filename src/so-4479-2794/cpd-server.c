@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,20 +111,54 @@ int main(int argc, char **argv)
         err_usage(usestr);
     }
 
+    if (d_flag)
+    {
+        /*
+        ** Beware - daemonize() does chdir("/").  It also connects
+        ** stdin, stdout, stderr to /dev/null, and closes other file
+        ** descriptors.  And it sets the error reporting system so it
+        ** reports via syslog and not via file streams.  May need a
+        ** mechanism to force printing to specified file stream instead
+        ** of following configuration.
+        */
+        daemonize(err_getarg0(), 0);
+    }
+
+    const char logfile[] = "/tmp/cpd-server.log";                           // DEBUG
+    FILE *fp = fopen(logfile, "w");                                         // DEBUG
+    if (fp == 0)                                                            // DEBUG
+        err_syserr("failed to open file '%s' for writing: ", logfile);      // DEBUG
+    setvbuf(fp, 0, _IOLBF, 0);                                              // DEBUG
+    err_logmsg(fp, ERR_PID|ERR_MILLI, 0, "Log file opened OK\n");           // DEBUG
+
     err_setlogopts(ERR_MILLI | ERR_PID);
     FILE *log_fp = stderr;
     if (logger != default_logger)
     {
+        fprintf(fp, "opening log file '%s'\n", logger);                     // DEBUG
+        err_logmsg(fp, ERR_MILLI|ERR_PID, 0, "opening log file '%s'\n", logger);                     // DEBUG
         if ((log_fp = fopen(logger, "a")) == 0)
+            fprintf(fp, "failed to open log file '%s': ", logger),          // DEBUG
             err_syserr("failed to open log file '%s': ", logger);
-        err_stderr(log_fp);
+        setvbuf(log_fp, 0, _IOLBF, 0);
+        fprintf(fp, "opened log file '%s' OK\n", logger);                   // DEBUG
+        fprintf(fp, "log file stream %p\n", (void *)log_fp);                // DEBUG
+        FILE *old_log = err_stderr(log_fp);
+        err_logmsg(log_fp, ERR_PID|ERR_MILLI, 0,
+                   "old log stream = %p; stderr = %p\n", (void *)old_log, (void *)stderr);
+        err_logmsg(fp, ERR_PID|ERR_MILLI, 0,
+                   "old log stream = %p; stderr = %p\n", (void *)old_log, (void *)stderr);
+        err_remark("started log file '%s' OK\n", logger);                   // DEBUG
     }
+    else                                                                    // DEBUG
+        err_logmsg(fp, ERR_PID|ERR_MILLI, 0,                                // DEBUG
+                   "No log file specified - logging to '%s'\n",             // DEBUG
+                   default_logger);                                         // DEBUG
 
-    if (d_flag)
-    {
-        /* Beware - daemonize() does chdir("/") */
-        daemonize(err_getarg0(), 0);
-    }
+    if (signal(SIGCHLD, SIG_IGN) == SIG_ERR)
+        err_syserr("failed to ignore SIGCHLD: ");
+
+    fclose(fp);                                                             // DEBUG
 
     cpd_server();
 
@@ -229,7 +264,7 @@ static void cpd_recv_targetdir(int fd)
     size_t  length;
     cpd_recv_name(fd, &buffer, &length);
 
-    printf("Target Directory (%zu) [%s]\n", length, buffer);
+    err_remark("Target Directory (%zu) [%s]\n", length, buffer);
     /* Do things like create the directory */
     /* Should probably be in a separate function */
     int status = 0;

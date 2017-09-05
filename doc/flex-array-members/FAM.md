@@ -125,6 +125,19 @@ type, so its size cannot be calculated using `sizeof`.
 
 <!-- end version if -->
 
+<!-- if version [gte C11] -->
+
+Note that §6.10.8.3 Conditional feature macros allows a compiler ('the implementation') to define:
+
+*  `__STDC_NO_VLA__` — The integer constant `1`, intended to indicate that the
+    implementation does not support variable length arrays or variably
+    modified types.
+
+C99 requires support for variable length arrays unconditionally.
+C90 has no support for variable length arrays.
+
+<!-- end version if -->
+
 <!-- if version [lt C99] -->
 
 ### The 'struct hack'
