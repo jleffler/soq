@@ -6,6 +6,7 @@
 *.bz2
 *.dSYM
 *.dylib
+*.exe
 *.gz
 *.lz
 *.o
