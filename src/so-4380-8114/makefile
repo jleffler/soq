@@ -5,11 +5,10 @@
 include ../../etc/soq-head.mk
 
 PROG1 = ms11
-PROG2 = ms13
-PROG3 = ms83
-PROG4 = mulprocsPipemergesortwords0
+PROG2 = ms83
+PROG3 = mulprocsPipemergesortwords0
 
-PROGS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
+PROGS = ${PROG1} ${PROG2} ${PROG3}
 
 all: ${PROGS}
 

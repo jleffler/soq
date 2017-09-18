@@ -87,10 +87,10 @@ static int make_kid(Child *kids, int kid_num)
 #endif
         dup2(pipe1[P_READ], STDIN_FILENO);
         dup2(pipe2[P_WRITE], STDOUT_FILENO);
-        assert(close(pipe1[P_READ]) == 0);
-        assert(close(pipe1[P_WRITE]) == 0);
-        assert(close(pipe2[P_READ]) == 0);
-        assert(close(pipe2[P_WRITE]) == 0);
+        close(pipe1[P_READ]);
+        close(pipe1[P_WRITE]);
+        close(pipe2[P_READ]);
+        close(pipe2[P_WRITE]);
         /* Reads standard input from parent; writes standard output to parent */
         be_childish();
         exit(0);
@@ -100,8 +100,8 @@ static int make_kid(Child *kids, int kid_num)
         kid->fp_to   = fdopen(pipe1[P_WRITE], "w");
         kid->fp_from = fdopen(pipe2[P_READ], "r");
         assert(kid->fp_to != 0 && kid->fp_from != 0);
-        assert(close(pipe1[P_READ]) == 0);
-        assert(close(pipe2[P_WRITE]) == 0);
+        close(pipe1[P_READ]);
+        close(pipe2[P_WRITE]);
         printf("Child %d created\n", (int)kid->pid);
         fflush(stdout);
         return 0;
