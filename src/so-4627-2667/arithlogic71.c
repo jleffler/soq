@@ -68,47 +68,15 @@ int main(void)
 
     printf("Testing equality (on arrays a and b)\n");
     test_array_pair(A_SIZE, a, B_SIZE, b, func_EQUAL, eq, 0, "EQUAL", "==");
-#if 0
-    for (int i = 0; i < A_SIZE; i++)
-    {
-        for (int j = 0; j < B_SIZE; j++)
-            printf("x = %4d, y = %4d, EQUAL(x,y) = %d, (x == y) = %d\n",
-                   a[i], b[j], EQUAL(a[i], b[j]), a[i] == b[j]);
-    }
-#endif
 
     printf("Testing equality (on array a and itself)\n");
     test_array_pair(A_SIZE, a, A_SIZE, a, func_EQUAL, eq, 0, "EQUAL", "==");
-#if 0
-    for (int i = 0; i < A_SIZE; i++)
-    {
-        for (int j = 0; j < A_SIZE; j++)
-            printf("x = %4d, y = %4d, EQUAL(x,y) = %d, (x == y) = %d\n",
-                   a[i], a[j], EQUAL(a[i], a[j]), a[i] == a[j]);
-    }
-#endif
 
     printf("Testing greater-than-or-equal-to (on arrays a and b)\n");
     test_array_pair(A_SIZE, a, B_SIZE, b, func_GE, ge, 0, "GE", ">=");
-#if 0
-    for (int i = 0; i < A_SIZE; i++)
-    {
-        for (int j = 0; j < B_SIZE; j++)
-            printf("x = %4d, y = %4d, GE(x,y) = %d, (x > y) = %d\n",
-                   a[i], b[j], GE(a[i], b[j]), a[i] >= b[j]);
-    }
-#endif
 
     printf("Testing greater-than-or-equal-to (on array a and itself)\n");
     test_array_pair(A_SIZE, a, A_SIZE, a, func_GE, ge, 0, "GE", ">=");
-#if 0
-    for (int i = 0; i < A_SIZE; i++)
-    {
-        for (int j = 0; j < A_SIZE; j++)
-            printf("x = %4d, y = %4d, GE(x,y) = %d, (x > y) = %d\n",
-                   a[i], a[j], GE(a[i], a[j]), a[i] >= a[j]);
-    }
-#endif
 
     return 0;
 }
