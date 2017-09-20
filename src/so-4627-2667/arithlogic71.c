@@ -18,7 +18,7 @@
 ** If (a-b) is zero, the divisor is 1 and the result is 1.
 ** If (a-b) is not zero, the divisor is at least 2 and the result is 0.
 */
-#define EQUAL(a, b)     (1 / (((a) - (b)) * ((a) - (b)) + 1))
+#define EQ(a, b)     (1 / (((a) - (b)) * ((a) - (b)) + 1))
 
 /*
 ** From SO 4627-2667 (by Ajay Brahmakshatriya
@@ -26,7 +26,15 @@
 ** the key observation that for integers, x/200 is 0 for x 0..199, and 1
 ** or more for higher values.
 */
-#define GE(x, y)        (1 - EQUAL((x)/(y), 0))
+#define GE(x, y)        (1 - EQ((x)/(y), 0))
+
+/*
+** Given GE() and EQ(), we can deduce the other operators
+*/
+#define NE(x, y)        (1 - EQ(x, y))
+#define GT(x, y)        (GE(x, y) - EQ(x, y))
+#define LE(x, y)        (1 - GT(x, y))
+#define LT(x, y)        (1 - GE(x, y))
 
 #include <stdio.h>
 
@@ -37,8 +45,12 @@ static inline int le(int x, int y) { return x <= y; }
 static inline int eq(int x, int y) { return x == y; }
 static inline int ne(int x, int y) { return x != y; }
 
-static inline int func_EQUAL(int a, int b) { return EQUAL(a, b); }
+static inline int func_EQ(int a, int b) { return EQ(a, b); }
+static inline int func_NE(int a, int b) { return NE(a, b); }
 static inline int func_GE(int a, int b) { return GE(a, b); }
+static inline int func_GT(int a, int b) { return GT(a, b); }
+static inline int func_LE(int a, int b) { return LE(a, b); }
+static inline int func_LT(int a, int b) { return LT(a, b); }
 
 typedef int (*Compare)(int x, int y);
 
@@ -67,16 +79,40 @@ int main(void)
     enum { B_SIZE = sizeof(b) / sizeof(b[0]) };
 
     printf("Testing equality (on arrays a and b)\n");
-    test_array_pair(A_SIZE, a, B_SIZE, b, func_EQUAL, eq, 0, "EQUAL", "==");
+    test_array_pair(A_SIZE, a, B_SIZE, b, func_EQ, eq, 0, "EQ", "==");
 
     printf("Testing equality (on array a and itself)\n");
-    test_array_pair(A_SIZE, a, A_SIZE, a, func_EQUAL, eq, 0, "EQUAL", "==");
+    test_array_pair(A_SIZE, a, A_SIZE, a, func_EQ, eq, 0, "EQ", "==");
+
+    printf("Testing inequality (on arrays a and b)\n");
+    test_array_pair(A_SIZE, a, B_SIZE, b, func_NE, ne, 0, "NE", "!=");
+
+    printf("Testing inequality (on array a and itself)\n");
+    test_array_pair(A_SIZE, a, A_SIZE, a, func_NE, ne, 0, "NE", "!=");
 
     printf("Testing greater-than-or-equal-to (on arrays a and b)\n");
     test_array_pair(A_SIZE, a, B_SIZE, b, func_GE, ge, 0, "GE", ">=");
 
     printf("Testing greater-than-or-equal-to (on array a and itself)\n");
     test_array_pair(A_SIZE, a, A_SIZE, a, func_GE, ge, 0, "GE", ">=");
+
+    printf("Testing greater-than (on arrays a and b)\n");
+    test_array_pair(A_SIZE, a, B_SIZE, b, func_GT, gt, 0, "GT", ">");
+
+    printf("Testing greater-than (on array a and itself)\n");
+    test_array_pair(A_SIZE, a, A_SIZE, a, func_GT, gt, 0, "GT", ">");
+
+    printf("Testing less-than-or-equal-to (on arrays a and b)\n");
+    test_array_pair(A_SIZE, a, B_SIZE, b, func_LE, le, 0, "LE", "<=");
+
+    printf("Testing less-than-or-equal-to (on array a and itself)\n");
+    test_array_pair(A_SIZE, a, A_SIZE, a, func_LE, le, 0, "LE", "<=");
+
+    printf("Testing less-than (on arrays a and b)\n");
+    test_array_pair(A_SIZE, a, B_SIZE, b, func_LT, lt, 0, "LT", "<");
+
+    printf("Testing less-than (on array a and itself)\n");
+    test_array_pair(A_SIZE, a, A_SIZE, a, func_LT, lt, 0, "LT", "<");
 
     return 0;
 }
