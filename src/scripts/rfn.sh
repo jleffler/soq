@@ -2,20 +2,42 @@
 #
 # Create a random file name from a prefix, a double-digit prime number, and a suffix
 
+usage()
+{
+    echo "Usage: $(basename "$0" .sh) [-x suffix] [prefix]" >&2
+    exit 1
+}
+
+suffix=""
+while getopts x: opt
+do
+    case "$opt" in
+    (x) case "$OPTARG" in
+        (.*) suffix="$OPTARG";;
+        (*)  suffix=".$OPTARG";;
+        esac;;
+    (*) usage;;
+    esac
+done
+shift $(($OPTIND - 1))
+
 case "$#" in
 ([01]) : OK;;
-(*)     echo "Usage: $(basename "$0" .sh) [prefix]" >&2; exit 1;;
+(*)     usage;;
 esac
 
-case "$0" in
-(*[-.]c)    suffix=".c";;
-(*[-.]h)    suffix=".h";;
-(*[-.]sh)   suffix=".sh";;
-(*[-.]pl)   suffix=".pl";;
-(*[-.]sql)  suffix=".sql";;
-(*[-.]cpp)  suffix=".cpp";;
-(*)         suffix="";
-esac
+if [ -z "$suffix" ]
+then
+    case "$0" in
+    (*[-.]c)    suffix=".c";;
+    (*[-.]h)    suffix=".h";;
+    (*[-.]sh)   suffix=".sh";;
+    (*[-.]pl)   suffix=".pl";;
+    (*[-.]sql)  suffix=".sql";;
+    (*[-.]cpp)  suffix=".cpp";;
+    (*)         suffix="";
+    esac
+fi
 
 count=0
 while name="${1:-xx}$(ddpr)$suffix"; [ -f "$name" ]
