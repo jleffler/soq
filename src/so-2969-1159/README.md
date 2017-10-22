@@ -1,12 +1,12 @@
 ### Stack Overflow Question 2969-1159
 
-[SO 2969-1159](http://stackoverflow.com/q/29691159) &mdash;
+[SO 2969-1159](https://stackoverflow.com/q/29691159) &mdash;
 Making a shared data structure in C
 
 The program `shm-master` allows you to simulate the basic management
 of a shared memory segment in most plausible sequences.
 
-[SO 4225-8485](http://stackoverflow.com/q/42258485) &mdash;
+[SO 4225-8485](https://stackoverflow.com/q/42258485) &mdash;
 Detaching from shared memory before removing it &mdash; asks about
 whether you can delete a shared memory segment while programs are
 using it.  Adding the `-t time` option to the code means that you

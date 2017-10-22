@@ -16,7 +16,7 @@ I previously
 > random and swap it with either the first or last index, and that
 > becomes the pivot.
 > You might look at [Quicksort: Choosing the
-> pivot](http://stackoverflow.com/questions/164163/quicksort-choosing-the-pivot)
+> pivot](https://stackoverflow.com/questions/164163/quicksort-choosing-the-pivot)
 > for more information on pivot selection algorithms.
 
 The standard version of Lomuto's partitioning algorithm chooses the last

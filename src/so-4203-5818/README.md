@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4203-5818
 
-[SO 4203-5818](http://stackoverflow.com/q/42035818) &mdash;
+[SO 4203-5818](https://stackoverflow.com/q/42035818) &mdash;
 C find all possible sides of a triangle from the perimeter
 
 This code is mainly about 'sort 3 numbers' without using `qsort()`.

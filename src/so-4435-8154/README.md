@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4435-8154
 
-[SO 4435-8154](http://stackoverflow.com/q/44358154) &mdash;
+[SO 4435-8154](https://stackoverflow.com/q/44358154) &mdash;
 C — fix dimension matrix
 
 This code deals with positive integers of essentially arbitrary size.

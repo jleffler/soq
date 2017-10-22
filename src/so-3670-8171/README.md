@@ -1,6 +1,6 @@
 ### Stack Overflow Question 3670-8171
 
-[SO 3670-8171](http://stackoverflow.com/q/36708171) &mdash;
+[SO 3670-8171](https://stackoverflow.com/q/36708171) &mdash;
 How can `openat()` avoid TOCTTOU errors?
 
 My original answer gave no code.

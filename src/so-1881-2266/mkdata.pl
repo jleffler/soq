@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# http://stackoverflow.com/q/18812266 Merging multiple sorted files
+# https://stackoverflow.com/q/18812266 Merging multiple sorted files
 use strict;
 use warnings;
 

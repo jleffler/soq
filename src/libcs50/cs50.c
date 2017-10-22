@@ -601,7 +601,7 @@ static void teardown(void)
 
 /**
  * Preprocessor magic to make initializers work somewhat portably
- * Modified from http://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
+ * Modified from https://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
  */
 #if defined (_MSC_VER) // MSVC
     #pragma section(".CRT$XCU",read)

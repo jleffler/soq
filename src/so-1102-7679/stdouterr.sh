@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# http://stackoverflow.com/questions/11027679/
+# https://stackoverflow.com/questions/11027679/
 
 unset t_out t_err
 eval "$( (echo std; echo err >&2; echo out; echo 'num  =  ber' >&2; exit 31) 2> >(readarray -t t_err; typeset -p t_err) > >(readarray -t t_out; typeset -p t_out) )"

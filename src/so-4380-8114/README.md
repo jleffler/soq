@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4380-8114
 
-[SO 4380-8114](http://stackoverflow.com/q/43808114) &mdash;
+[SO 4380-8114](https://stackoverflow.com/q/43808114) &mdash;
 Implementation of merge sort using threads and fork
 
 ### `ms83`

@@ -1,6 +1,6 @@
 ## Stack Overflow Question 4418-8297
 
-[SO 4418-8297](http://stackoverflow.com/q/44188297) &mdash;
+[SO 4418-8297](https://stackoverflow.com/q/44188297) &mdash;
 How to allocate triangular array using a single malloc in C?
 
 ### Question

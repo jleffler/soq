@@ -1,5 +1,5 @@
 <!--
-http://stackoverflow.com/questions/1433204
+https://stackoverflow.com/questions/1433204
 Q: What are extern variables in C?
 Q: How do I share a variable between source files in C? With extern, but how?
 -->
@@ -237,7 +237,7 @@ easy way to handle arbitrarily long initializers.)
 ### file3b.h
 
 <sup>Reverse contents of `#if` and `#else` blocks, fixing bug identified by
-[Denis Kniazhev](http://stackoverflow.com/users/369317/denis-kniazhev)</sup>
+[Denis Kniazhev](https://stackoverflow.com/users/369317/denis-kniazhev)</sup>
 
 ### file1b.c
 
@@ -251,7 +251,7 @@ for variable argument lists for macros, initializers that need to
 contain commas are very problematic.
 
 <sup>Correct header `file3b.h` included (instead of `fileba.h`) per
-[Denis Kniazhev](http://stackoverflow.com/users/369317/denis-kniazhev)</sup>
+[Denis Kniazhev](https://stackoverflow.com/users/369317/denis-kniazhev)</sup>
 
 <hr>
 
@@ -429,5 +429,5 @@ it would conceal more than it revealed.)
 
 
 
-  [1]: http://stackoverflow.com/questions/1410563/
-  [2]: http://stackoverflow.com/questions/1490693/tentative-definitions-in-c99-and-linking
+  [1]: https://stackoverflow.com/questions/1410563/
+  [2]: https://stackoverflow.com/questions/1490693/tentative-definitions-in-c99-and-linking

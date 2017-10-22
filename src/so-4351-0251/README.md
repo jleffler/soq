@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4351-0251
 
-[SO 4351-0251](http://stackoverflow.com/q/43510251) &mdash;
+[SO 4351-0251](https://stackoverflow.com/q/43510251) &mdash;
 Pivot set in quicksort
 
 > Why doesn't a different pivot, besides high, work for this code?

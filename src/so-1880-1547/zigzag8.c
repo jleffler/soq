@@ -1,4 +1,4 @@
-/* Code for http://stackoverflow.com/q/18801547 Transform matrix 2D to 1D */
+/* Code for https://stackoverflow.com/q/18801547 Transform matrix 2D to 1D */
 
 /* Creating a semi-encapsulated interface for this code */
 

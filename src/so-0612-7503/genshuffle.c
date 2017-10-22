@@ -13,8 +13,8 @@ extern void shuffle(void *array, size_t number, size_t size, size_t (*randomizer
 
 /*
 ** rand_int() and shuffle() based on code for integers in
-** http://stackoverflow.com/a/3348142 - an answer by Roland Illig
-** (http://stackoverflow.com/users/225757/roland-illig).
+** https://stackoverflow.com/a/3348142 - an answer by Roland Illig
+** (https://stackoverflow.com/users/225757/roland-illig).
 **
 ** https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 ** To shuffle an array a of n elements (indices 0..n-1):

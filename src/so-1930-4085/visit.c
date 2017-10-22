@@ -1,6 +1,6 @@
 /*
-** Intended for http://stackoverflow.com/questions/19239445 originally.
-** Posted for http://stackoverflow.com/questions/19304085.
+** Intended for https://stackoverflow.com/questions/19239445 originally.
+** Posted for https://stackoverflow.com/questions/19304085.
 */
 
 #if defined(__cplusplus)

@@ -1,8 +1,8 @@
 ### SO 7365814 - Permuting elements of an array
 
-Python code provided by QWERTY (http://stackoverflow.com/users/937390/qwerty).
+Python code provided by QWERTY (https://stackoverflow.com/users/937390/qwerty).
 
-C code provided by AnT (http://stackoverflow.com/users/187690/ant), but
+C code provided by AnT (https://stackoverflow.com/users/187690/ant), but
 tarted up into a test case.
 
 ### Question

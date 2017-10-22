@@ -1,4 +1,4 @@
-### [SO 3388-7484](http://stackoverflow.com/q/33887484) &mdash; Fraction Arithmetic
+### [SO 3388-7484](https://stackoverflow.com/q/33887484) &mdash; Fraction Arithmetic
 
 This code is known not to compile in the GitHub environment because the
 Phased Test library is not yet available.

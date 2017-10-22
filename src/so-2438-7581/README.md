@@ -1,4 +1,4 @@
-## [SO 2438-7581](http://stackoverflow.com/q/24387581) Can code for a library function be contained several times in an executable?
+## [SO 2438-7581](https://stackoverflow.com/q/24387581) Can code for a library function be contained several times in an executable?
 
 ### Question
 

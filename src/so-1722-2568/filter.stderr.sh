@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Proof of concept for SO 17222568 Send Standard Error to Pipe.
-# http://stackoverflow.com/questions/17222568
+# https://stackoverflow.com/questions/17222568
 
 # Detailed auxilliary testing verifies that standard output is unchanged
 # and standard error is filtered (but still sent to standard error).

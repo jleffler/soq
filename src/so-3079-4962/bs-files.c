@@ -28,7 +28,7 @@ static void print_results(int found, int *possible, char *needle, char **haystac
 /*
 ** The search has been completely reworked, using (marginally modified)
 ** versions of binary search code from the answer to SO 35147784
-** (http://stackoverflow.com/q/35147784).  It needs to find the first
+** (https://stackoverflow.com/q/35147784).  It needs to find the first
 ** element that matches, and potentially needs to find the last element
 ** that matches too.  If there's an exact match, it will be the low
 ** point in the range.

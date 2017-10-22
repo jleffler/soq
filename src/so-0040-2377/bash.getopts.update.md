@@ -74,5 +74,5 @@ short options string are ignored.
 
 
 
-  [1]: http://stackoverflow.com/questions/402377/using-getopts-in-bash-shell-script-to-get-long-and-short-command-line-options/7948533#7948533
-    [2]: http://stackoverflow.com/users/907263/urban-vagabond
+  [1]: https://stackoverflow.com/questions/402377/using-getopts-in-bash-shell-script-to-get-long-and-short-command-line-options/7948533#7948533
+    [2]: https://stackoverflow.com/users/907263/urban-vagabond

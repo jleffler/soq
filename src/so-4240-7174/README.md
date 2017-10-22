@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4240-7174
 
-[SO 4240-7174](http://stackoverflow.com/q/42407174) &mdash;
+[SO 4240-7174](https://stackoverflow.com/q/42407174) &mdash;
 How do I write a C program to check if a point lies inside a square given end points of one of its diagonal
 
 This is modestly interesting as a way to do the calculation.

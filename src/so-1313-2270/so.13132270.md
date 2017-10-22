@@ -1,4 +1,4 @@
-http://stackoverflow.com/questions/13132270/how-to-select-similar-sets-in-sql
+https://stackoverflow.com/questions/13132270/how-to-select-similar-sets-in-sql
 
 You specify
 

@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4313-7847
 
-[SO 4313-7847](http://stackoverflow.com/q/43137847) &mdash;
+[SO 4313-7847](https://stackoverflow.com/q/43137847) &mdash;
 Multiplication of polynomial in C using list
 
 The code here is a complete rewrite of the code in the question, as

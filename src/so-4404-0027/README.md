@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4404-0027
 
-[SO 4404-0027](http://stackoverflow.com/q/44040027) &mdash;
+[SO 4404-0027](https://stackoverflow.com/q/44040027) &mdash;
 Spell checker in C
 
 Convoluted history, with much of the action not visible on SO.

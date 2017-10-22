@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4282-2480
 
-[SO 4282-2480](http://stackoverflow.com/q/42822480) &mdash;
+[SO 4282-2480](https://stackoverflow.com/q/42822480) &mdash;
 POSIX Threads, unique execution
 
 One major difficulty is tracking when to create a new random number.

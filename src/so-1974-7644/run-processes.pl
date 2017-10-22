@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 #
 # SO 19747644: Shell: run four processes in parallel
-# http://stackoverflow.com/questions/19747644
+# https://stackoverflow.com/questions/19747644
 #
 # Question code runs a simulation (instead of sleep), and can't predict
 # how long a simulation will take (so sleep with random delay is a good

@@ -85,7 +85,7 @@ There are two parts to my question:
 
 <hr>
 
-The short [answer](http://stackoverflow.com/a/43902948/) is that I
+The short [answer](https://stackoverflow.com/a/43902948/) is that I
 missed it in the documentation:
 
 > Basically it means the default flags apply (even if it gets
