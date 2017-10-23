@@ -44,3 +44,7 @@ This allows us to find ohe element in each sequence, from which a simple
 adaptation of the first program would allow us to print the
 corresponding sequence.
 
+### `so-4673-6148D.c`
+
+This program takes command line arguments and prints the sequence from
+those values.

@@ -24,13 +24,13 @@ static void check_sequence(int val)
         int new_value = ((seq[1] * 10 + seq[2]) * 10 + seq[3]) * 10 + new_digit;
         if (new_value == val)
         {
-            printf("Search %d: Found result %.4d (iteration %d)\n", val, new_value, i+1);
+            printf("Search %.4d: Found result %.4d (iteration %d)\n", val, new_value, i+1);
             return;
         }
         if (used[new_value])
         {
             //printf("Loop: %.4d has been seen before (iteration %d)\n", new_value, i+1);
-            printf("Search %d: failed with loop (iteration %d)\n", val, i+1);
+            printf("Search %.4d: failed with loop (iteration %d)\n", val, i+1);
             return;
         }
         //printf("Next: %.4d (iteration %d)\n", new_value, i+1);
@@ -39,7 +39,7 @@ static void check_sequence(int val)
         seq[3] = new_digit;
     }
     /*NOTREACHED*/
-    printf("Search %d: failed after 10,000 iterations\n", val);
+    printf("Search %.4d: failed after 10,000 iterations\n", val);
 }
 
 int main(void)

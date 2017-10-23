@@ -11,13 +11,19 @@
 #include <assert.h>
 #include <stdio.h>
 
+static int verbose = 1;
 static char done[10000];
 
 static void check_sequence(int val)
 {
     if (done[val])
+    {
+        if (verbose)
+            printf("Seen: %.4d (%.4d)\n", val, done[val]);
         return;
-    //printf("Search: %4d\n", val);
+    }
+    if (verbose)
+        printf("Search: %4d\n", val);
     int seq[4] = { (val / 1000) % 10, (val / 100) % 10, (val / 10) % 10, (val / 1) % 10 };
     char used[10000] = { 0 };
 
@@ -30,13 +36,13 @@ static void check_sequence(int val)
         done[new_value] = val;
         if (new_value == val)
         {
-            //printf("Search %d: Found result %.4d (iteration %d)\n", val, new_value, i+1);
+            if (verbose)
+                printf("Search %.4d: Found result %.4d (iteration %d)\n", val, new_value, i+1);
             return;
         }
         if (used[new_value])
         {
-            //printf("Loop: %.4d has been seen before (iteration %d)\n", new_value, i+1);
-            printf("Search %d: failed with loop (iteration %d)\n", val, i+1);
+            printf("Search %.4d: failed with loop (iteration %d)\n", val, i+1);
             assert(0);
             return;
         }
@@ -46,7 +52,7 @@ static void check_sequence(int val)
         seq[3] = new_digit;
     }
     /*NOTREACHED*/
-    printf("Search %d: failed after 10,000 iterations\n", val);
+    printf("Search %.4d: failed after 10,000 iterations\n", val);
     assert(0);
 }
 
