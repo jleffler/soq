@@ -25,13 +25,11 @@
 ??.???
 Osiris/
 Safe/
-Scores
 Sphinx/
 Untracked/
 [a-z][a-z][0-9][0-9]
 [a-z][a-z][a-z][0-9][0-9]
 [a-z][a-z][a-z][a-z][0-9][0-9]
-a.out
 awk.script
 core
 cscope.out

@@ -2,7 +2,8 @@
 #
 # Update soq/src/makefile when new directories are added
 
-mklist so-* |
+# Avoid adding gzipped tar files, etc.
+mklist so-????-???? |
 perl -e '
 my $done = 0;
 while (<>)
