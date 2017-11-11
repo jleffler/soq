@@ -2,6 +2,22 @@
 #
 # Use: include ../../etc/soq.mk in a per-directory source file
 
+# Even after all this time, base (GNU) Make does not support Perl.
+.SUFFIXES: .pl
+
+# Rules for "compiling" Perl scripts
+.pl:
+	-${RM} $@
+	${CP} $< $@
+	${FIXIN} $@
+	${MX} $@
+	${RM} $@.bak
+
+RM      = rm -f
+CP      = cp
+MX      = chmod +x
+FIXIN   = fixin
+
 BASEDIR = ../..
 LIBDIR  = ${BASEDIR}/lib
 INCDIR  = ${BASEDIR}/inc
