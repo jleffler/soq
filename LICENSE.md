@@ -46,7 +46,7 @@ TO THE EXTENT THIS LICENSE MAY BE CONSIDERED TO BE A CONTRACT, THE
 LICENSOR GRANTS YOU THE RIGHTS CONTAINED HERE IN CONSIDERATION OF YOUR
 ACCEPTANCE OF SUCH TERMS AND CONDITIONS.
 
-1. Definitions
+## 1. Definitions
 
 a.
 "Adaptation" means a work based upon the Work, or upon the Work and
@@ -218,8 +218,7 @@ technically necessary to exercise the rights in other media and formats.
 Subject to Section 8(f), all rights not expressly granted by Licensor
 are hereby reserved.
 
-4.
-Restrictions.
+## 4. Restrictions.
 The license granted in Section 3 above is expressly made subject to and
 limited by the following restrictions:
 
@@ -353,7 +352,7 @@ INCIDENTAL, CONSEQUENTIAL, PUNITIVE OR EXEMPLARY DAMAGES ARISING OUT OF
 THIS LICENSE OR THE USE OF THE WORK, EVEN IF LICENSOR HAS BEEN ADVISED
 OF THE POSSIBILITY OF SUCH DAMAGES.
 
-7. Termination
+## 7. Termination
 
 a.
 This License and the rights granted hereunder will terminate

@@ -32,7 +32,7 @@ There are some directories in `src` that group others (`matrices`,
 `miscellany`, `posix-regex`, `primes`, `python`, `tries`).
 These are neither comprehensive (there could easily be other questions
 that refer to the same topic) nor complete (there are many other topics
-covered by several answer that could be grouped together).
+covered by several answers that could be grouped together).
 
 The `inc` top-level directory is the directory where common headers are
 installed (but the source for them is in `src/libsoq` and `src/libcs50`
