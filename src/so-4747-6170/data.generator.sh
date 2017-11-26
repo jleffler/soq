@@ -9,6 +9,6 @@ then number=$1; shift
 fi
 
 # Generated with seed: -S 0xE946DD5B 
-random -n ${1:-1000000} "$@" \
+random -n "$number" "$@" \
     -T '%W%[0:9]d%W%03[0:999]d%3W%[0:9]d.%[0:9]d    %6[100000:999999]d  %[1000000:999999999]d' |
 sed 's/^[^.]*/&  &/'

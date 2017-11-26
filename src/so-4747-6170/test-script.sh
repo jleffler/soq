@@ -63,9 +63,6 @@ shopt -s nullglob
 
 # Setup - the test script reads 'file'.
 # The SOQ global .gitignore doesn't permit 'file' to be committed.
-rm -fr split_DB
-rm -f file
-ln -s generated.data file
 
 # Ensure cleanup
 trap 'rm -fr split_DB; exit 1' 0 1 2 3 13 15
@@ -80,12 +77,11 @@ for function in \
     test_perl_7000 \
     test_python_7000
 do
-    mkdir split_DB
+    sh test-setup.sh
     boxecho "${function#test_}"
     time $function file
     # Basic validation - the same information should appear for all scripts
-    ls split_DB | wc -l
-    wc split_DB/* | tail -n 2
+    sh test-check.sh
     rm -fr split_DB
 done
 
