@@ -1,0 +1,174 @@
+Trace run started: Sat Nov 25 22:43:57 PST 2017
+Command:   bash test-script.sh
+Date:      Sat Nov 25 22:43:57 PST 2017
+Machine:   Osiris.local (Darwin 17.2.0)
+User:      uid=501(jleffler) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),204(_developer),701(com.apple.sharepoint.group.1),100(_lpoperator),702(com.apple.sharepoint.group.2)
+Directory: /Users/jleffler/soq/src/so-4747-6170
+Umask:     0022
+Terminal:  /dev/ttys002
+
+Limits (soft:hard):
+core file size          (blocks, -c)          0:unlimited
+cpu time               (seconds, -t)  unlimited:unlimited
+data seg size           (kbytes, -d)  unlimited:unlimited
+file size               (blocks, -f)  unlimited:unlimited
+max locked memory       (kbytes, -l)  unlimited:unlimited
+max memory size         (kbytes, -m)  unlimited:unlimited
+max user processes              (-u)       1418:2128
+open files                      (-n)       7000:7000
+pipe size            (512 bytes, -p)          1:1
+stack size              (kbytes, -s)       8192:65532
+virtual memory          (kbytes, -v)  unlimited:unlimited
+
+
+Environment:
+Apple_PubSub_Socket_Render=/private/tmp/com.apple.launchd.ztInGjIDn3/Render
+BASH_ENV=/Users/jleffler/.bashrc
+CDPATH=:/Users/jleffler:/Users/jleffler/src:/Users/jleffler/src/perl:/Users/jleffler/src/sqltools:/Users/jleffler/lib:/Users/jleffler/doc:/Users/jleffler/work
+CLICOLOR=1
+DBDATE=Y4MD-
+DBEDIT=vim
+EDITOR=vim
+EXINIT=set wm=1 ts=4 sw=4 ai showmode sm et
+FCEDIT=vim
+HISTFILE=/Users/jleffler/.bash.jleffler
+HISTSIZE=1024
+HISTTIMEFORMAT=%F %T:
+HOME=/Users/jleffler
+INFORMIXCONCSMCFG=/opt/informix/12.10.FC6/etc/concsm.osiris_19
+INFORMIXDIR=/opt/informix/12.10.FC6
+INFORMIXSERVER=osiris_19
+INFORMIXTERM=terminfo
+IXC=/opt/informix/12.10.FC6/etc/concsm.osiris_19
+IXD=/opt/informix/12.10.FC6
+IXH=/opt/informix/12.10.FC6/etc/sqlhosts
+IXO=/opt/informix/12.10.FC6/etc/onconfig.osiris_19
+IXS=osiris_19
+JOTTER=/Users/jleffler/.jotter
+LANG=en_US.UTF-8
+LOGNAME=jleffler
+MAILCHECK=999999
+MANPATH=/Users/jleffler/man:/Users/jleffler/share/man:/Users/jleffler/oss/share/man:/Users/jleffler/oss/rcs/man:/usr/local/mysql/man:/opt/gcc/v7.2.0/share/man:/Users/jleffler/perl/v5.22.0/man:/usr/local/man:/usr/local/share/man:/usr/share/man:/opt/gnu/share/man
+ONCONFIG=onconfig.osiris_19
+PATH=/Users/jleffler/bin:/opt/informix/12.10.FC6/bin:.:/Users/jleffler/oss/bin:/Users/jleffler/oss/rcs/bin:/usr/local/mysql/bin:/opt/gcc/v7.2.0/bin:/Users/jleffler/perl/v5.22.0/bin:/usr/local/bin:/usr/bin:/bin:/opt/gnu/bin:/usr/sbin:/sbin
+PWD=/Users/jleffler/soq/src/so-4747-6170
+REAL_HOME=/Users/jleffler
+SECURITYSESSIONID=186a7
+SHELL=/bin/bash
+SHLVL=3
+SQLCMDLOG=/Users/jleffler/.sqlcmdlog
+SQLEXEC=sqlrm
+SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.F1qsLECKoS/Listeners
+TERM=xterm-256color
+TERM_PROGRAM=Apple_Terminal
+TERM_PROGRAM_VERSION=400
+TERM_SESSION_ID=F2AF988C-61A5-4273-BA1D-1B9E5C4E8D44
+TMPDIR=/var/folders/77/zx9nk6dn7_dg4xd4stvt42v00000gn/T/
+TRACEDIR=.
+USER=jleffler
+USERNAME=
+VISUAL=vim
+XPC_FLAGS=0x0
+XPC_SERVICE_NAME=0
+_=/usr/bin/env
+******************************************
+
+*************
+** awk_256 **
+*************
+2017-11-25 22:43:57.900 [PID 37716] sh awkscript-256.sh file
+2017-11-25 22:44:37.133 [PID 37716; status 0x0000]  -  39.232s  -  sh awkscript-256.sh file
+
+real	0m39.240s
+user	0m28.836s
+sys	0m10.060s
+    6760
+      14      56     643 split_DB/Z9Z.part
+  100000  400000 4589186 total
+**************
+** awk_7000 **
+**************
+2017-11-25 22:44:38.447 [PID 37731] sh awkscript.sh file
+2017-11-25 22:44:44.823 [PID 37731; status 0x0000]  -  6.376s  -  sh awkscript.sh file
+
+real	0m6.381s
+user	0m5.078s
+sys	0m1.077s
+    6760
+      14      56     643 split_DB/Z9Z.part
+  100000  400000 4589186 total
+*********************
+** chepner_1_shell **
+*********************
+2017-11-25 22:44:46.038 [PID 37741] bash chepner-1.sh file
+2017-11-25 22:45:27.045 [PID 37741; status 0x0000]  -  41.007s  -  bash chepner-1.sh file
+
+real	0m41.013s
+user	0m9.534s
+sys	0m31.332s
+    6760
+      14      56     643 split_DB/Z9Z.part
+  100000  400000 4589186 total
+*********************
+** chepner_2_shell **
+*********************
+2017-11-25 22:45:28.698 [PID 38953] bash chepner-2.sh file
+2017-11-25 22:45:46.166 [PID 38953; status 0x0000]  -  17.468s  -  bash chepner-2.sh file
+
+real	0m17.474s
+user	0m5.471s
+sys	0m12.587s
+    6760
+      14      56     643 split_DB/Z9Z.part
+  100000  400000 4589186 total
+**************
+** jl_shell **
+**************
+2017-11-25 22:45:47.249 [PID 38965] sh jlscript.sh file
+2017-11-25 22:46:03.811 [PID 38965; status 0x0000]  -  16.561s  -  sh jlscript.sh file
+
+real	0m16.589s
+user	0m4.474s
+sys	0m13.051s
+    6760
+      14      56     643 split_DB/Z9Z.part
+  100000  400000 4589186 total
+**************
+** op_shell **
+**************
+2017-11-25 22:46:05.134 [PID 38977] sh opscript.sh file
+2017-11-25 22:53:03.770 [PID 38977; status 0x0000]  -  418.635s  -  sh opscript.sh file
+
+real	6m58.642s
+user	3m37.342s
+sys	6m37.557s
+    6760
+      14      70     685 split_DB/Z9Z.part
+  100000  500000 4889186 total
+***************
+** perl_7000 **
+***************
+2017-11-25 22:53:05.319 [PID 41346] perl jlscript.pl file
+2017-11-25 22:53:06.440 [PID 41346; status 0x0000]  -  1.121s  -  perl jlscript.pl file
+
+real	0m1.127s
+user	0m0.262s
+sys	0m0.827s
+    6760
+      14      56     643 split_DB/Z9Z.part
+  100000  400000 4589186 total
+*****************
+** python_7000 **
+*****************
+2017-11-25 22:53:08.200 [PID 41357] python3 pyscript.py file
+2017-11-25 22:53:15.487 [PID 41357; status 0x0000]  -  7.286s  -  python3 pyscript.py file
+
+real	0m7.297s
+user	0m3.275s
+sys	0m3.469s
+    6760
+      28      56     657 split_DB/Z9Z.part
+  200000  400000 4689186 total
+
+******************************************
+Trace run finished: Sat Nov 25 22:53:16 PST 2017
