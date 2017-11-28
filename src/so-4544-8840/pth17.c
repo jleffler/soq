@@ -8,18 +8,19 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <math.h>
+#include <unistd.h>
 
 #define PERCENTAGE 0.25
 
 pthread_mutex_t mutex; // protecting critical section
 int scholarship = 4000,
                   total = 0;
-void *A();
-void *B();
-void *C();
-void *totalCalc();
+void *A(void);
+void *B(void);
+void *C(void);
+void *totalCalc(void);
 
-int main(){
+int main(void){
 
     pthread_t tid1,
               tid2,
@@ -40,7 +41,7 @@ int main(){
 
 }
 
-void *A(){
+void *A(void){
     float result;
     while(scholarship > 0){
         sleep(2);
@@ -57,16 +58,15 @@ void *A(){
         if( scholarship < 1){
             pthread_exit(0);
             printf("Thread A exited\n");
-            return;
+            return 0;
         }
         pthread_mutex_unlock(&mutex);
     }
 
     pthread_exit(0);
-
 }
 
-void *B(){
+void *B(void){
     float result;
     while(scholarship > 0){
         sleep(1);
@@ -83,7 +83,7 @@ void *B(){
         if( scholarship < 1){
             pthread_exit(0);
             printf("Thread B exited\n");
-            return;
+            return 0;
         }
         pthread_mutex_unlock(&mutex);
     }
@@ -91,7 +91,7 @@ void *B(){
     pthread_exit(0);
 }
 
-void *C(){
+void *C(void){
     float result;
     while(scholarship > 0){
         sleep(1);
@@ -108,7 +108,7 @@ void *C(){
         if( scholarship < 1){
             pthread_exit(0);
             printf("Thread C exited\n");
-            return;
+            return 0;
         }
         pthread_mutex_unlock(&mutex);
     }
@@ -116,7 +116,7 @@ void *C(){
     pthread_exit(0);
 }
 
-void *totalCalc(){
+void *totalCalc(void){
     printf("Total given out: ");
     printf("%d", total);
     printf("\n");
