@@ -1,4 +1,4 @@
-/* SO 4759-5743 - Mark I */
+/* SO 4759-5743 - Mark II */
 #include "stderr.h"
 #include <assert.h>
 #include <errno.h>
@@ -19,19 +19,20 @@ static int newProcess(void)
     {
         // work - this process goes to sleep on the job!
         struct timespec nap = { .tv_sec = rand() % 3, .tv_nsec = rand() % 1000000000 };
+        err_remark("Starting  %ld.%.9ld seconds work\n", (long)nap.tv_sec, nap.tv_nsec);
         nanosleep(&nap, 0);
-        err_remark("About to do %ld.%9ld seconds work\n", (long)nap.tv_sec, nap.tv_nsec);
         int rc = 0;
         if (rand() % 100 > 90)
             rc = rand() % 255;
-        err_remark("Work completed - exit status %d\n", rc);
+        err_remark("Completed %ld.%.9ld seconds of work - exit status %d\n",
+                    (long)nap.tv_sec, nap.tv_nsec, rc);
         exit(rc);
     }
     if (pid > 0 && rand() % 100 > 90)
     {
         kill(pid, rand() % 8 + 1);
         errno = EAGAIN;
-        pid = -1;
+        pid = -pid;
     }
     return pid;
 }
@@ -79,11 +80,15 @@ int main(int argc, char **argv)
                 child_pid[processCount++] = pid;;
                 err_remark("PID %d started\n", pid);
             }
+            else if (pid < -1)
+            {
+                err_remark("PID %d was launched but sent a signal\n", -pid);
+            }
             else
             {
                 assert(pid == -1);
                 int errnum = errno;
-                err_sysrem("Failed to fork");
+                err_sysrem("Failed to fork: ");
                 process_check(&processCount, child_pid);
                 if (errnum == EAGAIN)
                 {
