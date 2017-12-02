@@ -30,9 +30,10 @@ static int newProcess(void)
     }
     if (pid > 0 && rand() % 100 > 90)
     {
-        kill(pid, rand() % 8 + 1);
+        int signum = rand() % 8 + 1;
+        kill(pid, signum);
         errno = EAGAIN;
-        pid = -pid;
+        pid = -10 * pid - signum;
     }
     return pid;
 }
@@ -82,7 +83,9 @@ int main(int argc, char **argv)
             }
             else if (pid < -1)
             {
-                err_remark("PID %d was launched but sent a signal\n", -pid);
+                int signum = (-pid % 10);
+                pid = pid / -10;
+                err_remark("PID %d was launched but sent signal %d\n", pid, signum);
             }
             else
             {
