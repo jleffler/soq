@@ -86,6 +86,7 @@ int main(int argc, char **argv)
                 int signum = (-pid % 10);
                 pid = pid / -10;
                 err_remark("PID %d was launched but sent signal %d\n", pid, signum);
+                process_check(&processCount, child_pid);
             }
             else
             {
