@@ -17,28 +17,18 @@ static Node *convertToPreOrder(Node *root)
     Node *l_list = convertToPreOrder(root->left);
     Node *r_list = convertToPreOrder(root->right);
     root->left = 0;
-    if (l_list == 0)
-    {
-        /* No left list - add the right list, if there is one */
-        root->right = r_list;
-        if (r_list != 0)
-            r_list->left = root;
-    }
-    else
-    {
-        root->right = l_list;
-        if (l_list != 0)
-            l_list->left = root;
-        Node **pos = &root->right;
-        if (*pos != 0)
-        {
-            while ((*pos)->right != 0)
-                pos = &(*pos)->right;
-            (*pos)->right = r_list;
-            if (r_list != 0)
-                r_list->left = *pos;
-        }
-    }
+    /* Add left list */
+    root->right = l_list;
+    if (l_list != 0)
+        l_list->left = root;
+    /* Find the end */
+    Node **pos = &root;
+    while ((*pos)->right != 0)
+        pos = &(*pos)->right;
+    /* Add right list */
+    (*pos)->right = r_list;
+    if (r_list != 0)
+        r_list->left = *pos;
     return root;
 }
 
