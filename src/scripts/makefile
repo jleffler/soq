@@ -1,4 +1,7 @@
-# Makefile for miscellany directory
+# Makefile for src/scripts directory
+#
+# Scripts get 'compiled' from the version in Git by removing the suffix,
+# fixing the interpreter if necessary, and being made executable.
 
 include ../../etc/soq-head.mk
 
@@ -21,7 +24,7 @@ PROG10 = so-late
 PROG11 = so-books
 PROG12 = fixin
 PROG13 = sscce
-
+PROG14 = so-stderr
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -52,6 +55,7 @@ PROGRAMS = \
 	${PROG11} \
 	${PROG12} \
 	${PROG13} \
+	${PROG14} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
