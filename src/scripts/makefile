@@ -25,6 +25,7 @@ PROG11 = so-books
 PROG12 = fixin
 PROG13 = sscce
 PROG14 = so-stderr
+PROG15 = pipe-rot
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -56,6 +57,7 @@ PROGRAMS = \
 	${PROG12} \
 	${PROG13} \
 	${PROG14} \
+	${PROG15} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
