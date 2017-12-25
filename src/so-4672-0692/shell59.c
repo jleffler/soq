@@ -11,7 +11,7 @@
 #define PIPESYMB "|"
 #define EXITSYMB "exit"
 
-int makeargv(char *s, char *argv[])
+static int makeargv(char *s, char *argv[])
 {
     if (s == NULL || argv == NULL || ARGVMAX == 0)
         return -1;
@@ -28,21 +28,21 @@ int makeargv(char *s, char *argv[])
     return ntokens;
 }
 
-void changeOutput(int mypipe[])
+static void changeOutput(int mypipe[])
 {
     dup2(mypipe[1], 1);
     close(mypipe[0]);
     close(mypipe[1]);
 }
 
-void changeInput(int mypipe[])
+static void changeInput(int mypipe[])
 {
     dup2(mypipe[0], 0);
     close(mypipe[1]);
     close(mypipe[0]);
 }
 
-void pipeFork(char *argv[], int i, int mypipe[])
+static void pipeFork(char *argv[], int i, int mypipe[])
 {
     int h = i;
     int mypipe1[2];
@@ -79,7 +79,7 @@ void pipeFork(char *argv[], int i, int mypipe[])
     wait(NULL);
 }
 
-void runcommand(char *argv[])
+static void runcommand(char *argv[])
 {
     int i = 0;
     int mypipe[2];
@@ -117,7 +117,7 @@ void runcommand(char *argv[])
     wait(NULL);
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
     char line[LINESIZE];
     char *av[ARGVMAX];
