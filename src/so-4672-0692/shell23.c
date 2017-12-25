@@ -59,7 +59,7 @@ static void wait_for(int pid)
     while ((corpse = wait(&status)) > 0)
     {
         fprintf(stderr, "%d: child %d exit status 0x%.4X\n", (int)getpid(), corpse, status);
-        if (corpse == pid)
+        if (pid == 0 || corpse == pid)
             break;
     }
 }
@@ -81,7 +81,7 @@ static void pipeFork(char *argv[], int i, int mypipe[])
     }
     if (pipe(mypipe1) == -1)
         abort();
-    fprintf(stderr, "%d: %s - pipe (%d,%d)\n", (int)getpid(), __func__, mypipe[0], mypipe[1]);
+    fprintf(stderr, "%d: %s - pipe (%d,%d)\n", (int)getpid(), __func__, mypipe1[0], mypipe1[1]);
     int pid = fork();
     switch (pid)
     {
@@ -100,7 +100,7 @@ static void pipeFork(char *argv[], int i, int mypipe[])
     default:
         if (found)
         {
-            dump_argv("recurse-pipeFork", argv);
+            dump_argv("recurse-pipeFork", &argv[h]);
             pipeFork(argv, h, mypipe1);
         }
         break;
@@ -108,9 +108,8 @@ static void pipeFork(char *argv[], int i, int mypipe[])
     fprintf(stderr, "%d: pipeFork: close %d %d\n", (int)getpid(), mypipe1[0], mypipe1[1]);
     close(mypipe1[0]);
     close(mypipe1[1]);
-    fprintf(stderr, "%d: waiting in pipeFork\n", (int)getpid());
     fprintf(stderr, "%d: waiting in pipeFork for %d\n", (int)getpid(), pid);
-    wait_for(pid);
+    wait_for(0);
 }
 
 static void runcommand(char *argv[])
@@ -147,8 +146,9 @@ static void runcommand(char *argv[])
         perror("exec");
         exit(1);
     default:
+        if (found)
         {
-            dump_argv("call-pipeFork", argv);
+            dump_argv("call-pipeFork", &argv[i]);
             pipeFork(argv, i, mypipe);
         }
         break;
@@ -157,7 +157,7 @@ static void runcommand(char *argv[])
     close(mypipe[0]);
     close(mypipe[1]);
     fprintf(stderr, "%d: waiting in runcommand for %d\n", (int)getpid(), pid);
-    wait_for(pid);
+    wait_for(0);
 }
 
 int main(void)
