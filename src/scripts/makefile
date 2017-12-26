@@ -26,6 +26,7 @@ PROG12 = fixin
 PROG13 = sscce
 PROG14 = so-stderr
 PROG15 = pipe-rot
+PROG15 = soa
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
