@@ -66,7 +66,7 @@ static void test_case(const char *data)
 int main(void)
 {
     test_case("Hello, my name is Sara!");
-    test_case("Isn't it true that Bill O'Reilly didn't win (he came in 3rd!)? 'Tain't necessarily so!");
+    test_case("Isn't it true that Padraig O'Malley didn't win (he came in 3rd!)? 'Tain't necessarily so!");
     return 0;
 }
 

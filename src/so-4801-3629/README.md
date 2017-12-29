@@ -53,11 +53,11 @@ The original sentence was:
 
 A more complex sentence is:
 
-    It isn't true that Bill O'Reilly came in 3rd!
+    It isn't true that Padraig O'Malley came in 3rd!
 
 A still more complex sentence is:
 
-    Isn't it true that Bill O'Reilly didn't win (he came in 3rd!)? 'Tain't necessarily so!;
+    Isn't it true that Padraig O'Malley didn't win (he came in 3rd!)? 'Tain't necessarily so!;
 
 This has a word (`'Tain't`) starting with an apostrophe.
 It's possible to have words ending with an apostrophe too (`Jesus'` is a
