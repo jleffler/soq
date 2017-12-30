@@ -74,6 +74,7 @@ static void wait_for(int pid)
 {
     int corpse;
     int status;
+    dump_fds(20);
     while ((corpse = wait(&status)) > 0)
     {
         fprintf(stderr, "%d: child %d exit status 0x%.4X\n", (int)getpid(), corpse, status);
@@ -119,6 +120,8 @@ static void pipeFork(char *argv[], int i, int mypipe[])
         fprintf(stderr, "%d: forked child %d\n", (int)getpid(), pid);
         if (found)
         {
+            close(mypipe[0]);
+            close(mypipe[1]);
             dump_argv("recurse-pipeFork", &argv[h]);
             pipeFork(argv, h, mypipe1);
         }
@@ -127,6 +130,8 @@ static void pipeFork(char *argv[], int i, int mypipe[])
     fprintf(stderr, "%d: pipeFork: close %d %d\n", (int)getpid(), mypipe1[0], mypipe1[1]);
     close(mypipe1[0]);
     close(mypipe1[1]);
+    close(mypipe[0]);
+    close(mypipe[1]);
     fprintf(stderr, "%d: waiting in pipeFork for %d\n", (int)getpid(), pid);
     wait_for(0);
 }
