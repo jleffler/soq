@@ -4,7 +4,7 @@ include ../../etc/soq-head.mk
 
 PROG1 = shell23
 PROG2 = shell59
-PROG2 = shell79
+PROG3 = shell79
 
 PROGRAMS = ${PROG1} ${PROG2} ${PROG3}
 
