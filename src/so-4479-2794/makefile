@@ -34,17 +34,35 @@ CFLAGS  = ${OFLAGS} ${GFLAGS} ${DFLAGS} ${IFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 DEBRIS = core a.out *~ *.o *.dSYM
 RM_FR  = rm -fr
 RM_F   = rm -f
+LN_S   = ln -s
 
-LIBOBJ = \
-	daemonize.o \
-	emalloc.o \
-	errhelp.o \
-	estrdup.o \
-	mkpath.o \
-	stderr.o \
-	tcp_accept.o \
-	tcp_connect.o \
-	tcp_listen.o \
+HDR_DIR = ${HOME}/inc
+SRC_DIR = ${HOME}/lib/JL
+
+LIBSRC = \
+	daemonize.c \
+	emalloc.c \
+	errhelp.c \
+	estrdup.c \
+	mkpath.c \
+	stderr.c \
+	tcp_accept.c \
+	tcp_connect.c \
+	tcp_listen.c \
+
+LIBHDR = \
+	config.h \
+	debug.h \
+	emalloc.h \
+	kludge.h \
+	mkpath.h \
+	posixver.h \
+	stderr.h \
+	sysstat.h \
+	unp.h \
+	unpv13e.h \
+
+LIBOBJ = ${LIBSRC:.c=.o}
 
 LIBBASE = cpd
 LIBNAME = lib${LIBBASE}.a
@@ -57,6 +75,15 @@ ${LIBNAME}: ${LIBNAME}(${LIBOBJ})
 
 cpd-client: ${LIBNAME} cpd.h
 cpd-server: ${LIBNAME} cpd.h
+
+headers: ${LIBHDR}
+source:  ${LIBSRC}
+
+${LIBSRC}:
+	${LN_S} ${SRC_DIR}/$@ .
+
+${LIBHDR}:
+	${LN_S} ${HDR_DIR}/$@ .
 
 clean:
 	${RM_FR} ${LIBNAME} ${PROGRAMS} ${DEBRIS}

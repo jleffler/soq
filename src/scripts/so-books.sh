@@ -4,7 +4,7 @@
 
 cat << 'EOF'
 
-W. Richard Stevens, Bill Fenner, Andrew M. Rudoff 
+W. Richard Stevens, Bill Fenner, Andrew M. Rudoff
 [UNIX® Network Programming, Vol 1: The Sockets Networking API, 3rd Edn](http://www.amazon.com/Unix-Network-Programming-Volume-Networking/dp/0131411551)
 [UNIX® Network Programming, Vol 1: The Sockets Networking API](http://unpbook.com/)
 
@@ -46,5 +46,8 @@ Jon Bentley
 
 Andrew Koenig
 [C Traps and Pitfalls](https://www.amazon.com/gp/product/0201179288) 1989.
+
+P J Plauger
+[The Standard C Library](https://www.amazon.com/dp/0131315099) 1992.
 
 EOF

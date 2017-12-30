@@ -1,4 +1,6 @@
 ddpr
+fixin
+pipe-rot
 posixcmd
 posixfun
 posixhdr
@@ -12,6 +14,9 @@ rfn-sql
 so
 so-books
 so-late
+so-stderr
+soa
 sops
 sow
+sscce
 wso

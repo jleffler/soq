@@ -121,6 +121,15 @@ static void add_section(SectionList *list, Section section)
 {
     assert(list != 0);
     assert(section.length != 0);
+    if (!isEncapsulated(list, section))
+    {
+        /*
+        ** Must add the section — but it may extend an existing
+        ** section (before or after), or even connect two currently
+        ** adjacent but non-contiguous sections.  Or it may simply need
+        ** to be inserted before or after some existing section.
+        */
+    }
 }
 
 /* Not as efficient as all that - linear search */

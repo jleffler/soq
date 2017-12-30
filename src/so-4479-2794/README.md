@@ -32,3 +32,44 @@ Because I'm stupid, that's why!
     -T target  Target directory (default - realpath for .)
     -V         Print version information and exit
 
+<hr>
+
+The question on SO has been deleted (so you need 10K to find it).
+The OP ws not very reasonable in his attitude.
+
+* `client-20170706.c`
+* `server-20170706.c`
+
+  This code corresponds more or less to what was provided by the OP, but
+  some was gleaned from email sent to me.
+
+* `cpd-client.c`
+* `cpd-server.c`
+
+  This code corresponds to the specification above.
+
+The other code needed from the JLSS canon includes:
+
+* `config.h`
+* `cpd.h`
+* `daemonize.c`
+* `debug.h`
+* `emalloc.c`
+* `emalloc.h`
+* `errhelp.c`
+* `estrdup.c`
+* `kludge.h`
+* `mkpath.c`
+* `mkpath.h`
+* `posixver.h`
+* `stderr.c`
+* `stderr.h`
+* `sysstat.h`
+* `tcp_accept.c`
+* `tcp_connect.c`
+* `tcp_listen.c`
+* `unp.h`
+* `unpv13e.h`
+
+The `.gitignore` file ignores the name `pater-familias` which was used
+for testing.

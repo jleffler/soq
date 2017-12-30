@@ -34,3 +34,14 @@ The official accepted answer is a self-answer:
 * `avl-tree.c`
   Deleted (but unidentified) question on SO.  Crashes.
 
+### Diatribe
+
+Commit 4e18820... avl/avl-tree.c: found on SO 2015-06-28.
+Question deleted without ID number.
+Found replica at
+http://eclipsexina.blogspot.com/2015/06/access-violation-error-avl-tree-during.html
+in April 2016 (notified SO Team about copy without due recognition).
+Still cannot identify original question number.
+However, the title "Access Violation error.
+AVL TREE during insertion.
+C" suggests that the code has problems.
