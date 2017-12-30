@@ -13,7 +13,7 @@ int main(void)
     char line[4096];
     printf("Fraction calculator: enter calculations such as:\n"
            "[13/4] + [19/7] * [29/13] / [14/23]\n"
-           "which should yield the result [+111389/5096]\n");
+           "which should yield the result [+111389/5096]\n\n");
     while (fgets(line, sizeof(line), stdin) != 0)
     {
         line[strcspn(line, "\n")] = '\0';
@@ -25,7 +25,7 @@ int main(void)
         if (ri_scn(str, &eon, &lhs) != 0)
         {
             if (eon == str)
-                printf("Unrecognizable number: %s", str);
+                printf("Unrecognizable number: %s\n", str);
             else
             {
                 int len = (int)(eon - str);
@@ -50,7 +50,7 @@ int main(void)
             if (ri_scn(str, &eon, &rhs) != 0)
             {
                 if (eon == str)
-                    printf("Unrecognizable number: %s", str);
+                    printf("Unrecognizable number: %s\n", str);
                 else
                 {
                     int len = (int)(eon - str);
@@ -84,7 +84,7 @@ int main(void)
                     printf("Invalid operation %c - try again\n", op);
                     goto next_line;
             }
-            printf("res = %s (op = '%c')\n\n", ri_fmt(res, buffer, sizeof(buffer)), op);
+            printf("res = %s\n\n", ri_fmt(res, buffer, sizeof(buffer)));
             lhs = res;
             eon = skip_space(eon);
         }
