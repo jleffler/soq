@@ -47,11 +47,23 @@ prototypes.
 
 This was the development version of the code, mostly instrumented rather
 than fixed.
-But somewhere along the line, I broke it; where `ls | wc` was working
-cleanly, it was no longer working cleanly.
+The instrumentation demonstrates that there are too many file descriptors
+open (now there's a surprise).
 
-Now to try to recover the working code and work out what the heck the
-program is doing with pipes.
-It is interesting because it is using recursion to handle the piping I
-think it is waiting in the wrong places, but that has to be resolved.
+### `shell79.c`
+
+This is a development of `shell23.c` which remedies the problems.
+It mainly closes many more pipe file descriptors.
+It uses a function `logmsg()` to record PID and function name as well
+as a formatted message.
+It cuts down on the number of calls to `getpid()` in the code, and makes
+the formatting more uniform.
+A few of the functions acquire an extra argument.
+
+The code can now use `waitpid()` to wait for specific PIDs.
+This at least makes the messaging consistent.
+The children tend to die in the reverse order, as can be seen
+by replacing `waitpid(pid, &status, 0)` with `wait(&status)`.
+
+The code also avoids creating an unused pipe for the last child.
 
