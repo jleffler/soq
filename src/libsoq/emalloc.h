@@ -2,7 +2,7 @@
 @(#)File:           emalloc.h
 @(#)Purpose:        Interfaces to routines in emalloc.c
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990,1992-93,1996-97,2001,2003,2005,2008,2015-16
+@(#)Copyright:      (C) JLSS 1990,1992-93,1996-97,2001,2003,2005,2008,2015
 @(#)Derivation:     emalloc.h 5.10 2015/02/17 04:50:35
 */
 
@@ -47,14 +47,6 @@
 #ifndef STRDUP
 #define STRDUP(s)       estrdup((s))
 #endif /* STRDUP */
-
-#ifndef NOSTRICT
-#ifdef lint
-#define NOSTRICT(type, exp) ((type)((exp) ? 0 : 0))
-#else
-#define NOSTRICT(type, exp) ((type)(exp))
-#endif
-#endif /* NOSTRICT */
 
 /* -- Declarations */
 

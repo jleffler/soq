@@ -2,8 +2,8 @@
 @(#)File:           kludge.h
 @(#)Purpose:        Provide support for KLUDGE macro
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1995,1997-2000,2003,2005,2008,2015-16
-@(#)Derivation:     kludge.h 1.16 2016/01/17 15:48:53
+@(#)Copyright:      (C) JLSS 1995-2017
+@(#)Derivation:     kludge.h 1.17 2017/11/16 01:39:42
 */
 
 /*TABSTOP=4*/
@@ -53,11 +53,17 @@
 ** This allows it to work with traditional compilers but runs foul of
 ** the absence of string concatenation, and you have to avoid commas
 ** in the reason string, etc.
+**
+** KLUDGE_FILE and FEATURE_FILE include the source file name after the
+** main string.
 */
 
 #define KLUDGE_DEC  static const char kludge[]
 #define FEATURE_DEC static const char feature[]
 #define ONCE_ONLY   static int once = 0; if (once++ == 0)
+
+#define KLUDGE_FILE(x)   KLUDGE(x " (" __FILE__ ")")
+#define FEATURE_FILE(x)  FEATURE(x " (" __FILE__ ")")
 
 #define KLUDGE(x)   { ONCE_ONLY KLUDGE_USE("@(#)KLUDGE: " x); }
 #define FEATURE(x)  { ONCE_ONLY KLUDGE_USE("@(#)Feature: " x); }

@@ -1,8 +1,8 @@
 /*
-@(#)File:           timer.c,
+@(#)File:           timer.c
 @(#)Purpose:        Simple timing package for multiple systems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993,1995-2001,2003,2005,2007-08,2011,2013,2015-16
+@(#)Copyright:      (C) JLSS 1993,1995-2001,2003,2005,2007-08,2011,2013,2015
 @(#)Derivation:     timer.c 2.31 2015/02/21 17:32:35
 */
 

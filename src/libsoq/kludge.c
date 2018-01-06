@@ -2,8 +2,8 @@
 @(#)File:           kludge.c
 @(#)Purpose:        Library support for KLUDGE macro
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1995,1997-98,2003,2005,2015-16
-@(#)Derivation:     kludge.c 1.10 2015/02/21 06:21:52
+@(#)Copyright:      (C) JLSS 1995-2017
+@(#)Derivation:     kludge.c 1.11 2017/11/16 01:39:42
 */
 
 /*TABSTOP=4*/
@@ -16,17 +16,21 @@
 
 #include "kludge.h"
 
-static const char jlss_id_kludge_c[] = "@(#)kludge.c";
-
 /* Report on kludges used at run-time */
 void kludge_use(const char *str)
 {
 #ifdef KLUDGE_VERBOSE
     /* Condition is vacuous, but prevents jlss_id_kludge_c from being optimized away */
     if (jlss_id_kludge_c != 0)
+    {
+        FEATURE("KLUDGE Verbose");
         fprintf(stderr, "%s\n", str);
+    }
 #else
     if (jlss_id_kludge_c != (char *)0)
+    {
+        FEATURE("KLUDGE Quiet");
         (void)strcmp(str, jlss_id_kludge_c);
+    }
 #endif /* KLUDGE_VERBOSE */
 }

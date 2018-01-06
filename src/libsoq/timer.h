@@ -2,7 +2,7 @@
 @(#)File:           timer.h
 @(#)Purpose:        Timing package for multiple systems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993,1997,2003,2006,2008,2015-16
+@(#)Copyright:      (C) JLSS 1993,1997,2003,2006,2008,2015
 @(#)Derivation:     timer.h 2.9 2015/02/21 17:32:35
 */
 

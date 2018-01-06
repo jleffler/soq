@@ -2,14 +2,16 @@
 @(#)File:           jlss.h
 @(#)Purpose:        JLSS Library Functions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1997-2001,2003-05,2008-13,2015-16
-@(#)Derivation:     jlss.h 2015.6 2015/11/26 18:41:52
+@(#)Copyright:      (C) JLSS 1997-2017
+@(#)Derivation:     jlss.h 2017.2 2017/07/08 03:35:02
 */
 
 /*TABSTOP=4*/
 
 #ifndef JLSS_H
 #define JLSS_H
+
+#endif /* MAIN_PROGRAM */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,8 +50,6 @@ extern int  cistrcmp(const char *s1, const char *s2);
 /* Case-insensitive length-limited string compare */
 extern int  cistrncmp(const char *s1, const char *s2, size_t len);
 
-/* Destructively convert string into tokens */
-extern int tokenise(char *str, char *sep, char **token, int maxtok, int nulls);
 /* Copy contents of file1 to file2 */
 extern void fcopy(FILE *f1, FILE *f2);
 /* Read line of data - prefix avoids conflict with POSIX 2008 getline() */
@@ -77,24 +77,6 @@ extern char *strcapital(char *s);
 
 /* Insert string t in front of string s in string s */
 extern char *strinsert(char *s, const char *t);
-
-/* Create all directories in path */
-extern int mkpath(const char *path, mode_t mode);
-
-/* Convert C String Literal in (str..end] (excluding surrounding quotes) */
-/* to string, returning length of string, or -1 if conversion error, or */
-/* -2 if there is not enough room for the output */
-extern int cstrlit_str(const char *str, const char *end, char *buffer, size_t buflen);
-/* Convert C Character Literal in (str..end] (excluding surrounding quotes) */
-/* to character, returning converted char or -1 if string is invalid. */
-/* If non-null, eptr is set to first non-converted (or non-convertible) character */
-extern int cstrlit_chr(const char *str, const char *end, char const ** const eptr);
-
-/* Convert character to C Character Literal. */
-/* buffer[0] = '\0' if there isn't enough room in buffer */
-extern void chr_cstrlit(unsigned char c, char *buffer, size_t buflen);
-/* Convert string to C String Literal */
-extern void str_cstrlit(const char *str, char *buffer, size_t buflen);
 
 /* Convert character [0-9a-zA-Z] to digit in given base (2-36), */
 /* returning -1 for invalid bases and characters. */

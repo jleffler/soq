@@ -3,14 +3,26 @@
 @(#)Purpose:        Error reporting routines
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1988-2017
-@(#)Derivation:     stderr.c 10.18 2017/04/04 18:34:01
+@(#)Derivation:     stderr.c 10.19 2017/07/10 04:54:26
 */
 
 /*TABSTOP=4*/
 
+/*
+** Configuration:
+** USE_STDERR_SYSLOG   - include syslog functionality
+** USE_STDERR_FILEDESC - include file descriptor functionality
+** JLSS_STDERR         - force support for syslog and file descriptors
+**
+** HAVE_UNISTD_H
+** HAVE_CLOCK_GETTIME
+** HAVE_GETTIMEOFDAY
+** HAVE_SYSLOG_H
+** HAVE_SYSLOG
+*/
+
 #include "posixver.h"
 #include "stderr.h"     /* Includes config.h if available */
-#include "kludge.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -41,6 +53,23 @@ enum { MAX_MSGLEN = ERR_MAXMSGLEN };
 /* No sub-second timing */
 #endif
 
+#if defined(HAVE_SYSLOG_H) && defined(HAVE_SYSLOG) && defined(USE_STDERR_SYSLOG)
+#include <syslog.h>
+extern const char jlss_id_stderr_c_with_syslog[];
+const char jlss_id_stderr_c_with_syslog[] =
+        "@(#)" __FILE__ " configured with USE_STDERR_SYSLOG";
+#else
+#undef USE_STDERR_SYSLOG
+#undef HAVE_SYSLOG_H
+#undef HAVE_SYSLOG
+#endif /* syslog configuration */
+
+#if defined(USE_STDERR_FILEDESC)
+extern const char jlss_id_stderr_c_with_filedesc[];
+const char jlss_id_stderr_c_with_filedesc[] =
+        "@(#)" __FILE__ " configured with USE_STDERR_FILEDESC";
+#endif /* USE_STDERR_FILEDESC */
+
 static const char def_format[] = "%Y-%m-%d %H:%M:%S";
 static const char *tm_format = def_format;
 static char arg0[ERR_MAXLEN_ARGV0+1] = "**undefined**";
@@ -51,8 +80,18 @@ enum { ERR_LOGOPTS = ERR_NOFLUSH | ERR_EXIT | ERR_ABORT | ERR_LOGTIME |
                      ERR_NOARG0  | ERR_PID  | ERR_ERRNO };
 static int   err_flags = 0;     /* Default error flags (ERR_STAMP, ERR_PID, etc) */
 
-/* File where messages go */
+/* Where do messages go?
+**  if   (defined USE_STDERR_SYSLOG && errlog != 0) ==> syslog
+**  elif (err_fd >= 0)                       ==> file descriptor
+**  else                                     ==> file pointer
+*/
+#ifdef USE_STDERR_SYSLOG
+static int   errlog =  0;
+#endif /* USE_STDERR_SYSLOG */
 static FILE *errout =  0;
+#ifdef USE_STDERR_FILEDESC
+static int   err_fd = -1;
+#endif /* USE_STDERR_FILEDESC */
 
 /*
 ** err_???_print() functions are named systematically, and are all static.
@@ -123,6 +162,52 @@ FILE *(err_stderr)(FILE *newerr)
     return(old);
 }
 
+#if defined(USE_STDERR_FILEDESC)
+/* Change the definition of 'stderr', reporting on the old one too */
+/* NB: using err_use_fd() with a negative value turns off 'errors to file descriptor' */
+int (err_use_fd)(int new_fd)
+{
+    int old_fd = err_fd;
+
+    if (new_fd < 0)
+        new_fd = -1;
+    err_fd = new_fd;
+    return(old_fd);
+}
+#endif /* USE_STDERR_FILEDESC */
+
+#if defined(USE_STDERR_SYSLOG)
+/*
+** Configure the use of syslog
+** If not configured to use syslog(), this is a no-op.
+** If configured to use syslog(), the facility argument should be one of
+** the standard facilities (POSIX defines LOG_USER and LOG_LOCAL0 to
+** LOG_LOCAL7) to turn on syslog(), or a negative value to turn it off.
+** The logopts should be the bitwise combination of 0 and the options
+** LOG_PID, LOG_CONS, LOG_NDELAY, LOG_ODELAY, LOG_NOWAIT.  However, the
+** STDERR package sets LOG_PID regardless.
+** The ident used in openlog() corresponds to the value in arg0.
+** Note that when formatting the message for syslog(), the time, the PID
+** and arg0 are not needed (and hence not provided).  The downside is
+** you are stuck with the date formatted by syslog().
+*/
+int (err_use_syslog)(int logopts, int facility)
+{
+    if (facility < 0)
+    {
+        /* Turn off syslog() */
+        closelog();
+        errlog = 0;
+    }
+    else
+    {
+        openlog(arg0, LOG_PID|logopts, facility);
+        errlog = 1;
+    }
+    return(errlog);
+}
+#endif /* USE_STDERR_SYSLOG */
+
 /* Return stored basename of command */
 const char *(err_getarg0)(void)
 {
@@ -133,7 +218,7 @@ const char *(err_getarg0)(void)
 void (err_setarg0)(const char *argv0)
 {
     /* Ignore three pathological program names -- NULL, "/" and "" */
-    if (argv0 != 0 && *argv0 != '\0' && (*argv0 != '/' || *(argv0 + 1) != '\0'))
+    if (argv0 != 0 && *argv0 != '\0' && (argv0[0] != '/' || argv0[1] != '\0'))
     {
         const char *cp;
         size_t nbytes = sizeof(arg0) - 1;
@@ -164,7 +249,11 @@ void (err_setarg0)(const char *argv0)
             if (nbytes > sizeof(arg0) - 1)
                 nbytes = sizeof(arg0) - 1;
         }
-        strncpy(arg0, cp, nbytes);
+        /*
+        ** Use memmove() to allow for usage: daemonize(err_getarg(), 0);
+        ** where daemonize() calls err_setarg0() with its first argument.
+        */
+        memmove(arg0, cp, nbytes);
         arg0[nbytes] = '\0';
     }
 }
@@ -177,7 +266,7 @@ const char *(err_rcs_string)(const char *s2, char *buffer, size_t buflen)
 
     /*
     ** Bother RCS!  We've probably been given something like:
-    ** "$Revision: 7.5 $ ($Date: 2001/08/11 06:25:48 $)"
+    ** "$Revision: 10.19 $ ($Date: 2017/07/10 04:54:26 $)"
     ** We only want to emit "7.5 (2001/08/11 06:25:48)".
     ** Skip the components between '$' and ': ', copy up to ' $',
     ** repeating as necessary.  And we have to test for overflow!
@@ -241,19 +330,16 @@ static Time now(void)
 {
     Time clk;
 #if defined(HAVE_CLOCK_GETTIME)
-    FEATURE("Subsecond times using clock_gettime()");
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     clk.tv_sec = ts.tv_sec;
     clk.tv_nsec = ts.tv_nsec;
 #elif defined(HAVE_GETTIMEOFDAY)
-    FEATURE("Subsecond times using gettimeofday()");
     struct timeval tv;
     gettimeofday(&tv, 0);
     clk.tv_sec = tv.tv_sec;
     clk.tv_nsec = 1000 * tv.tv_usec;
 #else
-    FEATURE("No subsecond times");
     clk.tv_sec = time(0);
     clk.tv_nsec = 0;
 #endif
@@ -346,6 +432,51 @@ static void (err_stdio)(FILE *fp, int flags, int errnum, const char *format, va_
     fflush(fp);
 }
 
+#if defined(USE_STDERR_SYSLOG)
+/* err_syslog() - report error via syslog
+**
+** syslog() automatically adds PID and program name (configured in
+** openlog()) and time stamp.  Hence those elements are removed from
+** flags sent to err_fmtmsg.
+*/
+static void (err_syslog)(int flags, int errnum, const char *format, va_list args)
+{
+    char buffer[MAX_MSGLEN];
+    int priority;
+
+    err_fmtmsg(buffer, sizeof(buffer), flags & ~(ERR_NOARG0|ERR_PID|ERR_LOGTIME), errnum, format, args);
+
+    if (flags & ERR_ABORT)
+        priority = LOG_CRIT;
+    else if (flags & ERR_EXIT)
+        priority = LOG_ERR;
+    else
+        priority = LOG_WARNING;
+    syslog(priority, "%s", buffer);
+}
+#endif /* USE_STDERR_SYSLOG */
+
+#if defined(USE_STDERR_FILEDESC)
+/* err_filedes() - report error via file descriptor */
+static void (err_filedes)(int fd, int flags, int errnum, const char *format, va_list args)
+{
+    char buffer[MAX_MSGLEN];
+    size_t msglen = err_fmtmsg(buffer, sizeof(buffer), flags, errnum, format, args);
+    ssize_t nbytes;
+    char *msgbuf = buffer;
+
+    while (msglen > 0)
+    {
+        nbytes = write(fd, msgbuf, msglen);
+        if (nbytes <= 0)
+            break;
+        msgbuf += nbytes;
+        assert(nbytes > 0 && msglen >= (size_t)nbytes);
+        msglen -= (size_t)nbytes;
+    }
+}
+#endif /* USE_STDERR_FILEDESC */
+
 /* Most fundamental (and flexible) error message printing routine - always returns */
 static void (err_vrf_print)(FILE *fp, int flags, const char *format, va_list args)
 {
@@ -354,7 +485,17 @@ static void (err_vrf_print)(FILE *fp, int flags, const char *format, va_list arg
     if ((flags & ERR_NOFLUSH) == 0)
         fflush(0);
 
-    err_stdio(fp, flags, errnum, format, args);
+#if defined(USE_STDERR_SYSLOG)
+    if (errlog)
+        err_syslog(flags, errnum, format, args);
+    else
+#endif /* USE_STDERR_SYSLOG */
+#if defined(USE_STDERR_FILEDESC)
+    if (err_fd >= 0)
+        err_filedes(err_fd, flags, errnum, format, args);
+    else
+#endif /* USE_STDERR_FILEDESC */
+        err_stdio(fp, flags, errnum, format, args);
 
     fflush(fp);
 }
@@ -562,7 +703,5 @@ void (err_internal)(const char *function, const char *format, ...)
 }
 
 #ifdef TEST
-
-#error Use separate test program test.stderr.c
-
+#include "test.stderr.c"
 #endif /* TEST */
