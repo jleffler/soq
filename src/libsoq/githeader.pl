@@ -65,7 +65,11 @@ if (!eof)
                 $last = $_;
             }
         }
-        elsif (m/^#\s*ifn?def\s+(MAIN_PROGRAM|lint|NOSTRICT)\b/ && $echo == 1)
+        elsif ($echo == 1 &&
+                (m/^\s*#\s*ifn?def\s+(MAIN_PROGRAM|lint|NOSTRICT)\b/ ||
+                 m/^\s*#\s*if\s*(?:\!\s*)?\bdefined\s*(?:\(\s*)?\b(MAIN_PROGRAM|lint|NOSTRICT)\b/
+                )
+              )
         {
             $echo = 0;
             $group = 1;
@@ -77,8 +81,8 @@ if (!eof)
         }
         else
         {
-            $group--  if (m/^#\s*endif\b/);
-            $group++  if (m/^#\s*if(n?def)\b/);
+            $group--  if (m/^\s*#\s*endif\b/);
+            $group++  if (m/^\s*#\s*if(?:n?def)?\b/);
             $echo = 1 if ($group == 0);
         }
     }
