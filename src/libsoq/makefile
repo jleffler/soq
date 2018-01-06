@@ -26,6 +26,7 @@ AUXFILES.c = \
 	filterio.c \
 	isqrt32.c \
 	isqrt64.c \
+	microsleep.c \
 	range2.c \
 	range3.c \
 	strtoi.c \
@@ -35,6 +36,7 @@ AUXFILES.c = \
 AUXFILES.h = \
 	isqrt.h \
 	jlss.h \
+	microsleep.h \
 	posixver.h \
 	reldiff.h \
 	wraphead.h \
