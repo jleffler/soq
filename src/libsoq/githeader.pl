@@ -51,19 +51,29 @@ while (<>)
 
 if (!eof)
 {
+    my $last = "\n";  # Can't match chomped input
     my $echo = 1;
     my $group = 0;
     while (<>)
     {
         chomp;
-        if (m/^#\s*ifn?def\s+(MAIN_PROGRAM|lint|NOSTRICT)\b/ && $echo == 1)
+        if ($_ eq "")
+        {
+            if ($echo && $last ne "")
+            {
+                print "$_\n";
+                $last = $_;
+            }
+        }
+        elsif (m/^#\s*ifn?def\s+(MAIN_PROGRAM|lint|NOSTRICT)\b/ && $echo == 1)
         {
             $echo = 0;
             $group = 1;
         }
         elsif ($echo)
         {
-            print "$_\n" if $echo;
+            print "$_\n";
+            $last = $_;
         }
         else
         {
