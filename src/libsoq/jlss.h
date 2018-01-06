@@ -11,8 +11,6 @@
 #ifndef JLSS_H
 #define JLSS_H
 
-#endif /* MAIN_PROGRAM */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
