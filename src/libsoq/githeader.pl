@@ -49,7 +49,30 @@ while (<>)
     }
 }
 
-print while (<>);
+if (!eof)
+{
+    my $echo = 1;
+    my $group = 0;
+    while (<>)
+    {
+        chomp;
+        if (m/^#\s*ifn?def\s+(MAIN_PROGRAM|lint|NOSTRICT)\b/ && $echo == 1)
+        {
+            $echo = 0;
+            $group = 1;
+        }
+        elsif ($echo)
+        {
+            print "$_\n" if $echo;
+        }
+        else
+        {
+            $group--  if (m/^#\s*endif\b/);
+            $group++  if (m/^#\s*if(n?def)\b/);
+            $echo = 1 if ($group == 0);
+        }
+    }
+}
 
 __END__
 
