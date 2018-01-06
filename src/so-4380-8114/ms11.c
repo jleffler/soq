@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -6,6 +7,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "microsleep.h"
 
 typedef struct Child
 {
@@ -168,7 +170,7 @@ static void be_childish(void)
             err_exit("Short write to parent from %d\n", (int)getpid());
     }
 
-    usleep(10000);
+    micro_sleep(10000);
     fprintf(stderr, "%d: all lines written to parent\n", pid);
 
     exit(0);

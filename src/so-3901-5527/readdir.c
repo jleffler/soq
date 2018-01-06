@@ -19,7 +19,12 @@ static void process_directory(const char *dirname)
         while ((entry = readdir(dp)) != 0)
         {
             /* Ignore current and parent directory */
-            printf("%8d: (%3d) %s\n", (int)entry->d_ino, entry->d_namlen, entry->d_name);
+#ifdef HAVE_DIRENT_D_NAMLEN
+            int name_len = entry->d_namlen;          /* Not available on Cygwin */
+#else
+            int name_len = strlen(entry->d_name);    /* Works everywhere */
+#endif
+            printf("%8d: (%3d) %s\n", (int)entry->d_ino, name_len, entry->d_name);
             if (strcmp(entry->d_name, stop_after) == 0)
             {
                 printf("Found entry '%s' - hit return to continue: ", stop_after);

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "microsleep.h"
 
 #define MAX_LENGTH 1024
 #define DELIMS " \t\r\n"
@@ -122,7 +123,7 @@ static void run_command(char **argv, int bg_flag)
         ** reporting others that die first too.
         */
         wait_for_child(pid, 0);
-        usleep(10000);
+        micro_sleep(10000);
     }
     else
     {

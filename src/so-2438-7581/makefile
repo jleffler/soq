@@ -5,6 +5,7 @@
 include ../../etc/soq-head.mk
 
 # Configured for Mac OS X - specify SOEXT=so or equivalent on other platforms
+SOEXT   = dll		# Cygwin
 SOEXT   = dylib
 LDFLAG1 = -L.
 LDLIB1  = -lrary1
