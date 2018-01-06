@@ -23,6 +23,7 @@
 
 #include "microsleep.h"
 #include "kludge.h"
+#include <time.h>
 
 enum { US_PER_SEC = 1000000 };
 enum { NS_PER_US  = 1000 };
