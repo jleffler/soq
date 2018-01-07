@@ -4,8 +4,9 @@
 *.bak
 *.bundle
 *.bz2
-*.dll
+*.class
 *.dSYM
+*.dll
 *.dylib
 *.exe
 *.gz
@@ -24,6 +25,11 @@
 ?.???
 ??
 ??.???
+Osiris/
+Safe/
+Scores
+Sphinx/
+Untracked/
 [a-z][a-z][0-9][0-9]
 [a-z][a-z][a-z][0-9][0-9]
 [a-z][a-z][a-z][a-z][0-9][0-9]
@@ -39,14 +45,9 @@ file[0-9]
 inc/*.h
 input
 junk
-Osiris/
 output
-Safe/
-Scores
 script.awk
 script.sed
 script.sh
 sed.script
-Sphinx/
 tmp/
-Untracked/
