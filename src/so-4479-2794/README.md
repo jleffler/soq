@@ -5,6 +5,10 @@ Transferring a directory through sockets
 
 <hr>
 
+This code is not really ready for GitHub.
+
+<hr>
+
 Why am I doing anything about this?
 Because I'm stupid, that's why!
 
@@ -50,7 +54,7 @@ The OP ws not very reasonable in his attitude.
 
 The other code needed from the JLSS canon includes:
 
-* `config.h`
+* `config.h` — this needs to be like the one from $HOME/lib/JL
 * `cpd.h`
 * `daemonize.c`
 * `debug.h`
