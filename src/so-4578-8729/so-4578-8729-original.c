@@ -23,15 +23,20 @@
 // Global debug
 bool DEBUG = false;
 
+unsigned long hash(unsigned char *str);
+bool getWord(char* line, int* idx, unsigned char* word);
+void processFile(FILE* textFp);
+
 /* A djb2 hash function sourced online.
  */
+
 unsigned long hash(unsigned char *str)
 {
     unsigned long hash = 5381;
     int c;
 
-    while (c = *str++)
-    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    while ((c = *str++) != '\0')
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
 }
@@ -45,7 +50,7 @@ unsigned long hash(unsigned char *str)
  * TODO: Find issue in here causing memory error
  *
  */
-bool getWord(char* line, int* idx, char* word)
+bool getWord(char* line, int* idx, unsigned char* word)
 {
     int wordIdx = 0;
 
@@ -133,7 +138,7 @@ void processFile(FILE* textFp)
 
             if (DEBUG == true)
             {
-                fprintf(stdout, "key: %10d,\t", hash_output);
+                fprintf(stdout, "key: %10ld,\t", hash_output);
                 fprintf(stdout, "value: %8s,\t", word);
                 fprintf(stdout, "lineIdx: %2d\n", *lineIdx);
             }
