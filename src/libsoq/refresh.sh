@@ -10,6 +10,9 @@ do
     reffile="$HOME/lib/JL/$file"
     if [ ! -f "$reffile" ]
     then echo "Unmatched - $file"
+    elif [ ! -f "$file" ]
+    then echo "Introduce — $file"
+         ${PERL:-perl} githeader.pl "$reffile" > "$file"
     elif ${PERL:-perl} githeader.pl "$reffile" > "$tmp"
          cmp -s "$file" "$tmp"
     then echo "Unchanged - $file"
