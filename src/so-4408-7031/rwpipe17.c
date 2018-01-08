@@ -4,6 +4,7 @@
 ** Trying to use pipe to read from write to another program?
 */
 
+#include "posixver.h"
 /* #include "rwpipe.h" */
 #ifndef RWPIPE_H_INCLUDED
 #define RWPIPE_H_INCLUDED
