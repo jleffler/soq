@@ -24,3 +24,8 @@ The code doesn't compile without scads of warnings.
 The code mixes up int, long and pointer; it might compile and maybe run,
 sort of, under `-m32` but it won't under `-m64`.
 
+### Cygwin
+
+Under a 64-bit Cygwin, the `-m32` (32-bit) libraries are not necessarily
+available.
+Suppress this build with `make -t`.
