@@ -6,6 +6,7 @@ See also:
 * [Is "inline" without "static" or "extern" ever useful in C99?](https://stackoverflow.com/questions/6312597) — SO'2597.
 * [How to declare an inline function in a C99 multi-file project?](https://stackoverflow.com/questions/5229343) — SO'9343.
 * [What's the difference between static inline, extern inline, and a normal inline function?](https://stackoverflow.com/questions/25000497) — SO'0497.
+* [Differentiate `extern inline` and `inline` in C](https://stackoverflow.com/questions/48192187/differentiate-extern-inline-and-inline-in-c) — SO'2187.
 
 ### Motivation
 
