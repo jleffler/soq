@@ -30,6 +30,7 @@ AUXFILES.c = \
 	filterio.c \
 	isqrt32.c \
 	isqrt64.c \
+	mddebug.c \
 	range2.c \
 	range3.c \
 	strtoi.c \
