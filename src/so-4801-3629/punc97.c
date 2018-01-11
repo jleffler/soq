@@ -31,7 +31,7 @@ int main(void) {
     // copy the original str to the new and add space before each punc
     for (i = 0; *(stnc_org + i) != '\0'; i++) {
         if (ispunct(*(stnc_org + i))) {
-            // copy the content before the punctuation 
+            // copy the content before the punctuation
             strncpy(stnc_new, stnc_org, i);
             // insert a space character before copying the punctuation
             *(stnc_new + i) = ' ';
