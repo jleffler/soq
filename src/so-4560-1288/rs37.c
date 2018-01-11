@@ -4,7 +4,7 @@
 
 static void func(const unsigned int x, const int *flat_array)
 {
-    const int (*reshaped)[x] = (int (*)[x])flat_array;
+    const int (*reshaped)[x] = (const int (*)[x])flat_array;
     for (unsigned int i = 0; i < x; i++)
     {
         for (unsigned int j = 0; j < x; j++)
