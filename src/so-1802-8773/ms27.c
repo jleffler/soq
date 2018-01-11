@@ -30,7 +30,7 @@ function merge(left, right)
     # Copy the rest of the data from the other
     while length(left) > 0
         append first(left) to result
-        left = rest(left)             
+        left = rest(left)
     end while
     while length(right) > 0
         append first(right) to result

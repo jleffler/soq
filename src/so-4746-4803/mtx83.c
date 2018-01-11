@@ -90,7 +90,7 @@ int main(void)
     TransposeMatrixRowwise();
     clk_stop(&ck);
     printf("Transposition: %s\n", clk_elapsed_us(&ck, buffer, sizeof(buffer)));
-    
+
     //clk_init(&ck);
     //clk_start(&ck);
     //dump_matrix("Transposed", DIMENSION, DIMENSION, Matrix);

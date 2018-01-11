@@ -190,7 +190,7 @@ int main(void)
     printPostOrderRecursive(root);
     putchar('\n');
     printPostOrderIterative(root);
-    
+
     bst_destroy(root);
     return 0;
 }

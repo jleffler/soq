@@ -24,7 +24,7 @@ static size_t prime_factors(u64_t value, u64_t *array)
     }
 
     for (i = 6; (i - 1) * (i - 1) <= n; i += 6)
-    {   
+    {
         while (n % (i-1) == 0)
         {
             n /= (i-1);
@@ -65,7 +65,7 @@ static u64_t max_prime_factor(u64_t value)
     }
 
     for (i = 6; (i - 1) * (i - 1) <= n; i += 6)
-    {   
+    {
         while (n % (i-1) == 0)
         {
             n /= (i-1);

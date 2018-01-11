@@ -22,7 +22,7 @@
 
 static const char optstr[] = "hV";
 static const char usestr[] = "[-hV] expression [expression...]";
-static const char hlpstr[] = 
+static const char hlpstr[] =
     "  -h  Print this help message and exit\n"
     "  -V  Print version information and exit\n"
     ;

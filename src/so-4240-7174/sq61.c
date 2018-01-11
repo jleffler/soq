@@ -124,7 +124,7 @@ static double area_square(double x1, double y1, double x2, double y2)
 /* Is point (px,py) inside square with BL (x1,y1) and TR (x2,y2)? */
 void inside_square(double x1, double y1, double x2, double y2, double px, double py)
 {
-    double xc = (x1 + x2)/2;    
+    double xc = (x1 + x2)/2;
     double yc = (y1 + y2)/2;    // Centre point
     double xd = (x1 - x2)/2;
     double yd = (y1 - y2)/2;    // Half-diagonal

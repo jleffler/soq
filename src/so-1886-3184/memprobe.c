@@ -10,7 +10,7 @@ static int fd[2] = { -1, -1 };
 
 int probe_init(void)
 {
-    if (fd[0] == -1) 
+    if (fd[0] == -1)
     {
         assert(fd[1] == -1);
         if (pipe(fd) != 0)

@@ -87,7 +87,7 @@ static char *str_strip(char *string)
     return string;
 }
 
-static 
+static
 char *strstrip(char *s)
 {
     size_t size;

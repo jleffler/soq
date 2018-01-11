@@ -3,10 +3,10 @@
 ** I'm using the following function to calculate the number of leap days
 ** between two years:
 **
-** static int CountLeapDays(int startYear, int endYear) 
+** static int CountLeapDays(int startYear, int endYear)
 ** {
 **     int Days = 0;
-** 
+**
 **     while (true)
 **     {
 **         if ((startYear % 4 == 0 && startYear % 100 != 0) || startYear % 400 == 0)
@@ -14,7 +14,7 @@
 **         if (startYear + 1 == endYear) break;
 **         startYear++;
 **     }
-** 
+**
 **     return Days;
 ** }
 **
@@ -130,7 +130,7 @@ static int nleap(int lo, int hi)
 
 #include <stdbool.h>
 
-static int CountLeapDays(int startYear, int endYear) 
+static int CountLeapDays(int startYear, int endYear)
 {
     int Days = 0;
 
