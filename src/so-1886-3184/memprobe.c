@@ -138,6 +138,7 @@ static void test_rw(void *address, size_t length, const char *tag)
         printf("%s is BAD (%d: %s)\n", tag, errno, strerror(errno));
 }
 
+/* The tests citing probe_memory_ro do not compile cleanly under -pedantic */
 int main(void)
 {
     int matrix[4] = { 0, 1, 2, 3 };
