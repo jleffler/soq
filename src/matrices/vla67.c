@@ -3,10 +3,10 @@
 #include <string.h>
 /* VLA notation using complete * notation in function prototypes */
 
-static void mat_copy(int x, int y, const int src[x][y], int dst[x][y]);
-static void mat_list_multiply(int x, int y, const int matlist[*][*][*], int result[*][*]);
-static void mat_multiply(int x, int y, int z, const int mat1[*][*], const int mat2[*][*], int result[*][*]);
-static void mat_print(const char *tag, int m, int n, const int matrix[*][*]);
+static void mat_copy(int x, int y, int src[x][y], int dst[x][y]);
+static void mat_list_multiply(int x, int y, int matlist[*][*][*], int result[*][*]);
+static void mat_multiply(int x, int y, int z, int mat1[*][*], int mat2[*][*], int result[*][*]);
+static void mat_print(const char *tag, int m, int n, int matrix[*][*]);
 
 int main(void)
 {
@@ -45,12 +45,12 @@ int main(void)
     return 0;
 }
 
-static void mat_copy(int x, int y, const int src[x][y], int dst[x][y])
+static void mat_copy(int x, int y, int src[x][y], int dst[x][y])
 {
     memmove(dst, src, x * y * sizeof(src[0][0]));   // sizeof(src) is not OK
 }
 
-static void mat_list_multiply(int x, int y, const int matlist[x][y][y], int result[y][y])
+static void mat_list_multiply(int x, int y, int matlist[x][y][y], int result[y][y])
 {
     int product[y][y];
     mat_copy(y, y, matlist[0], product);
@@ -62,7 +62,7 @@ static void mat_list_multiply(int x, int y, const int matlist[x][y][y], int resu
     }
 }
 
-static void mat_multiply(int x, int y, int z, const int mat1[x][y], const int mat2[y][z], int result[x][z])
+static void mat_multiply(int x, int y, int z, int mat1[x][y], int mat2[y][z], int result[x][z])
 {
     for (int i = 0; i < x; i++)
     {
@@ -75,7 +75,7 @@ static void mat_multiply(int x, int y, int z, const int mat1[x][y], const int ma
     }
 }
 
-static void mat_print(const char *tag, int m, int n, const int matrix[m][n])
+static void mat_print(const char *tag, int m, int n, int matrix[m][n])
 {
     printf("%s (%dx%d):\n", tag, m, n);
     for (int i = 0; i < m; i++)
