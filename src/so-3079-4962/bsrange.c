@@ -165,7 +165,7 @@ static void add_section(SectionList *list, Section section)
 
 static bool read_section(FILE *fp, Section *section)
 {
-    return(fscanf(fp, "%" SCNiPTR " %zu", &section->start_addr, &section->length) == 2);
+    return(fscanf(fp, "%" SCNuPTR " %zu", &section->start_addr, &section->length) == 2);
 }
 
 int main(void)
