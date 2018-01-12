@@ -37,7 +37,20 @@ C11_HDR = c11-config.h c11-extern.h c11-inline.h
 C11_SRC = c11-program.c c11-define.c c11-user1.c c11-user2.c
 C11_OBJ = ${C11_SRC:.c=.o}
 
-all: ${PROGRAMS}
+SFLAGS  = -std=c99
+LDFLAGS =
+LDLIBS  =
+
+PROG1 = inline1
+PROG2 = inline2
+PROG3 = inline3
+PROGS = ${PROG1} ${PROG2} ${PROG3}
+
+PROG1.o = main1.o source1a.o source1b.o
+PROG2.o = main2.o source2a.o source2b.o
+PROG3.o = main3.o source3a.o source3b.o
+
+all: ${PROGRAMS} ${PROGS}
 
 ${PROG_G90}: ${G90_OBJ}
 	${CC_G90} -o $@ ${CFLAGS_G90} ${G90_OBJ}
@@ -50,6 +63,19 @@ ${G90_OBJ}: $$*.c
 
 ${C11_OBJ}: $$*.c
 	${CC_C11} -c ${CFLAGS_C11} $*.c
+
+${PROG1}: ${PROG1.o}
+	${CC} -o $@ ${CFLAGS} ${PROG1.o} ${LDFLAGS} ${LDLIBS}
+
+${PROG2}: ${PROG2.o}
+	${CC} -o $@ ${CFLAGS} ${PROG2.o} ${LDFLAGS} ${LDLIBS}
+
+${PROG3}: ${PROG3.o}
+	${CC} -o $@ ${CFLAGS} ${PROG3.o} ${LDFLAGS} ${LDLIBS}
+
+${PROG1.o}: header1.h
+${PROG2.o}: header2.h
+${PROG3.o}: header3.h
 
 # Links
 ${PROG_G90.c}: ${PROGRAM.c}
