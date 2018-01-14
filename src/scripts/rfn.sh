@@ -4,7 +4,7 @@
 
 usage()
 {
-    echo "Usage: $(basename "$0" .sh) [-x suffix] [prefix]" >&2
+    echo "Usage: $(basename "$0" .sh) [-x suffix] [prefix ...]" >&2
     exit 1
 }
 
@@ -34,10 +34,10 @@ then
     esac
 fi
 
-for file in "${@:-xx}"
+for prefix in "${@:-xx}"
 do
     count=0
-    while name="${1:-xx}$(ddpr)$suffix"; [ -f "$name" ]
+    while name="${prefix}$(ddpr)$suffix"; [ -f "$name" ]
     do
         # Try a new name since that one exists.
         # There are 21 primes between 11 and 97.
