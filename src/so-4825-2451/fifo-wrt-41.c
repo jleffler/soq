@@ -66,5 +66,6 @@ int main(int argc, char **argv)
 
 	random_milli_nap(250, 750);
     close(fd);
+    err_remark("Completed\n");
     return 0;
 }
