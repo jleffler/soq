@@ -9,6 +9,7 @@ SHARED.c = fifo-tst-41.c
 SHARED.h = ${SHARED.c:.c=.h}
 
 PROGRAMS = ${PROG1} ${PROG2}
+OUTFILES = test-fifo
 
 all: ${PROGRAMS}
 
