@@ -18,14 +18,30 @@ avoid busy waiting.
 Another option is to close the FIFO on getting EOF and then reopening
 the FIFO; the open hangs until there is a process that has opened the
 FIFO for writing.
+This is implemented with the `-r` option for `fifo-rdr-41`.
 A third option is to have the reading process also open the file for
 writing (best to use a separate file descriptor for that; the result is
 undefined if you open a FIFO with `O_RDWR` according to POSIX).
 Of course, since open-for-reading blocks until there's a writer, and
 open-for-writing blocks until there's a reader, you can't open the
 writing file descriptor until after the reading open has succeeded.
+This is implemented with the `-w` option for `fifo-rdr-41`.
 
 The writer process currently writes a random amount of random upper-case
 alphabetic data to the reader on each of a random number of iterations.
 It takes a random nap before writing on each iteration, and a random nap
 before closing the file descriptor.
+
+The reader, `fifo-rdr-41`, now accepts options:
+
+    -h  Print help and exit
+    -r  Reopen FIFO on reading EOF
+    -w  Open FIFO for writing
+
+Other options aplenty could be added, such as:
+
+    -T timeout  Stop if timeout elapses in a system call
+    -c count    Stop after count cycles (number of reopens)
+    -f FIFO     Name of FIFO
+    -t elapsed  Stop after total elapsed time.
+

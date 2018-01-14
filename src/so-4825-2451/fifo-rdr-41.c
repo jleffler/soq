@@ -28,6 +28,110 @@
 #include <time.h>
 #include <unistd.h>
 
+static void set_handler(void);
+static void chk_signal(void);
+static size_t rd_fifo(int fd, const char *name, size_t buflen, char buffer[buflen]);
+
+static const char optstr[] = "hrw";
+static const char usestr[] = "[-hrw]";
+static const char hlpstr[] =
+    "  -h  Print this help message and exit\n"
+    "  -r  Reopen FIFO after getting EOF\n"
+    "  -w  Open FIFO for writing too\n"
+    ;
+
+int main(int argc, char **argv)
+{
+    err_setarg0(argv[0]);
+
+    int wflag = 0;
+    int reopen = 0;
+    int opt;
+    while ((opt = getopt(argc, argv, optstr)) != -1)
+    {
+        switch (opt)
+        {
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'r':
+            reopen = 1;
+            break;
+        case 'w':
+            wflag = 1;
+            break;
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
+        }
+    }
+
+    if (argc != optind)
+        err_usage(usestr);
+
+    err_setlogopts(ERR_PID|ERR_MILLI);
+    set_handler();
+
+    struct stat sb;
+    if (stat(FIFO, &sb) != 0 || !S_ISFIFO(sb.st_mode))
+    {
+        err_remark("Creating FIFO '%s'\n", FIFO);
+        if (mkfifo(FIFO, 0644) != 0)
+        {
+            chk_signal();
+            err_syserr("failed to create FIFO '%s': ", FIFO);
+        }
+        chk_signal();
+    }
+
+    int wfd = -1;
+
+    while (1)
+    {
+        err_remark("Open FIFO '%s' for reading\n", FIFO);
+        int fd = open(FIFO, O_RDONLY);
+        if (fd == -1)
+        {
+            chk_signal();
+            err_syserr("failed to open FIFO '%s' for reading: ", FIFO);
+        }
+        chk_signal();
+        err_remark("FIFO '%s' opened for reading\n", FIFO);
+        if (wflag)
+        {
+            wfd = open(FIFO, O_WRONLY);
+            if (wfd == -1)
+            {
+                chk_signal();
+                err_syserr("failed to open FIFO '%s' for writing: ", FIFO);
+            }
+        }
+
+        while (1)
+        {
+            char buffer[1024];
+            size_t nbytes;
+            while ((nbytes = rd_fifo(fd, FIFO, sizeof(buffer), buffer)) > 0)
+                err_remark("Data: [%.*s]\n", (int)nbytes, buffer);
+            if (reopen)
+                break;
+            random_milli_nap(250, 750);
+            chk_signal();
+        }
+
+        err_remark("Close FIFO '%s'\n", FIFO);
+        close(fd);
+        if (wfd != -1)
+        {
+            close(wfd);
+            wfd = -1;
+        }
+        chk_signal();
+    }
+
+    return 0;
+}
+
 struct Signal
 {
     int         number;
@@ -96,83 +200,4 @@ static size_t rd_fifo(int fd, const char *name, size_t buflen, char buffer[bufle
         err_syserr("Failed to read from FIFO '%s': ", name);
     err_remark("%zu bytes read from FIFO '%s'\n", (size_t)nbytes, name);
     return nbytes;
-}
-
-static const char optstr[] = "hr";
-static const char usestr[] = "[-hr]";
-static const char hlpstr[] =
-    "  -h  Print this help message and exit\n"
-    "  -r  Reopen FIFO after getting EOF\n"
-    ;
-
-int main(int argc, char **argv)
-{
-    err_setarg0(argv[0]);
-
-    int reopen = 0;
-    int opt;
-    while ((opt = getopt(argc, argv, optstr)) != -1)
-    {
-        switch (opt)
-        {
-        case 'h':
-            err_help(usestr, hlpstr);
-            /*NOTREACHED*/
-        case 'r':
-            reopen = 1;
-            break;
-        default:
-            err_usage(usestr);
-            /*NOTREACHED*/
-        }
-    }
-
-    if (argc != optind)
-        err_usage(usestr);
-
-    err_setlogopts(ERR_PID|ERR_MILLI);
-    set_handler();
-
-    struct stat sb;
-    if (stat(FIFO, &sb) != 0 || !S_ISFIFO(sb.st_mode))
-    {
-        err_remark("Creating FIFO '%s'\n", FIFO);
-        if (mkfifo(FIFO, 0644) != 0)
-        {
-            chk_signal();
-            err_syserr("failed to create FIFO '%s': ", FIFO);
-        }
-        chk_signal();
-    }
-
-    while (1)
-    {
-        err_remark("Open FIFO '%s' for reading\n", FIFO);
-        int fd = open(FIFO, O_RDONLY);
-        if (fd == -1)
-        {
-            chk_signal();
-            err_syserr("failed to open FIFO '%s' for reading: ", FIFO);
-        }
-        chk_signal();
-        err_remark("FIFO '%s' opened for reading\n", FIFO);
-
-        while (1)
-        {
-            char buffer[1024];
-            size_t nbytes;
-            while ((nbytes = rd_fifo(fd, FIFO, sizeof(buffer), buffer)) > 0)
-                err_remark("Data: [%.*s]\n", (int)nbytes, buffer);
-            if (reopen)
-                break;
-            random_milli_nap(250, 750);
-            chk_signal();
-        }
-
-        err_remark("Close FIFO '%s'\n", FIFO);
-        close(fd);
-        chk_signal();
-    }
-
-    return 0;
 }
