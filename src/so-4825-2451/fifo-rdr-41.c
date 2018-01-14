@@ -26,14 +26,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-static void nap(void)
-{
-    struct timespec naptime = { .tv_sec = 0, .tv_nsec = 1000000 * (rand() % 500 + 250) };
-    err_remark("Napping 0.%.3ld seconds\n", naptime.tv_nsec / 1000000);
-    nanosleep(&naptime, 0);
-    err_remark("Woke up 0.%.3ld seconds later\n", naptime.tv_nsec / 1000000);
-}
-
 static size_t rd_fifo(int fd, const char *name, size_t buflen, char buffer[buflen])
 {
     err_remark("Read from FIFO '%s'\n", name);
@@ -71,7 +63,7 @@ int main(int argc, char **argv)
         size_t nbytes;
         while ((nbytes = rd_fifo(fd, FIFO, sizeof(buffer), buffer)) > 0)
             err_remark("Data: [%.*s]\n", (int)nbytes, buffer);
-        nap();
+        random_milli_nap(250, 750);
     }
     /* Effectively not reached */
 

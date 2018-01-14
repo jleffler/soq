@@ -27,5 +27,5 @@ writing file descriptor until after the reading open has succeeded.
 
 The writer process currently writes a random amount of random upper-case
 alphabetic data to the reader on each of a random number of iterations.
-It should have a random nap before writing on each iteration, and a
-random nap before closing the file descriptor.
+It takes a random nap before writing on each iteration, and a random nap
+before closing the file descriptor.

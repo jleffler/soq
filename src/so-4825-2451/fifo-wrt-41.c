@@ -8,7 +8,7 @@
 ** FIFO for writing.
 ** The writer process currently writes a random amount of random
 ** upper-case alphabetic data to the reader on each of a random number
-** of iterations.  It should have a random nap before writing on each
+** of iterations.  It takes a random nap before writing on each
 ** iteration, and a random nap before closing the file descriptor.
 */
 #include "fifo-tst-41.h"
@@ -59,10 +59,12 @@ int main(int argc, char **argv)
         for (int j  = 0; j < count; j++)
             buffer[j] = rand() % 26 + 'A';
         size_t nbytes;
+		random_milli_nap(250, 750);
         if ((nbytes = wr_fifo(fd, FIFO, count, buffer)) > 0)
             err_remark("Data: [%.*s]\n", (int)nbytes, buffer);
     }
 
+	random_milli_nap(250, 750);
     close(fd);
     return 0;
 }
