@@ -1,5 +1,6 @@
-/* SO 13213864 Multiprocessing and pipes in C */
+/* SO 1321-3864 Multiprocessing and pipes in C */
 
+#include "posixver.h"
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
