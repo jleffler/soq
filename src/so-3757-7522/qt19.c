@@ -1,4 +1,5 @@
-/* SO 37577522 */
+/* SO 3757-7522 */
+#include "posixver.h"
 #include <assert.h>
 #include <ctype.h>
 #include <math.h>
