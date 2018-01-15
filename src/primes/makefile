@@ -12,6 +12,8 @@ C_CXX_DUAL_PROGRAMS = \
 	eratosthenes-4 \
 	eratosthenes-5 \
 	eratosthenes-6 \
+    pp97 \
+    ppf17 \
 
 C_CXX_PROGRAMS = ${C_CXX_DUAL_PROGRAMS:=-cxx}
 
@@ -27,6 +29,8 @@ PROGRAMS = \
 	${CXX_ONLY_PROGRAMS} \
 	${C_CXX_DUAL_PROGRAMS} \
 	${C_CXX_PROGRAMS} \
+
+LDLIB2 = -lm
 
 all: ${PROGRAMS}
 
@@ -50,5 +54,7 @@ OUTFILES = \
 	eratosthenes-4-cxx.cpp \
 	eratosthenes-5-cxx.cpp \
 	eratosthenes-6-cxx.cpp \
+    ppf17-cxx.cpp \
+    pp97-cxx.cpp \
 
 include ../../etc/soq-tail.mk

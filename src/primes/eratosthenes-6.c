@@ -19,6 +19,7 @@
 ** Currently, this is mostly a piece of spaghetti.
 */
 
+#include "posixver.h"
 //#include "debug.h"
 #define WRAPPED_HEADER "debug.h"
 #include "wraphead.h"

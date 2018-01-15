@@ -1,4 +1,5 @@
-/* SO 1538644 - Determine if a number is prime */
+/* SO 0153-8644 - Determine if a number is prime */
+#include "posixver.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -190,13 +191,17 @@ static int check_number(unsigned v)
 }
 
 #ifndef NO_PROGRESS_REPORTING
-static int icounter = 0;
+static volatile sig_atomic_t icounter = 0;
 static void alarm_handler(int signum)
 {
     assert(signum == SIGALRM);
-    write(STDOUT_FILENO, ".", 1);
+    if (write(STDOUT_FILENO, ".", 1) != 1)
+        exit(1);
     if (++icounter % 60 == 0)
-        write(STDOUT_FILENO, "\n", 1);
+    {
+        if (write(STDOUT_FILENO, "\n", 1) != 1)
+            exit(1);
+    }
 }
 
 static void set_interval_timer(int interval)
