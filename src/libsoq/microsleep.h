@@ -10,6 +10,7 @@
 #ifndef MICROSLEEP_H_INCLUDED
 #define MICROSLEEP_H_INCLUDED
 
+#include "posixver.h"
 #include <sys/types.h>
 
 extern int micro_sleep(useconds_t useconds);
