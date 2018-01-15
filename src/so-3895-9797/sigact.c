@@ -1,4 +1,5 @@
 /* SO 3895-9797 */
+#include "posixver.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -55,7 +56,8 @@ static void sigIntHandler(int signum)
     dst = cpy_str(dst, ")\n");
 
     /*fprintf(stderr, "Ctrl-C (%d)\n", signum);*/
-    write(STDERR_FILENO, buffer, dst - buffer);
+    if (write(STDERR_FILENO, buffer, dst - buffer) != (dst - buffer))
+        exit(EXIT_FAILURE);
 }
 
 int main(void)
