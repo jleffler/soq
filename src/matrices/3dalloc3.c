@@ -7,6 +7,7 @@
 ** exasperating that there was no annotation about this.  So, after some
 ** work, the files 3dalloc2.c and 3dalloc3.c are the same.
 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

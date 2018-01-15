@@ -8,6 +8,7 @@
 ** improved testing framework but leave the memory release bugs in situ.
 ** Code now annotated to reduce chance of re-redoing the debugging.
 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

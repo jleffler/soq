@@ -3,6 +3,7 @@
 ** Closely related to 3dalloc2.c and 3dalloc3.c, but using far fewer
 ** memory allocations, which dramatically simplifies the error recovery.
 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
