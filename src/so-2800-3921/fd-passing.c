@@ -1,4 +1,5 @@
 /* SO 28003921 */
+#include "posixver.h"
 #include "stderr.h"
 #include <fcntl.h>
 #include <stdio.h>
@@ -117,9 +118,14 @@ int main(int argc, char **argv)
         int fd = odbierz(sock);
         err_remark("File descriptor is %d!\n", fd);
         char buffer[256];
-        ssize_t nbytes;
-        while ((nbytes = read(fd, buffer, sizeof(buffer))) > 0)
-            write(1, buffer, nbytes);
+        ssize_t rbytes;
+        while ((rbytes = read(fd, buffer, sizeof(buffer))) > 0)
+        {
+            ssize_t wbytes;
+            if ((wbytes = write(1, buffer, rbytes)) != rbytes)
+                err_sysrem("short write (read %zu, write %zu): ",
+                           rbytes, wbytes);
+        }
         err_remark("Done!\n");
         close(fd);
     }
