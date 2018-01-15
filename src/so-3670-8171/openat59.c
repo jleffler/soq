@@ -1,4 +1,5 @@
 /* SO 3670-8171 */
+#include "posixver.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
