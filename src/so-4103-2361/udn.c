@@ -14,6 +14,7 @@
 #undef TEST         /* Temporary */
 #define TEST        /* Temporary */
 
+#include "posixver.h"
 #include "udn.h"
 #include <assert.h>
 #include <stdio.h>
