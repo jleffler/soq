@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -207,7 +208,8 @@ static void writeArray(int fd)
     for (int i = 0; i < a_used; i++)
     {
         err_remark("Write: %d", a_data[i]);
-        write(fd, &a_data[i], sizeof(int));
+        if (write(fd, &a_data[i], sizeof(int)) != (ssize_t)sizeof(int))
+            err_error("failed to write %zu bytes to pipe: ", sizeof(int));
     }
 }
 
