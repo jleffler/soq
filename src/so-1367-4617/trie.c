@@ -12,6 +12,7 @@ extern void trie_free(tNode *trie);
 
 #endif /* TRIE_H_INCLUDED */
 
+#include "posixver.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
