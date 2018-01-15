@@ -61,7 +61,8 @@ int probe_memory_ro(const void *address, size_t length)
     if (result == 1)
     {
         char buffer[length];
-        read(fd[0], buffer, length);
+        if (read(fd[0], buffer, length) != (ssize_t)length)
+            return -1;
     }
 
     /* Reinstate errno */
