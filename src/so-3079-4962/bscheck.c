@@ -1,6 +1,7 @@
 /* SO 4477-2009 */
 /* Semi-generic integer binary search exhaustive tester */
 
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <unistd.h>
