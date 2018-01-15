@@ -4,6 +4,7 @@
 **
 ** The 4-star solution.
 */
+#include "posixver.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
