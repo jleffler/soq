@@ -7,6 +7,7 @@
 #error "This code uses VLA and cannot be compiled by strict C++"
 #endif
 
+#include "posixver.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
