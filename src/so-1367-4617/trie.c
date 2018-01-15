@@ -1,4 +1,4 @@
-/* SO 13674617 Adding word to trie structure dictionary */
+/* SO 1367-4617 Adding word to trie structure dictionary */
 
 #ifndef TRIE_H_INCLUDED
 #define TRIE_H_INCLUDED

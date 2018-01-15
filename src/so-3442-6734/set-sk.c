@@ -1,4 +1,4 @@
-/* SO 34426734 */
+/* SO 3442-6734 */
 /*
 ** A zero indexed array A consisting of N different integers is given.
 ** The array contains all integers in the range [0.. N-1].  Sets S[K]

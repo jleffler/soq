@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Proof of concept for SO 17222568 Send Standard Error to Pipe.
+# Proof of concept for SO 1722-2568 Send Standard Error to Pipe.
 # https://stackoverflow.com/questions/17222568
 
 # Detailed auxilliary testing verifies that standard output is unchanged

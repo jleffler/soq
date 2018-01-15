@@ -1,4 +1,4 @@
-# SO 47564391
+# SO 4756-4391
 #
 # It is clunky linking both -lpcre and -lpcre2-8 into an
 # executable, but it is fiddly to do otherwise.

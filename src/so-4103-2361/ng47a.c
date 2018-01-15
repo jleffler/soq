@@ -1,4 +1,4 @@
-/* SO 41032621 */
+/* SO 4103-2621 */
 /* Variant 3 - minimal printing */
 #include <stdio.h>
 #include <stdbool.h>

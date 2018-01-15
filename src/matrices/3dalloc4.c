@@ -1,4 +1,4 @@
-/* SO 18579583 Segmentation fault error in 3d array memory allocation */
+/* SO 1857-9583 Segmentation fault error in 3d array memory allocation */
 /*
 ** Closely related to 3dalloc2.c and 3dalloc3.c, but using far fewer
 ** memory allocations, which dramatically simplifies the error recovery.

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# SO 38494701
+# SO 3849-4701
 
 tmp=$(mktemp ./tmp.XXXXXX)
 trap 'rm -f "$tmp" "$tmp".?; exit 1' 0 1 2 3 13 15

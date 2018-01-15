@@ -1,4 +1,4 @@
-/* SO 18559403: How big an argument list is allowed */
+/* SO 1855-9403: How big an argument list is allowed */
 
 #include <assert.h>
 #include <errno.h>

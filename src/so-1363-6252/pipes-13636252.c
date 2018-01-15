@@ -1,6 +1,6 @@
 /*
 ** How to create a pipeline of N processes?
-** SO 13636252 C Minishell adding pipelines
+** SO 1363-6252 C Minishell adding pipelines
 */
 
 /* stderr.h */

@@ -9,7 +9,7 @@
 */
 
 /*TABSTOP=4*/
-/* SO 41032621 */
+/* SO 4103-2621 */
 
 #undef TEST         /* Temporary */
 #define TEST        /* Temporary */

@@ -1,4 +1,4 @@
-/* SO 47464803 - Initialize and Transpose as in question */
+/* SO 4746-4803 - Initialize and Transpose as in question */
 #include "timer.h"
 #include <stdio.h>
 

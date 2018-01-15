@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# SO 38494701
+# SO 3849-4701
 
 # NB: The sort ensures a given name only appears once in a sample file,
 #     which is rather important (to avoid cartesian products when joining).

@@ -8,7 +8,7 @@
 @(#)Product:        :PRODUCT:
 */
 
-/* SO 28010892 */
+/* SO 2801-0892 */
 
 /*TABSTOP=4*/
 

@@ -1,4 +1,4 @@
-/* SO 32578455 */
+/* SO 3257-8455 */
 /* Swap elements A and B in a doubly-linked list */
 /*
 ** Issues:

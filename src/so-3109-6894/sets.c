@@ -1,4 +1,4 @@
-/* SO 31096894 - sets.c */
+/* SO 3109-6894 - sets.c */
 /* Set of elements 1..1024 - in C89/C90 */
 
 #include "sets.h"

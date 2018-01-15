@@ -1,4 +1,4 @@
-/* SO 30493198 - Example code using triple pointer */
+/* SO 3049-3198 - Example code using triple pointer */
 #include "posixver.h"
 #include <stdio.h>
 #include <stdlib.h>

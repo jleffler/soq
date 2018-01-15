@@ -1,4 +1,4 @@
-# SO 17222568
+# SO 1722-2568
 
 include ../../etc/soq-head.mk
 

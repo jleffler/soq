@@ -1,4 +1,4 @@
-/* SO 20293405 - Counting inversions */
+/* SO 2029-3405 - Counting inversions */
 /* Code from: http://www.geeksforgeeks.org/counting-inversions/ */
 
 #include <stdio.h>

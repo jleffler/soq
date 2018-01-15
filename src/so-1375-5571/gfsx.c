@@ -1,4 +1,4 @@
-/* SO 13755571 - Sign-Extending a int */
+/* SO 1375-5571 - Sign-Extending a int */
 
 #include <assert.h>
 #include <limits.h>

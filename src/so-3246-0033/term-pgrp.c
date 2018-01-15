@@ -1,4 +1,4 @@
-/* SO 32460033 */
+/* SO 3246-0033 */
 #include "posixver.h"
 #include "stderr.h"
 #include <errno.h>

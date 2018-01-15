@@ -1,4 +1,4 @@
-/* SO 30388085 */
+/* SO 3038-8085 */
 
 #include <locale.h>
 #include <stdio.h>

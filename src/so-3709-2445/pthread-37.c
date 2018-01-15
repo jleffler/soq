@@ -1,4 +1,4 @@
-/* SO 37092445 */
+/* SO 3709-2445 */
 #include "posixver.h"
 /* Pragma needed on Mac OS X to suppress warnings about sem_init() and sem_destroy() */
 /* NB: Mac OS X does not implement them - returning errno 78 Function not implemented */

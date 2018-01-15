@@ -1,4 +1,4 @@
-/* SO 36682576 */
+/* SO 3668-2576 */
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>

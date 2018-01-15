@@ -16,7 +16,7 @@ do
         (
         echo $d && cd $d
         {
-        echo $d | sed 's/so-\(....\)-\(....\)/# SO \1\2/'
+        echo $d | sed 's/so-\(....\)-\(....\)/# SO \1-\2/'
         echo
         echo "include ../../etc/soq-head.mk"
         echo

@@ -1,4 +1,4 @@
-# SO 18390259 - Organizing inconsistent values
+# SO 1839-0259 - Organizing inconsistent values
 
 trap 'rm -f data; exit 1' 0 1 2 3 13 15
 

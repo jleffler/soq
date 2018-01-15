@@ -1,4 +1,4 @@
-/* SO 30005033 */
+/* SO 3000-5033 */
 /*
 ** Doubly-linked list management - code more complete than the question.
 ** It could be instructive to upgrade apply_backwards and apply_forwards

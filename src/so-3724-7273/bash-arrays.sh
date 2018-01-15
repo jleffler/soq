@@ -1,5 +1,5 @@
 #!/bin/bash
-# SO 37247273
+# SO 3724-7273
 
 array1=("A" "B")
 array2=("C" "D" "  E  F  ")

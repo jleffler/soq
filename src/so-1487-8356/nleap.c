@@ -1,4 +1,4 @@
-/* SO 14878356: Efficiently calculate leap days */
+/* SO 1487-8356: Efficiently calculate leap days */
 /*
 ** I'm using the following function to calculate the number of leap days
 ** between two years:

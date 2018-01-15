@@ -10,8 +10,8 @@
 
 /*TABSTOP=4*/
 
-/* SO 40880230 */
-/* Derived from modbinsearch.c for SO 35147784 */
+/* SO 4088-0230 */
+/* Derived from modbinsearch.c for SO 3514-7784 */
 
 #include <assert.h>
 #include <stdio.h>

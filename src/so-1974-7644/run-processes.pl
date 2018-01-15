@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# SO 19747644: Shell: run four processes in parallel
+# SO 1974-7644: Shell: run four processes in parallel
 # https://stackoverflow.com/questions/19747644
 #
 # Question code runs a simulation (instead of sleep), and can't predict

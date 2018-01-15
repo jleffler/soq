@@ -1,4 +1,4 @@
-/* SO 47464803 - Initialize and Transpose avoiding extra pair of loops */
+/* SO 4746-4803 - Initialize and Transpose avoiding extra pair of loops */
 /* This is not the same as the original, though it takes time to spot the difference */
 #include "timer.h"
 #include <stdio.h>

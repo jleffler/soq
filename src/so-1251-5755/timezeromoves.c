@@ -1,4 +1,4 @@
-/* SO 12515755 */
+/* SO 1251-5755 */
 #include "posixver.h"
 #include <string.h>
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# SO 30388085
+# SO 3038-8085
 
 echo 'привет мир' > вход
 make wchar-test

@@ -1,4 +1,4 @@
-/* SO 14544920 */
+/* SO 1454-4920 */
 #include <string.h>
 
 extern void substr(char *buffer, size_t buflen, char const *source, int len);

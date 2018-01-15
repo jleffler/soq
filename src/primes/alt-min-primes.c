@@ -1,4 +1,4 @@
-/* SO 33838621: Minimal Primes */
+/* SO 3383-8621: Minimal Primes */
 /*
 ** Author: unknown - the original formatting was not mine, but neither
 ** SO nor Git provides any clues.

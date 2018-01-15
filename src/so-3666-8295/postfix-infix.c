@@ -28,7 +28,7 @@ static const char hlpstr[] =
     ;
 
 /*
-** SO 36668295
+** SO 3666-8295
 ** Convert postfix expressions with single digit numbers into infix expressions.
 */
 

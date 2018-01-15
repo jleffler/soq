@@ -1,4 +1,4 @@
-/* SO 38044987 */
+/* SO 3804-4987 */
 /* Comparing different algorithms for URL-decoding a string */
 
 #include <ctype.h>

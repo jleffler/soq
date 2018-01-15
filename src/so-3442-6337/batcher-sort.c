@@ -1,4 +1,4 @@
-/* SO 34426337 */
+/* SO 3442-6337 */
 
 /* Uninstrumented batchersortNR() copied from Sedgewick */
 /* http://flylib.com/books/en/3.55.1.112/1/ */

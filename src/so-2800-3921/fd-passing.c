@@ -1,5 +1,6 @@
-/* SO 28003921 */
+/* SO 2800-3921 */
 #include "posixver.h"
+#define _DARWIN_C_SOURCE    // Needed on Darwin (macOS) with X/Open defined
 #include "stderr.h"
 #include <fcntl.h>
 #include <stdio.h>

@@ -67,7 +67,7 @@ static unsigned short scan_binary16(char const *binary)
 
 int main(void)
 {
-    /* SO 20342745 - weird calculation */
+    /* SO 2034-2745 - weird calculation */
     /* Working in hex - simpler */
     int p = 0x15C;
     for (int i = 0; i < 16; i++)

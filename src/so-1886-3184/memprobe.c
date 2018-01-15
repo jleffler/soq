@@ -1,4 +1,4 @@
-/* Derived from code in SO 18863184 */
+/* Derived from code in SO 1886-3184 */
 /* Original answer by https://stackoverflow.com/users/703016/kretab-chabawenizc */
 #include "memprobe.h"
 #include <assert.h>
