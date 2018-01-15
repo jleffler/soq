@@ -107,14 +107,17 @@ static _Noreturn void be_parental(int p0[2], int p1[2])
 
     pr_result("Opening bid", &proc0);
     close(p1[0]);
-    write(p1[1], &proc0, sizeof(proc0));
+    if (write(p1[1], &proc0, sizeof(proc0)) != sizeof(proc0))
+        exit(EXIT_FAILURE);
 
     close(p0[1]);
-    read(p0[0], &winner, sizeof(winner));
+    if (read(p0[0], &winner, sizeof(winner)) != sizeof(winner))
+        exit(EXIT_FAILURE);
     close(p0[0]);
 
     pr_result("Winning bid", &winner);
-    write(p1[1], &winner, sizeof(winner));
+    if (write(p1[1], &winner, sizeof(winner)) != sizeof(winner))
+        exit(EXIT_FAILURE);
     close(p1[1]);
     no_children();
     check_fds();
@@ -131,7 +134,8 @@ static _Noreturn void be_childish(int i, int p0[2], int p1[2])
 
     srand(pid);
     close(p0[1]);
-    read(p0[0], &winner, sizeof(winner));
+    if (read(p0[0], &winner, sizeof(winner)) != sizeof(winner))
+        exit(EXIT_FAILURE);
     pr_result("Incoming bid", &winner);
 
     int newValue = rand();
@@ -146,9 +150,11 @@ static _Noreturn void be_childish(int i, int p0[2], int p1[2])
 
     close(p1[0]);
     pr_result("Outgoing bid", &winner);
-    write(p1[1], &winner, sizeof(winner));
+    if (write(p1[1], &winner, sizeof(winner)) != sizeof(winner))
+        exit(EXIT_FAILURE);
 
-    read(p0[0], &winner, sizeof(winner));
+    if (read(p0[0], &winner, sizeof(winner)) != sizeof(winner))
+        exit(EXIT_FAILURE);
     pr_result("Final winner", &winner);
     close(p0[0]);
     no_children();
@@ -167,11 +173,13 @@ int main(int argc, const char *argv[])
     srand(seed);
 
     int tube[numproc][2];
-    pipe(tube[0]);
+    if (pipe(tube[0]) != 0)
+        exit(EXIT_FAILURE);
 
     for (int i = 1; i < numproc; ++i)
     {
-        pipe(tube[i]);
+        if (pipe(tube[i]) != 0)
+            exit(EXIT_FAILURE);
         int pid = fork();
         if (pid == -1)
         {

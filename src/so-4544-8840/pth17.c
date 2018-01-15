@@ -18,7 +18,7 @@ int scholarship = 4000,
 void *A(void);
 void *B(void);
 void *C(void);
-void *totalCalc(void);
+void totalCalc(void);
 
 int main(void){
 
@@ -116,7 +116,7 @@ void *C(void){
     pthread_exit(0);
 }
 
-void *totalCalc(void){
+void totalCalc(void){
     printf("Total given out: ");
     printf("%d", total);
     printf("\n");
