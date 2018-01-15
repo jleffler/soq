@@ -7,6 +7,7 @@
 ** Any thread may evaluate the new random number.
 */
 
+#include "posixver.h"
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
