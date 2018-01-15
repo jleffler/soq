@@ -1,4 +1,5 @@
 /* SO 3901-5527 - attempt to demonstrate renaming moving entries */
+#include "posixver.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,8 @@ static void process_directory(const char *dirname)
                 fflush(stdout);
                 char *buffer = 0;
                 size_t buflen = 0;
-                getline(&buffer, &buflen, stdin);
+                if (getline(&buffer, &buflen, stdin) == -1)
+                    exit(1);
                 free(buffer);
                 printf("Continuing...\n");
             }
