@@ -9,7 +9,8 @@ int main(void)
 {
     long n;
     printf("Enter any 9 digit no: ");
-    scanf("%9ld", &n);
+    if (scanf("%9ld", &n) != 1)
+	return(1);
     if (n <= 0)
         printf("Enter numbers greater than 0\n");
     else if (n >= 1000000000)
@@ -23,6 +24,7 @@ int main(void)
         convert((n % 100), " ");
         putchar('\n');
     }
+    return(0);
 }
 
 void convert(long n, char ch[])
