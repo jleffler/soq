@@ -6,6 +6,8 @@ PROG1 = factors
 
 PROGRAMS = ${PROG1}
 
+LDLIB2 = -lm
+
 all: ${PROGRAMS}
 
 include ../../etc/soq-tail.mk
