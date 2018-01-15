@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +45,11 @@ static void ch(void)
 int main(void)
 {
     int cs[3];
-    pipe(fd);
+    if (pipe(fd) != 0)
+    {
+        perror("pipe()");
+        exit(1);
+    }
     parent = getpid();
     printf("%d at work\n", parent);
 
