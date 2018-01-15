@@ -26,6 +26,7 @@
 ** of array A is an integer within the range [0..N-1].
 */
 
+#include "posixver.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
