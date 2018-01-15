@@ -3,7 +3,7 @@
 include ../../etc/soq-head.mk
 
 # This works on the development machine, but not yet via GitHub
-LDLIB2 = -ljl
+LDLIB2 = -ljl -lm
 IFLAGS = -I${INCDIR} -I${HOME}/inc
 LDFLAGS = ${LDFLAG1} -L${HOME}/lib/64
 
