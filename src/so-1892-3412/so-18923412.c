@@ -1,4 +1,5 @@
 /* https://stackoverflow.com/q/18923412 Use strtok() and execute Unix command in background */
+#include "posixver.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
