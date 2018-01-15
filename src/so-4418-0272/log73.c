@@ -1,5 +1,6 @@
 /* SO 4418-0272 */
 /* Variant 4 - handle long messages (configurable) */
+#include "posixver.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
@@ -172,7 +173,8 @@ int main(int argc, char **argv)
         }
     }
 
-    pipe(pipefd);
+    if (pipe(pipefd) != 0)
+        exit(1);
 
     if ((pid = fork()) == -1)
         err_syserr("failed to fork: ");

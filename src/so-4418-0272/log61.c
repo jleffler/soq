@@ -1,5 +1,6 @@
 /* SO 4418-0272 */
 /* Variant 1 - send messages terminated by newline only */
+#include "posixver.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +37,8 @@ int main(void)
     char szLogtest1[] = "Log Event: Blah blah blah\n";
     char szLogtest2[] = "Log Event: Blah blah 2\n";
 
-    pipe(pipefd);
+    if (pipe(pipefd) != 0)
+        exit(1);
 
     if ((pid = fork()) == -1)
     {

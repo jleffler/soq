@@ -1,5 +1,6 @@
 /* SO 4418-0272 */
 /* Variant 3 - handle long messages */
+#include "posixver.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
@@ -149,7 +150,8 @@ int main(void)
     char szLogtest1[] = "Log Event: Blah blah blah\n";
     char szLogtest2[] = "Log Event: Blah blah 2\n";
 
-    pipe(pipefd);
+    if (pipe(pipefd) != 0)
+        exit(1);
 
     if ((pid = fork()) == -1)
     {
