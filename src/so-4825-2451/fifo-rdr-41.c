@@ -18,6 +18,7 @@
 ** descriptor until after the reading open has succeeded.
 */
 
+#include "posixver.h"
 #include "fifo-tst-41.h"
 #include "stderr.h"
 #include <fcntl.h>

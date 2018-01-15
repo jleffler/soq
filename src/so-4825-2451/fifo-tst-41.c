@@ -1,4 +1,5 @@
 /* SO 4825-2451 */
+#include "posixver.h"
 #include "fifo-tst-41.h"
 #include "stderr.h"
 #include <stdlib.h>
