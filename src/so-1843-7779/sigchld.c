@@ -6,6 +6,7 @@
 ** Referenced in commentary to:
 ** SO 25039369: system() function while SIGCHLD is ignored
 */
+#include "posixver.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
