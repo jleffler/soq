@@ -1,4 +1,5 @@
 /* SO 12515755 */
+#include "posixver.h"
 #include <string.h>
 
 #define MAX(x, y)   (((x) > (y)) ? (x) : (y))
