@@ -1,4 +1,9 @@
 /* SO 4715-1134 Sorting Multidimensional Array */
+
+#ifdef LINUX_QSORT_R
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,8 +16,21 @@
 **      void qsort_r(void *base, size_t nel, size_t width,
 **                   int (*compar)(const void *, const void *, void *),
 **                   void *thunk);
-** The code implemented uses the BSD variant.
+** By default, the code uses the BSD variant.  Select the Linux variant
+** by including -DLINUX_QSORT_R on the command line.
 */
+
+#ifdef LINUX_QSORT_R
+
+static int str_comparator(const void *v1, const void *v2, void *thunk)
+{
+    char **suff = thunk;
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return strcmp(suff[i1], suff[i2]);
+}
+
+#else /* BSD_QSORT_R */
 
 static int str_comparator(void *thunk, const void *v1, const void *v2)
 {
@@ -21,6 +39,8 @@ static int str_comparator(void *thunk, const void *v1, const void *v2)
     int i2 = *(const int *)v2;
     return strcmp(suff[i1], suff[i2]);
 }
+
+#endif /* LINUX_QSORT_R */
 
 static void sort_substrings(size_t length, const char seq[length], size_t index[length])
 {
@@ -31,7 +51,11 @@ static void sort_substrings(size_t length, const char seq[length], size_t index[
         suff[i] = &seq[i];
         index[i] = i;
     }
+#ifdef LINUX_QSORT_R
+    qsort_r(index, length, sizeof(index[0]), str_comparator, suff);
+#else
     qsort_r(index, length, sizeof(index[0]), suff, str_comparator);
+#endif
 }
 
 static void test_sort_substrings(const char *str)
