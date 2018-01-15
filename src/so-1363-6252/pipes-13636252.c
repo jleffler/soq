@@ -14,6 +14,7 @@ static void err_syswarn(char const *fmt, ...);
 #endif /* STDERR_H_INCLUDED */
 
 /* pipeline.c */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
