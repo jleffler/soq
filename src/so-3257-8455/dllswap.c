@@ -43,6 +43,7 @@
 **    delete A and B; insert A before P3; insert B after P1.
 */
 
+#include "posixver.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
