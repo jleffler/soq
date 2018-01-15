@@ -10,11 +10,13 @@ int main(void) {
     char *stnc_org, *stnc_new;
     int size;
     printf("What is the expected size of the sentence: ");
-    scanf("%d", &size);
+    if (scanf("%d", &size) != 1)
+	exit(1);
     stnc_org = (char *)malloc(size * sizeof(char));
 
     printf("Input: \n");
-    scanf(" %[^\n]", stnc_org);
+    if (scanf(" %[^\n]", stnc_org) != 1)
+	exit(1);
 
     // get the number of punct
     int punct_num = 0;
@@ -25,7 +27,7 @@ int main(void) {
         }
     }
 
-    char * stnc_backup = (char *)malloc((size + punct_num * 2) * sizeof(char));
+    char *stnc_backup = (char *)malloc((size + punct_num * 2) * sizeof(char));
     stnc_new = stnc_backup;
 
     // copy the original str to the new and add space before each punct
