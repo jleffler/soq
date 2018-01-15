@@ -11,6 +11,8 @@
 ** Similar to, and derived from, keysort1.c.  Read from named file (or
 ** standard input) and write to same file (or standard output).
 */
+
+#include "posixver.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>

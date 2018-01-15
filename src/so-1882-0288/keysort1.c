@@ -11,6 +11,7 @@
 ** Read from standard input; write to standard output.
 */
 
+#include "posixver.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
