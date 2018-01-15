@@ -19,7 +19,8 @@ int main(void)
     else if (pid == 0)
     {
         close(1);
-        dup(fd[1]);
+        if (dup(fd[1]) != 1)
+            return(1);
         close(fd[0]);
         close(fd[1]);
         char *arg1[] = { "./pre", 0 };
@@ -30,7 +31,8 @@ int main(void)
     else
     {
         close(0);
-        dup(fd[0]);
+        if (dup(fd[0]) != 0)
+            return(1);
         close(fd[0]);
         close(fd[1]);
         char *arg2[] = { "./sort", 0 };
