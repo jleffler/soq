@@ -1,5 +1,6 @@
 /* SO 19825489 */
 
+#include "posixver.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
