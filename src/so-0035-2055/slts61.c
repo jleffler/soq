@@ -22,6 +22,8 @@
 **    slts59.c for alternative code.  The functions here have a
 **    different interface from the functions in the other file.
 */
+
+#include "posixver.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
