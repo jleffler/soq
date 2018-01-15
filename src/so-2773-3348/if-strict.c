@@ -78,6 +78,33 @@ int main(int argc, char **argv)
     {
         if (doex(0))
         {
+            /*
+            ** GCC on Linux (Ubuntu 16.04) warns: ignoring return value
+            ** of 'write', declared with attribute warn_unused_result.
+            ** It's right, but there's nothing useful to do if the write
+            ** fails; the code here should continue to do the seek and
+            ** return 0, as it will if the result is untested.  There
+            ** are occasions when the attribute is not helpful; this is
+            ** one of them - and another appears far below. A void cast
+            ** does not palliate the compiler, either.  You could use:
+            **
+            **     if (write(1, "no command\n", 11) != 11) { }
+            **
+            ** It's pretty ghastly, though.  There's a null statement
+            ** after the condition; GCC complains if you use just a
+            ** semicolon there.  Grump!
+            ** Three lines of preprocessing pragmata to suppress the
+            ** warning is even more gruesome.
+            ** All this commentary to discuss a single line of code is
+            ** also verging on the grotesque.
+            **
+            ** Oh, and for good measure, the error message used U+2018
+            ** and U+2019 around 'write' (instead of U+0027), which
+            ** appeared to confuse the line-break algorithm in my fill
+            ** program.  So there's work to do on that, to handle UTF-8
+            ** (at least to the extent of counting code points for a
+            ** line, rather than just bytes).
+            */
             write(1, "no command\n", 11);
             seek(0, 0, 2);
         }
