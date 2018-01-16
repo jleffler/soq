@@ -2,6 +2,21 @@
 #
 # Copy directory hierarchy — client/server
 
+# Building on Ubuntu 16.04, you have to put up with the stupid
+# (well, backwards incompatible and not obviously beneficial)
+# default library building option '-D' that is implied by default
+# (which sets the modification time of all archive members to
+# 1970-01-01 00:00:00 +00:00).  You have to override it with
+# '-U', but that is so frustrating that it is almost enough to
+# drive me to an alternative Linux distribution.
+#
+# ARFLAGS = -Uruv
+#
+# Those who put that backwards-incompatible change in default in
+# place have a very different view on what is desirable when
+# building libraries.  If you always want to rebuild the entire
+# library every time you run 'make', it's great.  I don't.
+
 CC     = gcc
 DFLAG1 = -DHAVE_CONFIG_H
 DFLAG2 = -DUSE_STDERR_SYSLOG
@@ -72,7 +87,9 @@ LIBNAME = lib${LIBBASE}.a
 
 PROGRAMS = cpd-client cpd-server client-20170706 server-20170706
 
-all: ${LIBNAME} ${PROGRAMS}
+.PHONY: headers source
+
+all: headers source ${LIBNAME} ${PROGRAMS}
 
 ${LIBNAME}: ${LIBNAME}(${LIBOBJ})
 
