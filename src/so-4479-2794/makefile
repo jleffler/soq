@@ -36,7 +36,8 @@ RM_FR  = rm -fr
 RM_F   = rm -f
 LN_S   = ln -s
 
-HDR_DIR = ${HOME}/inc
+INC_DIR = ${HOME}/inc
+HDR_DIR = ${HOME}/lib/JL
 SRC_DIR = ${HOME}/lib/JL
 
 LIBSRC = \
@@ -56,11 +57,13 @@ LIBHDR = \
 	emalloc.h \
 	kludge.h \
 	mkpath.h \
-	posixver.h \
 	stderr.h \
-	sysstat.h \
 	unp.h \
 	unpv13e.h \
+
+INCHDR = \
+	posixver.h \
+	sysstat.h \
 
 LIBOBJ = ${LIBSRC:.c=.o}
 
@@ -76,7 +79,7 @@ ${LIBNAME}: ${LIBNAME}(${LIBOBJ})
 cpd-client: ${LIBNAME} cpd.h
 cpd-server: ${LIBNAME} cpd.h
 
-headers: ${LIBHDR}
+headers: ${LIBHDR} ${INCHDR}
 source:  ${LIBSRC}
 
 ${LIBSRC}:
@@ -84,6 +87,9 @@ ${LIBSRC}:
 
 ${LIBHDR}:
 	${LN_S} ${HDR_DIR}/$@ .
+
+${INCHDR}:
+	${LN_S} ${INC_DIR}/$@ .
 
 clean:
 	${RM_FR} ${LIBNAME} ${PROGRAMS} ${DEBRIS}
