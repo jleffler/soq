@@ -66,29 +66,35 @@ static void sort_diagonal(size_t n, int matrix[n][n])
 ** L6 = (4, 0); L7 = (4, 1); L8 = (4, 2); L9 = (4, 3); D4 = (4, 4); 
 */
 
-/*
-** It is probably best to create an array that does the mapping from an
-** index to the row/column, with one such mapping for the lower
-** triangle; one for the upper triangle.
-*/
-
-static void sort_lt(size_t n, int matrix[n][n])
+static void init_lt_map(size_t n, size_t map[][2])
 {
     size_t m = (n * (n - 1)) / 2;
-    int lt[m][2];
     size_t r = 1;
     size_t c = 0;
     for (size_t i = 0; i < m; i++)
     {
-        lt[i][0] = r;
-        lt[i][1] = c++;
+        map[i][0] = r;
+        map[i][1] = c++;
         if (c == r)
         {
             r++;
             c = 0;
         }
     }
-    //print_matrix("LT map", m, 2, lt);
+    //print_matrix("LT map", m, 2, map);
+}
+
+/*
+** It is probably best to create an array that does the mapping from
+** an index to the row and column, with one such mapping for the lower
+** triangle; one for the upper triangle.
+*/
+
+static void sort_lt(size_t n, int matrix[n][n])
+{
+    size_t m = (n * (n - 1)) / 2;
+    size_t lt[m][2];
+    init_lt_map(n, lt);
 
     for (size_t i = 0; i < m; i++)
     {
@@ -108,16 +114,15 @@ static void sort_lt(size_t n, int matrix[n][n])
     }
 }
 
-static void sort_ut(size_t n, int matrix[n][n])
+static void init_ut_map(size_t n, size_t map[][2])
 {
     size_t m = (n * (n - 1)) / 2;
-    int ut[m][2];
     size_t r = 0;
     size_t c = 0;
     for (size_t i = 0; i < m; i++)
     {
-        ut[i][0] = r;
-        ut[i][1] = ++c;
+        map[i][0] = r;
+        map[i][1] = ++c;
         if (c == n - 1)
         {
             r++;
@@ -125,6 +130,13 @@ static void sort_ut(size_t n, int matrix[n][n])
         }
     }
     //print_matrix("UT map", m, 2, ut);
+}
+
+static void sort_ut(size_t n, int matrix[n][n])
+{
+    size_t m = (n * (n - 1)) / 2;
+    size_t ut[m][2];
+    init_ut_map(n, ut);
 
     for (size_t i = 0; i < m; i++)
     {
