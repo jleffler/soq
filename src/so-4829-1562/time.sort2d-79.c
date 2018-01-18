@@ -112,9 +112,9 @@ typedef int (*Comparator)(const void *v1, const void *v2);
 static void sort_triangle(size_t n, int matrix[n][n], Mapper mapper, Comparator cmp)
 {
     size_t m = (n * (n - 1)) / 2;
-    size_t lt[m][2];
+    size_t lt[m][2];                // Not safe once n approaches 1000
     mapper(n, lt);
-    int data[m];
+    int data[m];                    // Not safe once n approaches 1000
 
     for (size_t i = 0; i < m; i++)
     {

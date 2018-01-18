@@ -117,7 +117,7 @@ static void init_ut_map(size_t n, size_t map[][2])
 static void sort_ut(size_t n, int matrix[n][n])
 {
     size_t m = (n * (n - 1)) / 2;
-    size_t ut[m][2];
+    size_t ut[m][2];                // Not necessarily safe once n approaches 1000
     init_ut_map(n, ut);
 
     for (size_t i = 0; i < m; i++)
