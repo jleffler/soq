@@ -9,7 +9,7 @@
 **    - then odd numbers in descending order.
 */
 
-/* Variation 1: Using direct sorting of triangles of matrix without copying */
+/* Variation 2: Use system qsort() */
 
 static inline int cmp_asc(int x, int y) { return (x > y) - (x < y); }
 static inline int cmp_dsc(int x, int y) { return (x < y) - (x > y); }
@@ -24,8 +24,29 @@ static inline int cmp_eaod(int x, int y)
     return cmp_asc(x, y);
 }
 
+static int qs_cmp_int_asc(const void *v1, const void *v2)
+{
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return cmp_asc(i1, i2);
+}
+
+static int qs_cmp_int_dsc(const void *v1, const void *v2)
+{
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return cmp_dsc(i1, i2);
+}
+
+static int qs_cmp_int_eaod(const void *v1, const void *v2)
+{
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return cmp_eaod(i1, i2);
+}
+
 #include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 
 static void print_matrix(const char *tag, size_t r, size_t c, int matrix[r][c])
 {
@@ -40,18 +61,12 @@ static void print_matrix(const char *tag, size_t r, size_t c, int matrix[r][c])
 
 static void sort_diagonal(size_t n, int matrix[n][n])
 {
+    int data[n];
     for (size_t i = 0; i < n; i++)
-    {
-        for (size_t j = i + 1; j < n; j++)
-        {
-            if (cmp_eaod(matrix[i][i], matrix[j][j]) > 0)
-            {
-                int t = matrix[i][i];
-                matrix[i][i] = matrix[j][j];
-                matrix[j][j] = t;
-            }
-        }
-    }
+        data[i] = matrix[i][i];
+    qsort(data, n, sizeof(data[0]), qs_cmp_int_eaod);
+    for (size_t i = 0; i < n; i++)
+        matrix[i][i] = data[i];
 }
 
 /*
@@ -97,22 +112,22 @@ static void sort_lt(size_t n, int matrix[n][n])
     size_t m = (n * (n - 1)) / 2;
     size_t lt[m][2];
     init_lt_map(n, lt);
+    int data[m];
 
     for (size_t i = 0; i < m; i++)
     {
         size_t xi = lt[i][0];
         size_t yi = lt[i][1];
-        for (size_t j = i + 1; j < m; j++)
-        {
-            size_t xj = lt[j][0];
-            size_t yj = lt[j][1];
-            if (cmp_asc(matrix[xi][yi], matrix[xj][yj]) > 0)
-            {
-                int t = matrix[xi][yi];
-                matrix[xi][yi] = matrix[xj][yj];
-                matrix[xj][yj] = t;
-            }
-        }
+        data[i] = matrix[xi][yi];
+    }
+
+    qsort(data, m, sizeof(data[0]), qs_cmp_int_asc);
+
+    for (size_t i = 0; i < m; i++)
+    {
+        size_t xi = lt[i][0];
+        size_t yi = lt[i][1];
+        matrix[xi][yi] = data[i];
     }
 }
 
@@ -139,22 +154,22 @@ static void sort_ut(size_t n, int matrix[n][n])
     size_t m = (n * (n - 1)) / 2;
     size_t ut[m][2];
     init_ut_map(n, ut);
+    int data[m];
 
     for (size_t i = 0; i < m; i++)
     {
         size_t xi = ut[i][0];
         size_t yi = ut[i][1];
-        for (size_t j = i + 1; j < m; j++)
-        {
-            size_t xj = ut[j][0];
-            size_t yj = ut[j][1];
-            if (cmp_dsc(matrix[xi][yi], matrix[xj][yj]) > 0)
-            {
-                int t = matrix[xi][yi];
-                matrix[xi][yi] = matrix[xj][yj];
-                matrix[xj][yj] = t;
-            }
-        }
+        data[i] = matrix[xi][yi];
+    }
+
+    qsort(data, m, sizeof(data[0]), qs_cmp_int_dsc);
+
+    for (size_t i = 0; i < m; i++)
+    {
+        size_t xi = ut[i][0];
+        size_t yi = ut[i][1];
+        matrix[xi][yi] = data[i];
     }
 }
 

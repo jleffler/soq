@@ -9,7 +9,7 @@
 **    - then odd numbers in descending order.
 */
 
-/* Variation 1: Using direct sorting of triangles of matrix without copying */
+/* Variation 3: Use system qsort() and common code to coordinate sorting of triangles */
 
 static inline int cmp_asc(int x, int y) { return (x > y) - (x < y); }
 static inline int cmp_dsc(int x, int y) { return (x < y) - (x > y); }
@@ -24,8 +24,29 @@ static inline int cmp_eaod(int x, int y)
     return cmp_asc(x, y);
 }
 
+static int qs_cmp_int_asc(const void *v1, const void *v2)
+{
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return cmp_asc(i1, i2);
+}
+
+static int qs_cmp_int_dsc(const void *v1, const void *v2)
+{
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return cmp_dsc(i1, i2);
+}
+
+static int qs_cmp_int_eaod(const void *v1, const void *v2)
+{
+    int i1 = *(const int *)v1;
+    int i2 = *(const int *)v2;
+    return cmp_eaod(i1, i2);
+}
+
 #include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 
 static void print_matrix(const char *tag, size_t r, size_t c, int matrix[r][c])
 {
@@ -40,18 +61,12 @@ static void print_matrix(const char *tag, size_t r, size_t c, int matrix[r][c])
 
 static void sort_diagonal(size_t n, int matrix[n][n])
 {
+    int data[n];
     for (size_t i = 0; i < n; i++)
-    {
-        for (size_t j = i + 1; j < n; j++)
-        {
-            if (cmp_eaod(matrix[i][i], matrix[j][j]) > 0)
-            {
-                int t = matrix[i][i];
-                matrix[i][i] = matrix[j][j];
-                matrix[j][j] = t;
-            }
-        }
-    }
+        data[i] = matrix[i][i];
+    qsort(data, n, sizeof(data[0]), qs_cmp_int_eaod);
+    for (size_t i = 0; i < n; i++)
+        matrix[i][i] = data[i];
 }
 
 /*
@@ -92,30 +107,6 @@ static void init_lt_map(size_t n, size_t map[][2])
 ** triangle; one for the upper triangle.
 */
 
-static void sort_lt(size_t n, int matrix[n][n])
-{
-    size_t m = (n * (n - 1)) / 2;
-    size_t lt[m][2];
-    init_lt_map(n, lt);
-
-    for (size_t i = 0; i < m; i++)
-    {
-        size_t xi = lt[i][0];
-        size_t yi = lt[i][1];
-        for (size_t j = i + 1; j < m; j++)
-        {
-            size_t xj = lt[j][0];
-            size_t yj = lt[j][1];
-            if (cmp_asc(matrix[xi][yi], matrix[xj][yj]) > 0)
-            {
-                int t = matrix[xi][yi];
-                matrix[xi][yi] = matrix[xj][yj];
-                matrix[xj][yj] = t;
-            }
-        }
-    }
-}
-
 static void init_ut_map(size_t n, size_t map[][2])
 {
     size_t m = (n * (n - 1)) / 2;
@@ -134,27 +125,30 @@ static void init_ut_map(size_t n, size_t map[][2])
     //print_matrix("UT map", m, 2, ut);
 }
 
-static void sort_ut(size_t n, int matrix[n][n])
+typedef void (*Mapper)(size_t n, size_t map[][2]);
+typedef int (*Comparator)(const void *v1, const void *v2);
+
+static void sort_triangle(size_t n, int matrix[n][n], Mapper mapper, Comparator cmp)
 {
     size_t m = (n * (n - 1)) / 2;
-    size_t ut[m][2];
-    init_ut_map(n, ut);
+    size_t lt[m][2];
+    mapper(n, lt);
+    int data[m];
 
     for (size_t i = 0; i < m; i++)
     {
-        size_t xi = ut[i][0];
-        size_t yi = ut[i][1];
-        for (size_t j = i + 1; j < m; j++)
-        {
-            size_t xj = ut[j][0];
-            size_t yj = ut[j][1];
-            if (cmp_dsc(matrix[xi][yi], matrix[xj][yj]) > 0)
-            {
-                int t = matrix[xi][yi];
-                matrix[xi][yi] = matrix[xj][yj];
-                matrix[xj][yj] = t;
-            }
-        }
+        size_t xi = lt[i][0];
+        size_t yi = lt[i][1];
+        data[i] = matrix[xi][yi];
+    }
+
+    qsort(data, m, sizeof(data[0]), cmp);
+
+    for (size_t i = 0; i < m; i++)
+    {
+        size_t xi = lt[i][0];
+        size_t yi = lt[i][1];
+        matrix[xi][yi] = data[i];
     }
 }
 
@@ -166,9 +160,9 @@ static void test_matrix(const char *tag, size_t n, int matrix[n][n])
     //print_matrix("Before sorting diagonal", n, n, matrix);
     sort_diagonal(n, matrix);
     //print_matrix("After sorting diagonal", n, n, matrix);
-    sort_lt(n, matrix);
+    sort_triangle(n, matrix, init_lt_map, qs_cmp_int_asc);
     //print_matrix("After sorting lower triangle", n, n, matrix);
-    sort_ut(n, matrix);
+    sort_triangle(n, matrix, init_ut_map, qs_cmp_int_dsc);
     //print_matrix("After sorting upper triangle", n, n, matrix);
     snprintf(buffer, sizeof(buffer), "Matrix %s (%zux%zu) - after", tag, n, n);
     print_matrix(buffer, n, n, matrix);
