@@ -85,6 +85,7 @@ int main(int argc, char **argv)
             if (verbose)
                 dump_matrix("Before", n, n, matrix1);
             cmp_matrix(n, matrix1, matrix2);
+            cmp_matrix(n, matrix1, matrix3);
             time_matrix("Basic", n, matrix1, basic_sort);
             time_matrix("Quick", n, matrix2, quick_sort);
             time_matrix("Clean", n, matrix3, clean_sort);
@@ -94,6 +95,7 @@ int main(int argc, char **argv)
             cmp_matrix(n, matrix1, matrix3);
             free(matrix1);
             free(matrix2);
+            free(matrix3);
         }
     }
 
