@@ -13,7 +13,7 @@ all: ${PROGRAMS}
 
 FILES4.c = \
 	time.sort2d-31.c \
-	time.sort2d-79.c \
+	time.sort2d-97.c \
 	time.sort2d-83.c \
 	time.sort2d-89.c \
 
