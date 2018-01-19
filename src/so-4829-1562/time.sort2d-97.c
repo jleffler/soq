@@ -1,7 +1,7 @@
 /* SO 4829-1562 */
 
 #include "time.sort2d-31.h"
-#include <stdlib.h>
+#include "emalloc.h"
 
 /*
 **  + Enter a square matrix of dimensions n .
@@ -116,11 +116,13 @@ typedef int (*Comparator)(const void *v1, const void *v2);
 static void sort_triangle(size_t n, int matrix[n][n], Mapper mapper, Comparator cmp)
 {
     size_t m = (n * (n - 1)) / 2;
-    int data[m];
+    int *data = MALLOC(m * sizeof(*data));
 
     (*mapper)(n, matrix, data, copy_a_to_b);
     qsort(data, m, sizeof(data[0]), cmp);
     (*mapper)(n, matrix, data, copy_b_to_a);
+
+    FREE(data);
 }
 
 void quick_sort(size_t n, int matrix[n][n])
