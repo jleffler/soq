@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     if (argc != 0)
         err_setarg0(argv[0]);
     srand(time(0));
-    int multipliers[] = { 10, 100, 1000, 10000 };
+    int multipliers[] = { 10, 100, /*1000, 10000*/ };
     enum { NUM_MULTIPLIERS = sizeof(multipliers) / sizeof(multipliers[0]) };
     int verbose = 0;
 
@@ -69,7 +69,8 @@ int main(int argc, char **argv)
             int n = multipliers[i] * j;
             int (*matrix1)[n] = malloc(n * n * sizeof(matrix1[0][0]));
             int (*matrix2)[n] = malloc(n * n * sizeof(matrix1[0][0]));
-            if (matrix1 == 0 || matrix2 == 0)
+            int (*matrix3)[n] = malloc(n * n * sizeof(matrix1[0][0]));
+            if (matrix1 == 0 || matrix2 == 0 || matrix3 == 0)
                 err_syserr("failed to allocate %zu bytes of memory: ",
                            n * n * sizeof(matrix1[0][0]));
             for (int r = 0; r < n; r++)
@@ -77,6 +78,8 @@ int main(int argc, char **argv)
                 for (int c = 0; c < n; c++)
                 {
                     matrix1[r][c] = matrix2[r][c] = rand() % 900 + 100;
+                    matrix2[r][c] = matrix1[r][c];
+                    matrix3[r][c] = matrix1[r][c];
                 }
             }
             if (verbose)
@@ -84,9 +87,11 @@ int main(int argc, char **argv)
             cmp_matrix(n, matrix1, matrix2);
             time_matrix("Basic", n, matrix1, basic_sort);
             time_matrix("Quick", n, matrix2, quick_sort);
+            time_matrix("Clean", n, matrix3, clean_sort);
             if (verbose)
                 dump_matrix("After", n, n, matrix1);
             cmp_matrix(n, matrix1, matrix2);
+            cmp_matrix(n, matrix1, matrix3);
             free(matrix1);
             free(matrix2);
         }
