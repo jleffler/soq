@@ -2,9 +2,10 @@
 
 include ../../etc/soq-head.mk
 
-PROG1 = partition-4
+PROG1 = partition-3
+PROG2 = partition-4
 
-PROGRAMS = ${PROG1}
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
