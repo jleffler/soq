@@ -11,7 +11,7 @@
 **    - then odd numbers in descending order.
 */
 
-/* Variation 1: Using direct sorting of triangles of matrix without copying */
+/* Variation 1B: Using copy, quadratic sort, copy - except for diagonal */
 
 static inline int cmp_asc(int x, int y) { return (x > y) - (x < y); }
 static inline int cmp_dsc(int x, int y) { return (x < y) - (x > y); }
