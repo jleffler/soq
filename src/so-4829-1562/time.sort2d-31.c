@@ -15,6 +15,7 @@
 #include "stderr.h"
 #include "timer.h"
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include "time.sort2d-31.h"
 
@@ -55,6 +56,17 @@ static void dump_matrix(const char *tag, size_t r, size_t c, int matrix[r][c])
     }
 }
 
+static void *alloc_init_square_matrix(size_t n)
+{
+    int (*matrix)[n] = MALLOC(n * n * sizeof(matrix[0][0]));
+    for (size_t r = 0; r < n; r++)
+    {
+        for (size_t c = 0; c < n; c++)
+            matrix[r][c] = rand() % 900 + 100;
+    }
+    return matrix;
+}
+
 static void multiple_small_sorts(void)
 {
     int multipliers[] = { 10, 100, };
@@ -66,22 +78,14 @@ static void multiple_small_sorts(void)
         for (int j = 1; j < 10; j++)
         {
             size_t n = multipliers[i] * j;
-            int (*matrix1)[n] = MALLOC(n * n * sizeof(matrix1[0][0]));
-            int (*matrix2)[n] = MALLOC(n * n * sizeof(matrix1[0][0]));
-            int (*matrix3)[n] = MALLOC(n * n * sizeof(matrix1[0][0]));
-            for (size_t r = 0; r < n; r++)
-            {
-                for (size_t c = 0; c < n; c++)
-                {
-                    matrix1[r][c] = matrix2[r][c] = rand() % 900 + 100;
-                    matrix2[r][c] = matrix1[r][c];
-                    matrix3[r][c] = matrix1[r][c];
-                }
-            }
+            int (*matrix1)[n] = alloc_init_square_matrix(n);
+            size_t size = n * n * sizeof(matrix1[0][0]);
+            int (*matrix2)[n] = MALLOC(size);
+            int (*matrix3)[n] = MALLOC(size);
+            memcpy(matrix2, matrix1, size);
+            memcpy(matrix3, matrix1, size);
             if (verbose && n < 100)
                 dump_matrix("Before", n, n, matrix1);
-            cmp_matrix(n, matrix1, matrix2);
-            cmp_matrix(n, matrix1, matrix3);
             time_matrix("Basic", n, matrix1, basic_sort);
             time_matrix("Clean", n, matrix2, clean_sort);
             time_matrix("Quick", n, matrix3, quick_sort);
@@ -107,12 +111,7 @@ static void bigger_quick_sorts(void)
         for (int j = 1; j < 10; j++)
         {
             size_t n = multipliers[i] * j;
-            int (*matrix)[n] = MALLOC(n * n * sizeof(matrix[0][0]));
-            for (size_t r = 0; r < n; r++)
-            {
-                for (size_t c = 0; c < n; c++)
-                    matrix[r][c] = rand() % 900 + 100;
-            }
+            int (*matrix)[n] = alloc_init_square_matrix(n);
             if (verbose && n < 100)
                 dump_matrix("Before", n, n, matrix);
             time_matrix("Quick", n, matrix, quick_sort);
