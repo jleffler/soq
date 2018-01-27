@@ -1,18 +1,20 @@
-/* SO 4844-3136 - file streams version A */
-#include <unistd.h>
+/* SO 4844-3136 - file streams version B */
 #include "stderr.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 static void check_fp(FILE *fp, const char *name)
 {
     char buffer[1024];
 
     err_remark("About to read from %s\n", name);
-    size_t nbytes = fread(buffer, sizeof(char), sizeof(buffer), fp);
-    if (nbytes <= 0)
+    if (fgets(buffer, sizeof(buffer), fp) == 0)
         err_sysrem("Failed to read %s: ", name);
     else
     {
-        err_remark("Got normal read of %zu bytes on %s\n", nbytes, name);
+        size_t nbytes = strlen(buffer);
+        err_remark("Got normal read of %zu bytes on %s\n", nbytes - 1, name);
         printf("Data: [%.*s]\n", (int)nbytes - 1, buffer);
     }
 
@@ -21,14 +23,10 @@ static void check_fp(FILE *fp, const char *name)
                      "  Did gyre and gimble in the wabe.\n"
                      "  All mimsy were the borogroves,\n"
                      "  And the mome raths outgrabe.\n";
-    nbytes = fwrite(message, sizeof(char), sizeof(message) - 1, fp);
-    if (nbytes == 0)
+    if (fputs(message, fp) < 0)
         err_sysrem("Failed to write to %s: ", name);
-    else if (nbytes == sizeof(message) - 1)
-        err_remark("Successfully wrote %d bytes to %s\n", (int)nbytes, name);
     else
-        err_remark("Got a short write (%zu bytes written; %zu expected) on %s\n",
-                   nbytes, (sizeof(message) - 1), name);
+        err_remark("Successfully wrote %zu bytes to %s\n", sizeof(message)-1, name);
 }
 
 int main(int argc, char **argv)
