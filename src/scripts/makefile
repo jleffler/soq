@@ -26,7 +26,9 @@ PROG12 = fixin
 PROG13 = sscce
 PROG14 = so-stderr
 PROG15 = pipe-rot
-PROG15 = soa
+PROG16 = soa
+PROG17 = so-getchar
+
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -59,6 +61,8 @@ PROGRAMS = \
 	${PROG13} \
 	${PROG14} \
 	${PROG15} \
+	${PROG16} \
+	${PROG17} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
