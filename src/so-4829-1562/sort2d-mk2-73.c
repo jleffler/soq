@@ -32,7 +32,7 @@ int main(void)
         {
             if (i > j) // ispod dijagonale (LT)
             {
-                int s = j;                                              // JL
+                int s = j + 1;                                          // JL
                 for (l = i; l < n; l++)
                 {
                     //for (k = j; k < l; k++)                           // OP
