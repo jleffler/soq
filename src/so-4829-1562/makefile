@@ -6,8 +6,10 @@ PROG1 = sort2d-53
 PROG2 = sort2d-37
 PROG3 = sort2d-59
 PROG4 = time.sort2d-31
+PROG5 = sort2d-mk2-67
+PROG6 = sort2d-mk2-73
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6}
 
 all: ${PROGRAMS}
 

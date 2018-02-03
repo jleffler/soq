@@ -108,3 +108,36 @@ copy in, and each entry is used just once during each copy cycle.
   they're passed as function pointers) means that the triangular copying
   function can copy in either direction.
 
+### Modified code submitted by OP on 2018-02-02
+
+* `sort2d-mk2-67.c`
+
+  This is the OPs modified code from the question reformatted and with
+  void added to specify "int main(void)".
+
+  It fails to sort properly for some cases of both the upper triangle
+  and the lower triangle.
+
+* `sort2d-mk2-73.c`
+
+  This is the debugged and bug-fixed version of the OPs modified code.
+  The original code is annotated with "`// OP`" after the comment; bug
+  fix amendations are annotated with "`// JL`" after the code.
+  The `printf()` statements were crucial to seeing the problem.
+
+  In the lower triangle, when loops got to the third or fourth row, the
+  first entries in the row were ignored, which meant they could be out
+  of position.
+  The fix is to start the current row at (it could be after) the current
+  position, but for subsequent rows, to start the row scan at index 0.
+  The variable `s` allows this to happen.
+
+  The analogous problem existed in the upper triangle, compounded by
+  making comparisons with elements not in the upper triangle.
+  The `&& m < b` condition on the swap protected the swapping.
+  Again, the variable `s` fixes the problem.
+  Using `s = m + 2;` before `m` is incremented sets the start position
+  to the same position as `m + 1` after `m` is incremented.
+
+TBD: Add the amended code to the timing framework.
+
