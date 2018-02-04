@@ -82,20 +82,25 @@ static void multiple_small_sorts(void)
             size_t size = n * n * sizeof(matrix1[0][0]);
             int (*matrix2)[n] = MALLOC(size);
             int (*matrix3)[n] = MALLOC(size);
+            int (*matrix4)[n] = MALLOC(size);
             memcpy(matrix2, matrix1, size);
             memcpy(matrix3, matrix1, size);
+            memcpy(matrix4, matrix1, size);
             if (verbose && n < 100)
                 dump_matrix("Before", n, n, matrix1);
             time_matrix("Basic", n, matrix1, basic_sort);
             time_matrix("Clean", n, matrix2, clean_sort);
             time_matrix("Quick", n, matrix3, quick_sort);
+            time_matrix("InOne", n, matrix4, inone_sort);
             if (verbose && n < 100)
                 dump_matrix("After", n, n, matrix1);
             cmp_matrix(n, matrix1, matrix2);
             cmp_matrix(n, matrix1, matrix3);
+            cmp_matrix(n, matrix1, matrix4);
             FREE(matrix1);
             FREE(matrix2);
             FREE(matrix3);
+            FREE(matrix4);
         }
     }
 }
