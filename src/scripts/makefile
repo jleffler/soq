@@ -28,7 +28,7 @@ PROG14 = so-stderr
 PROG15 = pipe-rot
 PROG16 = soa
 PROG17 = so-getchar
-
+PROG18 = so-c-reserved
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -63,6 +63,7 @@ PROGRAMS = \
 	${PROG15} \
 	${PROG16} \
 	${PROG17} \
+	${PROG18} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
