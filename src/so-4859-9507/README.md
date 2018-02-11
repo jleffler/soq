@@ -10,6 +10,27 @@ indeed fixed.
 Program `pipe19` is the working code that does not send the null byte to
 PhantomJS.
 
+* `min-repro-01.c`
+
+  A more or less minimal reproduction of the problem for the bug report
+  made to PhantomJS.org.
+  This code is adapted from `pipe31.c` but heavily modified.
+  It reads the response in kilobyte-size chunks, writing as it reads.
+  It has an error reporting function which reduces the code in `main()`.
+  It has variables renamed.
+  The wait code has been removed.
+
+  When run as `min-repro-01` (no argument), it hangs 'indefinitely'; no
+  response is received in 20 seconds.
+  Interrupt the program.
+
+  When run as `min-repro-01 fix` (the spelling "fix" matters), it
+  produces a response (of about 250 KiB data in 3650 lines) in about 6s
+  on a modern MacBook Pro.
+
+  The difference is simply whether or not the null byte at the end of
+  the string holding the JavaScript program is sent to PhantomJS.
+
 * `ext_program.c`
 
   A dummy external program to work with the OP's original program.
