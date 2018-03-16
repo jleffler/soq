@@ -59,7 +59,7 @@ static void dump_array(const char *tag, int num, int *data)
 
 int main(void)
 {
-    int data[] =
+    int data1[] =
     {
         /* random -n 80 -- -99 99 | commalist -b '        ' -n 10 */
         +39, +36, +78, -92, +63, -21, -51, +49,   0, -77,
@@ -71,15 +71,15 @@ int main(void)
         -66, -30, +24, +88,  +5, -77, +13,  +3, +16, -69,
         -60, +26, +51, +16, -13, +71,  -9,  -2, +51, +72,
     };
-    enum { NUM_DATA = sizeof(data) / sizeof(data[0]) };
+    enum { NUM_DATA = sizeof(data1) / sizeof(data1[0]) };
     int data2[NUM_DATA];
 
-    memmove(data2, data, sizeof(data));
+    memmove(data2, data1, sizeof(data1));
 
     printf("Sort odd numbers ascending before even numbers descending\n");
-    dump_array("Before", NUM_DATA, data);
-    qsort(data, NUM_DATA, sizeof(data[0]), oddasc_evendesc);
-    dump_array("After", NUM_DATA, data);
+    dump_array("Before", NUM_DATA, data1);
+    qsort(data1, NUM_DATA, sizeof(data1[0]), oddasc_evendesc);
+    dump_array("After", NUM_DATA, data1);
 
     printf("Sort even numbers descending before odd numbers ascending\n");
     dump_array("Before", NUM_DATA, data2);
