@@ -11,7 +11,7 @@ static int oddasc_evendesc(const void *vp1, const void *vp2)
     {
         /* One odd, one even */
         if (v1 & 1)
-            return -1;
+            return -1;      /* Odd is smaller */
         return +1;
     }
     /* Both odd or both even */
@@ -29,13 +29,49 @@ static int evendesc_oddasc(const void *vp1, const void *vp2)
     {
         /* One odd, one even */
         if (v1 & 1)
-            return +1;
+            return +1;      /* Odd is larger */
         return -1;
     }
     /* Both odd or both even */
     if ((v1 & 1) == 1)
         return (v1 > v2) - (v1 < v2);     /* Ascending */
     return (v1 < v2) - (v1 > v2);         /* Descending */
+}
+
+/* odd numbers in descending order before even numbers in ascending order */
+static int odddesc_evenasc(const void *vp1, const void *vp2)
+{
+    int v1 = *(int *)vp1;
+    int v2 = *(int *)vp2;
+    if ((v1 & 1) != (v2 & 1))
+    {
+        /* One odd, one even */
+        if (v1 & 1)
+            return -1;      /* Odd is smaller */
+        return +1;
+    }
+    /* Both odd or both even */
+    if ((v1 & 1) == 1)
+        return (v1 < v2) ? +1 : (v1 > v2) ? -1 : 0;     /* Descending */
+    return (v1 < v2) ? -1 : (v1 > v2) ? +1 : 0;         /* Ascending */
+}
+
+/* even numbers ascending before odd numbers descending */
+static int evenasc_odddesc(const void *vp1, const void *vp2)
+{
+    int v1 = *(int *)vp1;
+    int v2 = *(int *)vp2;
+    if ((v1 & 1) != (v2 & 1))
+    {
+        /* One odd, one even */
+        if (v1 & 1)
+            return +1;      /* Odd is larger */
+        return -1;
+    }
+    /* Both odd or both even */
+    if ((v1 & 1) == 1)
+        return (v1 < v2) - (v1 > v2);     /* Descending */
+    return (v1 > v2) - (v1 < v2);         /* Ascending */
 }
 
 static void dump_array(const char *tag, int num, int *data)
@@ -54,7 +90,8 @@ static void dump_array(const char *tag, int num, int *data)
         }
     }
     if (i % 10 != 0)
-        putchar('\n');
+        putchar('\n');      /* End partial line */
+    putchar('\n');          /* Blank line */
 }
 
 int main(void)
@@ -73,8 +110,12 @@ int main(void)
     };
     enum { NUM_DATA = sizeof(data1) / sizeof(data1[0]) };
     int data2[NUM_DATA];
+    int data3[NUM_DATA];
+    int data4[NUM_DATA];
 
     memmove(data2, data1, sizeof(data1));
+    memmove(data3, data1, sizeof(data1));
+    memmove(data4, data1, sizeof(data1));
 
     printf("Sort odd numbers ascending before even numbers descending\n");
     dump_array("Before", NUM_DATA, data1);
@@ -85,6 +126,16 @@ int main(void)
     dump_array("Before", NUM_DATA, data2);
     qsort(data2, NUM_DATA, sizeof(data2[0]), evendesc_oddasc);
     dump_array("After", NUM_DATA, data2);
+
+    printf("Sort odd numbers descending before even numbers ascending\n");
+    dump_array("Before", NUM_DATA, data3);
+    qsort(data3, NUM_DATA, sizeof(data3[0]), odddesc_evenasc);
+    dump_array("After", NUM_DATA, data3);
+
+    printf("Sort even numbers ascending before odd numbers descending\n");
+    dump_array("Before", NUM_DATA, data4);
+    qsort(data4, NUM_DATA, sizeof(data4[0]), evenasc_odddesc);
+    dump_array("After", NUM_DATA, data4);
 
     return 0;
 }
