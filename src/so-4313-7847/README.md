@@ -6,6 +6,22 @@ Multiplication of polynomial in C using list
 The code here is a complete rewrite of the code in the question, as
 noted in the spiel submitted with the program.
 
+* `pm23.c`
+
+  This is the code in the answer to the question.
+  It contains the code for multiplying, adding, subtracting polynomials.
+  It does not contain code for dividing polynomials.
+
+* `polynomial.h`, `polynomial.c`
+
+  This is an implementation of basic polynomial arithmetic, including
+  division (as well as add, subtract, multiply, create, destroy, print).
+
+* `pm43.c`
+
+  Test code primarily for exercising the polynomial arithmetic code,
+  including polynomial division.
+
 Polynomial division was added as an afterthought.
 
 Wikipedia helps: [Polynomial long
@@ -29,8 +45,14 @@ The code is now split into header polynomial.h where the polynomial type
 is opaque, source file polynomial.c for the implementation of polynomial
 arithmetic, and source file pm43.c for the test code.
 The polynomial type was upgraded to use rational numbers — using an
-improved version of the code from SO 3388-7484 (rational.c, rational.h,
-actually from $HOME/lib/JL and not yet from soq/src/libsoq).
+improved version of the code from [SO 3388-7484]() One version of this
+code is available in the
+[src/so-3388-7484](https://github.com/jleffler/soq/tree/master/src/so-3388-7484)
+sub-directory of my [SOQ](https://github.com/jleffler/soq) (Stack
+Overflow Questions) repository on GitHub as file `rational.c` (no
+separate header there).
+(I have another version with files `rational.c`, `rational.h` but that
+is not yet exposed in the SOQ repository on GitHub.)
 This can probably be fixed at some time.
 Function `ri_neg()` was added, and `ri_chk()` exposed — though this
 might be a temporary phenomenon.
