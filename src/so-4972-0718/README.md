@@ -66,6 +66,26 @@ The variant 0 ones are intriguing, especially the third result.
           -3         Use t_function_3 - code from commentary by JL
           -4         Use t_function_4 - 'esoteric' code from commentary by JL
 
+* `pth79.c`
+
+  Even more configurable from the command line:
+
+        Usage: pth79 [-aht01234][-n threads][-c count][-w width][-r repeat]
+          -a         Run all variants
+          -c count   Maximum value for counter (default 1000)
+          -h         Print this help message and exit
+          -n threads Number of threads to use (default 4)
+          -r repeat  Run variant(s) repeatedly (default 1)
+          -t         Trace execution (very verbose)
+          -w width   Number of digits to print for counts (default 4)
+          -0         Run variant 0 (only) - code from question of SO 4972-0718
+          -1         Use variant 1 (only) - original code from answer by @snr
+          -2         Use variant 2 (only) - revised code from answer by @snr
+          -3         Use variant 3 (only) - code from commentary by JL
+          -4         Use variant 4 (only) - 'esoteric' code from commentary by JL
+
+  With `pth79`, there is no need for a `run.pth79.sh` script.
+
 * `run.pth71.sh`
 
   Simple script to run pth71 5 times for each of variants 0-4.  Accepts -t,
