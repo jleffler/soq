@@ -3,8 +3,9 @@
 include ../../etc/soq-head.mk
 
 PROG1 = pth71
+PROG2 = pth73
 
-PROGRAMS = ${PROG1}
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 

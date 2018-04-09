@@ -46,3 +46,33 @@ The results recorded in my answer are quite interesting:
 It was gratifying to see the first variant 1 result.
 The variant 0 ones are intriguing, especially the third result.
 
+* `pth71.c`
+
+  The code posted as an answer
+
+* `pth73.c`
+
+  Code configurable from the command line
+
+        Usage: pth73 [-ht01234][-n threads][-c count][-w width]
+          -c count   Maximum value for counter (default 1000)
+          -h         Print this help message and exit
+          -n threads Number of threads to use (default 4)
+          -t         Trace execution (very verbose)
+          -w width   Number of digits to print for counts (default 4)
+          -0         Use t_function_0 - code from question of SO 4972-0718
+          -1         Use t_function_1 - original code from answer by @snr
+          -2         Use t_function_2 - revised code from answer by @snr
+          -3         Use t_function_3 - code from commentary by JL
+          -4         Use t_function_4 - 'esoteric' code from commentary by JL
+
+* `run.pth71.sh`
+
+  Simple script to run pth71 5 times for each of variants 0-4.  Accepts -t,
+  but that isn't all that helpful.
+
+* `run.pth73.sh`
+
+  Simple script to run pth73 5 times for each of variants 0-4, with the option
+  of passing controls like `-c 15000 -w 5 -n 6` to the program.
+
