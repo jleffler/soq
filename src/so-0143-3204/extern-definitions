@@ -10,16 +10,19 @@ variables defined, for example, in source file `file1.c` need to be
 referenced in other source files, such as `file2.c`.
 
 It is important to [understand the difference between _defining_ a
-variable and _declaring_ a variable][1]:
+variable and _declaring_ a
+variable](https://stackoverflow.com/questions/1410563):
 
-* A variable is **defined** when the compiler allocates the storage for
-  the variable.
 * A variable is **declared** when the compiler is informed that a
   variable exists (and this is its type); it does not allocate the
   storage for the variable at that point.
+* A variable is **defined** when the compiler allocates the storage for
+  the variable.
 
 You may declare a variable multiple times (though once is sufficient);
 you may only define it once within a given scope.
+A variable definition is also a declaration, but not all variable
+declarations are definitions.
 
 ## Best way to declare and define global variables
 
@@ -138,15 +141,16 @@ _The next two files complete the source for `prog2`:_
 ### Warning
 
 As noted in comments here, and as stated in my answer to a similar
-[question][2], using multiple definitions for a global variable leads to
-undefined behaviour, which is the standard's way of saying "anything
-could happen".  One of the things that can happen is that the program
-behaves as you expect; and J.5.11 says, approximately, "you might be
-lucky more often than you deserve".  But a program that relies on
-multiple definitions of an extern variable — with or without the
-explicit 'extern' keyword — is not a strictly conforming program and not
-guaranteed to work everywhere.  Equivalently: it contains a bug which
-may or may not show itself.
+[question](https://stackoverflow.com/questions/1490693), using multiple
+definitions for a global variable leads to undefined behaviour, which is
+the standard's way of saying "anything could happen".
+One of the things that can happen is that the program behaves as you
+expect; and J.5.11 says, approximately, "you might be lucky more often
+than you deserve".
+But a program that relies on multiple definitions of an extern variable
+— with or without the explicit 'extern' keyword — is not a strictly
+conforming program and not guaranteed to work everywhere.
+Equivalently: it contains a bug which may or may not show itself.
 
 ## Violating the guidelines
 
@@ -436,7 +440,3 @@ of one of the headers that are included.  It would be possible to
 reorganize the code so that the `main()` function was not repeated, but
 it would conceal more than it revealed.)
 
-
-
-  [1]: https://stackoverflow.com/questions/1410563/
-  [2]: https://stackoverflow.com/questions/1490693/tentative-definitions-in-c99-and-linking
