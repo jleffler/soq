@@ -71,7 +71,16 @@ Rules to be broken by experts only, and only with good reason:
 * A function should never need to declare a variable using `extern`.
 * Avoid global variables whenever possible — use functions instead.
 
-<sup>_If you're not an experienced C programmer, you could (and perhaps should) stop reading here._</sup>
+<sup>_If you're not an experienced C programmer, you could (and perhaps
+       should) stop reading here._
+</sup>
+
+<sup>_The source code and text of this answer are available in my
+      [SOQ](https://github.com/jleffler/soq) (Stack Overflow Questions)
+      repository on GitHub in the
+      [src/so-0143-3204](https://github.com/jleffler/soq/tree/master/src/so-0143-3204)
+      sub-directory._
+</sup>
 
 ## Not so good way to define global variables
 

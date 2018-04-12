@@ -106,6 +106,7 @@ BOGUS.h = \
 	faulty_header.h \
 	seldom_correct.h
 
+README   = README.md
 MAKEFILE = makefile
 TAR      = tar
 TARFLAGS = -czf
@@ -119,6 +120,7 @@ TAR_LIST = \
 	${INSERT_CODE} \
 	${MAKEFILE} \
 	${PROGS.c} \
+	${README} \
 	${SOURCE}
 
 CHECK = check-references.sh
