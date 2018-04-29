@@ -1,6 +1,7 @@
 %{
 /* SO 5008-7213 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,9 +55,11 @@ void insertComm(char *c, int len)
 void insertArg(char *arg, int len)
 {
     printf("Argument: %d [%s]\n", len, arg);
-    //arg_list[count] = strdup(arg);
-    arg_list[count] = arg;
-    for (int i = 0; i < count; i++)
+    // Broken code
+    // arg_list[count] = arg;
+    // Fixed code (sufficiently fixed to be usable)
+    arg_list[count] = strdup(arg);
+    for (int i = 0; i <= count; i++)
         printf("list[%d] = %p [%s]\n", i, arg_list[i], arg_list[i]);
 }
 
@@ -68,15 +71,15 @@ void yyerror(char *msg)
 
 int main(void)
 {
-    while (1)
+    yyparse();
+
+    for (i = 0; arg_list[i] != NULL; i++)
     {
-        yyparse();
-        printf("arg_list[0]= %s\n", arg_list[0]);
-        for (i = 0; arg_list[i] != NULL; i++)
-        {
-            printf("arg_list[%d] = [%s]\n", i, arg_list[i]);
-        }
-        fflush(stdout);
-        execvp(arg_list[0], arg_list);
+        printf("arg_list[%d] = [%s]\n", i, arg_list[i]);
     }
+    fflush(stdout);
+
+    execvp(arg_list[0], arg_list);
+    fprintf(stderr, "failed to execute '%s' (%d: %s)\n", arg_list[0], errno, strerror(errno));
+    return EXIT_FAILURE;
 }
