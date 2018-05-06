@@ -128,9 +128,9 @@ static int rand_int(int n)
 {
     assert(n > 0);
     int x = rand();
-    while (x >= RAND_MAX - RAND_MAX % n)
+    while (x >= RAND_MAX - RAND_MAX % (n + 1))
         x = rand();
-    return x % n;
+    return x % (n + 1);
 }
 
 /*
@@ -144,7 +144,7 @@ static int rand_int(int n)
 */
 static void fisher_yates_shuffle(int *a, int n)
 {
-    for (int i = n - 1; n > 0; n--)
+    for (int i = n - 1; i > 0; i--)
     {
         int j = rand_int(i);
         int t = a[i];
