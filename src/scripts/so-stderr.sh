@@ -15,10 +15,7 @@ done
 
 shift $(($OPTIND - 1))
 
-for file in "$@"
-do
-    files+=("$file")
-done
+files+=("$@")
 
 if [ "${#files[@]}" = 0 ]
 then
@@ -40,7 +37,7 @@ then names="file"
 else names="files"
 fi
 
-list=$(echo "$list" | sed -e 's/^, //' -e 's/, \([^ ,]*\)/ and \1/')
+list=$(echo "$list" | sed -e 's/^, //' -e 's/, \([^ ,]*\)$/ and \1/')
 
 exec cat <<EOF | tr '\n' ' '
 This code is available in my [SOQ](https://github.com/jleffler/soq)
