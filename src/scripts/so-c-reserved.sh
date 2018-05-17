@@ -4,8 +4,8 @@
 
 tr -s ' \t\n' '   ' <<'EOF'
 
-Note that you should not create function or variable names that start
-with an underscore, in general.
+Note that you should not create function, variable or macro names that
+start with an underscore, in general.
 [C11 §7.1.3 Reserved
 identifiers](https://port70.net/~nsz/c/c11/n1570.html#7.1.3) says (in
 part):
