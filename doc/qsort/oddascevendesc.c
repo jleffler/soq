@@ -2,6 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+** Comparator functions for use with qsort() for unusual sorts:
+** - Odd ascending before even descending
+** - Even descending before odd ascending
+** - Odd descending before even ascending
+** - Even ascending before odd descending
+**
+** What about:
+** - Odd ascending before even ascending?
+** - Odd descending before even descending?
+** - Even ascending before odd ascending?
+** - Even descending before odd descending?
+**
+** Clearly, these are feasible, and just simple permutations of the
+** conditions shown for the other sorts.
+*/
+
 /* odd numbers in ascending order before even numbers in descending order */
 static int oddasc_evendesc(const void *vp1, const void *vp2)
 {
@@ -98,7 +115,7 @@ int main(void)
 {
     int data1[] =
     {
-        /* random -n 80 -- -99 99 | commalist -b '        ' -n 10 */
+        /* random -n 80 -- -99 99 | commalist -B 8 -n 10 */
         +39, +36, +78, -92, +63, -21, -51, +49,   0, -77,
         -10, -49, -98, -17, +60, +83, +30, -97, -68, +86,
         +70, +84, -56,  +3, +33, -34, +14, -40, -72, -86,
