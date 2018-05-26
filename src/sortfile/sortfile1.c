@@ -51,7 +51,8 @@ int main(void)
         free(ptrs[i]);
 
     /* Avoid an 'in use at exit (reachable)' record in valgrind */
-    /* Mac OS X 10.11.4, Valgrind 3.12.0.SVN */
+    /* Mac OS X El Capitan 10.11.4, Valgrind 3.12.0.SVN */
+    /* macOS High Sierra 10.13.4, Valgrind 3.14.0.GIT */
     fclose(stdin);
 
     return 0;
