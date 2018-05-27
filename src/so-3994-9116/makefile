@@ -3,8 +3,9 @@
 include ../../etc/soq-head.mk
 
 PROG1 = trie89
+PROG2 = trie-search13
 
-PROGRAMS = ${PROG1}
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
