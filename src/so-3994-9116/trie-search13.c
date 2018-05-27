@@ -24,6 +24,8 @@
 */
 
 #include "posixver.h"
+
+#include "debug.h"
 #include "stderr.h"
 #include <assert.h>
 #include <ctype.h>
@@ -168,17 +170,17 @@ static void load_dictionary(const char *dictionary)
 ** -- word[0] is a letter and the node has an entry for that letter;
 **    call recursively to see whether there's a longer word;
 **    if there is (rv > 0), return the returned length plus one;
-**    if there is not and the current node's is_word element is true,
+**    if there is not and the child node shows that it is a word,
 **    then we have found a word and should return 1;
 **    else there is not a word ending here so return 0.
 */
 static size_t find_prefix_word(const char *word, const node *trie)
 {
     assert(islower((unsigned char)word[0]) || word[0] == '\0');
-fprintf(stderr, "-->> %s(): word [%s]\n", __func__, word);
+    DB_TRACE(5, "-->> %s(): word [%s]\n", __func__, word);
     if (word[0] == '\0')
     {
-fprintf(stderr, "<<-- %s(): empty word\n", __func__);
+        DB_TRACE(5, "<<-- %s(): empty word\n", __func__);
         return 0;
     }
     else
@@ -186,7 +188,7 @@ fprintf(stderr, "<<-- %s(): empty word\n", __func__);
         int code = word[0] - 'a';
         if (trie->children[code] == 0)
         {
-fprintf(stderr, "<<-- %s(): empty node %d\n", __func__, code);
+            DB_TRACE(5, "<<-- %s(): empty node %d\n", __func__, code);
             return 0;
         }
         else
@@ -194,20 +196,18 @@ fprintf(stderr, "<<-- %s(): empty node %d\n", __func__, code);
             size_t rv = find_prefix_word(&word[1], trie->children[code]);
             if (rv > 0)
             {
-fprintf(stderr, "<<-- %s(): found word (%zu) return %zu\n", __func__, rv, rv+1);
+                DB_TRACE(5, "<<-- %s(): found word (%zu) return %zu\n", __func__, rv, rv+1);
                 return rv + 1;
             }
             else if (trie->children[code]->is_word)
             {
-fprintf(stderr, "<<-- %s(): child node is word return 1\n", __func__);
+                DB_TRACE(5, "<<-- %s(): child node is word return 1\n", __func__);
                 return 1;
             }
-fprintf(stderr, "<<-- %s(): child node is not word return 0\n", __func__);
+            DB_TRACE(5, "<<-- %s(): child node is not word return 0\n", __func__);
             return 0;
         }
     }
-fprintf(stderr, "<<-- %s(): unreached\n", __func__);
-exit(1);
 }
 
 static void check_word(const char *word)
