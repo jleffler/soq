@@ -1,3 +1,14 @@
+/*
+@(#)File:           $RCSfile$
+@(#)Version:        $Revision$
+@(#)Last changed:   $Date$
+@(#)Purpose:        Trie-based word searching
+@(#)Author:         J Leffler
+@(#)Copyright:      (C) JLSS 2018
+*/
+
+/*TABSTOP=4*/
+
 /* SO 4997-3644 */
 /* Scan onethousandtwohundredandtwentysix into number words */
 /*
@@ -11,13 +22,22 @@
 ** files of words.  It isn't clear yet how strings such as the spaceless
 ** one at the top will be provided.
 */
+#include "posixver.h"
+#include "stderr.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "stderr.h"
+#include <unistd.h>
+
+/* This doesn't really work with Git - which is actually a reason for not using Git */
+#ifndef lint
+/* Prevent over-aggressive optimizers from eliminating ID string */
+extern const char jlss_id_trie_search17_c[];
+const char jlss_id_trie_search17_c[] = "@(#)$Id$";
+#endif /* lint */
 
 typedef struct node
 {
@@ -66,12 +86,11 @@ bool load(const char *dictionary)
         exit(1);
     }
 
-    char word[47];
-    while (fgets(word, sizeof(word), dic) != 0)
+    char *word = 0;
+    size_t wordsize = 0;
+    while (getline(&word, &wordsize, dic) != 0)
     {
-        char *pos;
-        if ((pos = strchr(word, '\n')) != NULL)
-            *pos = '\0';
+        word[strcspn(word, "\r\n")] = '\0';
         dictionary_size++;
         for (int i = 0, len = strlen(word); i < len; i++)
         {
@@ -120,20 +139,85 @@ static void free_trie(node *trie)
     }
 }
 
+static void load_dictionary(const char *dictionary)
+{
+    if (load(dictionary))
+    {
+        printf("Nominal dictionary size: %d\n", dictionary_size);
+        print_trie(root);
+    }
+    else
+        err_remark("failed to load dictionary file %s\n", dictionary);
+}
+
+static size_t find_prefix_word(const char *word, const node *trie)
+{
+    assert(islower((unsigned char)word[0]) || word[0] == '\0');
+    if (word[0] == '\0')
+        return 1;
+    else
+    {
+        int code = word[0] - 'a';
+        if (trie->children[code] == 0)
+            return 0;
+        return find_prefix_word(&word[1], trie->children[code]);
+    }
+}
+
+static void check_word(const char *word)
+{
+    size_t wordlen = strlen(word);
+    size_t max_word = find_prefix_word(word, root);
+    assert(max_word <= wordlen);
+    if (wordlen == max_word)
+        printf("[%s] is a word\n", word);
+    else if (max_word == 0)
+        printf("[%s] does not start with a known word\n", word);
+    else
+        printf("[%s] starts with word [%.*s]\n", word, (int)max_word, word);
+}
+
+static const char optstr[] = "hVd:w:";
+static const char usestr[] = "[-hV] -d dictionary [-d another]... [-w wordlist] [word ...] ";
+static const char hlpstr[] =
+    "  -d dictionary  Load words from the dictionary\n"
+    "  -h             Print this help message and exit\n"
+    "  -w wordlist    Find words from the file containing a list of words\n"
+    "  -V             Print version information and exit\n"
+    ;
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
 
-    for (int i = 1; i < argc; i++)
+    int opt;
+    while ((opt = getopt(argc, argv, optstr)) != -1)
     {
-        if (load(argv[i]))
+        switch (opt)
         {
-            printf("Nominal dictionary size: %d\n", dictionary_size);
-            print_trie(root);
+        case 'd':
+            load_dictionary(optarg);
+            break;
+        //case 'w':
+        //    check_words_from_file(optarg);
+        //    break;
+        case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'V':
+            err_version("PROG", &"@(#)$Revision$ ($Date$)"[4]);
+            /*NOTREACHED*/
+        default:
+            err_usage(usestr);
+            /*NOTREACHED*/
         }
-        else
-            err_remark("failed to load dictionary file %s\n", argv[i]);
     }
+
+    for (int i = optind; i < argc; i++)
+    {
+        check_word(argv[i]);
+    }
+
     free_trie(root);
     return 0;
 }
