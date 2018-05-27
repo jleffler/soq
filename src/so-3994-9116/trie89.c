@@ -42,7 +42,10 @@ bool load(const char *dictionary)
     dictionary_size = 0;
     FILE *dic = fopen(dictionary, "r");
     if (dic == NULL)
+    {
+        fprintf(stderr, "failed to open file '%s' for reading\n", dictionary);
         return false;
+    }
     root = calloc(1, sizeof(node));
     if (root == 0)
     {

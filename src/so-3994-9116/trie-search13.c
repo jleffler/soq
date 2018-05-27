@@ -63,13 +63,25 @@ static void addWord(char *word, node *trie)
         {
             trie->children[code] = calloc(sizeof(node), 1);
             if (trie->children[code] == 0)
-            {
-                fprintf(stderr, "Memory allocation failed\n");
-                exit(1);
-            }
+                err_syserr("memory allocation failed for %zu bytes\n", sizeof(node));
         }
         addWord(&word[1], trie->children[code]);
     }
+}
+
+static bool valid_word(char *word)
+{
+    for (size_t i = 0; word[i] != '\0'; i++)
+    {
+        if (!isalpha((unsigned char)word[i]))
+        {
+            err_remark("Non-alphabetic character in '%s'\n", word);
+            return false;
+        }
+        else
+            word[i] = tolower((unsigned char)word[i]);
+    }
+    return true;
 }
 
 static
@@ -84,10 +96,7 @@ bool load(const char *dictionary)
         root = calloc(1, sizeof(node));
     }
     if (root == 0)
-    {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(1);
-    }
+        err_syserr("memory allocation failed for %zu bytes\n", sizeof(node));
 
     char *word = 0;
     size_t wordsize = 0;
@@ -95,32 +104,25 @@ bool load(const char *dictionary)
     {
         word[strcspn(word, "\r\n")] = '\0';
         dictionary_size++;
-        for (int i = 0, len = strlen(word); i < len; i++)
-        {
-            if (!isalpha((unsigned char)word[i]))
-                fprintf(stderr, "Non-alphabetic character in '%s'\n", word);
-            else
-                word[i] = tolower((unsigned char)word[i]);
-        }
-        addWord(word, root);
+        if (valid_word(word))
+            addWord(word, root);
     }
     return true;
 }
 
 static void print_subtrie(FILE *fp, const char *prefix, char nchar, const node *child)
 {
-    if (child != 0)
-    {
-        int len = strlen(prefix);
-        char buffer[len + 2];
-        strcpy(buffer, prefix);
-        buffer[len] = nchar;
-        buffer[len+1] = '\0';
-        if (child->is_word)
-            fprintf(fp, "%s\n", buffer);
-        for (int i = 0; i < 26; i++)
-            print_subtrie(fp, buffer, 'a' + i, child->children[i]);
-    }
+    if (child == 0)
+        return;
+    int len = strlen(prefix);
+    char buffer[len + 2];
+    strcpy(buffer, prefix);
+    buffer[len] = nchar;
+    buffer[len+1] = '\0';
+    if (child->is_word)
+        fprintf(fp, "%s\n", buffer);
+    for (int i = 0; i < 26; i++)
+        print_subtrie(fp, buffer, 'a' + i, child->children[i]);
 }
 
 static void print_trie(FILE *fp, const node *top)
@@ -210,7 +212,7 @@ static size_t find_prefix_word(const char *word, const node *trie)
     }
 }
 
-static void check_word(const char *word)
+static size_t check_word(char *word)
 {
     size_t wordlen = strlen(word);
     size_t max_word = find_prefix_word(word, root);
@@ -221,6 +223,36 @@ static void check_word(const char *word)
         printf("[%s] does not start with a known word\n", word);
     else
         printf("[%s] starts with word [%.*s] (%zu)\n", word, (int)max_word, word, max_word);
+    return max_word;
+}
+
+static void check_word_sequence(char *word)
+{
+    if (!valid_word(word))
+        return;
+    size_t wordlen;
+    while (word[0] != '\0' && (wordlen = check_word(word)) > 0)
+        word += wordlen;
+    putchar('\n');
+}
+
+static void check_words_from_file(const char *filename)
+{
+    FILE *fp = fopen(filename, "r");
+    if (fp == 0)
+        err_sysrem("failed to open file '%s' for reading: ", filename);
+    else
+    {
+        size_t length = 0;
+        char  *buffer = 0;
+        while (getline(&buffer, &length, fp) != -1)
+        {
+            buffer[strcspn(buffer, "\r\n")] = '\0';
+            check_word_sequence(buffer);
+        }
+        free(buffer);
+        fclose(fp);
+    }
 }
 
 static const char optstr[] = "hVd:w:";
@@ -244,9 +276,9 @@ int main(int argc, char **argv)
         case 'd':
             load_dictionary(optarg);
             break;
-        //case 'w':
-        //    check_words_from_file(optarg);
-        //    break;
+        case 'w':
+            check_words_from_file(optarg);
+            break;
         case 'h':
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
@@ -261,7 +293,7 @@ int main(int argc, char **argv)
 
     for (int i = optind; i < argc; i++)
     {
-        check_word(argv[i]);
+        check_word_sequence(argv[i]);
     }
 
     free_trie(root);
