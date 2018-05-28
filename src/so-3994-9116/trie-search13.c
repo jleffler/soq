@@ -144,15 +144,16 @@ static void free_trie(node *trie)
     }
 }
 
-static void load_dictionary(const char *dictionary)
+static bool load_dictionary(const char *dictionary)
 {
     if (load(dictionary))
     {
         printf("Nominal dictionary size: %d\n", dictionary_size);
         print_trie(stdout, root);
+        return true;
     }
-    else
-        err_remark("failed to load dictionary file %s\n", dictionary);
+    err_remark("failed to load dictionary file %s\n", dictionary);
+    return false;
 }
 
 /*
@@ -226,13 +227,48 @@ static size_t check_word(char *word)
     return max_word;
 }
 
+static void dump_words(const char *tag, size_t n_words, char **words)
+{
+    FILE *fp = stdout;
+    fprintf(fp, "%s (%zu words):\n", tag, n_words);
+    for (size_t i = 0; i < n_words; i++)
+        fprintf(fp, "%zu: %s\n", i, words[i]);
+    fflush(fp);
+}
+
+static void free_words(size_t n_words, char **words)
+{
+    for (size_t i = 0; i < n_words; i++)
+        free(words[i]);
+    free(words);
+}
+
 static void check_word_sequence(char *word)
 {
     if (!valid_word(word))
         return;
     size_t wordlen;
+    size_t n_alloc = 0;
+    size_t n_words = 0;
+    char **words = 0;
+
     while (word[0] != '\0' && (wordlen = check_word(word)) > 0)
+    {
+        if (n_words >= n_alloc)
+        {
+            size_t new_num = 2 * n_alloc + 2;
+            char **new_lst = realloc(words, new_num * sizeof(*new_lst));
+            if (new_lst == 0)
+                err_syserr("failed to allocate %zu bytes of memory: ", new_num * sizeof(*new_lst));
+            words = new_lst;
+            n_alloc = new_num;
+        }
+        if ((words[n_words++] = strndup(word, wordlen)) == 0)
+            err_syserr("failed to allocate %zu bytes of memory: ", wordlen + 1);
         word += wordlen;
+    }
+    dump_words("numeric words", n_words, words);
+    free_words(n_words, words);
     putchar('\n');
 }
 
@@ -266,6 +302,7 @@ static const char hlpstr[] =
 
 int main(int argc, char **argv)
 {
+    bool loaded = false;
     err_setarg0(argv[0]);
 
     int opt;
@@ -274,9 +311,13 @@ int main(int argc, char **argv)
         switch (opt)
         {
         case 'd':
-            load_dictionary(optarg);
+            if (!load_dictionary(optarg))
+                exit(1);
+            loaded = true;
             break;
         case 'w':
+            if (!loaded)
+                err_error("Must load a dictionary before analyzing words\n");
             check_words_from_file(optarg);
             break;
         case 'h':
@@ -291,6 +332,8 @@ int main(int argc, char **argv)
         }
     }
 
+    if (optind < argc && !loaded)
+        err_error("Must load a dictionary before analyzing words\n");
     for (int i = optind; i < argc; i++)
     {
         check_word_sequence(argv[i]);
