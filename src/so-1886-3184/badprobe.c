@@ -3,19 +3,28 @@
 #include "memprobe.h"
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
 
+/*
+** Code using /dev/null instead of a pipe.
+**
+** NB: This code does not validate the pointers; the null device does
+**     not need to do so.
+**
+** Testing on a Mac running macOS 10.13.4 High Sierra with GCC 8.1.0.
+*/
+
 enum { MAX_PROBE_SIZE = 512 };
-static int fd[2] = { -1, -1 };
+static int fd_null = -1;
 
 int probe_init(void)
 {
-    if (fd[0] == -1)
+    if (fd_null == -1)
     {
-        assert(fd[1] == -1);
-        if (pipe(fd) != 0)
+        if ((fd_null = open("/dev/null", O_RDWR)) < 0)
         {
-            assert(fd[0] == -1 && fd[1] == -1);
+            assert(fd_null == -1);
             return -1;
         }
     }
@@ -24,11 +33,9 @@ int probe_init(void)
 
 void probe_finish(void)
 {
-    if (fd[0] != -1)
-        close(fd[0]);
-    if (fd[1] != -1)
-        close(fd[1]);
-    fd[0] = fd[1] = -1;
+    if (fd_null != -1)
+        close(fd_null);
+    fd_null = -1;
 }
 
 int probe_memory_ro(const void *address, size_t length)
@@ -51,19 +58,11 @@ int probe_memory_ro(const void *address, size_t length)
     /* Save errno */
     int errnum = errno;
     errno = 0;
-    result = write(fd[1], address, length);
+    result = write(fd_null, address, length);
     if (result < 0 || (size_t)result != length || errno == EFAULT)
         result = 0;
     else
         result = 1;
-
-    /* Read what was written - so the pipe doesn't fill and block */
-    if (result == 1)
-    {
-        char buffer[length];
-        if (read(fd[0], buffer, length) != (ssize_t)length)
-            return -1;
-    }
 
     /* Reinstate errno */
     if (errno == 0)
@@ -92,7 +91,7 @@ int probe_memory_rw(void *address, size_t length)
     /* Save errno */
     int errnum = errno;
     errno = 0;
-    int io_len = write(fd[1], address, length);
+    int io_len = write(fd_null, address, length);
     if (io_len < 0 || (size_t)io_len != length || errno == EFAULT)
         result = 0;
     else
@@ -104,7 +103,7 @@ int probe_memory_rw(void *address, size_t length)
     */
     if (result == 1)
     {
-        if ((io_len = read(fd[0], address, length)) < 0 || (size_t)io_len != length || errno == EFAULT)
+        if ((io_len = read(fd_null, address, length)) < 0 || (size_t)io_len != 0 || errno == EFAULT)
             result = 0;
     }
 
