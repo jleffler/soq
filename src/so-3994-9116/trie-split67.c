@@ -228,6 +228,25 @@ static size_t check_word(char *word)
     return max_word;
 }
 
+static size_t find_non_word_len(char *word)
+{
+    size_t wordlen = strlen(word);
+    for (size_t offset = 0; offset < wordlen; offset++)
+    {
+        printf("Test: [%s]\n", word + offset);
+        size_t max_word = find_prefix_word(word + offset, root);
+        assert(offset != 0 || max_word == 0);
+        if (max_word != 0)
+        {
+            printf("Early exit (%zu)\n", offset - 1);
+            assert(offset != 0);
+            return offset;
+        }
+    }
+    printf("Final exit (%zu)\n", wordlen);
+    return wordlen;
+}
+
 typedef struct Context
 {
     FILE   *fp;
@@ -242,7 +261,7 @@ static void aos_callback(const char *str, void *ctxt)
 
 static void dump_words(const char *tag, AoS_Copy *aos)
 {
-    Context ctxt = { .fp = stdout, .counter = 0 };
+    Context ctxt = { .fp = stdout, .counter = 1 };
     fprintf(ctxt.fp, "%s (%zu words):\n", tag, aosc_length(aos));
     aosc_apply_ctxt(aos, 0, aosc_length(aos), aos_callback, &ctxt);
     fflush(ctxt.fp);
@@ -255,12 +274,23 @@ static void check_word_sequence(char *word)
     size_t wordlen;
     AoS_Copy *aos = aosc_create(10);
 
-    while (word[0] != '\0' && (wordlen = check_word(word)) > 0)
+    while (word[0] != '\0')
     {
-        aosc_addbytes(aos, word, word + wordlen);
-        word += wordlen;
+        if ((wordlen = check_word(word)) > 0)
+        {
+            printf("Word: [%.*s]\n", (int)wordlen, word);
+            aosc_addbytes(aos, word, word + wordlen);
+            word += wordlen;
+        }
+        else
+        {
+            wordlen = find_non_word_len(word);
+            printf("Non-word: [%.*s]\n", (int)wordlen, word);
+            aosc_addbytes(aos, word, word + wordlen);
+            word += wordlen;
+        }
     }
-    dump_words("numeric words", aos);
+    dump_words("Extracted words", aos);
     aosc_destroy(aos);
     putchar('\n');
 }
