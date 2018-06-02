@@ -17,10 +17,7 @@
 ** string seventhousand needs to recognize seven and then thousand, and
 ** not error because seventy and seventeen start sevent.
 **
-** The question (SO 4997-3644) ws closed and deleted (too broad, abandoned).
-** The changes between this code and trie89.c generalize it to handle multiple
-** files of words.  It isn't clear yet how strings such as the spaceless
-** one at the top will be provided.
+** The question (SO 4997-3644) was closed and deleted (too broad, abandoned).
 */
 
 #include "posixver.h"
