@@ -238,10 +238,10 @@ static size_t find_non_word_len(char *word)
     size_t wordlen = strlen(word);
     for (size_t offset = 0; offset < wordlen; offset++)
     {
-        printf("Test: [%s]\n", word + offset);
+        DB_TRACE(4, "Test: [%s]\n", word + offset);
         if (!isalpha((unsigned char)word[offset]))
         {
-            printf("Early exit 1 (%zu)\n", offset);
+            DB_TRACE(4, "Early exit 1 (%zu)\n", offset);
             assert(offset != 0);
             return offset;
         }
@@ -249,12 +249,12 @@ static size_t find_non_word_len(char *word)
         assert(offset != 0 || max_word == 0);
         if (max_word != 0)
         {
-            printf("Early exit 2 (%zu)\n", offset);
+            DB_TRACE(4, "Early exit 2 (%zu)\n", offset);
             assert(offset != 0);
             return offset;
         }
     }
-    printf("Final exit (%zu)\n", wordlen);
+    DB_TRACE(4, "Final exit (%zu)\n", wordlen);
     return wordlen;
 }
 
@@ -267,7 +267,7 @@ typedef struct Context
 static void aos_callback(const char *str, void *ctxt)
 {
     Context *cp = ctxt;
-    fprintf(cp->fp, "%zu: %s\n", cp->counter++, str);
+    fprintf(cp->fp, "%zu: [%s]\n", cp->counter++, str);
 }
 
 static void dump_words(const char *tag, AoS_Copy *aos)
