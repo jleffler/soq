@@ -82,6 +82,7 @@ static bool valid_word(char *word)
     return true;
 }
 
+/* Dictionary loading is fussier than the word matching once the dictionary is loaded */
 static
 bool load(const char *dictionary)
 {
@@ -101,9 +102,11 @@ bool load(const char *dictionary)
     while (getline(&word, &wordsize, dic) != -1)
     {
         word[strcspn(word, "\r\n")] = '\0';
-        dictionary_size++;
         if (valid_word(word))
+        {
+            dictionary_size++;
             addWord(word, root);
+        }
     }
     return true;
 }
@@ -161,7 +164,7 @@ static bool load_dictionary(const char *dictionary)
 ** dictionary only contains number-related words, then if the word is
 ** "forklift", the result should be 0. If the word is "seventen", then
 ** the result should be 5; if it was "seventeenwords", then 9.
-** 
+**
 ** So much for the specification!  Now the implementation.  At any given
 ** level, the trie node might contain information about word[0].  There
 ** are N relevant pieces of information:
@@ -177,16 +180,21 @@ static bool load_dictionary(const char *dictionary)
 */
 static size_t find_prefix_word(const char *word, const node *trie)
 {
-    assert(islower((unsigned char)word[0]) || word[0] == '\0');
+    //assert(isalpha((unsigned char)word[0]) || word[0] == '\0');
     DB_TRACE(5, "-->> %s(): word [%s]\n", __func__, word);
     if (word[0] == '\0')
     {
         DB_TRACE(5, "<<-- %s(): empty word\n", __func__);
         return 0;
     }
+    else if (!isalpha((unsigned char)word[0]))
+    {
+        DB_TRACE(5, "<<-- %s(): non-alpha - not a word\n", __func__);
+        return 0;
+    }
     else
     {
-        int code = word[0] - 'a';
+        int code = tolower((unsigned char)word[0]) - 'a';
         if (trie->children[code] == 0)
         {
             DB_TRACE(5, "<<-- %s(): empty node %d\n", __func__, code);
@@ -231,11 +239,17 @@ static size_t find_non_word_len(char *word)
     for (size_t offset = 0; offset < wordlen; offset++)
     {
         printf("Test: [%s]\n", word + offset);
+        if (!isalpha((unsigned char)word[offset]))
+        {
+            printf("Early exit 1 (%zu)\n", offset);
+            assert(offset != 0);
+            return offset;
+        }
         size_t max_word = find_prefix_word(word + offset, root);
         assert(offset != 0 || max_word == 0);
         if (max_word != 0)
         {
-            printf("Early exit (%zu)\n", offset - 1);
+            printf("Early exit 2 (%zu)\n", offset);
             assert(offset != 0);
             return offset;
         }
@@ -266,25 +280,38 @@ static void dump_words(const char *tag, AoS_Copy *aos)
 
 static void check_word_sequence(char *word)
 {
-    if (!valid_word(word))
-        return;
-    size_t wordlen;
     AoS_Copy *aos = aosc_create(10);
 
     while (word[0] != '\0')
     {
-        if ((wordlen = check_word(word)) > 0)
+        size_t i;
+        for (i = 0; word[i] != '\0'; i++)
         {
-            printf("Word: [%.*s]\n", (int)wordlen, word);
-            aosc_addbytes(aos, word, word + wordlen);
-            word += wordlen;
+             if (isalpha((unsigned char)word[i]))
+                break;
+        }
+        if (i > 0)
+        {
+            printf("Non-alpha: [%.*s]\n", (int)i, word);
+            aosc_addbytes(aos, word, word + i);
+            word += i;
         }
         else
         {
-            wordlen = find_non_word_len(word);
-            printf("Non-word: [%.*s]\n", (int)wordlen, word);
-            aosc_addbytes(aos, word, word + wordlen);
-            word += wordlen;
+            size_t wordlen = check_word(word);
+            if (wordlen > 0)
+            {
+                printf("Word: [%.*s]\n", (int)wordlen, word);
+                aosc_addbytes(aos, word, word + wordlen);
+                word += wordlen;
+            }
+            else
+            {
+                wordlen = find_non_word_len(word);
+                printf("Non-word: [%.*s]\n", (int)wordlen, word);
+                aosc_addbytes(aos, word, word + wordlen);
+                word += wordlen;
+            }
         }
     }
     dump_words("Extracted words", aos);
