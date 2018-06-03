@@ -338,12 +338,13 @@ static void check_words_from_file(const char *filename)
     }
 }
 
-static const char optstr[] = "hVd:w:";
-static const char usestr[] = "[-hV] -d dictionary [-d another]... [-w wordlist] [word ...] ";
+static const char optstr[] = "hVd:w:D:";
+static const char usestr[] = "[-hV][-D debug] -d dictionary [-d another]... [-w wordlist] [word ...] ";
 static const char hlpstr[] =
     "  -d dictionary  Load words from the dictionary\n"
     "  -h             Print this help message and exit\n"
     "  -w wordlist    Find words from the file containing a list of words\n"
+    "  -D debug       Set debug level (0..9)\n"
     "  -V             Print version information and exit\n"
     ;
 
@@ -370,6 +371,9 @@ int main(int argc, char **argv)
         case 'h':
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
+        case 'D':
+            db_setdebug(atoi(optarg));
+            break;
         case 'V':
             err_version("PROG", &"@(#)$Revision$ ($Date$)"[4]);
             /*NOTREACHED*/
