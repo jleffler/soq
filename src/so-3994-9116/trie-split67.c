@@ -108,6 +108,7 @@ bool load(const char *dictionary)
             addWord(word, root);
         }
     }
+    free(word);
     return true;
 }
 
