@@ -282,6 +282,7 @@ static void dump_words(const char *tag, AoS_Copy *aos)
 static void check_word_sequence(char *word)
 {
     AoS_Copy *aos = aosc_create(10);
+    printf("Word sequence: [%s]\n", word);
 
     while (word[0] != '\0')
     {
