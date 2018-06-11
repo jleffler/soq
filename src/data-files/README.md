@@ -2,6 +2,25 @@
 
 Various data files collected from various sources at various times.
 
+### City List
+
+The file has 5 tab-separated columns.
+
+It is not clear what the criteria are for including a city name in this
+file, nor is it clear what the ID number signifies.
+
+To take a couple of extreme cases:
+
+* Country code WF (Wallis and Futuna) — one entry Mata-Utu.
+  There are other 'cities', but the total population of the territory is
+  about 12,000, so all the cities are rather small.
+* Country code WS (Samoa) — 7 entries.
+  The maps shown by Google (search 'iso country code ws') show a number
+  of towns or cities, but only one corresponds to one of the names in
+  this list.
+
+Mainly, this is a warning to treat the data with caution.
+
 ### Names
 
 The web site https://names.mongabay.com/ provides lists of names in HTML derived from US Census data.
