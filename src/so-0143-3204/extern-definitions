@@ -55,6 +55,17 @@ That's the best way to declare and define global variables.
 
 _The next two files complete the source for `prog1`:_
 
+The complete programs shown use functions, so function declarations have
+crept in.
+Both C99 and C11 require functions to be declared or defined before they
+are used (whereas C90 did not, for good reasons).
+I use the keyword `extern` in front of function declarations in headers
+for consistency — to match the `extern` in front of variable
+declarations in headers.
+Many people prefer not to use `extern` in front of function
+declarations; the compiler doesn't care — and ultimately, neither do I
+as long as you're consistent, at least within a source file.
+
 ### prog1.h
 
 ### prog1.c
@@ -208,15 +219,6 @@ Similar concerns arise with declaring and defining functions —
 analogous rules apply.
 But the question was about variables specifically, so I've kept the
 answer to variables only.
-
-(The complete programs use functions, so function declarations have
-crept in.
-I use the keyword `extern` in front of function declarations in headers
-for consistency — to match the `extern` in front of variable
-declarations in headers.
-Many people prefer not to use `extern` in front of functions; the
-compiler doesn't care — and ultimately, neither do I as long as you're
-consistent, at least within a file.)
 
 ### End of Original Answer
 
