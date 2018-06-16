@@ -26,13 +26,22 @@ declarations are definitions.
 
 ## Best way to declare and define global variables
 
-Although there are other ways of doing it, the clean, reliable way to
-declare and define global variables is to use a header file `file3.h` to
-contain an `extern` _declaration_ of the variable.  The header is
-included by the one source file that defines the variable and by all the
-source files that reference the variable.  For each program, one source
-file (and only one source file) defines the variable.  Similarly, one
-header file (and only one header file) should declare the variable.
+The clean, reliable way to declare and define global variables is to use
+a header file to contain an `extern` _declaration_ of the variable.
+
+The header is included by the one source file that defines the variable
+and by all the source files that reference the variable.
+For each program, one source file (and only one source file) defines the
+variable.
+Similarly, one header file (and only one header file) should declare the
+variable.
+The header file is crucial; it enables cross-checking between
+independent TUs (translation units — think source files) and ensures
+consistency.
+
+Although there are other ways of doing it, this method is simple and
+reliable.
+It is demonstrated by `file3.h`, `file1.c` and `file2.c`:
 
 ### file3.h
 
@@ -40,7 +49,7 @@ header file (and only one header file) should declare the variable.
 
 ### file2.c
 
-That's the best way to use them.
+That's the best way to declare and define global variables.
 
 <hr>
 
@@ -74,10 +83,6 @@ Rules to be broken by experts only, and only with good reason:
 * A function should never need to declare a variable using `extern`.
 * Avoid global variables whenever possible — use functions instead.
 
-<sup>_If you're not an experienced C programmer, you could (and perhaps
-       should) stop reading here._
-</sup>
-
 <sup>_The source code and text of this answer are available in my
       [SOQ](https://github.com/jleffler/soq) (Stack Overflow Questions)
       repository on GitHub in the
@@ -85,16 +90,21 @@ Rules to be broken by experts only, and only with good reason:
       sub-directory._
 </sup>
 
+<sup>_If you're not an experienced C programmer, you could (and perhaps
+       should) stop reading here._
+</sup>
+
 ## Not so good way to define global variables
 
 With some (indeed, many) C compilers, you can get away with what's
-called a 'common' definition of a variable too.  'Common', here, refers
-to a technique used in Fortran for sharing variables between source
-files, using a (possibly named) COMMON block.  What happens here is that
-each of a number of files provides a tentative definition of the
-variable.  As long as no more than one file provides an initialized
-definition, then the various files end up sharing a common single
-definition of the variable:
+called a 'common' definition of a variable too.
+'Common', here, refers to a technique used in Fortran for sharing
+variables between source files, using a (possibly named) COMMON block.
+What happens here is that each of a number of files provides a tentative
+definition of the variable.
+As long as no more than one file provides an initialized definition,
+then the various files end up sharing a common single definition of the
+variable:
 
 ### file10.c
 
@@ -105,6 +115,7 @@ definition of the variable:
 This technique does not conform to the letter of the C standard and the
 'one definition rule', but the C standard lists it as a common variation
 on its one definition rule.
+
 Because this technique is not always supported, it is best to avoid
 using it, _especially if your code needs to be portable_.  Using this
 technique, you can also end up with unintentional type punning.  If one
@@ -154,16 +165,24 @@ Equivalently: it contains a bug which may or may not show itself.
 
 ## Violating the guidelines
 
+There are, of course, many ways in which these guidelines can be broken.
+Occasionally, there may be a good reason to break the guidelines, but
+such occasions are extremely unusual.
+
 ### faulty_header.h
 
 Note 1: if the header defines the variable without the `extern` keyword,
 then each file that includes the header creates a tentative definition
 of the variable.
+As noted previously, this will often work, but the C standard does not
+guarantee that it will work.
 
 ### broken_header.h
 
 Note 2: if the header defines and initializes the variable, then only
 one source file in a given program can use the header.
+Since headers are primarily for sharing information, it is a bit silly
+to create one that can only be used once.
 
 ### seldom_correct.h
 
@@ -173,27 +192,31 @@ version of the 'global' variable.
 
 If the variable is actually a complex array, for example, this can lead
 to extreme duplication of code.  It can, very occasionally, be a
-sensible way to achieve some effect, but that is rather unusual.
+sensible way to achieve some effect, but that is very unusual.
 
 <hr>
 
 ## Summary
 
-Use the header technique I showed first.  It works reliably and
-everywhere.  Note, in particular, that the header declaring the
-`global_variable` is included in every file that uses it — including the
-one that defines it.  This ensures that everything is self-consistent.
+Use the header technique I showed first.
+It works reliably and everywhere.
+Note, in particular, that the header declaring the `global_variable` is
+included in every file that uses it — including the one that defines it.
+This ensures that everything is self-consistent.
 
-Similar concerns arise with declaring and defining functions — analogous
-rules apply.  But the question was about variables specifically, so I've
-kept the answer to variables only.
+Similar concerns arise with declaring and defining functions —
+analogous rules apply.
+But the question was about variables specifically, so I've kept the
+answer to variables only.
 
 (The complete programs use functions, so function declarations have
-crept in.  I use the keyword `extern` in front of function declarations
-in headers to match the `extern` in front of variable declarations in
-headers.  Many people prefer not to use `extern` in front of functions;
-the compiler doesn't care — and ultimately, neither do I as long as
-you're consistent.)
+crept in.
+I use the keyword `extern` in front of function declarations in headers
+for consistency — to match the `extern` in front of variable
+declarations in headers.
+Many people prefer not to use `extern` in front of functions; the
+compiler doesn't care — and ultimately, neither do I as long as you're
+consistent, at least within a file.)
 
 ### End of Original Answer
 
