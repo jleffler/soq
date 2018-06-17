@@ -22,7 +22,7 @@
 
 #include "posixver.h"
 
-#include "aommngd.h"
+#include "aoscopy.h"
 #include "debug.h"
 #include "stderr.h"
 #include <assert.h>
@@ -45,14 +45,6 @@ typedef struct node
     bool is_word;
     struct node *children[27];
 } node;
-
-typedef enum WordType { W_NONALPHA, W_KNOWN, W_UNKNOWN } WordType;
-
-typedef struct Word
-{
-    WordType    type;
-    char       *word;
-} Word;
 
 static node *root = 0;
 static int dictionary_size = 0;
@@ -92,7 +84,7 @@ static bool valid_word(char *word)
 
 /* Dictionary loading is fussier than the word matching once the dictionary is loaded */
 static
-bool load_trie(const char *dictionary)
+bool load(const char *dictionary)
 {
     FILE *dic = fopen(dictionary, "r");
     if (dic == 0)
@@ -117,7 +109,6 @@ bool load_trie(const char *dictionary)
         }
     }
     free(word);
-    fclose(dic);
     return true;
 }
 
@@ -157,7 +148,7 @@ static void free_trie(node *trie)
 
 static bool load_dictionary(const char *dictionary)
 {
-    if (load_trie(dictionary))
+    if (load(dictionary))
     {
         printf("Nominal dictionary size: %d\n", dictionary_size);
         print_trie(stdout, root);
@@ -268,69 +259,29 @@ static size_t find_non_word_len(char *word)
     return wordlen;
 }
 
-static const char *word_type(WordType type)
-{
-    switch (type)
-    {
-    case W_NONALPHA:
-        return "non-alphabetic";
-    case W_KNOWN:
-        return "known word";
-    case W_UNKNOWN:
-        return "unknown word";
-    default:
-        assert(0);
-        return "bogus code";
-    }
-}
-
 typedef struct Context
 {
     FILE   *fp;
     size_t  counter;
 } Context;
 
-static void aom_callback(const AoM_Block *blk, void *ctxt)
+static void aos_callback(const char *str, void *ctxt)
 {
     Context *cp = ctxt;
-    Word *wp = blk->blk_data;
-    fprintf(cp->fp, "%zu: %s [%s]\n", cp->counter++, word_type(wp->type), wp->word);
+    fprintf(cp->fp, "%zu: [%s]\n", cp->counter++, str);
 }
 
-static void dump_words(const char *tag, AoM_Managed *aom)
+static void dump_words(const char *tag, AoS_Copy *aos)
 {
     Context ctxt = { .fp = stdout, .counter = 1 };
-    fprintf(ctxt.fp, "%s (%zu words):\n", tag, aomm_length(aom));
-    aomm_apply_ctxt(aom, 0, aomm_length(aom), aom_callback, &ctxt);
+    fprintf(ctxt.fp, "%s (%zu words):\n", tag, aosc_length(aos));
+    aosc_apply_ctxt(aos, 0, aosc_length(aos), aos_callback, &ctxt);
     fflush(ctxt.fp);
-}
-
-static AoM_Block aom_blk_copy(size_t blk_size, const void *blk_data)
-{
-    assert(blk_size == sizeof(Word));
-    AoM_Block blk = { .blk_size = blk_size, .blk_data = malloc(sizeof(Word)) };
-    if (blk.blk_data == 0)
-        err_syserr("failed to allocate %zu bytes of memory: ", sizeof(Word));
-    Word *new_word = blk.blk_data;
-    const Word *old_word = blk_data;
-    new_word->type = old_word->type;
-    new_word->word = strdup(old_word->word);
-    if (new_word->word == 0)
-        err_syserr("failed to allocate %zu bytes of memory: ", strlen(old_word->word));
-    return blk;
-}
-
-static void aom_blk_free(size_t blk_size, void *blk_data)
-{
-    assert(blk_size == sizeof(Word));
-    Word *wp = blk_data;
-    free(wp->word);
-    free(blk_data);
 }
 
 static void check_word_sequence(char *word)
 {
-    AoM_Managed *aom = aomm_create(10, aom_blk_copy, aom_blk_free);
+    AoS_Copy *aos = aosc_create(10);
     printf("Word sequence: [%s]\n", word);
 
     while (word[0] != '\0')
@@ -344,9 +295,7 @@ static void check_word_sequence(char *word)
         if (i > 0)
         {
             printf("Non-alpha: [%.*s]\n", (int)i, word);
-            Word w = { .type = W_NONALPHA, .word = strndup(word, i) };
-            aomm_add(aom, sizeof(w), &w);
-            free(w.word);
+            aosc_addbytes(aos, word, word + i);
             word += i;
         }
         else
@@ -355,24 +304,20 @@ static void check_word_sequence(char *word)
             if (wordlen > 0)
             {
                 printf("Word: [%.*s]\n", (int)wordlen, word);
-                Word w = { .type = W_KNOWN, .word = strndup(word, wordlen) };
-                aomm_add(aom, sizeof(w), &w);
-                free(w.word);
+                aosc_addbytes(aos, word, word + wordlen);
                 word += wordlen;
             }
             else
             {
                 wordlen = find_non_word_len(word);
                 printf("Non-word: [%.*s]\n", (int)wordlen, word);
-                Word w = { .type = W_UNKNOWN, .word = strndup(word, wordlen) };
-                aomm_add(aom, sizeof(w), &w);
-                free(w.word);
+                aosc_addbytes(aos, word, word + wordlen);
                 word += wordlen;
             }
         }
     }
-    dump_words("Extracted words", aom);
-    aomm_destroy(aom);
+    dump_words("Extracted words", aos);
+    aosc_destroy(aos);
     putchar('\n');
 }
 
@@ -423,7 +368,6 @@ int main(int argc, char **argv)
         case 'w':
             if (!loaded)
                 err_error("Must load a dictionary before analyzing words\n");
-            putchar('\n');
             check_words_from_file(optarg);
             break;
         case 'h':
@@ -443,7 +387,6 @@ int main(int argc, char **argv)
 
     if (optind < argc && !loaded)
         err_error("Must load a dictionary before analyzing words\n");
-    putchar('\n');
     for (int i = optind; i < argc; i++)
     {
         check_word_sequence(argv[i]);
