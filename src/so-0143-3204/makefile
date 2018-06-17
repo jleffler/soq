@@ -114,6 +114,7 @@ TARFILE  = so-1433204.tar.gz
 TAR_LIST = \
 	${ANSWER} \
 	${BOGUS.h} \
+	${BOGUS} \
 	${CHECK} \
 	${FILES.c} \
 	${FILES.h} \
@@ -123,7 +124,13 @@ TAR_LIST = \
 	${README} \
 	${SOURCE}
 
+# bogus-text.sh is both a surrogate for extern-definitions and a test
+# script for check-references.sh - it identifies various possible
+# problems in extern-definitions that shouldn't actually occur.
+# Execute using 'sh bogus-text.sh'.  It should identify three sets
+# of problems, and exit with a non-zero status.
 CHECK = check-references.sh
+BOGUS = bogus-text.sh
 
 all: ${CHECK} check ${PROGS} ${ANSWER} ${TARFILE}
 

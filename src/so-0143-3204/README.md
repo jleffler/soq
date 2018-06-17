@@ -59,7 +59,12 @@ How do I use extern to share variables between source files in C?
 * The script `check-references.sh` is used to ensure that the references
   in `extern-definitions` are complete &mdash; that there is a reference
   in the first argument to each of the other arguments in the specific
-  format that `insert-code.pl` uses.
-  It does not yet check that each reference in the first argument matches
-  one of the other arguments, but in theory, it should.
+  format that `insert-code.pl` uses.  It also checks that no reference
+  appears twice, and that each reference is listed in the files list.
+
+* The script `bogus-text.sh` is used to check that `check-references.sh`
+  does detect problems when they exist.  It is both a text file
+  analogous to `extern-definitions` and a shell script that runs
+  `check-references.sh.  Execute it as `sh bogus-text.sh` — it should
+  report three classes of error.
 
