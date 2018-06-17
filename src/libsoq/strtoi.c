@@ -2,8 +2,8 @@
 @(#)File:           strtoi.c
 @(#)Purpose:        Analogues of strtol() for int and unsigned int
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015-2017
-@(#)Derivation:     strtoi.c 1.6 2017/02/23 00:11:55
+@(#)Copyright:      (C) JLSS 2015-2018
+@(#)Derivation:     strtoi.c 1.7 2018/06/11 00:58:06
 */
 
 /*TABSTOP=4*/
@@ -24,7 +24,7 @@
 */
 
 #include "posixver.h"
-#include "jlss.h"
+#include "strtoint.h"
 #include <errno.h>
 #include <stdlib.h>
 #include <limits.h>

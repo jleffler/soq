@@ -2,14 +2,14 @@
 @(#)File:           chkstrint.c
 @(#)Purpose:        Checked string to integer conversions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015-16
+@(#)Copyright:      (C) JLSS 2015-2018
 @(#)Derivation:     chkstrint.c 1.2 2016/01/18 03:39:42
 */
 
 /*TABSTOP=4*/
 
 #include "chkstrint.h"
-#include "jlss.h"       /* strtoi(), strtoui(), strtosize() */
+#include "strtoint.h"
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>

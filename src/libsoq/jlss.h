@@ -2,8 +2,8 @@
 @(#)File:           jlss.h
 @(#)Purpose:        JLSS Library Functions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1997-2017
-@(#)Derivation:     jlss.h 2017.2 2017/07/08 03:35:02
+@(#)Copyright:      (C) JLSS 1997-2018
+@(#)Derivation:     jlss.h 2018.1 2018/06/12 06:11:47
 */
 
 /*TABSTOP=4*/
@@ -85,11 +85,5 @@ extern const char *jlss_basename(const char *s);
 /* JLSS-specific variant on dirname().  Not thread-safe. */
 /* It allocates but never frees memory (without leaking). */
 extern const char *jlss_dirname(const char *s);
-
-/* strtoi() and strtoui() - analogues to strtol() and strtoul() */
-extern int strtoi(const char *str, char **endptr, int base);
-extern unsigned int strtoui(const char *str, char **endptr, int base);
-/* strtosize() - analogue to strtol() for size_t */
-extern size_t strtosize(const char *data, char **endptr, int base);
 
 #endif /* JLSS_H */

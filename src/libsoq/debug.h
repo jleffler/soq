@@ -3,7 +3,7 @@
 @(#)Purpose:        Definitions for the debugging system
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1990-2018
-@(#)Derivation:     debug.h 3.17 2018/01/06 05:16:47
+@(#)Derivation:     debug.h 3.17 2018/06/17 06:23:46
 */
 
 #ifndef DEBUG_H
