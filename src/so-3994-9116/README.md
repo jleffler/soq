@@ -42,14 +42,22 @@ consecutive number-related words, stopping when a word is unrecognized.
 It uses a semi-coherent command-line argument passing (and parsing)
 convention.
 
-### `trie-split67.c`
+### `trie-split59.c`
 
-This should extend `trie-search13.c` to identify both known words and
-unknown charaxter sequences.
+This extends `trie-search13.c` to identify both known words and unknown
+character sequences.
 Again, if given a numeric word list, it will identify the known numeric
 words and the unknown non-numeric words.
-It uses aoscopy.[ch] to handle the word lists, which slightly reduces
+It uses `aoscopy.[ch]` to handle the word lists, which slightly reduces
 the length of the code in this source file.
+
+### `trie-split67.c`
+
+This extends `trie-search59.c` using `aommngd.[ch]` to allow strings to
+be tagged with what type of character sequence is contained.
+It can identify both known words and unknown character sequences.
+Again, if given a numeric word list, it will identify the known numeric
+words and the unknown non-numeric words.
 
 ### English is a peculiar language
 
