@@ -371,7 +371,7 @@ static void check_word_sequence(char *word)
             }
         }
     }
-    dump_words("Extracted words", aom);
+    dump_words("Extracted character sequences", aom);
     aomm_destroy(aom);
     putchar('\n');
 }
