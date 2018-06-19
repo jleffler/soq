@@ -26,6 +26,10 @@ all:	${PROGRAM}
 ${PROGRAM}: ${FILES.o}
 	${CC} -o $@ ${CFLAGS} ${FILES.o} ${LDFLAGS} ${LDLIBS}
 
+prog1.o: ${FILES.h}
+file1.o: ${FILES.h}
+file2.o: ${FILES.h}
+
 # If it exists, prog1.dSYM is a directory on macOS
 DEBRIS = a.out core *~ *.dSYM
 RM_FR  = rm -fr
