@@ -12,7 +12,7 @@ tmp2="$(mktemp ./defs.XXXXXX)"
 
 trap "rm -f $tmp1 $tmp2; exit 1" 0 1 2 3 13 15
 
-grep -E -e '^### [-[:alnum:]_]+[.][ch]$' "$source" |
+grep -E -e '^### [-[:alnum:]_]+[.][mch]k?$' "$source" |
 sed 's/^### //' | sort > "$tmp1"
 
 dups=$(uniq -c "$tmp1" |

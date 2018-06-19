@@ -72,6 +72,13 @@ as long as you're consistent, at least within a source file.
 
 * `prog1` uses `prog1.c`, `file1.c`, `file2.c`, `file3.h` and `prog1.h`.
 
+The file `prog1.mk` is a makefile for `prog1` only.
+It will work with most versions of `make` produced since about the turn
+of the millennium.
+It is not tied specifically to GNU Make.
+
+### prog1.mk
+
 <hr>
 
 ## Guidelines
