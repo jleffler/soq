@@ -107,9 +107,12 @@ static void free_trie(node *trie)
     }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
-    if (load("words.list"))
+    const char *file = "alt.words.01";
+    if (argc == 2)
+        file = argv[1];
+    if (load(file))
     {
         printf("Nominal dictionary size: %d\n", dictionary_size);
         print_trie(root);
