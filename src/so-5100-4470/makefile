@@ -4,8 +4,10 @@ include ../../etc/soq-head.mk
 
 PROG1 = fork13
 PROG2 = fork29
+PROG3 = pipe53
+PROG4 = pipe71
 
-PROGRAMS = ${PROG1} ${PROG2}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
 
 all: ${PROGRAMS}
 

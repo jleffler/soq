@@ -35,3 +35,24 @@ A first version of the answer shows the code for unclosed write end
 (`fork13.c`), but that version of the answer was promptly deleted when I
 realized I'd provided code for the wrong case.
 
+### After updates
+
+* `pipe53.c` — code from OP, minimal fixed to compile here
+
+* `pipe71.c` — rewritten code with command line options
+
+Suitable tests include:
+
+* `pipe71; echo $?`
+* `pipe71 -b; echo $?`
+* `pipe71 -a; echo $?`
+* `pipe71 -a -d; echo $?`
+* `pipe71 -h -a -d; echo $?`
+* `pipe71 -h -a; echo $?`
+* `pipe71 -i -a; echo $?`
+* `pipe71 -i -a -d; echo $?`
+
+As it stands, it is modestly hard to get the exit statuses of the
+processes.
+Clearly, the code could be rewritten with an extra fork and a wait loop,
+but it is not as clearly similar to the code in the OPs answer.
