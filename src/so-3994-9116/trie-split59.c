@@ -17,14 +17,12 @@
 ** string seventhousand needs to recognize seven and then thousand, and
 ** not error because seventy and seventeen start sevent.
 **
-** The question (SO 4997-3644) ws closed and deleted (too broad, abandoned).
-** The changes between this code and trie89.c generalize it to handle multiple
-** files of words.  It isn't clear yet how strings such as the spaceless
-** one at the top will be provided.
+** The question was closed and deleted (too broad, abandoned).
 */
 
 #include "posixver.h"
 
+#include "aoscopy.h"
 #include "debug.h"
 #include "stderr.h"
 #include <assert.h>
@@ -77,6 +75,7 @@ static bool valid_word(char *word)
     return true;
 }
 
+/* Dictionary loading is fussier than the word matching once the dictionary is loaded */
 static
 bool load(const char *dictionary)
 {
@@ -96,10 +95,14 @@ bool load(const char *dictionary)
     while (getline(&word, &wordsize, dic) != -1)
     {
         word[strcspn(word, "\r\n")] = '\0';
-        dictionary_size++;
         if (valid_word(word))
+        {
+            dictionary_size++;
             addWord(word, root);
+        }
     }
+    free(word);
+    fclose(dic);
     return true;
 }
 
@@ -141,8 +144,7 @@ static bool load_dictionary(const char *dictionary)
 {
     if (load(dictionary))
     {
-        printf("Nominal size of dictionary after loading '%s': %d\n",
-               dictionary, dictionary_size);
+        printf("Nominal dictionary size: %d\n", dictionary_size);
         print_trie(stdout, root);
         return true;
     }
@@ -157,7 +159,7 @@ static bool load_dictionary(const char *dictionary)
 ** dictionary only contains number-related words, then if the word is
 ** "forklift", the result should be 0. If the word is "seventen", then
 ** the result should be 5; if it was "seventeenwords", then 9.
-** 
+**
 ** So much for the specification!  Now the implementation.  At any given
 ** level, the trie node might contain information about word[0].  There
 ** are N relevant pieces of information:
@@ -173,16 +175,21 @@ static bool load_dictionary(const char *dictionary)
 */
 static size_t find_prefix_word(const char *word, const node *trie)
 {
-    assert(islower((unsigned char)word[0]) || word[0] == '\0');
+    //assert(isalpha((unsigned char)word[0]) || word[0] == '\0');
     DB_TRACE(5, "-->> %s(): word [%s]\n", __func__, word);
     if (word[0] == '\0')
     {
         DB_TRACE(5, "<<-- %s(): empty word\n", __func__);
         return 0;
     }
+    else if (!isalpha((unsigned char)word[0]))
+    {
+        DB_TRACE(5, "<<-- %s(): non-alpha - not a word\n", __func__);
+        return 0;
+    }
     else
     {
-        int code = word[0] - 'a';
+        int code = tolower((unsigned char)word[0]) - 'a';
         if (trie->children[code] == 0)
         {
             DB_TRACE(5, "<<-- %s(): empty node %d\n", __func__, code);
@@ -221,48 +228,90 @@ static size_t check_word(char *word)
     return max_word;
 }
 
-static void dump_words(const char *tag, size_t n_words, char **words)
+static size_t find_non_word_len(char *word)
 {
-    FILE *fp = stdout;
-    fprintf(fp, "%s (%zu words):\n", tag, n_words);
-    for (size_t i = 0; i < n_words; i++)
-        fprintf(fp, "%zu: %s\n", i, words[i]);
-    fflush(fp);
+    size_t wordlen = strlen(word);
+    for (size_t offset = 0; offset < wordlen; offset++)
+    {
+        DB_TRACE(4, "Test: [%s]\n", word + offset);
+        if (!isalpha((unsigned char)word[offset]))
+        {
+            DB_TRACE(4, "Early exit 1 (%zu)\n", offset);
+            assert(offset != 0);
+            return offset;
+        }
+        size_t max_word = find_prefix_word(word + offset, root);
+        assert(offset != 0 || max_word == 0);
+        if (max_word != 0)
+        {
+            DB_TRACE(4, "Early exit 2 (%zu)\n", offset);
+            assert(offset != 0);
+            return offset;
+        }
+    }
+    DB_TRACE(4, "Final exit (%zu)\n", wordlen);
+    return wordlen;
 }
 
-static void free_words(size_t n_words, char **words)
+typedef struct Context
 {
-    for (size_t i = 0; i < n_words; i++)
-        free(words[i]);
-    free(words);
+    FILE   *fp;
+    size_t  counter;
+} Context;
+
+static void aos_callback(const char *str, void *ctxt)
+{
+    Context *cp = ctxt;
+    fprintf(cp->fp, "%zu: [%s]\n", cp->counter++, str);
+}
+
+static void dump_words(const char *tag, AoS_Copy *aos)
+{
+    Context ctxt = { .fp = stdout, .counter = 1 };
+    fprintf(ctxt.fp, "%s (%zu words):\n", tag, aosc_length(aos));
+    aosc_apply_ctxt(aos, 0, aosc_length(aos), aos_callback, &ctxt);
+    fflush(ctxt.fp);
 }
 
 static void check_word_sequence(char *word)
 {
-    if (!valid_word(word))
-        return;
-    size_t wordlen;
-    size_t n_alloc = 0;
-    size_t n_words = 0;
-    char **words = 0;
+    AoS_Copy *aos = aosc_create(10);
+    printf("Word sequence: [%s]\n", word);
 
-    while (word[0] != '\0' && (wordlen = check_word(word)) > 0)
+    while (word[0] != '\0')
     {
-        if (n_words >= n_alloc)
+        size_t i;
+        for (i = 0; word[i] != '\0'; i++)
         {
-            size_t new_num = 2 * n_alloc + 2;
-            char **new_lst = realloc(words, new_num * sizeof(*new_lst));
-            if (new_lst == 0)
-                err_syserr("failed to allocate %zu bytes of memory: ", new_num * sizeof(*new_lst));
-            words = new_lst;
-            n_alloc = new_num;
+             if (isalpha((unsigned char)word[i]))
+                break;
         }
-        if ((words[n_words++] = strndup(word, wordlen)) == 0)
-            err_syserr("failed to allocate %zu bytes of memory: ", wordlen + 1);
-        word += wordlen;
+        if (i > 0)
+        {
+            printf("Non-alpha: [%.*s]\n", (int)i, word);
+            aosc_addbytes(aos, word, word + i);
+            word += i;
+        }
+        else
+        {
+            size_t wordlen = check_word(word);
+            if (wordlen > 0)
+            {
+                printf("Word: [%.*s]\n", (int)wordlen, word);
+                aosc_addbytes(aos, word, word + wordlen);
+                word += wordlen;
+            }
+            else
+            {
+                wordlen = find_non_word_len(word);
+                printf("Non-word: [%.*s]\n", (int)wordlen, word);
+                aosc_addbytes(aos, word, word + wordlen);
+                word += wordlen;
+            }
+        }
     }
-    dump_words("known words", n_words, words);
-    free_words(n_words, words);
+    dump_words("Extracted words", aos);
+    aosc_destroy(aos);
     putchar('\n');
 }
 
@@ -285,19 +334,19 @@ static void check_words_from_file(const char *filename)
     }
 }
 
-static const char optstr[] = "hVd:w:";
-static const char usestr[] = "[-hV] -d dictionary [-d another]... [-w wordlist] [word ...] ";
+static const char optstr[] = "hVd:w:D:";
+static const char usestr[] = "[-hV][-D debug] -d dictionary [-d another]... [-w wordlist] [word ...] ";
 static const char hlpstr[] =
     "  -d dictionary  Load words from the dictionary\n"
     "  -h             Print this help message and exit\n"
     "  -w wordlist    Find words from the file containing a list of words\n"
+    "  -D debug       Set debug level (0..9)\n"
     "  -V             Print version information and exit\n"
     ;
 
 int main(int argc, char **argv)
 {
     bool loaded = false;
-    bool checked = false;
     err_setarg0(argv[0]);
 
     int opt;
@@ -314,11 +363,13 @@ int main(int argc, char **argv)
             if (!loaded)
                 err_error("Must load a dictionary before analyzing words\n");
             check_words_from_file(optarg);
-            checked = true;
             break;
         case 'h':
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
+        case 'D':
+            db_setdebug(atoi(optarg));
+            break;
         case 'V':
             err_version("PROG", &"@(#)$Revision$ ($Date$)"[4]);
             /*NOTREACHED*/
@@ -330,10 +381,10 @@ int main(int argc, char **argv)
 
     if (optind < argc && !loaded)
         err_error("Must load a dictionary before analyzing words\n");
-    if (optind == argc && !checked)
-        err_usage(usestr);
     for (int i = optind; i < argc; i++)
+    {
         check_word_sequence(argv[i]);
+    }
 
     free_trie(root);
     return 0;
