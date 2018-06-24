@@ -33,13 +33,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* This doesn't really work with Git - which is actually a reason for not using Git */
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_trie_search17_c[];
-const char jlss_id_trie_search17_c[] = "@(#)$Id$";
-#endif /* lint */
-
 typedef struct node
 {
     bool is_word;

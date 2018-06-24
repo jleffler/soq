@@ -114,7 +114,7 @@ int main(int argc, char **argv)
         file = argv[1];
     if (load(file))
     {
-        printf("Nominal dictionary size: %d\n", dictionary_size);
+        printf("Nominal size of dictionary '%s': %d\n", file, dictionary_size);
         print_trie(root);
         free_trie(root);
     }

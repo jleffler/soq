@@ -35,13 +35,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* This doesn't really work with Git - which is actually a reason for not using Git */
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_trie_search17_c[];
-const char jlss_id_trie_search17_c[] = "@(#)$Id$";
-#endif /* lint */
-
 typedef struct node
 {
     bool is_word;
@@ -148,7 +141,8 @@ static bool load_dictionary(const char *dictionary)
 {
     if (load(dictionary))
     {
-        printf("Nominal dictionary size: %d\n", dictionary_size);
+        printf("Nominal size of dictionary after loading '%s': %d\n",
+               dictionary, dictionary_size);
         print_trie(stdout, root);
         return true;
     }
@@ -267,7 +261,7 @@ static void check_word_sequence(char *word)
             err_syserr("failed to allocate %zu bytes of memory: ", wordlen + 1);
         word += wordlen;
     }
-    dump_words("numeric words", n_words, words);
+    dump_words("known words", n_words, words);
     free_words(n_words, words);
     putchar('\n');
 }
@@ -303,6 +297,7 @@ static const char hlpstr[] =
 int main(int argc, char **argv)
 {
     bool loaded = false;
+    bool checked = false;
     err_setarg0(argv[0]);
 
     int opt;
@@ -319,6 +314,7 @@ int main(int argc, char **argv)
             if (!loaded)
                 err_error("Must load a dictionary before analyzing words\n");
             check_words_from_file(optarg);
+            checked = true;
             break;
         case 'h':
             err_help(usestr, hlpstr);
@@ -334,10 +330,10 @@ int main(int argc, char **argv)
 
     if (optind < argc && !loaded)
         err_error("Must load a dictionary before analyzing words\n");
+    if (optind == argc && !checked)
+        err_usage(usestr);
     for (int i = optind; i < argc; i++)
-    {
         check_word_sequence(argv[i]);
-    }
 
     free_trie(root);
     return 0;

@@ -17,7 +17,7 @@
 ** string seventhousand needs to recognize seven and then thousand, and
 ** not error because seventy and seventeen start sevent.
 **
-** The question (SO 4997-3644) was closed and deleted (too broad, abandoned).
+** The question was closed and deleted (too broad, abandoned).
 */
 
 #include "posixver.h"
@@ -32,13 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-/* This doesn't really work with Git - which is actually a reason for not using Git */
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_trie_search17_c[];
-const char jlss_id_trie_search17_c[] = "@(#)$Id$";
-#endif /* lint */
 
 typedef struct node
 {
