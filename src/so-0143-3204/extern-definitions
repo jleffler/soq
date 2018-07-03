@@ -1,7 +1,6 @@
 <!--
 https://stackoverflow.com/questions/1433204
-Q: What are extern variables in C?
-Q: How do I share a variable between source files in C? With extern, but how?
+Q: How do I use extern to share variables between source files?
 -->
 
 Using `extern` is only of relevance when the program you're building
