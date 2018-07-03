@@ -131,29 +131,52 @@ variable:
 ### file12.c
 
 This technique does not conform to the letter of the C standard and the
-'one definition rule', but the C standard lists it as a common variation
-on its one definition rule.
+'one definition rule' — it is officially undefined behaviour:
+
+> **[J.2 Undefined behavior](http://port70.net/~nsz/c/c11/n1570.html#J.2)**
+
+> An identifier with external linkage is used, but in the program there
+> does not exist exactly one external definition for the identifier, or
+> the identifier is not used and there exist multiple external
+> definitions for the identifier (6.9).
+
+> **[§6.9 External definitions ¶5](http://port70.net/~nsz/c/c11/n1570.html#6.9p5)**
+
+> An _external definition_ is an external declaration that is also a
+> definition of a function (other than an inline definition) or an
+> object.
+> If an identifier declared with external linkage is used in an
+> expression (other than as part of the operand of a `sizeof` or
+> `_Alignof` operator whose result is an integer constant), somewhere in
+> the entire program there shall be exactly one external definition for
+> the identifier; otherwise, there shall be no more than
+> one.<sup>161)</sup>
+
+> <sup>161)</sup> Thus, if an identifier declared with external linkage
+> is not used in an expression, there need be no external definition for
+> it.
+
+However, the C standard also lists it in informative Annex J as one of
+the [Common extensions](http://port70.net/~nsz/c/c11/n1570.html#J.5).
+
+> [J.5.11 Multiple external definitions](http://port70.net/~nsz/c/c11/n1570.html#J.5.11)
+
+> There may be more than one external definition for the identifier of
+> an object, with or without the explicit use of the keyword extern; if
+> the definitions disagree, or more than one is initialized, the
+> behavior is undefined (6.9.2).
 
 Because this technique is not always supported, it is best to avoid
-using it, _especially if your code needs to be portable_.  Using this
-technique, you can also end up with unintentional type punning.  If one
-of the files declared `i` as a `double` instead of as an `int`, C's
-type-unsafe linkers probably would not spot the mismatch.  If you're on
-a machine with 64-bit `int` and `double`, you'd not even get a warning;
-on a machine with 32-bit `int` and 64-bit `double`, you'd probably get a
-warning about the different sizes — the linker would use the largest
-size, exactly as a Fortran program would take the largest size of any
-common blocks.
-
-This is mentioned in the C standard in informative Annex J as a common
-extension:
-
-> J.5.11 Multiple external definitions
-
->There may be more than one external definition for the identifier of an
-object, with or without the explicit use of the keyword extern; if the
-definitions disagree, or more than one is initialized, the behavior is
-undefined (6.9.2).
+using it, _especially if your code needs to be portable_.
+Using this technique, you can also end up with unintentional type
+punning.
+If one of the files declared `i` as a `double` instead of as an `int`,
+C's type-unsafe linkers probably would not spot the mismatch.
+If you're on a machine with 64-bit `int` and `double`, you'd not even
+get a warning; on a machine with 32-bit `int` and 64-bit `double`, you'd
+probably get a warning about the different sizes — the linker would
+use the largest size, exactly as a Fortran program would take the
+largest size of any common blocks.
 
 <hr>
 
@@ -171,8 +194,8 @@ _The next two files complete the source for `prog2`:_
 
 As noted in comments here, and as stated in my answer to a similar
 [question](https://stackoverflow.com/questions/1490693), using multiple
-definitions for a global variable leads to undefined behaviour, which is
-the standard's way of saying "anything could happen".
+definitions for a global variable leads to undefined behaviour (J.2;
+§6.9), which is the standard's way of saying "anything could happen".
 One of the things that can happen is that the program behaves as you
 expect; and J.5.11 says, approximately, "you might be lucky more often
 than you deserve".
