@@ -216,3 +216,14 @@
    fun:__smakebuf
    fun:__swsetup
 }
+
+# Leak 15: wrsgen in cmd - sscanf leaking!
+{
+   macOS-High-Sierra-10.13.5-Leak-015
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__parsefloat_buf
+   fun:__svfscanf_l
+   fun:vsscanf_l
+}
