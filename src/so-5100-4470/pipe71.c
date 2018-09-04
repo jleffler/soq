@@ -1,3 +1,4 @@
+#include "posixver.h"   /* Cygwin */
 #include <errno.h>
 #include <signal.h>
 #include <stdbool.h>
