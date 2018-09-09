@@ -83,6 +83,11 @@ static Set *copy_extend_set(const Set *op, int value)
     return ns;
 }
 
+static void set_free(Set *sp)
+{
+    free(sp);
+}
+
 static void set_release(const AoM_Block *blk)
 {
     free(blk->blk_data);
@@ -131,6 +136,59 @@ static int unique_element_set2(Set *sp1, Set *sp2)
     return -1;
 }
 
+static void print_set(const Set *sp)
+{
+    const char *pad = "{ ";
+    for (size_t i = 0; i < sp->size; i++)
+    {
+        printf("%s%d", pad, sp->data[i]);
+        pad = ", ";
+    }
+    printf(" }\n");
+}
+
+static bool set_equal(Set *sp1, Set *sp2)
+{
+    if (sp1->size != sp2->size)
+        return false;
+    for (size_t i = 0; i < sp1->size; i++)
+    {
+        /* Print data if assert will fail */
+        if (!(i == 0 || (sp1->data[i] > sp1->data[i-1])))
+            printf("S1: %zu (%d <=> %d)\n", i, sp1->data[i], sp1->data[i-1]);
+        if (!(i == 0 || (sp2->data[i] > sp2->data[i-1])))
+            printf("S2: %zu (%d <=> %d)\n", i, sp2->data[i], sp2->data[i-1]);
+        fflush(0);
+        assert(i == 0 || (sp1->data[i] > sp1->data[i-1]));
+        assert(i == 0 || (sp2->data[i] > sp2->data[i-1]));
+
+        if (sp1->data[i] != sp2->data[i])
+            return false;
+    }
+    return true;
+}
+
+static bool set_found_in_list(Set *sp, AoM_Pointer *pp)
+{
+    size_t num_sets = aomp_length(pp);
+    for (size_t i = 0; i < num_sets; i++)
+    {
+        AoM_Block bp = aomp_item(pp, i);
+        Set *op = bp.blk_data;
+        if (set_equal(sp, op))
+            return true;
+    }
+    return false;
+}
+
+static void add_or_free(AoM_Pointer *result, Set *sp)
+{
+    if (!set_found_in_list(sp, result))
+        aomp_add(result, set_memsize(sp), sp);
+    else
+        set_free(sp);
+}
+
 static AoM_Pointer *find_prime_pairs(int lo, int hi)
 {
     AoM_Pointer *pp = aomp_create(hi - lo);
@@ -143,22 +201,11 @@ static AoM_Pointer *find_prime_pairs(int lo, int hi)
             {
                 int n[2] = { i, j };
                 Set *sp = new_set(2, n);
-                aomp_add(pp, set_memsize(sp), sp);
+                add_or_free(pp, sp);
             }
         }
     }
     return pp;
-}
-
-static void print_set(const Set *sp)
-{
-    const char *pad = "{ ";
-    for (size_t i = 0; i < sp->size; i++)
-    {
-        printf("%s%d", pad, sp->data[i]);
-        pad = ", ";
-    }
-    printf(" }\n");
 }
 
 static void print_aomp(const AoM_Block *bp)
@@ -196,10 +243,10 @@ static void find_prime_tuples(const AoM_Block *bp, void *cp)
         if (one_element_in_common(sp, pp))
         {
             int v = unique_element_set2(sp, pp);
-            if (mutually_prime(sp, v))
+            if (v > sp->data[sp->size - 1] && mutually_prime(sp, v))
             {
                 Set *np = copy_extend_set(sp, v);
-                aomp_add(ntuples, set_memsize(np), np);
+                add_or_free(ntuples, np);
             }
         }
     }
