@@ -12,5 +12,9 @@ for state in \
         WV  WY
 do
     echo "$state"
-    curl -s -S -o "us-zipcodes-$state.html" "https://data.mongabay.com/igapo/zip_codes/$state.htm"
+    base="us-zipcodes-$state"
+    html="$base.html"
+    data="$base.data"
+    curl -s -S -o "$html" "https://data.mongabay.com/igapo/zip_codes/$state.htm"
+    grep -o -E -e '^[0-9]{5}[[:space:]]+[[:alpha:][:space:]]+\([0-9]{3}\)' "$html" > "$data"
 done
