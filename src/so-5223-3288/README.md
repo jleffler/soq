@@ -11,4 +11,11 @@ PPTQ = Prime Pairs, Triples, Quadruples
 
 * `pptq59.c`
 
-  Extending `ppt47.c` to handle triples, etc.
+  Extending `pptq47.c` to handle triples, etc.
+
+<hr>
+
+Experimentation with [Valgrind](http://www.valgrind.org/) shows that the
+original code in `pptq59.c` does not leak memory, which is gratifying.
+Not surprisingly, the first version of `pptq47.c` did leak memory, but it
+was fixed with a trivial backport of the freeing code from `pptq59.c`.

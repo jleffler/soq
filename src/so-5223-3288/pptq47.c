@@ -7,7 +7,7 @@
 #include "stderr.h"
 #include "aomptr.h"
 
-static void print_prime_sets(int lo, int hi);
+static void print_prime_pairs(int lo, int hi);
 
 int main(int argc, char **argv)
 {
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
         err_error("please make the low value less than the high value (%d, %d)!\n",
                   lo, hi);
 
-    print_prime_sets(lo, hi);
+    print_prime_pairs(lo, hi);
     return 0;
 }
 
@@ -51,59 +51,6 @@ static Set *new_set(size_t size, int data[size])
     return ns;
 }
 
-#if 0
-/* Copy set and add extra value - no check for duplicate values */
-static Set *copy_extend_set(const Set *op, int value)
-{
-    size_t space = sizeof(Set) + (op->size + 1) * sizeof(op->data[0]);
-    Set *ns = malloc(space);
-    if (ns == 0)
-        err_syserr("failed to allocate %zu bytes memory\n", space);
-    ns->size = op->size + 1;
-    for (size_t i = 0; i < op->size; i++)
-        ns->data[i] = op->data[i];
-    ns->data[op->size] = value;
-    return ns;
-}
-
-/* Do the two sets have exactly one element in common? */
-static bool one_in_common(Set *sp1, Set *sp2)
-{
-    int count = 0;
-    for (size_t i = 0; i < sp1->size; i++)
-    {
-        for (size_t j = 0; j < sp2->size; j++)
-        {
-            if (sp1->data[i] == sp2->data[j])
-                count++;
-        }
-    }
-    return (count == 1);
-}
-
-/* Find a (the) unique element in set sp2 not in sp1 */
-static int unique_element_set2(Set *sp1, Set *sp2)
-{
-    assert(one_in_common(sp1, sp2));
-    for (size_t i = 0; i < sp2->size; i++)
-    {
-        bool unmatched = true;
-        for (size_t j = 0; j < sp1->size; j++)
-        {
-            if (sp1->data[j] == sp2->data[i])
-            {
-                unmatched = false;
-                break;
-            }
-        }
-        if (unmatched)
-            return sp2->data[i];
-    }
-    assert(0);
-    return -1;
-}
-#endif
-
 static AoM_Pointer *find_prime_pairs(int lo, int hi)
 {
     AoM_Pointer *pp = aomp_create(hi - lo);
@@ -123,6 +70,17 @@ static AoM_Pointer *find_prime_pairs(int lo, int hi)
     return pp;
 }
 
+static void set_release(const AoM_Block *blk)
+{
+    free(blk->blk_data);
+}
+
+static void aomp_free(AoM_Pointer *aom, AoM_SimpleApply p_free)
+{
+    aomp_apply(aom, 0, aomp_length(aom), p_free);
+    aomp_destroy(aom);
+}
+
 static void print_set(const Set *sp)
 {
     const char *pad = "{ ";
@@ -139,70 +97,11 @@ static void print_aomp(const AoM_Block *bp)
     print_set(bp->blk_data);
 }
 
-#if 0
-static bool mutually_prime(const Set *sp, int val)
-{
-    for (size_t j = 0; j < sp->size; j++)
-    {
-        if (gcd(val, sp->data[j]) != 1)
-            return false;
-    }
-    return true;
-}
-
-typedef struct Context
-{
-    AoM_Pointer *pairs;
-    AoM_Pointer *ntuples;
-} Context;
-
-static void find_prime_tuples(const AoM_Block *bp, void *cp)
-{
-    AoM_Pointer *pairs = ((Context *)cp)->pairs;
-    AoM_Pointer *ntuples = ((Context *)cp)->ntuples;
-    Set *sp = bp->blk_data;
-    for (size_t i = 0; i < pairs->size; i++)
-    {
-        AoM_Block *pp = aomp_item(pairs, i);
-        Set *pp = pp->blk_data;
-        if (one_element_in_common(sp, pp))
-        {
-            int v = unique_element_set2(sp, pp);
-            if (mutually_prime(sp, v))
-            {
-                Set *np = copy_extend_set(sp, v);
-                aomp_add(ntuples, memsize_set(np), np);
-            }
-        }
-    }
-}
-#endif
-
-static void print_prime_sets(int lo, int hi)
+static void print_prime_pairs(int lo, int hi)
 {
     AoM_Pointer *pp = find_prime_pairs(lo, hi);
     printf("Prime pairs: (%zu)\n", aomp_length(pp));
     aomp_apply(pp, 0, aomp_length(pp), print_aomp);
-
-#if 0
-    AoM_Pointer *otuple = pp;
-    size_t tuple_size = 3;
-    while (aomp_length(otuple) > 0)
-    {
-        AoM_Pointer *ntuple = aomp_create(hi - lo);
-        Context ctxt = { pp, ntuple };
-        aomp_apply_context(otuple, 0, aomp_length(otuple), find_prime_tuples, &ctxt);
-        printf("Prime %zu-tuples: (%zu)\n", size++, aomp_length(ntuple));
-        aomp_apply(ntuple, 0, aomp_length(ntuple), print_aomp);
-        if (otuple != pp)
-            aomp_destroy(otuple);
-        otuple = ntuple;
-    }
-
-    if (otuple != pp)
-        aomp_destroy(otuple);
-#endif
-
-    aomp_destroy(pp);
+    aomp_free(pp, set_release);
 }
 
