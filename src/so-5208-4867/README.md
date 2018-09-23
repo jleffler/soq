@@ -3,6 +3,8 @@
 [SO 5208-4867](https://stackoverflow.com/q/52084867) &mdash;
 Running wc using execvp() recognizers home/usr/foo.txt but not ~/foo.txt
 
+<hr>
+
 Answer given:
 
 When you type a file name such as `~/foo.txt` at the command line, the
@@ -29,43 +31,7 @@ included in a conforming implementation.
 
 Here is some simple test code exercising the function:
 
-    #include "stderr.h"
-    #include <stdio.h>
-    #include <wordexp.h>
-
-    /*
-    int wordexp(const char *restrict words, wordexp_t *restrict pwordexp,
-           int flags);
-    void wordfree(wordexp_t *pwordexp);
-    */
-
-    static void do_wordexp(const char *name)
-    {
-        wordexp_t wx = { 0 };
-        if (wordexp(name, &wx, WRDE_NOCMD) != 0)
-            err_remark("Failed to expand word [%s]\n", name);
-        else
-        {
-            printf("Expansion of [%s]:\n", name);
-            for (size_t i = 0; i < wx.we_wordc; i++)
-                printf("%zu: [%s]\n", i+1, wx.we_wordv[i]);
-            wordfree(&wx);
-        }
-    }
-
-    int main(int argc, char **argv)
-    {
-        err_setarg0(argv[0]);
-
-        if (argc <= 1)
-            do_wordexp("~/.profile");
-        else
-        {
-            for (int i = 1; i < argc; i++)
-                do_wordexp(argv[i]);
-        }
-        return 0;
-    }
+* `wexp19.c`
 
 And here are a couple of sample runs (program `wexp19` built from
 `wexp19.c`):
@@ -100,3 +66,15 @@ The single quotes on the command line are necessary to stop the shell
 from doing what I want to demonstrate `wordexp()` doing.
 
 Tests run on a Mac running macOS 10.13.6 High Sierra, and using GCC 8.2.0.  YMMV!
+
+<hr>
+
+### `wexp79.c`
+
+Alternative version of `wexp19.c` with an error reporting function for
+`wordexp()` errors, and with a different interface.
+It reads standard input (using POSIX `getline()`) if no command line
+arguments are provided.
+
+It's a lot easier to get the data you want into `wordexp()` from
+standard input than it is via command line arguments.
