@@ -78,3 +78,20 @@ arguments are provided.
 
 It's a lot easier to get the data you want into `wordexp()` from
 standard input than it is via command line arguments.
+
+### `so-5246-1162-a.c`
+
+Original flawed code from SO 5246-1162.
+This crashes because `wordexp()` fails and the code dereferences a null
+pointer (to pointer to char).
+
+### `so-5246-1162-b.c`
+
+Revised code for SO 5246-1162.
+This doesn't crash and does diagnose a syntax error.
+
+### `esc11.c`
+
+Simple code using the `escape_simple()` function from `escape.c` and
+`escape.h` in the libsoq library.
+

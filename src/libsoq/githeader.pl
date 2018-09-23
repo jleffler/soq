@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 #
 #   Convert JLSS RCS Heading to Git
+#   Use to convert latest version of code from lib/JL to SOQ
 
 use strict;
 use warnings;
