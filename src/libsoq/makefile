@@ -20,6 +20,7 @@ FILES.c = \
 	chkstrint.c \
 	debug.c \
 	emalloc.c \
+	escape.c \
 	filter.c \
 	gcd.c \
 	kludge.c \
