@@ -27,7 +27,8 @@ static UnsignedType ArrayRange(size_t num_values, SignedType values[num_values])
     }
 
     UnsignedType range;
-    if ((large >= 0 && small >= 0) || (large <= 0 && small <= 0 && small != SIGNED_MIN))
+    assert(small <= large);
+    if (small >= 0 || large < 0 || (large == 0 && small != SIGNED_MIN))
     {
         /* Most common cases - both values of same sign; no overflow risk */
         /* Any mode of binary arithmetic */
@@ -50,7 +51,7 @@ static UnsignedType ArrayRange(size_t num_values, SignedType values[num_values])
     {
         /* Twos-complement arithmetic — small is SIGNED_MIN */
         assert(-SIGNED_MAX - 1 == SIGNED_MIN);
-        assert(small == SIGNED_MIN && large > 0);
+        assert(small == SIGNED_MIN && large >= 0);
         range = (UnsignedType)large + SIGNED_MAX + 1;
     }
 
