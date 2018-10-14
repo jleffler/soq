@@ -1,5 +1,6 @@
-# Suppressions for Valgrind on macOS High Sierra 10.13.4
+# Suppressions for Valgrind on macOS High Sierra 10.13.4 (10.13.5)
 # YMMV!
+
 {
    macOS-High-Sierra-10.13.4-Leak-001
    Memcheck:Leak
@@ -17,6 +18,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-002
    Memcheck:Leak
@@ -34,6 +36,7 @@
    fun:_ZN4dyld21registerObjCNotifiersEPFvjPKPKcPKPK11mach_headerEPFvS1_S6_ESC_
    fun:_dyld_objc_notify_register
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-003
    Memcheck:Leak
@@ -51,6 +54,7 @@
    fun:_ZN4dyld21registerObjCNotifiersEPFvjPKPKcPKPK11mach_headerEPFvS1_S6_ESC_
    fun:_dyld_objc_notify_register
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-004
    Memcheck:Leak
@@ -68,6 +72,7 @@
    fun:_ZN4dyld21registerObjCNotifiersEPFvjPKPKcPKPK11mach_headerEPFvS1_S6_ESC_
    fun:_dyld_objc_notify_register
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-005
    Memcheck:Leak
@@ -85,6 +90,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-006
    Memcheck:Leak
@@ -97,6 +103,7 @@
    fun:__v2printf
    fun:vfprintf_l
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-007
    Memcheck:Leak
@@ -109,6 +116,7 @@
    fun:__v2printf
    fun:vfprintf_l
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-008
    Memcheck:Leak
@@ -126,6 +134,7 @@
    fun:_ZN11objc_object21sidetable_retainCountEv
    fun:_ZN4dyldL18notifyBatchPartialE17dyld_image_statesbPFPKcS0_jPK15dyld_image_infoEbb
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-009
    Memcheck:Leak
@@ -143,6 +152,7 @@
    fun:_ZN16ImageLoaderMachO18doModInitFunctionsERKN11ImageLoader11LinkContextE
    fun:_ZN16ImageLoaderMachO16doInitializationERKN11ImageLoader11LinkContextE
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-010
    Memcheck:Leak
@@ -155,6 +165,7 @@
    fun:__v2printf
    fun:vfprintf_l
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-011
    Memcheck:Leak
@@ -165,6 +176,7 @@
    fun:__srefill
    fun:fgets
 }
+
 {
    macOS-High-Sierra-10.13.4-Leak-012
    Memcheck:Leak
@@ -182,6 +194,7 @@
    fun:_objc_init
    fun:_os_object_init
 }
+
 # Leak 13: illustrated by soq/src/sortfiles/sortfile1.c without fclose(stdin); before end */
 {
    macOS-High-Sierra-10.13.4-Leak-013
@@ -192,4 +205,24 @@
    fun:__srefill0
    fun:__srefill
    fun:getdelim
+}
+
+# Leak 14: illustrated by aomcopy in lib/JL
+{
+   macOS-High-Sierra-10.13.4-Leak-014
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__smakebuf
+   fun:__swsetup
+}
+
+# Leak 15: wrsgen in cmd - sscanf leaking!
+{
+   macOS-High-Sierra-10.13.5-Leak-015
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__parsefloat_buf
+   fun:__svfscanf_l
 }

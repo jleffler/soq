@@ -106,29 +106,39 @@ BOGUS.h = \
 	faulty_header.h \
 	seldom_correct.h
 
+PROG1.mk = prog1.mk
+
 README   = README.md
 MAKEFILE = makefile
 TAR      = tar
 TARFLAGS = -czf
-TARFILE  = so-1433204.tar.gz
+TARFILE  = so-0143-3204.tar.gz
 TAR_LIST = \
 	${ANSWER} \
 	${BOGUS.h} \
+	${BOGUS} \
 	${CHECK} \
 	${FILES.c} \
 	${FILES.h} \
 	${INSERT_CODE} \
 	${MAKEFILE} \
 	${PROGS.c} \
+	${PROG1.mk} \
 	${README} \
 	${SOURCE}
 
+# bogus-text.sh is both a surrogate for extern-definitions and a test
+# script for check-references.sh - it identifies various possible
+# problems in extern-definitions that shouldn't actually occur.
+# Execute using 'sh bogus-text.sh'.  It should identify three sets
+# of problems, and exit with a non-zero status.
 CHECK = check-references.sh
+BOGUS = bogus-text.sh
 
 all: ${CHECK} check ${PROGS} ${ANSWER} ${TARFILE}
 
 check:
-	${SHELL} ${CHECK} ${SOURCE} ${FILES.c} ${FILES.h} ${PROGS.c} ${BOGUS.h}
+	${SHELL} ${CHECK} ${SOURCE} ${FILES.c} ${FILES.h} ${PROGS.c} ${BOGUS.h} ${PROG1.mk}
 
 ${PROG1}: ${PROG1.o}
 	${CC} -o $@ ${CFLAGS} ${PROG1.o} ${LDFLAGS} ${LDLIBS}

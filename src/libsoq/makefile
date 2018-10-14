@@ -12,13 +12,19 @@ CFLAGS += -DHAVE_CONFIG_H
 
 # FILES.c lists source files for which there is a matching header
 FILES.c = \
+	aomcopy.c \
+	aommngd.c \
+	aomptr.c \
 	aoscopy.c \
+	aosptr.c \
 	chkstrint.c \
 	debug.c \
 	emalloc.c \
+	escape.c \
 	filter.c \
 	gcd.c \
 	kludge.c \
+	memdup.c \
 	microsleep.c \
 	range.c \
 	stderr.c \

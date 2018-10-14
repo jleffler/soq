@@ -3,7 +3,7 @@
 @(#)Purpose:        Array of Strings - Copy Semantics
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2017-2018
-@(#)Derivation:     aoscopy.c 1.6 2018/01/05 00:07:35
+@(#)Derivation:     aoscopy.c 1.7 2018/06/05 06:37:54
 */
 
 /*TABSTOP=4*/
@@ -21,7 +21,11 @@ struct AoS_Copy
     char  **strings;
 };
 
-enum { MIN_ALLOCATION = 4 };
+#ifndef AOS_MIN_ALLOCATION
+#define AOS_MIN_ALLOCATION 4
+#endif
+
+enum { MIN_ALLOCATION = AOS_MIN_ALLOCATION };
 
 AoS_Copy *aosc_create(size_t num_ptrs)
 {
@@ -230,7 +234,7 @@ int main(int argc, char **argv)
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
         case 'V':
-            err_version("AOSCOPY", &"@(#)$Revision: 1.6 $ ($Date: 2018/01/05 00:07:35 $)"[4]);
+            err_version("AOSCOPY", &"@(#)$Revision: 1.7 $ ($Date: 2018/06/05 06:37:54 $)"[4]);
             /*NOTREACHED*/
         default:
             err_usage(usestr);

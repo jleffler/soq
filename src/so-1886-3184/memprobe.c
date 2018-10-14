@@ -106,7 +106,6 @@ int probe_memory_rw(void *address, size_t length)
     {
         if ((io_len = read(fd[0], address, length)) < 0 || (size_t)io_len != length || errno == EFAULT)
             result = 0;
-
     }
 
     /* Reinstate errno */

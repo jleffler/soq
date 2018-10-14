@@ -1,7 +1,6 @@
 <!--
 https://stackoverflow.com/questions/1433204
-Q: What are extern variables in C?
-Q: How do I share a variable between source files in C? With extern, but how?
+Q: How do I use extern to share variables between source files?
 -->
 
 Using `extern` is only of relevance when the program you're building
@@ -26,13 +25,22 @@ declarations are definitions.
 
 ## Best way to declare and define global variables
 
-Although there are other ways of doing it, the clean, reliable way to
-declare and define global variables is to use a header file `file3.h` to
-contain an `extern` _declaration_ of the variable.  The header is
-included by the one source file that defines the variable and by all the
-source files that reference the variable.  For each program, one source
-file (and only one source file) defines the variable.  Similarly, one
-header file (and only one header file) should declare the variable.
+The clean, reliable way to declare and define global variables is to use
+a header file to contain an `extern` _declaration_ of the variable.
+
+The header is included by the one source file that defines the variable
+and by all the source files that reference the variable.
+For each program, one source file (and only one source file) defines the
+variable.
+Similarly, one header file (and only one header file) should declare the
+variable.
+The header file is crucial; it enables cross-checking between
+independent TUs (translation units — think source files) and ensures
+consistency.
+
+Although there are other ways of doing it, this method is simple and
+reliable.
+It is demonstrated by `file3.h`, `file1.c` and `file2.c`:
 
 ### file3.h
 
@@ -40,17 +48,35 @@ header file (and only one header file) should declare the variable.
 
 ### file2.c
 
-That's the best way to use them.
+That's the best way to declare and define global variables.
 
 <hr>
 
 _The next two files complete the source for `prog1`:_
+
+The complete programs shown use functions, so function declarations have
+crept in.
+Both C99 and C11 require functions to be declared or defined before they
+are used (whereas C90 did not, for good reasons).
+I use the keyword `extern` in front of function declarations in headers
+for consistency — to match the `extern` in front of variable
+declarations in headers.
+Many people prefer not to use `extern` in front of function
+declarations; the compiler doesn't care — and ultimately, neither do I
+as long as you're consistent, at least within a source file.
 
 ### prog1.h
 
 ### prog1.c
 
 * `prog1` uses `prog1.c`, `file1.c`, `file2.c`, `file3.h` and `prog1.h`.
+
+The file `prog1.mk` is a makefile for `prog1` only.
+It will work with most versions of `make` produced since about the turn
+of the millennium.
+It is not tied specifically to GNU Make.
+
+### prog1.mk
 
 <hr>
 
@@ -74,10 +100,6 @@ Rules to be broken by experts only, and only with good reason:
 * A function should never need to declare a variable using `extern`.
 * Avoid global variables whenever possible — use functions instead.
 
-<sup>_If you're not an experienced C programmer, you could (and perhaps
-       should) stop reading here._
-</sup>
-
 <sup>_The source code and text of this answer are available in my
       [SOQ](https://github.com/jleffler/soq) (Stack Overflow Questions)
       repository on GitHub in the
@@ -85,16 +107,21 @@ Rules to be broken by experts only, and only with good reason:
       sub-directory._
 </sup>
 
+<sup>_If you're not an experienced C programmer, you could (and perhaps
+       should) stop reading here._
+</sup>
+
 ## Not so good way to define global variables
 
 With some (indeed, many) C compilers, you can get away with what's
-called a 'common' definition of a variable too.  'Common', here, refers
-to a technique used in Fortran for sharing variables between source
-files, using a (possibly named) COMMON block.  What happens here is that
-each of a number of files provides a tentative definition of the
-variable.  As long as no more than one file provides an initialized
-definition, then the various files end up sharing a common single
-definition of the variable:
+called a 'common' definition of a variable too.
+'Common', here, refers to a technique used in Fortran for sharing
+variables between source files, using a (possibly named) COMMON block.
+What happens here is that each of a number of files provides a tentative
+definition of the variable.
+As long as no more than one file provides an initialized definition,
+then the various files end up sharing a common single definition of the
+variable:
 
 ### file10.c
 
@@ -103,28 +130,52 @@ definition of the variable:
 ### file12.c
 
 This technique does not conform to the letter of the C standard and the
-'one definition rule', but the C standard lists it as a common variation
-on its one definition rule.
+'one definition rule' — it is officially undefined behaviour:
+
+> **[J.2 Undefined behavior](http://port70.net/~nsz/c/c11/n1570.html#J.2)**
+
+> An identifier with external linkage is used, but in the program there
+> does not exist exactly one external definition for the identifier, or
+> the identifier is not used and there exist multiple external
+> definitions for the identifier (6.9).
+
+> **[§6.9 External definitions ¶5](http://port70.net/~nsz/c/c11/n1570.html#6.9p5)**
+
+> An _external definition_ is an external declaration that is also a
+> definition of a function (other than an inline definition) or an
+> object.
+> If an identifier declared with external linkage is used in an
+> expression (other than as part of the operand of a `sizeof` or
+> `_Alignof` operator whose result is an integer constant), somewhere in
+> the entire program there shall be exactly one external definition for
+> the identifier; otherwise, there shall be no more than
+> one.<sup>161)</sup>
+
+> <sup>161)</sup> Thus, if an identifier declared with external linkage
+> is not used in an expression, there need be no external definition for
+> it.
+
+However, the C standard also lists it in informative Annex J as one of
+the [Common extensions](http://port70.net/~nsz/c/c11/n1570.html#J.5).
+
+> [J.5.11 Multiple external definitions](http://port70.net/~nsz/c/c11/n1570.html#J.5.11)
+
+> There may be more than one external definition for the identifier of
+> an object, with or without the explicit use of the keyword extern; if
+> the definitions disagree, or more than one is initialized, the
+> behavior is undefined (6.9.2).
+
 Because this technique is not always supported, it is best to avoid
-using it, _especially if your code needs to be portable_.  Using this
-technique, you can also end up with unintentional type punning.  If one
-of the files declared `i` as a `double` instead of as an `int`, C's
-type-unsafe linkers probably would not spot the mismatch.  If you're on
-a machine with 64-bit `int` and `double`, you'd not even get a warning;
-on a machine with 32-bit `int` and 64-bit `double`, you'd probably get a
-warning about the different sizes — the linker would use the largest
-size, exactly as a Fortran program would take the largest size of any
-common blocks.
-
-This is mentioned in the C standard in informative Annex J as a common
-extension:
-
-> J.5.11 Multiple external definitions
-
->There may be more than one external definition for the identifier of an
-object, with or without the explicit use of the keyword extern; if the
-definitions disagree, or more than one is initialized, the behavior is
-undefined (6.9.2).
+using it, _especially if your code needs to be portable_.
+Using this technique, you can also end up with unintentional type
+punning.
+If one of the files declared `i` as a `double` instead of as an `int`,
+C's type-unsafe linkers probably would not spot the mismatch.
+If you're on a machine with 64-bit `int` and `double`, you'd not even
+get a warning; on a machine with 32-bit `int` and 64-bit `double`, you'd
+probably get a warning about the different sizes — the linker would
+use the largest size, exactly as a Fortran program would take the
+largest size of any common blocks.
 
 <hr>
 
@@ -142,8 +193,8 @@ _The next two files complete the source for `prog2`:_
 
 As noted in comments here, and as stated in my answer to a similar
 [question](https://stackoverflow.com/questions/1490693), using multiple
-definitions for a global variable leads to undefined behaviour, which is
-the standard's way of saying "anything could happen".
+definitions for a global variable leads to undefined behaviour (J.2;
+§6.9), which is the standard's way of saying "anything could happen".
 One of the things that can happen is that the program behaves as you
 expect; and J.5.11 says, approximately, "you might be lucky more often
 than you deserve".
@@ -154,16 +205,24 @@ Equivalently: it contains a bug which may or may not show itself.
 
 ## Violating the guidelines
 
+There are, of course, many ways in which these guidelines can be broken.
+Occasionally, there may be a good reason to break the guidelines, but
+such occasions are extremely unusual.
+
 ### faulty_header.h
 
 Note 1: if the header defines the variable without the `extern` keyword,
 then each file that includes the header creates a tentative definition
 of the variable.
+As noted previously, this will often work, but the C standard does not
+guarantee that it will work.
 
 ### broken_header.h
 
 Note 2: if the header defines and initializes the variable, then only
 one source file in a given program can use the header.
+Since headers are primarily for sharing information, it is a bit silly
+to create one that can only be used once.
 
 ### seldom_correct.h
 
@@ -173,27 +232,22 @@ version of the 'global' variable.
 
 If the variable is actually a complex array, for example, this can lead
 to extreme duplication of code.  It can, very occasionally, be a
-sensible way to achieve some effect, but that is rather unusual.
+sensible way to achieve some effect, but that is very unusual.
 
 <hr>
 
 ## Summary
 
-Use the header technique I showed first.  It works reliably and
-everywhere.  Note, in particular, that the header declaring the
-`global_variable` is included in every file that uses it — including the
-one that defines it.  This ensures that everything is self-consistent.
+Use the header technique I showed first.
+It works reliably and everywhere.
+Note, in particular, that the header declaring the `global_variable` is
+included in every file that uses it — including the one that defines it.
+This ensures that everything is self-consistent.
 
-Similar concerns arise with declaring and defining functions — analogous
-rules apply.  But the question was about variables specifically, so I've
-kept the answer to variables only.
-
-(The complete programs use functions, so function declarations have
-crept in.  I use the keyword `extern` in front of function declarations
-in headers to match the `extern` in front of variable declarations in
-headers.  Many people prefer not to use `extern` in front of functions;
-the compiler doesn't care — and ultimately, neither do I as long as
-you're consistent.)
+Similar concerns arise with declaring and defining functions —
+analogous rules apply.
+But the question was about variables specifically, so I've kept the
+answer to variables only.
 
 ### End of Original Answer
 

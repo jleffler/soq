@@ -34,3 +34,29 @@ expecting it or not.
 
 See SO 0028-5015 — [Linux: Prevent a background process from being stopped after closing SSH client](https://stackoverflow.com/questions/285015/linux-prevent-a-background-process-from-being-stopped-after-closing-ssh-client/285109#285109).
 
+The release has a SHA2-256 checksum and size as shown:
+
+    SHA-256 232eb3623f3a51c79ac479503eb19f28dee70ba65d64a08d98bc4656c19bdee5    25882 daemonize-1.10.tgz
+
+### `newgid`
+
+Code for a program that changes the principal (real and effective) GID to a new value.
+It isn't often needed these day, but it is occasionally useful.
+
+It must be installed SUID `root`; if it isn't, it will witter:
+
+    
+    newgid: not SUID root -- check permissions
+
+If invoked with no arguments, it gives the usage information:
+
+    Usage: newgid [-V] [-] group [shell args]
+
+The `-V` option prints the version number (1.10).  The `-` invokes a login shell.
+
+See SO — [How do you use `newgrp` in a script then stay in that group when the script exits?](https://stackoverflow.com/questions/299728/how-do-you-use-newgrp-in-a-script-then-stay-in-that-group-when-the-script-exits)
+
+The release has a SHA2-256 checksum and size as shown:
+
+    SHA-256 d116d9e85c77826c1fd3ff4d18c56c311a6295c8247f83686cd7e8805963220f    28953 newgid-1.10.tgz
+

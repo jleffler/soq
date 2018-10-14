@@ -2,8 +2,8 @@
 @(#)File:           mddebug.c
 @(#)Purpose:        Provide varargs support for debugging multiple subsystems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2017
-@(#)Derivation:     mddebug.c 3.18 2017/12/24 23:13:46
+@(#)Copyright:      (C) JLSS 1990-2018
+@(#)Derivation:     mddebug.c 3.19 2018/06/12 06:20:45
 */
 
 /*TABSTOP=4*/
@@ -17,8 +17,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "getopt.h"
-#include "jlss.h"       /* strtoi() */
+#include "strtoint.h"       /* strtoi() */
 
 #define DB_ON           3
 #define DB_OFF          0
