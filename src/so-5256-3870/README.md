@@ -11,8 +11,8 @@ but runs it avoids problems with the limited range of `int` by using `long long`
 This is OK, but the strategy runs into problems if the data is not `int` but is
 already `long long` data.
 
-I created three variant solutions, which will probably be posted
-soon.
+I created four variant solutions, some of which will probably be posted
+as an answer to the SO question.
 
 ### `array-range-17.c`
 
@@ -25,11 +25,11 @@ of verifying that.
 
 ### `array-range-19.c`
 
-This solution is based on `array-range-19.c` but parameterizes the code
-so it could be used with base types `long long` and `unsigned long
-long`, where there is (probably) no longer the option of using a longer
-type, or with `intmax_t` and `uintmax_t` where that is definitely the
-case.
+This solution is based on `array-range-17.c` but (partially)
+parameterizes the code so it could be used with base types such as `long
+long` and `unsigned long long`(where there is probably no longer the
+option of using a longer type), or with `intmax_t` and `uintmax_t`
+(where that is definitely the case).
 
 The printing formats are trickier as a result!
 
@@ -40,3 +40,21 @@ parameterized `array-range-19.c` solution.
 This is a much easier problem to solve; there are no overflow problems
 to worry about (and the values always have the same sign, of necessity).
 
+### `array-range-29.c`
+
+This solution is the fully parameterized version of `array-range-19.c`.
+It can be compiled with one of the options:
+
+* `-DUSE_INTMAX` - use `intmax_t` and `uintmax_t`.
+* `-DUSE_LONG` — use `long` and `unsigned long`.
+* `-DUSE_LONG_LONG` — use `long long` and `unsigned long long`.
+* `-DUSE_INT64` — use `int64_t` and `uint64_t`.
+* `-DUSE_INT32` — use `int32_t` and `uint32_t`.
+* `-DUSE_INT16` — use `int16_t` and `uint16_t`.
+* `-DUSE_INT` (or none of the above) — use `int` and `unsigned`.
+
+The parameterization accounts for the signed and unsigned types, the
+minimum and maximum values for the signed type, the format to print the
+data values (the signed type) including any width, and the format to
+print the range values (the unsigned type), usually expressed without a
+width.

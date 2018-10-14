@@ -3,14 +3,59 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 /* Paramterization for signed types */
+#if defined(USE_INTMAX)
+typedef intmax_t SignedType;
+typedef uintmax_t UnsignedType;
+#define SIGNED_MAX  INTMAX_MAX
+#define SIGNED_MIN  INTMAX_MIN
+#define DATA_FMT    "20" PRIdMAX
+#define RANGE_FMT   PRIuMAX
+#elif defined(USE_LONG_LONG)
+typedef long long SignedType;
+typedef unsigned long long UnsignedType;
+#define SIGNED_MAX  LLONG_MAX
+#define SIGNED_MIN  LLONG_MIN
+#define DATA_FMT    "20lld"
+#define RANGE_FMT   "llu"
+#elif defined(USE_LONG)
+typedef long SignedType;
+typedef unsigned long UnsignedType;
+#define SIGNED_MAX  LONG_MAX
+#define SIGNED_MIN  LONG_MIN
+#define DATA_FMT    "20ld"      // 11ld would do is sizeof(long) == 4
+#define RANGE_FMT   "lu"
+#elif defined(USE_INT64)
+typedef int64_t SignedType;
+typedef uint64_t UnsignedType;
+#define SIGNED_MAX  INT64_MAX
+#define SIGNED_MIN  INT64_MIN
+#define DATA_FMT    "20" PRId64
+#define RANGE_FMT   PRIu64
+#elif defined(USE_INT32)
+typedef int32_t SignedType;
+typedef uint32_t UnsignedType;
+#define SIGNED_MAX  INT32_MAX
+#define SIGNED_MIN  INT32_MIN
+#define DATA_FMT    "11" PRId32
+#define RANGE_FMT   PRIu32
+#elif defined(USE_INT16)
+typedef int16_t SignedType;
+typedef uint16_t UnsignedType;
+#define SIGNED_MAX  INT16_MAX
+#define SIGNED_MIN  INT16_MIN
+#define DATA_FMT    "6" PRId16
+#define RANGE_FMT   PRIu16
+#else /* USE_INT */
 typedef int SignedType;
 typedef unsigned UnsignedType;
 #define SIGNED_MAX  INT_MAX
 #define SIGNED_MIN  INT_MIN
 #define DATA_FMT    "11d"
 #define RANGE_FMT   "u"
+#endif
 
 static UnsignedType ArrayRange(size_t num_values, SignedType values[num_values])
 {

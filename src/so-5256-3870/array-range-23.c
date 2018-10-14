@@ -9,6 +9,8 @@
 typedef unsigned UnsignedType;
 #define UNSIGNED_MAX    UINT_MAX
 #define UNSIGNED_MIN    0U
+#define DATA_FMT        "10u"
+#define RANGE_FMT       "u"
 
 static UnsignedType ArrayRange(size_t num_values, UnsignedType values[num_values])
 {
@@ -47,7 +49,8 @@ int main(void)
     for (size_t i = 0; i < NUM_ARRAYS; i++)
     {
         UnsignedType range = ArrayRange(2, arrays[i]);
-        printf("%11u:%-11u = %u\n", arrays[i][0], arrays[i][1], range);
+        printf("%" DATA_FMT ":%-" DATA_FMT " = %" RANGE_FMT "\n",
+               arrays[i][0], arrays[i][1], range);
     }
 
     return 0;
