@@ -53,4 +53,7 @@ P J Plauger
 K N King
 [C Programming: A Modern Approach, 2nd Edn](https://smile.amazon.com/dp/0393979504/) 2008.
 
+David R Hanson
+[C Interfaces and Implementations](https://smile.amazon.com/dp) 1996.
+
 EOF
