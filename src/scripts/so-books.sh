@@ -56,4 +56,10 @@ K N King
 David R Hanson
 [C Interfaces and Implementations](https://smile.amazon.com/dp) 1996.
 
+Brian W Kernighan and Dennis M Ritchie
+[The C Programming Language, 2nd Edn](https://smile.amazon.com/dp/0131103628) 1988.
+
+Brian W Kernighan and Dennis M Ritchie
+[The C Programming Language, 1st Edn](https://smile.amazon.com/dp/0131101633) 1978.
+
 EOF
