@@ -62,4 +62,6 @@ Brian W Kernighan and Dennis M Ritchie
 Brian W Kernighan and Dennis M Ritchie
 [The C Programming Language, 1st Edn](https://smile.amazon.com/dp/0131101633) 1978.
 
+Kernighan & Plauger [The Elements of Programming Style, 2nd Edn](https://smile.amazon.com/dp/0070342075/) 1978.
+
 EOF
