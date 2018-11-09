@@ -1,0 +1,34 @@
+### Stack Overflow Question 5308-6674
+
+[SO 5308-6674](https://stackoverflow.com/q/53086674) &mdash;
+A rhombus filled with prime numbers
+
+This question was deleted by the OP so it isn't necessarily visible.
+
+There are a couple of parts to the problem.
+
+1. Establish a list of prime numbers, or a way to get the next prime number.
+2. Print a rhombus.
+3. Combine the two.
+
+### `npa67.c`
+
+This program contains a function to establish the 'next prime after' a
+given value.
+It uses the 6N±1 technique to look for prime numbers, bootstrapping off
+a list of prime numbers up to 1013 to speed up many prime number
+determinations.
+
+### `rhom59.c`
+
+This code prints a rhombus with entries marked by three asterisks.
+It takes command line arguments, and prints values (copious debug
+information).
+
+### `prim29.c`
+
+This code combines `npa67.c` and `rhom59.c` to produce an unsubmitted
+answer to the code problem.
+It adapts the number of digits printed to the size of rhombus, but the
+size boundaries are established empirically rather than calculated.
+
