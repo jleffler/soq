@@ -5,27 +5,28 @@
 cat << 'EOF'
 
 W. Richard Stevens, Bill Fenner, Andrew M. Rudoff
-[UNIX® Network Programming, Vol 1: The Sockets Networking API, 3rd Edn](https://smile.amazon.com/dp/0131411551)
+[UNIX® Network Programming, Vol 1: The Sockets Networking API, 3rd Edn](https://smile.amazon.com/dp/0131411551) 2003.
 [UNIX® Network Programming, Vol 1: The Sockets Networking API](http://unpbook.com/)
 
 W Richard Stevens
-[Unix Network Programming, Vol 2: Interprocess Communications, 2nd Edn](https://smile.amazon.com/dp/0132974290)
+[Unix Network Programming, Vol 2: Interprocess Communications, 2nd Edn](https://smile.amazon.com/dp/0132974290) 1998.
 
 W Richard Stevens, Stephen A Rago
 [Advanced Programming in the Unix Environment, 3rd Edn](https://smile.amazon.com/dp/0321637739)
+2013.
 
 Marc J Rochkind
-[Advanced Unix Programming, 2nd Edn](https://smile.amazon.com/dp/0131411543)
+[Advanced Unix Programming, 2nd Edn](https://smile.amazon.com/dp/0131411543) 2004.
 
 Michael Kerrisk
-[The Linux Programming Interface: A Linux and Unix System Programming Handbook](https://smile.amazon.com/dp/1593272200) 1st Edn
+[The Linux Programming Interface: A Linux and Unix System Programming Handbook, 1st Edn](https://smile.amazon.com/dp/1593272200) 2010.
 
 Brian W Kernighan, Rob Pike
 [The Unix Programming Environment](https://smile.amazon.com/dp/013937681X) Nov 1983.
 
 Brian W Kernighan, Rob Pike
 [The Practice of Programming](http://www.cs.princeton.edu/~bwk/tpop.webpage/)
-[The Practice of Programming](https://smile.amazon.com/dp/020161586X)
+[The Practice of Programming](https://smile.amazon.com/dp/020161586X) 1999.
 
 CodeSourcery LLC
 [Advanced Linux Programming](http://advancedlinuxprogramming.com/)
@@ -61,7 +62,5 @@ Brian W Kernighan and Dennis M Ritchie
 
 Brian W Kernighan and Dennis M Ritchie
 [The C Programming Language, 1st Edn](https://smile.amazon.com/dp/0131101633) 1978.
-
-Kernighan & Plauger [The Elements of Programming Style, 2nd Edn](https://smile.amazon.com/dp/0070342075/) 1978.
 
 EOF
