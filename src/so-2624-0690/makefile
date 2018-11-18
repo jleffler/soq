@@ -3,8 +3,9 @@
 include ../../etc/soq-head.mk
 
 PROG1 = euler-08
+PROG2 = euler-08-2
 
-PROGRAMS = ${PROG1}
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
