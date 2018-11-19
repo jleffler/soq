@@ -5,7 +5,14 @@ A rhombus filled with prime numbers
 
 This question was deleted by the OP so it isn't necessarily visible.
 
-There are a couple of parts to the problem.
+See also:
+
+* [SO 5333-9734](https://stackoverflow.com/q/53339734) "Finding the
+   first prime number after the entered number"
+* [SO 53320995](https://stackoverflow.com/q/53320995) "Finding closest
+   prime number".
+
+There are a couple of parts to the rhombus problem.
 
 1. Establish a list of prime numbers, or a way to get the next prime number.
 2. Print a rhombus.
@@ -31,4 +38,3 @@ This code combines `npa67.c` and `rhom59.c` to produce an unsubmitted
 answer to the code problem.
 It adapts the number of digits printed to the size of rhombus, but the
 size boundaries are established empirically rather than calculated.
-
