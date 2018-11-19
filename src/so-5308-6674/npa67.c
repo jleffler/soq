@@ -7,6 +7,8 @@
 #include <limits.h>
 #include <stdbool.h>
 
+#define NEXT_PRIME_AFTER    /* Avoid unnecessary checks in is_prime() */
+
 #ifdef TEST
 static unsigned primes[] = { 2, 3, 5, 7, 11 };
 #else
@@ -34,10 +36,22 @@ static unsigned primes[] =
 
 enum { N_PRIMES = sizeof(primes) / sizeof(primes[0]) };
 
+/*
+** In the context of next_prime_after(), this function is never called
+** upon to validate small numbers - numbers less than primes[N_PRIMES-1]
+** are not passed here.  In more general contexts, the extra conditions
+** in the conditionally compiled code are necessary for accuracy.
+*/
 static bool is_prime(unsigned p)
 {
     for (int i = 0; i < N_PRIMES; i++)
     {
+#ifndef NEXT_PRIME_AFTER
+        if (p < primes[i])
+            return false;
+        if (p == primes[i])
+            return true;
+#endif /* NEXT_PRIME_AFTER */
         if (p % primes[i] == 0)
             return false;
     }
