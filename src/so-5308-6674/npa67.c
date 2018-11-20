@@ -69,6 +69,7 @@ static unsigned next_prime_after(unsigned start)
 {
     for (int i = 0; i < N_PRIMES; i++)
     {
+        /* bsearch for first value more than start? */
         if (start < primes[i])
             return primes[i];
     }
@@ -84,11 +85,38 @@ static unsigned next_prime_after(unsigned start)
     return 0;
 }
 
+static unsigned next_prime_before(unsigned start)
+{
+    if (start <= primes[0])
+        return 0;           /* There isn't a prime before 2 */
+    if (start < primes[N_PRIMES - 1])
+    {
+        /* bsearch for first value less than start? */
+        for (int i = N_PRIMES - 2; i >= 0; i--)
+        {
+            //printf("%d [%d:%d]\n", start, primes[i], primes[i+1]);
+            if (start > primes[i] && start <= primes[i + 1])
+                return primes[i];
+        }
+        assert(0);
+    }
+    for (unsigned x = (start + 1) / 6; x > 1; x--)
+    {
+        unsigned t = 6 * x + 1;
+        if (t < start && is_prime(t))
+            return(t);
+        t -= 2;
+        if (t < start && is_prime(t))
+            return(t);
+    }
+    return 0;
+}
+
 int main(void)
 {
     assert((primes[N_PRIMES-1]+1) % 6 == 0);
     for (unsigned u = 0; u < 100; u++)
-        printf("%3u => %3u\n", u, next_prime_after(u));
+        printf("%3u < %3u < %3u\n", next_prime_before(u), u, next_prime_after(u));
     for (unsigned t = 100, u = next_prime_after(t); u < 12345678; t = u)
-        printf("%3u => %3u\n", t, (u = next_prime_after(t)));
+        printf("%3u < %3u < %3u\n", next_prime_before(t), t, (u = next_prime_after(t)));
 }
