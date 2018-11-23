@@ -1,6 +1,5 @@
-/* SO 5308-6674 */
-/* Inspired by the deleted SO question */
-/* Determine the next prime after a given number */
+/* SO 5332-0995 */
+/* Finding closest prime number */
 
 #include <assert.h>
 #include <stdio.h>
@@ -65,14 +64,60 @@ static bool is_prime(unsigned p)
     return true;
 }
 
+/*
+** Find largest value in array primes less than the value to be found.
+*/
+static int bs_lessthan(unsigned find)
+{
+    assert(find >= primes[0] && find < primes[N_PRIMES - 1]);
+    /* Find x such that primes[x+0] < find && primes[x+1] >= find */
+    int lo = 0;
+    int hi = N_PRIMES - 1;
+    while (lo <= hi)
+    {
+        //printf("F %d: lo:hi = %d:%d [%d:%d]  ", find, lo, hi, primes[lo], primes[hi]);
+        int mid = (lo + hi) / 2;
+        //printf("m = %d: [%d:%d]\n", mid, primes[mid], primes[mid+1]);
+        if (primes[mid] < find && primes[mid + 1] >= find)
+            return primes[mid];
+        else if (primes[mid] >= find)
+            hi = mid - 1;
+        else
+            lo = mid + 1;
+    }
+    return -1;
+}
+
+/*
+** Find smallest value in array primes more than the value to be found.
+*/
+static int bs_morethan(unsigned find)
+{
+    assert(find >= primes[0] && find < primes[N_PRIMES - 1]);
+    /* Find x such that primes[x-1] <= find && primes[x+0] > find */
+    int lo = 1;
+    int hi = N_PRIMES - 1;
+    while (lo <= hi)
+    {
+        //printf("F %d: lo:hi = %d:%d [%d:%d]  ", find, lo, hi, primes[lo], primes[hi]);
+        int mid = (lo + hi) / 2;
+        //printf("m = %d: [%d:%d]\n", mid, primes[mid], primes[mid+1]);
+        if (primes[mid-1] <= find && primes[mid] > find)
+            return primes[mid];
+        else if (primes[mid] > find)
+            hi = mid - 1;
+        else
+            lo = mid + 1;
+    }
+    return -1;
+}
+
 static unsigned next_prime_after(unsigned start)
 {
-    for (int i = 0; i < N_PRIMES; i++)
-    {
-        /* bsearch for first value more than start? */
-        if (start < primes[i])
-            return primes[i];
-    }
+    if (start < primes[0])
+        return primes[0];
+    if (start < primes[N_PRIMES-1])
+        return bs_morethan(start);
     for (unsigned x = (start + 1) / 6; x < UINT_MAX / 6; x++)
     {
         unsigned t = 6 * x - 1;
@@ -90,16 +135,7 @@ static unsigned next_prime_before(unsigned start)
     if (start <= primes[0])
         return 0;           /* There isn't a prime before 2 */
     if (start < primes[N_PRIMES - 1])
-    {
-        /* bsearch for first value less than start? */
-        for (int i = N_PRIMES - 2; i >= 0; i--)
-        {
-            //printf("%d [%d:%d]\n", start, primes[i], primes[i+1]);
-            if (start > primes[i] && start <= primes[i + 1])
-                return primes[i];
-        }
-        assert(0);
-    }
+        return bs_lessthan(start);
     for (unsigned x = (start + 1) / 6; x > 1; x--)
     {
         unsigned t = 6 * x + 1;
@@ -112,11 +148,23 @@ static unsigned next_prime_before(unsigned start)
     return 0;
 }
 
+static void print_nearest_prime(unsigned start)
+{
+    unsigned pa = next_prime_after(start);
+    unsigned pb = next_prime_before(start);
+    unsigned da = pa - start;
+    unsigned db = start - pb;
+    unsigned np = (da <= db) ? pa : pb;
+    unsigned dn = (da <= db) ? da : db;
+    printf("S = %u, N = %u (D = %2u) -- A = %u, B = %u, dA = %2u, dB = %2u\n", 
+            start, np, dn, pa, pb, da, db);
+}
+
 int main(void)
 {
     assert((primes[N_PRIMES-1]+1) % 6 == 0);
     for (unsigned u = 0; u < 100; u++)
-        printf("%3u < %3u < %3u\n", next_prime_before(u), u, next_prime_after(u));
-    for (unsigned t = 100, u = next_prime_after(t); u < 12345678; t = u)
-        printf("%3u < %3u < %3u\n", next_prime_before(t), t, (u = next_prime_after(t)));
+        print_nearest_prime(u);
+    for (unsigned u = next_prime_after(100); u < 12345678; u = next_prime_after(u))
+        print_nearest_prime(u);
 }
