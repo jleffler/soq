@@ -56,31 +56,25 @@ static void merge(void *left, size_t size, size_t l_len, void *right,
 {
     size_t r_pos = 0;
     size_t l_pos = 0;
-    //size_t o_pos = 0;
     char  *l_base = left;
     char  *r_base = right;
     char  *o_base = output;
     enter_func(__func__);
     while (r_pos < r_len && l_pos < l_len)
     {
-        //if (right[r_pos] < left[l_pos])
         if ((*cmp)(r_base, l_base) < 0)
         {
-            //output[o_pos++] = right[r_pos++];
             memmove(o_base, r_base, size);
             o_base += size;
             r_base += size;
             r_pos++;
-            //o_pos++;
         }
         else
         {
-            //output[o_pos++] = left[l_pos++];
             memmove(o_base, l_base, size);
             o_base += size;
             l_base += size;
             l_pos++;
-            //o_pos++;
         }
     }
     /* Only one of these conditions is active */
