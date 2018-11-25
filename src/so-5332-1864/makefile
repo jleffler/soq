@@ -4,9 +4,10 @@ include ../../etc/soq-head.mk
 
 PROG1 = ads13
 PROG2 = ads29
-PROG3 = ads47
+PROG3 = ads41
+PROG4 = ads47
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
 
 all: ${PROGRAMS}
 
