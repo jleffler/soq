@@ -6,7 +6,6 @@
 */
 
 #include <stdbool.h>
-#include <stdio.h>      /* Debug */
 
 static bool is_all_same_digit(int num)
 {
@@ -36,7 +35,7 @@ static int cmp_numbers(const void *v1, const void *v2)
 #include <stdlib.h>
 #include <string.h>
 
-/* Aka bubble sort! */
+/* Crude algorithm - vaguely resembling bubble sort */
 static void stable_partition(void *data, size_t number, size_t size,
                              int (*cmp)(const void *v1, const void *v2))
 {
@@ -48,8 +47,6 @@ static void stable_partition(void *data, size_t number, size_t size,
             void *vp1 = (char *)data + (j - 1) * size;
             void *vp2 = (char *)data + (j - 0) * size;
             int rc = (*cmp)(vp1, vp2);
-            printf("a[%zu] = %2d; a[%zu] = %2d; cmp = %+d\n",
-                   (j-1), ((int *)data)[(j-1)], j, ((int *)data)[j], rc);
             if (rc > 0)
             {
                 /* Swap 'em */
@@ -93,7 +90,7 @@ static inline int max(int x, int y) { return (x > y) ? x : y; }
 int main(void)
 {
     int ex1[] = { 1, 43, 23, 55 };
-    int ex2[] = { 12, 33, 1, 19, 44, 11, 27, 76, 13 };
+    int ex2[] = { 12, 33, 1, 19, 44, 11, 76, 27, 13 };
     enum { NUM_EX1 = sizeof(ex1) / sizeof(ex1[0]) };
     enum { NUM_EX2 = sizeof(ex2) / sizeof(ex2[0]) };
     int ex3[max(DIM(ex1), DIM(ex2))];

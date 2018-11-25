@@ -1,7 +1,8 @@
 /* SO 5332-1864 */
 /*
-** Sort array so that the numbers with the same digits are in front of
-** those that ve different digits - in a stable sort
+** Sort array so that the numbers with the all the same digits are in
+** front of those that have different digits, preserving original order
+** of elements within each partition (a stable partition).
 */
 
 #include <stdbool.h>
@@ -72,7 +73,7 @@ static inline int max(int x, int y) { return (x > y) ? x : y; }
 int main(void)
 {
     int ex1[] = { 1, 43, 23, 55 };
-    int ex2[] = { 12, 33, 1, 19, 44, 11, 27, 76, 13 };
+    int ex2[] = { 12, 33, 1, 19, 44, 11, 76, 27, 13 };
     enum { NUM_EX1 = sizeof(ex1) / sizeof(ex1[0]) };
     enum { NUM_EX2 = sizeof(ex2) / sizeof(ex2[0]) };
     int ex3[max(DIM(ex1), DIM(ex2))];

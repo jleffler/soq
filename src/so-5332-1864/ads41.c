@@ -6,6 +6,7 @@
 */
 
 #include <stdbool.h>
+#include <stdio.h>      /* Debug */
 
 static bool is_all_same_digit(int num)
 {
@@ -35,28 +36,64 @@ static int cmp_numbers(const void *v1, const void *v2)
 #include <stdlib.h>
 #include <string.h>
 
-/* Crude algorithm - vaguely resembling bubble sort */
-static void stable_partition(void *data, size_t number, size_t size,
-                             int (*cmp)(const void *v1, const void *v2))
+#define GEN_IDX(arr, idx, size) ((char *)(arr) + (idx) * (size))
+static void insertion_sort_gen(void *data, size_t number, size_t size,
+                           int (*cmp)(const void *v1, const void *v2))
 {
-    for (size_t i = 0; i < number; i++)
+    for (size_t i = 1; i < number; i++)
     {
-        void *vp1 = (char *)data + i * size;
-        for (size_t j = i + 1; j < number; j++)
+        char tmp[size];
+        memmove(tmp, GEN_IDX(data, i, size), size);
+        size_t j;
+        for (j = i; j > 0; j--)
         {
-            void *vp2 = (char *)data + j * size;
-            int rc = (*cmp)(vp1, vp2);
-            if (rc > 0)
-            {
-                /* Swap 'em */
-                char tmp[size];
-                memmove(tmp, vp1, size);
-                memmove(vp1, vp2, size);
-                memmove(vp2, tmp, size);
-            }
+            if ((*cmp)(GEN_IDX(data, j - 1, size), tmp) <= 0)
+                break;
+            memmove(GEN_IDX(data, j, size), GEN_IDX(data, j - 1, size), size);
         }
+        memmove(GEN_IDX(data, j, size), tmp, size);
     }
 }
+
+#if 0
+static void insertion_sort_gen(void *data, size_t number, size_t size,
+                           int (*cmp)(const void *v1, const void *v2))
+{
+    for (size_t i = 1; i < number; i++)
+    {
+        void *vp1 = (char *)data + i * size;
+        char tmp[size];
+        memmove(tmp, vp1, size);
+        size_t j;
+        for (j = i; j > 0; j--)
+        {
+            void *vp2 = (char *)data + (j - 1) * size;
+            int rc = (*cmp)(vp2, tmp);
+            if (rc <= 0)
+                break;
+            void *vp3 = (char *)data + j * size;
+            memmove(vp3, vp2, size);
+        }
+        char *vp4 = (char *)data + j * size;
+        memmove(vp4, tmp, size);
+    }
+}
+#endif
+
+#if 0
+static void insertion_sort_int(int *data, size_t number
+                               int (*cmp)(const void *v1, const void *v2))
+{
+    for (size_t i = 1; i < number; i++)
+    {
+        int t = data[i];
+        size_t j;
+        for (j = i; j > 0 && cmp(&data[j-1], &t) > 0; j--)
+            data[j] = data[j - 1];
+        data[j] = t;
+    }
+}
+#endif
 
 #include <stdio.h>
 
@@ -107,13 +144,15 @@ int main(void)
     memmove(ex3, ex1, sizeof(ex1));
     num3 = NUM_EX1;
     print_array_int("Example 1 stable partition - before", num3, ex3);
-    stable_partition(ex3, num3, sizeof(ex3[0]), cmp_numbers);
+    //insertion_sort_int(ex3, num3);
+    insertion_sort_gen(ex3, num3, sizeof(ex3[0]), cmp_numbers);
     print_array_int("Example 1 stable partition - after", num3, ex3);
 
     memmove(ex3, ex2, sizeof(ex2));
     num3 = NUM_EX2;
     print_array_int("Example 2 stable partition - before", num3, ex3);
-    stable_partition(ex3, num3, sizeof(ex3[0]), cmp_numbers);
+    //insertion_sort_int(ex3, num3);
+    insertion_sort_gen(ex3, num3, sizeof(ex3[0]), cmp_numbers);
     print_array_int("Example 2 stable partition - after", num3, ex3);
 
     return 0;

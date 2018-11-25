@@ -26,14 +26,19 @@ found anything definitive.
   * [Insertion sort](https://en.wikipedia.org/wiki/Insertion_sort)
   * [Selection sort](https://en.wikipedia.org/wiki/Selection_sort)
 
-  I think that the code may be a sub-optimal variant of selection sort;
-  it doesn't really correspond well with bubble sort of insertion sort.
-
 * `ads29.c`
 
   A working solution, using the generic merge sort code from [SO
   1802-8773: Merge Sort](https://github.com/jleffler/soq/tree/master/src/so-1882-8773)
-  and the file `ms41.c` in particular.
+  and the file `ms41.c` in particular.  That code could perhaps be
+  extracted into standalone source files — a header and source file.
+  NB: On macOS (BSD), the system `<stdlib.h>` declares `mergesort()`
+  with the same signature.
+
+* `ads41.c`
+
+  A working solution, using a generic insertion sort function based on
+  code from Bentley "Programming Pearls, 2nd Edn".
 
 * `ads47.c`
 
