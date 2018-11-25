@@ -2,6 +2,10 @@
 
 include ../../etc/soq-head.mk
 
+IFLAG2  = -I${HOME}/inc
+LDFLAG2 = -L${HOME}/lib/64
+LDLIB2  = -ljl
+
 PROG1 = ads13
 PROG2 = ads29
 PROG3 = ads41
