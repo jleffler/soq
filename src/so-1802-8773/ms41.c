@@ -54,40 +54,32 @@ end function
 static void merge(void *left, size_t size, size_t l_len, void *right,
                   size_t r_len, void *output, Comparator cmp)
 {
-    size_t r_pos = 0;
-    size_t l_pos = 0;
-    //size_t o_pos = 0;
-    char  *l_base = left;
-    char  *r_base = right;
-    char  *o_base = output;
+    char  *l_data = left;
+    char  *r_data = right;
+    char  *o_data = output;
+    char  *l_end  = l_data + l_len * size;
+    char  *r_end  = r_data + r_len * size;
     enter_func(__func__);
-    while (r_pos < r_len && l_pos < l_len)
+    while (r_data < r_end && l_data < l_end)
     {
-        //if (right[r_pos] < left[l_pos])
-        if ((*cmp)(r_base, l_base) < 0)
+        if ((*cmp)(r_data, l_data) < 0)
         {
-            //output[o_pos++] = right[r_pos++];
-            memmove(o_base, r_base, size);
-            o_base += size;
-            r_base += size;
-            r_pos++;
-            //o_pos++;
+            memmove(o_data, r_data, size);
+            o_data += size;
+            r_data += size;
         }
         else
         {
-            //output[o_pos++] = left[l_pos++];
-            memmove(o_base, l_base, size);
-            o_base += size;
-            l_base += size;
-            l_pos++;
-            //o_pos++;
+            memmove(o_data, l_data, size);
+            o_data += size;
+            l_data += size;
         }
     }
     /* Only one of these conditions is active */
-    if (r_pos < r_len)
-        memmove(o_base, r_base, (r_len - r_pos) * size);
-    if (l_pos < l_len)
-        memmove(o_base, l_base, (l_len - l_pos) * size);
+    if (r_data < r_end)
+        memmove(o_data, r_data, r_end - r_data);
+    if (l_data < l_end)
+        memmove(o_data, l_data, l_end - l_data);
     exit_func(__func__);
 }
 
