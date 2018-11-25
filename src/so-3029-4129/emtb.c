@@ -1,11 +1,11 @@
-/* SO 30294129 */
+/* SO 3029-4129 */
 #include <stdio.h>
 #include <string.h>
 
 /* Function pointer for strtok, strtok_single, strtok_fixed */
 typedef char *(*Splitter)(char *str, const char *delims);
 
-/* strtok_single - as quoted in SO 30294129 (from SO 8705844) */
+/* strtok_single - as quoted in SO 3029-4129 (from SO 8705844) */
 static char *strtok_single(char *str, char const *delims)
 {
     static char  *src = NULL;
@@ -67,7 +67,7 @@ static void parsePostData1(const char *s, const char *t, Splitter splitter)
     }
 }
 
-/* Fixed version of parsePostData() from SO 30294129 */
+/* Fixed version of parsePostData() from SO 3029-4129 */
 static char *parsePostData2(const char *s, const char *t, Splitter splitter)
 {
     char tCpy[512];

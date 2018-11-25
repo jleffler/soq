@@ -1,5 +1,6 @@
 /* SO 4574-5483 */
 /* Original code except for initializing n and testing narg before calling atoi() */
+#include "posixver.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
@@ -24,7 +25,9 @@ int main(int narg, char * argv[]){
 void new_tree(int x){
     char buff[60];
     sprintf(buff, "Im the procces %d with pid %d and ppid %d\n",x,getpid(),getppid());
-    write(1,buff,strlen(buff));
+    size_t len = strlen(buff);
+    if (write(1, buff, len) != (ssize_t)len)
+        exit(1);
     if (x >= last)
     return;
 

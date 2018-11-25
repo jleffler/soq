@@ -1,6 +1,6 @@
 /*
 ** How to create a pipeline of N processes?
-** SO 13636252 C Minishell adding pipelines
+** SO 1363-6252 C Minishell adding pipelines
 */
 
 /* stderr.h */
@@ -14,6 +14,7 @@ static void err_syswarn(char const *fmt, ...);
 #endif /* STDERR_H_INCLUDED */
 
 /* pipeline.c */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -153,7 +154,7 @@ int main(int argc, char **argv)
     if (argc == 1)
     {
         /* Run the built in pipe-line */
-        exec_pipeline(ncmds, cmds); 
+        exec_pipeline(ncmds, cmds);
     }
     else
     {

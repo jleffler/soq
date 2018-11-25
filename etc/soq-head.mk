@@ -42,7 +42,7 @@ IFLAG1 = -I${INCDIR}
 IFLAG2 = #-I${HOME}/inc
 IFLAGS = ${IFLAG1} ${IFLAG2}
 OFLAGS = -O3
-SFLAGS = -std=c11
+SFLAGS = -std=c11 # -pedantic
 TFLAGS = # Set to -DTEST (or similar) when needed
 UFLAGS = # Set on command line
 WFLAG1 = -Wall

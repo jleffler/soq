@@ -1,4 +1,4 @@
-/* SO 32598224 (originally for SO 32565694) */
+/* SO 3259-8224 (originally for SO 3256-5694) */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

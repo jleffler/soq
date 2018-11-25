@@ -20,6 +20,7 @@
 ** The Linux code referenced is the function strstrip(); see slts61.c
 ** for test code using that.
 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <ctype.h>

@@ -1,6 +1,6 @@
 #!/opt/gnu/bin/awk -f
 #
-# SO 37997620
+# SO 3799-7620
 
 
 NR == 1 { print; hdr1 = $1; hdr2 = $2; next }

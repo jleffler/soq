@@ -1,4 +1,5 @@
 /* SO 4574-5483 */
+#include "posixver.h"
 #include "stderr.h"
 #include <fcntl.h>
 #include <math.h>
@@ -70,7 +71,9 @@ static void new_tree(int x)
     err_remark("Process = %2d\n", x);
     wait_for_turn(x);
     sprintf(buff, "I'm process %2d with pid %5d and ppid %5d\n", x, getpid(), getppid());
-    write(1, buff, strlen(buff));
+    size_t len = strlen(buff);
+    if (write(1, buff, len) != (ssize_t)len)
+        err_syserr("failed to write %zu bytes to file descriptor 1: ", len);
     write_file(x);
     if (x >= last)
         return;

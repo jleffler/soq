@@ -7,7 +7,7 @@ PROG02 = 3dalloc1
 PROG03 = 3dalloc2
 PROG04 = 3dalloc3
 PROG05 = 3dalloc4
-# PROG06 =
+PROG06 = vla17
 PROG07 = matmake3d
 PROG08 = matmul89
 PROG09 = matmul99
@@ -15,6 +15,8 @@ PROG10 = mda
 PROG11 = vlamat
 PROG12 = vlastruct
 PROG13 = alloc3dmat
+PROG14 = vla53
+PROG15 = vla67
 
 PROGRAMS = \
 	${PROG01} \
@@ -22,6 +24,7 @@ PROGRAMS = \
 	${PROG03} \
 	${PROG04} \
 	${PROG05} \
+	${PROG06} \
 	${PROG07} \
 	${PROG08} \
 	${PROG09} \
@@ -29,6 +32,8 @@ PROGRAMS = \
 	${PROG11} \
 	${PROG12} \
 	${PROG13} \
+	${PROG14} \
+	${PROG15} \
 
 all: ${PROGRAMS}
 

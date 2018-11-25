@@ -2,12 +2,13 @@
 @(#)File:           debug.c
 @(#)Purpose:        Provide varargs support for debugging
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-93,1997-2000,2005-06,2008,2013,2016
-@(#)Derivation:     debug.c 3.11 2016/01/17 16:09:12
+@(#)Copyright:      (C) JLSS 1990-2018
+@(#)Derivation:     debug.c 3.15 2018/01/04 23:33:27
 */
 
 /*TABSTOP=4*/
 
+#include "posixver.h"
 #undef DEBUG
 #define DEBUG
 #include "debug.h"
@@ -17,6 +18,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MAXINDENT   ((int)(sizeof(blanks) - 1) / 3)
 
@@ -28,12 +30,18 @@ static int      inlevel = 0;
 /* GNU C library does not allow you to initialize debugfp to stderr */
 static FILE    *debugfp = 0;
 static char     fn[128] = "/dev/stderr";
+static int      options;
 
-extern char const jlss_id_debug_txt[];
-char const        jlss_id_debug_txt[] = "@(#)*** DEBUGGING ENABLED ***";
+int db_setoptions(int opts)
+{
+    int rv = options;
+    options = opts;
+    return rv;
+}
 
 FILE *db_getfileptr(void)
 {
+    DB_TRACKING();
     if (debugfp == 0)
         debugfp = stderr;
     return debugfp;
@@ -73,18 +81,46 @@ void db_setfilename(const char *nfn)
 **  Call as: db_print(level, format, ...);
 **  Print debug information if debug flag set at or above level.
 */
-void db_print(int level, const char *fmt,...)
+void db_print(int level, const char *fmt, ...)
 {
     if (debug >= level)
     {
         va_list args;
         FILE *fp = db_getfileptr();
         fflush(stdout);
+        flockfile(fp);
         fputs(db_indent(), fp);
+        if (options & DB_OPT_PID)
+            fprintf(fp, "%d: ", (int)getpid());
         va_start(args, fmt);
         vfprintf(fp, fmt, args);
         va_end(args);
         fflush(fp);
+        funlockfile(fp);
+    }
+}
+
+/*
+**  Call as: db_printloc(level, format, __FILE__, __LINE__, __func__, ...);
+**  Print debug information if debug flag set at or above level.
+*/
+void db_printloc(int level, const char *file, int line, const char *func, const char *fmt, ...)
+{
+    if (debug >= level)
+    {
+        va_list args;
+        FILE *fp = db_getfileptr();
+        fflush(stdout);
+        flockfile(fp);
+        fputs(db_indent(), fp);
+        if (options & DB_OPT_PID)
+            fprintf(fp, "%d:", (int)getpid());
+        fprintf(fp, "%s:%d:%s(): ", file, line, func);
+        va_start(args, fmt);
+        vfprintf(fp, fmt, args);
+        va_end(args);
+        fflush(fp);
+        funlockfile(fp);
     }
 }
 
@@ -159,11 +195,11 @@ int db_setdebug(int level)
 static void db_test(void)
 {
     fprintf(stderr, "Should appear at indent = %d\n", db_newindent() + 1);
-    DB_TRACE(1, "This should have appeared at debug level %d; %d %f\n",
-              1, 3, 3.141593);
+    TRACE((1, "This should have appeared at debug level %d; %d %f\n",
+              1, 3, 3.141593));
     DB_TRACE(2, "This should have appeared at debug level %d; %d %f\n",
               2, 3, 3.141593);
-    DB_TRACE(3, "This should have appeared at debug level %d; %d %f\n",
+    DB_TRACELOC(3, "This should have appeared at debug level %d; %d %f\n",
               3, 3, 3.141593);
     DB_TRACE(4, "This should have appeared at debug level %d; %d %f\n",
               4, 3, 3.141593);

@@ -10,7 +10,7 @@ define f(n) {
    }
 }
 
-f(100)
+f(35)
 quit
 
 # Key values

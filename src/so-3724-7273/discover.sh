@@ -2,7 +2,7 @@
 #
 # A light-weight study in using bash arrays
 #
-# Based on commentary answer to SO 28573599
+# Based on commentary answer to SO 2857-3599
 
 or=""
 args=()

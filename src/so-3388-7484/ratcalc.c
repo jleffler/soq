@@ -1,4 +1,4 @@
-/* Crude calculator (left-to-right evaluation only) for SO 33887484 */
+/* Crude calculator (left-to-right evaluation only) for SO 3388-7484 */
 #include "so.33887484.h"
 #include <ctype.h>
 #include <errno.h>

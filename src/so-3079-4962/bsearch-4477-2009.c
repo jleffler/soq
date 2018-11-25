@@ -1,4 +1,8 @@
-/* https://stackoverflow.com/questions/44772009/cs50-pset-3-binary-search-inconsistent-success-with-test-data */
+/* SO 4477-2009 */
+/* CS50 PSET 3 binary search inconsistent success with test data */
+
+extern int binary_search(const int values[], int n, int value);
+
 int binary_search(const int values[], int n, int value)
 {
     int top = n - 1;

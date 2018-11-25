@@ -1,5 +1,6 @@
 /* Sort 3 items - flexible comparisons */
 /* Based on code for SO 4203-5818 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include "stderr.h"

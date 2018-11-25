@@ -1,4 +1,4 @@
-# SO 48013629
+# SO 4801-3629
 
 include ../../etc/soq-head.mk
 
@@ -13,9 +13,10 @@ PROG3 = punc47
 
 # JG and NS
 PROG4 = punc73
-PROG5 = punc97
+PROG5 = punc89
+PROG6 = punc97
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6}
 
 all: ${PROGRAMS}
 

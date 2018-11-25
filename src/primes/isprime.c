@@ -1,4 +1,5 @@
-/* SO 1538644 - Determine if a number is prime */
+/* SO 0153-8644 - Determine if a number is prime */
+#include "posixver.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -149,6 +150,27 @@ static int isprime3(unsigned number)
     return 1;
 }
 
+/*
+** Late-comer.  One test showed it slightly slower than isprime3() - but
+** the same test showed isprime2() faster than both isprime3() and
+** isprime4()
+*/
+static int isprime4(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned x = 5; x * x <= number; x += 6)
+    {
+        if (number % x == 0 || number % (x + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
 static void test_primality_tester(const char *tag, int seed, int (*prime)(unsigned), int count)
 {
     srand(seed);
@@ -177,26 +199,31 @@ static int check_number(unsigned v)
     int p4 = isprime1(v);
     int p5 = isprime2(v);
     int p6 = isprime3(v);
-    if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6)
+    int p7 = isprime4(v);
+    if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6 || p1 != p7)
     {
         PROGRESS_REPORT(putchar('\n'));
         printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
                 " IsPrime3() %d; isprime1() %d; isprime2() %d;"
-                " isprime3() %d\n",
-                v, p1, p2, p3, p4, p5, p6);
+                " isprime3() %d; isprime4() %d\n",
+                v, p1, p2, p3, p4, p5, p6, p7);
         return 1;
     }
     return 0;
 }
 
 #ifndef NO_PROGRESS_REPORTING
-static int icounter = 0;
+static volatile sig_atomic_t icounter = 0;
 static void alarm_handler(int signum)
 {
     assert(signum == SIGALRM);
-    write(STDOUT_FILENO, ".", 1);
+    if (write(STDOUT_FILENO, ".", 1) != 1)
+        exit(1);
     if (++icounter % 60 == 0)
-        write(STDOUT_FILENO, "\n", 1);
+    {
+        if (write(STDOUT_FILENO, "\n", 1) != 1)
+            exit(1);
+    }
 }
 
 static void set_interval_timer(int interval)
@@ -266,6 +293,7 @@ static void one_test(int seed)
     test_primality_tester("isprime1", seed, isprime1, COUNT);
     test_primality_tester("isprime2", seed, isprime2, COUNT);
     test_primality_tester("isprime3", seed, isprime3, COUNT);
+    test_primality_tester("isprime4", seed, isprime4, COUNT);
 }
 
 int main(int argc, char **argv)

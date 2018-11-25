@@ -1,4 +1,4 @@
-/* SO 31096894 - sets.h */
+/* SO 3109-6894 - sets.h */
 
 /* Set of elements 1..1024 - in C89/C90 */
 #ifndef SETS_H_INCLUDED

@@ -53,9 +53,23 @@
 
 /*
 ** So, we need to be able to build an array of combined, sorted,
-** disjoint, non-contigous ranges.  And we need a modified binary search
+** disjoint, non-contiguous ranges.  And we need a modified binary search
 ** that looks for the largest start address less than or equal to the
 ** target.
+**
+** See mergeranges.c in vignettes.  This is an O(NlogN) operation.
+**
+** If you can assume that the array of ranges (sections) is constructed
+** so that:
+** -- The ranges are sorted in order of start address
+** -- The ranges are disjoint and non-contiguous
+** then a searched-for range S is encapsulated only if there is a range
+** Ri that satisfies (S.lo <= Ri.hi && S.hi >= Ri.lo).  Further, a
+** binary search on the ranges will reveal the candidate quickly, even
+** if the number of ranges is high.  And if Ri partially (but not
+** completely) overlaps S, then you know there is no match.  This should
+** be an O(logN) operation.  The main issue is "will you search often
+** enough to amortize the cost of the sort/merge operation"?
 */
 
 #include "stderr.h"
@@ -117,21 +131,6 @@ static void prt_sectionlist(const char *tag, const SectionList *list)
         printf("%2zu: %s\n", i, fmt_section(buffer, sizeof(buffer), list->sections[i]));
 }
 
-static void add_section(SectionList *list, Section section)
-{
-    assert(list != 0);
-    assert(section.length != 0);
-    if (!isEncapsulated(list, section))
-    {
-        /*
-        ** Must add the section — but it may extend an existing
-        ** section (before or after), or even connect two currently
-        ** adjacent but non-contiguous sections.  Or it may simply need
-        ** to be inserted before or after some existing section.
-        */
-    }
-}
-
 /* Not as efficient as all that - linear search */
 static bool isEncapsulated(const SectionList *list, Section section)
 {
@@ -149,9 +148,24 @@ static bool isEncapsulated(const SectionList *list, Section section)
     return false;
 }
 
+static void add_section(SectionList *list, Section section)
+{
+    assert(list != 0);
+    assert(section.length != 0);
+    if (!isEncapsulated(list, section))
+    {
+        /*
+        ** Must add the section — but it may extend an existing
+        ** section (before or after), or even connect two currently
+        ** adjacent but non-contiguous sections.  Or it may simply need
+        ** to be inserted before or after some existing section.
+        */
+    }
+}
+
 static bool read_section(FILE *fp, Section *section)
 {
-    return(fscanf(fp, "%" SCNiPTR " %zu", &section->start_addr, &section->length) == 2);
+    return(fscanf(fp, "%" SCNuPTR " %zu", &section->start_addr, &section->length) == 2);
 }
 
 int main(void)

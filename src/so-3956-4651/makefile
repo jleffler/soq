@@ -1,4 +1,4 @@
-# SO 39564651
+# SO 3956-4651
 #
 # Size of code using varying numbers of arrow operators
 

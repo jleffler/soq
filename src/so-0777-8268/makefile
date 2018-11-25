@@ -1,4 +1,4 @@
-# SO 07778268
+# SO 0777-8268
 #
 # Code does not compile on Mac OS X
 

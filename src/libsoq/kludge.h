@@ -1,9 +1,9 @@
 /*
 @(#)File:           kludge.h
-@(#)Purpose:        Provide support for KLUDGE macro
+@(#)Purpose:        Provide support for KLUDGE and FEATURE macros
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1995,1997-2000,2003,2005,2008,2015-16
-@(#)Derivation:     kludge.h 1.16 2016/01/17 15:48:53
+@(#)Copyright:      (C) JLSS 1995-2018
+@(#)Derivation:     kludge.h 1.18 2018/01/06 14:38:31
 */
 
 /*TABSTOP=4*/
@@ -12,38 +12,19 @@
 #define KLUDGE_H
 
 /*
- * The KLUDGE macro is enabled by default.
- * It can be disabled by specifying -DKLUDGE_DISABLE
+ * The KLUDGE and FEATURE macros are enabled by default.
+ * They can be disabled by specifying -DKLUDGE_DISABLE
  */
 
 #ifdef KLUDGE_DISABLE
 
-#define KLUDGE(x)   ((void)0)
-#define FEATURE(x)  ((void)0)
+/* Ensure the macros are called with a string literal argument */
+#define KLUDGE(x)       assert(sizeof(x "") != 0)
+#define FEATURE(x)      assert(sizeof(x "") != 0)
+#define KLUDGE_FILE(x)  assert(sizeof(x "") != 0)
+#define FEATURE_FILE(x) assert(sizeof(x "") != 0)
 
 #else
-
-/*
-** The Solaris C compiler without either -O or -g removes unreferenced
-** strings, which defeats the purpose of the KLUDGE macro.
-** If your compiler is lenient enough, you can use -DKLUDGE_NO_FORCE,
-** but most modern compilers make KLUDGE_FORCE preferable.
-**
-** The GNU C Compiler will complain about unused variables if told to
-** do so.  Setting KLUDGE_FORCE ensures that it doesn't complain about
-** any kludges.
-*/
-
-#undef KLUDGE_FORCE
-#ifndef KLUDGE_NO_FORCE
-#define KLUDGE_FORCE
-#endif /* KLUDGE_NO_FORCE */
-
-#ifdef KLUDGE_FORCE
-#define KLUDGE_USE(x)   kludge_use(x)
-#else
-#define KLUDGE_USE(x)   ((void)0)
-#endif /* KLUDGE_FORCE */
 
 /*
 ** Example use: KLUDGE("Fix macro to accept arguments with commas");
@@ -53,20 +34,30 @@
 ** This allows it to work with traditional compilers but runs foul of
 ** the absence of string concatenation, and you have to avoid commas
 ** in the reason string, etc.
+**
+** KLUDGE_FILE and FEATURE_FILE include the source file name after the
+** main string.
+**
+** NB: If kludge.c (which defines kludge_use()) is compiled with
+**     -DKLUDGE_VERBOSE, then the first time a feature or kludge is
+**     used, a message is written to standard error.  The function
+**     returns 1, so the reporting process is not repeated (for any
+**     given feature or kludge).
 */
 
-#define KLUDGE_DEC  static const char kludge[]
-#define FEATURE_DEC static const char feature[]
-#define ONCE_ONLY   static int once = 0; if (once++ == 0)
+#define KLUDGE_ONCE   static int once = 0; if (once++ == 0) once =
 
-#define KLUDGE(x)   { ONCE_ONLY KLUDGE_USE("@(#)KLUDGE: " x); }
-#define FEATURE(x)  { ONCE_ONLY KLUDGE_USE("@(#)Feature: " x); }
+#define KLUDGE(x)   { KLUDGE_ONCE kludge_use("@(#)KLUDGE: " x); }
+#define FEATURE(x)  { KLUDGE_ONCE kludge_use("@(#)Feature: " x); }
+
+#define KLUDGE_FILE(x)   KLUDGE(x " (" __FILE__ ")")
+#define FEATURE_FILE(x)  FEATURE(x " (" __FILE__ ")")
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-extern void kludge_use(const char *str);
+extern int kludge_use(const char *str);
 
 #ifdef __cplusplus
 }

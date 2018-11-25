@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     // creates the original X and Y matrix
     double (*trainX)[col] = matrix_allocate(row, col);
-    double (*trainY)[1]   = matrix_allocate(row, 1);;
+    double (*trainY)[1]   = matrix_allocate(row, 1);
     for (int i = 0; i < row; i++)
     {
         trainX[i][0] = 1.000000;

@@ -5,8 +5,6 @@
 ** Store integers to an array of bytes.
 ** Load integers from an array of bytes.
 ** Exploiting templates and C++11 auto.
-** The test code should be removed to a separate file, or the template code
-** should be in a header rather than a source file.  Details, details.
 */
 
 template <typename I>

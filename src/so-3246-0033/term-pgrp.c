@@ -1,4 +1,5 @@
-/* SO 32460033 */
+/* SO 3246-0033 */
+#include "posixver.h"
 #include "stderr.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -6,7 +7,6 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
 
 static void dump_pgrps(void)
 {
@@ -36,7 +36,8 @@ int main(int argc, char **argv)
     err_setarg0(argv[0]);
     err_setlogopts(ERR_PID|ERR_MICRO);
     dump_pgrps();
-    pipe(fds);
+    if (pipe(fds) != 0)
+        err_syserr("failed to create pipe: ");
     pid = fork();
 
     if (pid == 0)
@@ -55,7 +56,14 @@ int main(int argc, char **argv)
                 clearerr(stdin);
             }
             else
-                write(fds[1], buf, strlen(buf) + 1);
+            {
+                /* Write the null terminator too */
+                ssize_t rbytes = strlen(buf) + 1;
+                ssize_t wbytes = write(fds[1], buf, rbytes);
+                if (wbytes != rbytes)
+                    err_sysrem("short write (read %zu, write %zu)\n",
+                               rbytes, wbytes);
+            }
             sleep(3);
         }
     }

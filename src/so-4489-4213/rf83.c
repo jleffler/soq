@@ -1,5 +1,6 @@
 /* SO 4489-4213 */
 /* Code a globally search for literal string and replace function */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -11,7 +11,7 @@
 
 /*TABSTOP=4*/
 
-/* SO 35147784 */
+/* SO 3514-7784 */
 
 #include <assert.h>
 #include <stdio.h>

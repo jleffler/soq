@@ -1,4 +1,4 @@
-/* SO 18579583 Segmentation fault error in 3d array memory allocation */
+/* SO 1857-9583 Segmentation fault error in 3d array memory allocation */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

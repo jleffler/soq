@@ -1,4 +1,6 @@
-/* SO 38044987 */
+/* SO 3804-4987 */
+/* Comparing different algorithms for URL-decoding a string */
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,7 +29,7 @@ static int decode_1(const char *s, char *dec)
 {
     char *o;
     const char *end = s + strlen(s);
-    int c;
+    unsigned c;
 
     for (o = dec; s <= end; ++o)
     {
@@ -48,7 +50,7 @@ static int decode_2(const char *s, char *dec)
 {
     char *o;
     const char *end = s + strlen(s);
-    int c;
+    unsigned c;
 
     for (o = dec; s <= end; ++o)
     {
@@ -151,6 +153,13 @@ static int decode_5(const char *url_data, char *dest)
 }
 
 #undef hex_val
+
+/*
+** Using GCC extension (statement expression) that is not standard C.
+** This code does not compile cleanly with the -pedantic option.
+** The return statement for error handling is the immediate reason why
+** the statement expression is used.
+*/
 
 #define hex_val(c)                                                        \
   (((c) >= '0' && (c) <= '9') ? ((c)-48) : (((c) >= 'a' && (c) <= 'f') || \

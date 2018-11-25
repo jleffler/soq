@@ -9,11 +9,12 @@
 */
 
 /*TABSTOP=4*/
-/* SO 41032621 */
+/* SO 4103-2621 */
 
 #undef TEST         /* Temporary */
 #define TEST        /* Temporary */
 
+#include "posixver.h"
 #include "udn.h"
 #include <assert.h>
 #include <stdio.h>
@@ -95,7 +96,7 @@ bool udn_gen_next(UDN *udn, size_t buflen, char buffer[buflen])
 
 static const char optstr[] = "hm:V";
 static const char usestr[] = "[-hV][-m max]";
-static const char hlpstr[] = 
+static const char hlpstr[] =
     "  -h      Print this help message and exit\n"
     "  -m max  Maximum value for range (default 1,000,000)\n"
     "  -V      Print version information and exit\n"

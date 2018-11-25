@@ -1,4 +1,4 @@
-/* SO 37106523 */
+/* SO 3710-6523 */
 /*
 ** Code amended from what's posted by adding the free_trie() function,
 ** and this comment, and so on.  That means the word count from running

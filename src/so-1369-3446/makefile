@@ -1,4 +1,4 @@
-# SO 13693446
+# SO 1369-3446
 
 include ../../etc/soq-head.mk
 

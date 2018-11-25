@@ -209,7 +209,7 @@ string get_string(va_list *args, char const *format, ...)
     {
         return NULL;
     }
-    
+
     // check whether user provided too much input (leaving no room for trailing NUL)
     if (size == SIZE_MAX)
     {

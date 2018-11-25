@@ -1,4 +1,4 @@
-/* SO 33838621: Minimal Primes */
+/* SO 3383-8621: Minimal Primes */
 /*
 ** Find the minimal primes less than 100,000.
 **

@@ -2,8 +2,8 @@
 @(#)File:           emalloc.h
 @(#)Purpose:        Interfaces to routines in emalloc.c
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990,1992-93,1996-97,2001,2003,2005,2008,2015-16
-@(#)Derivation:     emalloc.h 5.10 2015/02/17 04:50:35
+@(#)Copyright:      (C) JLSS 1990-2018
+@(#)Derivation:     emalloc.h 5.11 2018/04/15 17:58:22
 */
 
 /*TABSTOP=4*/
@@ -48,13 +48,14 @@
 #define STRDUP(s)       estrdup((s))
 #endif /* STRDUP */
 
-#ifndef NOSTRICT
-#ifdef lint
-#define NOSTRICT(type, exp) ((type)((exp) ? 0 : 0))
-#else
-#define NOSTRICT(type, exp) ((type)(exp))
-#endif
-#endif /* NOSTRICT */
+/*
+** Once upon a time, when lint was a program, maybe NOSTRICT had a
+** purpose, possibly in the days of yore when malloc() returned a char
+** pointer and not a void pointer.
+** It is now (2018) deemed dead, but the non-lint definition is left in
+** place for backwards compatibility.  It should not be used in new code
+** and should be removed from old code when it is updated.
+*/
 
 /* -- Declarations */
 
@@ -63,9 +64,5 @@ extern void *ecalloc(size_t nitems, size_t size);
 extern void *erealloc(void *space, size_t nbytes);
 extern void  efree(void *space);
 extern char *estrdup(const char *str);
-
-/* Configure 'out of memory' error reporting function */
-/* Default corresponds to err_error() from stderr.h */
-extern void  emallocerror(void (*function)(const char *));
 
 #endif /* EMALLOC_H */

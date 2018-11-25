@@ -1,4 +1,5 @@
 /* SO 4489-4213 */
+#include "posixver.h"
 #include "timer.h"
 #include <assert.h>
 #include <stdio.h>

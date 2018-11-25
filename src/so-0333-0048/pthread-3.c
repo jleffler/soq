@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
@@ -8,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include "fcntl.h"
 
 #define NUM_CHAR 1024
 #define BUFFER_SIZE 8

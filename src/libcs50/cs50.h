@@ -55,7 +55,7 @@ typedef char *string;
  * Inspired by https://gustedt.wordpress.com/2010/06/08/detect-empty-macro-arguments/
  */
 
-#define CONCAT(a, b) a ## b 
+#define CONCAT(a, b) a ## b
 #define SECOND(first, second, ...) second
 #define NOT_(...) SECOND(__VA_ARGS__, 0)
 #define NOT_SENTINEL_0 ignore_me, 1
@@ -97,9 +97,9 @@ typedef char *string;
                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,   \
                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,   \
                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
-                     
+
 #define TRIGGER(...) ,
- 
+
 #define IS_PAREN(...)       HAS_COMMA(TRIGGER __VA_ARGS__)
 #define IS_CALLABLE(...)    HAS_COMMA(__VA_ARGS__ ())
 #define IS_ANYTHING(...)    NOT(HAS_COMMA(TRIGGER __VA_ARGS__ ()))
@@ -108,7 +108,7 @@ typedef char *string;
                                IS_PAREN(__VA_ARGS__),       \
                                IS_CALLABLE(__VA_ARGS__),    \
                                IS_ANYTHING(__VA_ARGS__))
- 
+
 #define CONCAT5(_0, _1, _2, _3, _4) _0 ## _1 ## _2 ## _3 ## _4
 #define ALL_FALSE(_0, _1, _2, _3) HAS_COMMA(CONCAT5(FALSE_SENTINEL_, _0, _1, _2, _3))
 #define FALSE_SENTINEL_0000 ,

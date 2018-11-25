@@ -37,9 +37,11 @@ int main(int argc, char *argv[])
     }
     FILE *fptrain = efopen_ro(argv[1]);
     int row, col, i, j;
-    fscanf(fptrain, "%d", &col);
+    if (fscanf(fptrain, "%d", &col) != 1)
+        return 1;
     col = col + 1;
-    fscanf(fptrain, "%d", &row);
+    if (fscanf(fptrain, "%d", &row) != 1)
+        return 1;
     char ch;
 
     /* Matrix/vector declarations in the original */
@@ -58,15 +60,17 @@ int main(int argc, char *argv[])
 
     // creates the original X and Y matrix
     double (*trainX)[col] = matrix_allocate(row, col);
-    double (*trainY)[1]   = matrix_allocate(row, 1);;
+    double (*trainY)[1]   = matrix_allocate(row, 1);
     for (i = 0; i < row; i++)
     {
         trainX[i][0] = 1.000000;
         for (j = 1; j < col; j++)
         {
-            fscanf(fptrain, "%lf%c", &trainX[i][j], &ch);
+            if (fscanf(fptrain, "%lf%c", &trainX[i][j], &ch) != 1)
+                return 1;
         }
-        fscanf(fptrain, "%lf%c", &trainY[i][0], &ch);
+        if (fscanf(fptrain, "%lf%c", &trainY[i][0], &ch) != 1)
+            return 1;
     }
     fclose(fptrain);
 
@@ -177,7 +181,8 @@ int main(int argc, char *argv[])
 
     FILE *fptest = efopen_ro(argv[2]);
     int testrows;
-    fscanf(fptest, "%d", &testrows);
+    if (fscanf(fptest, "%d", &testrows) != 1)
+        return 1;
     // creates the test file matrix
 
     double (*testM)[col] = matrix_allocate(testrows, col);
@@ -186,7 +191,8 @@ int main(int argc, char *argv[])
         testM[i][0] = 1.000000;
         for (j = 1; j < col; j++)
         {
-            fscanf(fptest, "%lf%c", &testM[i][j], &ch);
+            if (fscanf(fptest, "%lf%c", &testM[i][j], &ch) != 1)
+                return 1;
         }
     }
     fclose(fptest);

@@ -2,7 +2,7 @@
 
 
 DataNode * findPrevMatching(int x, int y)
-{   
+{
     DataNode *next = head->next;
 
     while (!(next->data->x == x && next->data->y == y))

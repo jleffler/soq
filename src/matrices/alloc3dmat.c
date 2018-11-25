@@ -1,4 +1,4 @@
-/* SO 28818521 */
+/* SO 2881-8521 */
 /* Allocate 3D matrix in one big chunk */
 #include <stdio.h>
 #include <stdlib.h>

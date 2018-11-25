@@ -1,4 +1,5 @@
-/* SO 4361132 has related code, but answers a different question */
+/* SO 0436-1132 */
+#include "posixver.h"
 #include <assert.h>
 #include <dirent.h>
 #include <stdio.h>

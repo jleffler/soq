@@ -42,7 +42,10 @@ bool load(const char *dictionary)
     dictionary_size = 0;
     FILE *dic = fopen(dictionary, "r");
     if (dic == NULL)
+    {
+        fprintf(stderr, "failed to open file '%s' for reading\n", dictionary);
         return false;
+    }
     root = calloc(1, sizeof(node));
     if (root == 0)
     {
@@ -104,11 +107,14 @@ static void free_trie(node *trie)
     }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
-    if (load("words.list"))
+    const char *file = "alt.words.01";
+    if (argc == 2)
+        file = argv[1];
+    if (load(file))
     {
-        printf("Nominal dictionary size: %d\n", dictionary_size);
+        printf("Nominal size of dictionary '%s': %d\n", file, dictionary_size);
         print_trie(root);
         free_trie(root);
     }

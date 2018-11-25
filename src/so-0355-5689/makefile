@@ -1,4 +1,4 @@
-# SO 03555689
+# SO 0355-5689
 
 include ../../etc/soq-head.mk
 

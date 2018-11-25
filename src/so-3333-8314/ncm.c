@@ -1,4 +1,4 @@
-/* SO 33338314 - vignette (see rotcols.c for real code) */
+/* SO 3333-8314 - vignette (see rotcols.c for real code) */
 #include <stdio.h>
 #include "gcd.h"
 

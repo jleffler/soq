@@ -256,7 +256,7 @@ static void RLE_demonstration(int rows, int cols)
 #ifdef RLE_DUMP_REQUIRED
         RLE_dump("Set Matrix", &rle);
 #endif
-        RC rc = RLE_position(&rle); 
+        RC rc = RLE_position(&rle);
         matrix[rc.row][rc.col] = RLE_sequence(&rle);
     }
     dump_matrix("Matrix", rows, cols, matrix);
@@ -267,7 +267,7 @@ static void RLE_demonstration(int rows, int cols)
 #ifdef RLE_DUMP_REQUIRED
         RLE_dump("Get Matrix", &rle);
 #endif
-        RC rc = RLE_position(&rle); 
+        RC rc = RLE_position(&rle);
         vector[RLE_sequence(&rle)] = matrix[rc.row][rc.col];
     }
     dump_vector("Vector", rows, cols, vector);

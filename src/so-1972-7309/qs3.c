@@ -1,4 +1,4 @@
-/* SO 19727309 */
+/* SO 1972-7309 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

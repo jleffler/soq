@@ -2,6 +2,7 @@
 /* CodeChef: https://www.codechef.com/APRIL17/problems/ROWSOLD */
 /* Quadratic solution - exceeds time limit on N = 5000 or bigger */
 
+#include "posixver.h"
 #include "stderr.h"
 #include <assert.h>
 #include <stdio.h>

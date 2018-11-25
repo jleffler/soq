@@ -1,10 +1,11 @@
-# Adding ??? rule precludes adding files under src directory
-#???
+# General rules for files not tracked by Git in the SOQ repository
 *.a
 *.bak
 *.bundle
 *.bz2
+*.class
 *.dSYM
+*.dll
 *.dylib
 *.exe
 *.gz
@@ -19,10 +20,12 @@
 *.zip
 *~
 .DS_Store
+.sqlcmdlog
 ?
 ?.???
 ??
 ??.???
+???
 Osiris/
 Safe/
 Scores
@@ -48,4 +51,12 @@ script.awk
 script.sed
 script.sh
 sed.script
+so-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/
 tmp/
+!bin
+!doc
+!etc
+!inc
+!lib
+!src
+!src/so-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/

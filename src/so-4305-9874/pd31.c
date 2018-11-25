@@ -1,5 +1,6 @@
 /* SO Q 4305-9874 - closures in C, sort of */
 /* SO A 4306-0435 - https://stackoverflow.com/a/43060435 */
+/* Not pedantically clean - cannot pass function pointers via void pointer in Standard C */
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>

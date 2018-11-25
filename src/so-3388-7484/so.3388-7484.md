@@ -103,7 +103,7 @@ I would _not_ do this is ordinary production code.
 (It wasn't even a great help; when I edited the header or the library
 code, I had to force rebuild the calculator.)
 
-    /* Crude calculator (left-to-right evaluation only) for SO 33887484 */
+    /* Crude calculator (left-to-right evaluation only) for SO 3388-7484 */
     #include "so.33887484.h"
     #include <ctype.h>
     #include <errno.h>

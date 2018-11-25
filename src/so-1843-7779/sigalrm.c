@@ -1,6 +1,8 @@
+#include "posixver.h"
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "microsleep.h"
 
 static volatile sig_atomic_t sig_caught = 0;
 
@@ -32,7 +34,7 @@ int main(void)
                 printf("Count = %zu\n", counter);
                 sig_caught = 0;
             }
-            //usleep(10000);
+            //micro_sleep(10000);
         }
     }
     else
@@ -42,7 +44,7 @@ int main(void)
             sleep(1);
             kill(pid, SIGALRM);
         }
-        usleep(1000);
+        micro_sleep(1000);
         kill(pid, SIGTERM);
     }
     return 0;

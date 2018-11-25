@@ -1,6 +1,7 @@
 /* SO 4544-8840 Multithreaded C program - threads not terminating */
 
-#include "stderr.h"     // https://github.com/jleffler/soq/tree/master/src/libsoq
+#include "posixver.h"
+#include "stderr.h"
 #include <errno.h>
 #include <math.h>
 #include <pthread.h>

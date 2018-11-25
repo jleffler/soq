@@ -1,5 +1,6 @@
 /* SO 4555-1869 */
 /* Fixed per suggested duplicate - SO 1591-2322 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <pthread.h>

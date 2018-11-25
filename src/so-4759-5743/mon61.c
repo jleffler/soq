@@ -1,4 +1,5 @@
 /* SO 4759-5743 - Mark I */
+#include "posixver.h"
 #include "stderr.h"
 #include <assert.h>
 #include <errno.h>

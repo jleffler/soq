@@ -1,4 +1,4 @@
-/* SO 25737129 Inorder Predecessor Node in BST */
+/* SO 2573-7129 Inorder Predecessor Node in BST */
 /*
 ** See (1):  http://www.geeksforgeeks.org/inorder-predecessor-successor-given-key-bst/
 ** Also (2): http://exceptional-code.blogspot.co.il/2011/08/binary-search-trees-primer.html
@@ -8,21 +8,21 @@
 **  You need to find the inorder successor and predecessor of a given
 **  key.  In case the given key is not found in BST, then return the two
 **  values between which this key will lie.
-**  
+**
 **  Following is the algorithm to reach the desired result.  It's a
 **  recursive method:
-**  
+**
 **  Input: root node, key
 **  output: predecessor node, successor node
-**  
+**
 **  1. If root is NULL
 **        then return
 **  2. if key is found then
 **        a. If its left subtree is not null
-**           Then predecessor will be the right most 
+**           Then predecessor will be the right most
 **           child of left subtree or left child itself.
 **        b. If its right subtree is not null
-**           The successor will be the left most child 
+**           The successor will be the left most child
 **           of right subtree or right child itself.
 **        return
 **  3. If key is smaller than root node
@@ -31,7 +31,7 @@
 **     else
 **        set the predecessor as root
 **        search recursively into right subtree
-**  
+**
 ** Process predecessor only this time.
 */
 

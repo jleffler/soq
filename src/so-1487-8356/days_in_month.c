@@ -1,4 +1,4 @@
-/* SO 28800127 Universal formula to calculate the number of days in month */
+/* SO 2880-0127 Universal formula to calculate the number of days in month */
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>

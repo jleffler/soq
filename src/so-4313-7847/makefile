@@ -15,15 +15,16 @@ LDLIB2  = #-l${CS50BASE}
 LDLIB3  = -ljl
 LDLIBS  = ${LDLIB1} ${LDLIB2} ${LDLIB3}
 
-PROG1 = pm43
+PROG1 = pm23
+PROG2 = pm43
 
-PROGRAMS = ${PROG1}
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
-PROG1.o = pm43.o polynomial.o
+PROG2.o = pm43.o polynomial.o
 
-${PROG1}: ${PROG1.o}
-	${CC} -o $@ ${CFLAGS} ${PROG1.o} ${LDFLAGS} ${LDLIBS}
+${PROG2}: ${PROG2.o}
+	${CC} -o $@ ${CFLAGS} ${PROG2.o} ${LDFLAGS} ${LDLIBS}
 
 include ../../etc/soq-tail.mk

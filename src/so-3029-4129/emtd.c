@@ -1,4 +1,4 @@
-/* SO 30294129 */
+/* SO 3029-4129 */
 #include <stdio.h>
 #include <string.h>
 
@@ -85,7 +85,7 @@ static void parsePostData1(const char *s, const char *t, Splitter splitter)
     }
 }
 
-/* Fixed version of parsePostData() from SO 30294129 */
+/* Fixed version of parsePostData() from SO 3029-4129 */
 static char *parsePostData2(const char *s, const char *t, Splitter splitter)
 {
     char tCpy[512];

@@ -9,12 +9,14 @@ int main(void) {
     char *stnc_org, *stnc_new;
     int size;
     printf("What is the expected size of the sentence: ");
-    scanf("%d", &size);
+    if (scanf("%d", &size) != 1)
+	exit(1);
     stnc_org = (char *)malloc(size * sizeof(char));
     char *stnc_free = stnc_org;
 
     printf("Input: \n");
-    scanf(" %[^\n]", stnc_org);
+    if (scanf(" %[^\n]", stnc_org) != 1)
+	exit(1);
 
     // get the number of punct
     int punct_num = 0;
@@ -31,7 +33,7 @@ int main(void) {
     // copy the original str to the new and add space before each punc
     for (i = 0; *(stnc_org + i) != '\0'; i++) {
         if (ispunct(*(stnc_org + i))) {
-            // copy the content before the punctuation 
+            // copy the content before the punctuation
             strncpy(stnc_new, stnc_org, i);
             // insert a space character before copying the punctuation
             *(stnc_new + i) = ' ';
