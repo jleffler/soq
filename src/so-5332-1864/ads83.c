@@ -5,6 +5,12 @@
 ** of elements within each partition (a stable partition).
 */
 
+/*
+** This code uses selection sort, which is not a stable sort.
+** Therefore, it is not an appropriate solution to the problem on hand.
+** But I wanted to have a generic selection sort too.
+*/
+
 #include <stdbool.h>
 #include <stdio.h>      /* Debug */
 
@@ -36,61 +42,73 @@ static int cmp_numbers(const void *v1, const void *v2)
 #include <stdlib.h>
 #include <string.h>
 
+#include "genswap.h"
+
 #define GEN_IDX(arr, idx, size) ((char *)(arr) + (idx) * (size))
-static void insertion_sort_gen(void *data, size_t number, size_t size,
+static void selection_sort_gen(void *data, size_t number, size_t size,
                            int (*cmp)(const void *v1, const void *v2))
 {
-    for (size_t i = 1; i < number; i++)
+    for (size_t i = 0; i < number - 1; i++)
     {
-        char tmp[size];
-        memmove(tmp, GEN_IDX(data, i, size), size);
-        size_t j;
-        for (j = i; j > 0; j--)
+        size_t jmin = i;
+        for (size_t j = i + 1; j < number; j++)
         {
-            if ((*cmp)(GEN_IDX(data, j - 1, size), tmp) <= 0)
-                break;
-            memmove(GEN_IDX(data, j, size), GEN_IDX(data, j - 1, size), size);
+            if ((*cmp)(GEN_IDX(data, j, size), GEN_IDX(data, jmin, size)) <= 0)
+                jmin = j;
         }
-        memmove(GEN_IDX(data, j, size), tmp, size);
+        if (i != jmin)
+            generic_swap(GEN_IDX(data, i, size), GEN_IDX(data, jmin, size), size);
     }
 }
 
 #if 0
-static void insertion_sort_gen(void *data, size_t number, size_t size,
+static void selection_sort_gen(void *data, size_t number, size_t size,
                            int (*cmp)(const void *v1, const void *v2))
 {
-    for (size_t i = 1; i < number; i++)
+    for (size_t i = 0; i < number - 1; i++)
     {
-        void *vp1 = (char *)data + i * size;
-        char tmp[size];
-        memmove(tmp, vp1, size);
-        size_t j;
-        for (j = i; j > 0; j--)
+        size_t jmin = i;
+        void *vp1 = (char *)data + jmin * size;
+        for (size_t j = i + 1; j < number; j++)
         {
-            void *vp2 = (char *)data + (j - 1) * size;
-            int rc = (*cmp)(vp2, tmp);
-            if (rc <= 0)
-                break;
-            void *vp3 = (char *)data + j * size;
-            memmove(vp3, vp2, size);
+            void *vp2 = (char *)data + j * size;
+            int rc = (*cmp)(vp2, vp1);
+            if (rc < 0)
+            {
+                jmin = j;
+                vp1 = (char *)data + jmin * size;
+            }
         }
-        char *vp4 = (char *)data + j * size;
-        memmove(vp4, tmp, size);
+        if (jmin != i)
+        {
+            char *vp4 = (char *)data + i * size;
+            generic_swap(vp1, vp4, size);
+        }
     }
 }
 #endif
 
 #if 0
-static void insertion_sort_int(int *data, size_t number,
+static inline void swap(int *i, int *j)
+{
+    int t = *i;
+    *i = *j;
+    *j = t;
+}
+
+static void selection_sort_int(int *data, size_t number,
                                int (*cmp)(const void *v1, const void *v2))
 {
-    for (size_t i = 1; i < number; i++)
+    for (size_t i = 0; i < number - 1; i++)
     {
-        int t = data[i];
-        size_t j;
-        for (j = i; j > 0 && cmp(&data[j-1], &t) > 0; j--)
-            data[j] = data[j - 1];
-        data[j] = t;
+        size_t jmin = i;
+        for (size_t j = i + 1; j < number; j++)
+        {
+            if ((*cmp)(&data[j], &data[jmin]) < 0)
+                jmin = j;
+        }
+        if (jmin != i)
+            generic_swap(&data[i], &data[jmin], sizeof(data[0]));
     }
 }
 #endif
@@ -143,17 +161,17 @@ int main(void)
 
     memmove(ex3, ex1, sizeof(ex1));
     num3 = NUM_EX1;
-    print_array_int("Example 1 insertion sort - before", num3, ex3);
-    //insertion_sort_int(ex3, num3, cmp_numbers);
-    insertion_sort_gen(ex3, num3, sizeof(ex3[0]), cmp_numbers);
-    print_array_int("Example 1 insertion sort - after", num3, ex3);
+    print_array_int("Example 1 selection sort - before", num3, ex3);
+    //selection_sort_int(ex3, num3, cmp_numbers);
+    selection_sort_gen(ex3, num3, sizeof(ex3[0]), cmp_numbers);
+    print_array_int("Example 1 selection sort - after", num3, ex3);
 
     memmove(ex3, ex2, sizeof(ex2));
     num3 = NUM_EX2;
-    print_array_int("Example 2 insertion sort - before", num3, ex3);
-    //insertion_sort_int(ex3, num3, cmp_numbers);
-    insertion_sort_gen(ex3, num3, sizeof(ex3[0]), cmp_numbers);
-    print_array_int("Example 2 insertion sort - after", num3, ex3);
+    print_array_int("Example 2 selection sort - before", num3, ex3);
+    //selection_sort_int(ex3, num3, cmp_numbers);
+    selection_sort_gen(ex3, num3, sizeof(ex3[0]), cmp_numbers);
+    print_array_int("Example 2 selection sort - after", num3, ex3);
 
     return 0;
 }

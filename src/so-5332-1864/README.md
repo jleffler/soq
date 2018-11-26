@@ -45,3 +45,9 @@ found anything definitive.
   First pass, but eventually I noticed this isn't actually a stable
   sort.  The trouble is that it doesn't always compare adjacent keys.
   There are some uglinesses in the code too.
+
+* `ads83.c`
+
+  This code contains 3 variants of `selection_sort()`.  Since selection
+  sort isn't a stable sort, this isn't a suitable choice for solving
+  this problem, but I wanted the selection sort code lurking around.
