@@ -11,7 +11,6 @@
  *
  * Example Run:      ./climate data_tn.tdv data_wa.tdv
  *
- *
  * Opening file: data_tn.tdv
  * Opening file: data_wa.tdv
  * States found: TN WA
@@ -68,7 +67,8 @@
 #define NUM_STATES 50
 
 /* TODO: Add elements to the climate_info struct as necessary. */
-struct climate_info {
+struct climate_info
+{
     char code[3];
     unsigned int num_records;
     long long lo_millitime;
@@ -87,11 +87,12 @@ struct climate_info {
 void analyze_file(FILE *file, struct climate_info *states[], int num_states);
 void print_report(struct climate_info *states[], int num_states);
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     /* TODO: fix this conditional. You should be able to read multiple files. */
-    if (argc < 2) {
-        printf("Usage: %s tdv_file1 tdv_file2 ... tdv_fileN \n", argv[0]);
+    if (argc < 2)
+    {
+        printf("Usage: %s tdv_file1 tdv_file2 ... tdv_fileN\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -102,14 +103,13 @@ int main(int argc, char *argv[]) {
     int i;
     for (i = 2; i < argc; ++i)
     {
-    
         FILE *fp = fopen(argv[i], "r");
         if (fp == NULL)
         {
             fprintf(stderr, "%s: error opening file %s for reading\n", argv[0], argv[i]);
             continue;
         }
-        analyze_file(fp,states, NUM_STATES);
+        analyze_file(fp, states, NUM_STATES);
         fclose(fp);
     }
 
@@ -119,12 +119,13 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+static
 int returnStatement(struct climate_info **states, char code1[3], int currentStates)
 {
     int rank = 0;
     while (rank < currentStates)
     {
-        if(strcmp((*(states +rank))->code, code1) == 0)
+        if (strcmp(states[rank]->code, code1) == 0)
         {
             return rank;
         }
@@ -133,23 +134,24 @@ int returnStatement(struct climate_info **states, char code1[3], int currentStat
     return -1;
 }
 
-
+static
 int countStates(struct climate_info **states)
 {
     int num = 0;
-    while(num < 50 && states[num] != NULL)
+    while (num < NUM_STATES && states[num] != NULL)
     {
         num++;
     }
     return num;
 }
 
-void analyze_file(FILE *file, struct climate_info **states, int num_states) {
+void analyze_file(FILE *file, struct climate_info **states, int num_states)
+{
     const int line_sz = 100;
     char line[line_sz];
     int currentStates = countStates(states);
-    while (fgets(line, line_sz, file) != NULL) {
-
+    while (fgets(line, line_sz, file) != NULL)
+    {
         /* TODO: We need to do a few things here:
          *
          *       * Tokenize the line.
@@ -161,71 +163,71 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
          *         existing entry.
          *       * Update the climate_info structure as necessary.
          */
-        
-        char* foundCode = strtok(line, "\t");
+
+        char *foundCode = strtok(line, "\t");
         int rankOfState = returnStatement(states, foundCode, currentStates);
-        if(rankOfState == -1)
+        if (rankOfState == -1)
         {
-            *(states + currentStates) = (struct climate_info *) malloc(sizeof(struct climate_info) *num_states);
-            strcpy((*(states + currentStates)) -> code, foundCode);
-            (*(states + currentStates)) -> num_records=1;
-            
-            
-            
-            char* currentTimeStamp = strtok(NULL, "\t");
+            states[currentStates] = (struct climate_info *)malloc(sizeof(struct climate_info) * num_states);
+            strcpy(states[currentStates]->code, foundCode);
+            states[currentStates]->num_records = 1;
+
+            char *currentTimeStamp = strtok(NULL, "\t");
             unsigned long TIMESTAMP;
-            sscanf(currentTimeStamp,"%lu", &TIMESTAMP);
-            printf("%lu\n",TIMESTAMP);
-            
-            char* currentGeol = strtok(NULL, "\t");
-            printf("%s\n",currentGeol);
-            
-            char* currentHumidity = strtok(NULL, "\t");
+            sscanf(currentTimeStamp, "%lu", &TIMESTAMP);
+            printf("%lu\n", TIMESTAMP);
+
+            char *currentGeol = strtok(NULL, "\t");
+            printf("%s\n", currentGeol);
+
+            char *currentHumidity = strtok(NULL, "\t");
             double HUMIDITY;
-            sscanf(currentHumidity, "%lf",&HUMIDITY);
-            printf("%lf\n",HUMIDITY);
-            
-            char* currentSnow = strtok(NULL, "\t");
+            sscanf(currentHumidity, "%lf", &HUMIDITY);
+            printf("%lf\n", HUMIDITY);
+
+            char *currentSnow = strtok(NULL, "\t");
             float SNOW;
             sscanf(currentSnow, "%f", &SNOW);
-            printf("%f\n",SNOW);
-            
-            
-            char* currentCloud = strtok(NULL, "\t");
+            printf("%f\n", SNOW);
+
+            char *currentCloud = strtok(NULL, "\t");
             double CLOUD;
-            sscanf(currentCloud, "%lf",&CLOUD);
+            sscanf(currentCloud, "%lf", &CLOUD);
             printf("%lf\n", CLOUD);
-            
-            char* currentLightning = strtok(NULL, "\t");
+
+            char *currentLightning = strtok(NULL, "\t");
             float LIGHTNING;
             sscanf(currentLightning, "%f", &LIGHTNING);
-            printf("%f\n",LIGHTNING);
-            
-            char* currentPressure = strtok(NULL,"\t");
+            printf("%f\n", LIGHTNING);
+
+            char *currentPressure = strtok(NULL, "\t");
             double PRESSURE;
             sscanf(currentPressure, "%lf", &PRESSURE);
-            printf("%lf\n",PRESSURE);
-            
-            
-            char* currentTemp = strtok(NULL, "\t\n");
+            printf("%lf\n", PRESSURE);
+
+            char *currentTemp = strtok(NULL, "\t\n");
             double TEMP;
-            sscanf(currentTemp, "%lf",&TEMP);
-            printf("%lf\n",TEMP);
-            
+            sscanf(currentTemp, "%lf", &TEMP);
+            printf("%lf\n", TEMP);
+
             printf("\n");
             currentStates++;
         }
-        else{
-            (*(states +rankOfState))->num_records +=1;
+        else
+        {
+            (*(states + rankOfState))->num_records += 1;
         }
     }
 }
 
-void print_report(struct climate_info *states[], int num_states) {
+void print_report(struct climate_info *states[], int num_states)
+{
     printf("States found: ");
     int i;
-    for (i = 0; i < num_states; ++i) {
-        if (states[i] != NULL) {
+    for (i = 0; i < num_states; ++i)
+    {
+        if (states[i] != NULL)
+        {
             struct climate_info *info = states[i];
             printf("%s ", info->code);
         }
