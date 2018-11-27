@@ -3,13 +3,17 @@
 # You must not change this file.
 
 CC = gcc
-FLAGS = -std=c99 -O0 -Wall -Werror -g -pedantic
-FLAGS = -std=c99 -O3 -Wall -Werror -g -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wextra
+CFLAGS = -std=c99 -O0 -Wall -Werror -g -pedantic
+CFLAGS = -std=c99 -O3 -Wall -Werror -g -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wextra
 
-climate: climate.c
-	$(CC) $(FLAGS) climate.c -o climate
+PROG1 = climate
+PROG2 = climate-v2
+PROG3 = climate-v3
+PROGS = ${PROG1} ${PROG2} ${PROG3}
+
+all: ${PROGS}
 
 clean:
-	rm -f climate
+	rm -f ${PROGS}
 	rm -rf *.dSYM
 
