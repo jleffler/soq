@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 
     /* TODO: fix this conditional. You should be able to read multiple files. */
     if (argc < 2) {
-        printf("Usage: %s tdv_file1 tdv_file2 ... tdv_fileN \n", argv[0]);
+        fprintf(stderr, "Usage: %s tdv_file1 tdv_file2 ... tdv_fileN \n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -104,7 +104,6 @@ int main(int argc, char *argv[]) {
     int i;
     for (i = 1; i < argc; ++i)
     {
-
         FILE *fp = fopen(argv[i], "r");
         if (fp == NULL)
         {
@@ -126,6 +125,11 @@ static int compareOrder(struct climate_info **states, char codex[3], int current
     int order = 0;
     while (order < currentStates)          //while order is less than number of states analyzed
     {
+        if (states[order] == NULL)
+        {
+            fprintf(stderr, "states[%d] == 0\n", order);
+            break;
+        }
         if(strcmp((states[order])->code, codex) == 0)       //if the states is present
         {
             return order;
@@ -135,23 +139,26 @@ static int compareOrder(struct climate_info **states, char codex[3], int current
     return -1;                                                  //returns -1 the state is not prsent in struct
 }
 
-static int countStates(struct climate_info **states)                           //function to count number of states present
+static int countStates(struct climate_info **states, int num_states)                           //function to count number of states present
 {
     int num = 0;
-    while(num < 50 && states[num] != NULL)
+    while(num < num_states && states[num] != NULL)
     {
         num++;
     }
     return num;
 }
 
-void analyze_file(FILE *file, struct climate_info **states, int num_states) {
+void analyze_file(FILE *file, struct climate_info **states, int num_states)
+{
     const int line_sz = 100;
     char line[line_sz];
-    int currentStates = countStates(states);
+    int currentStates = countStates(states, num_states);
 
-    while (fgets(line, line_sz, file) != NULL) {
+    fprintf(stderr, "current states = %d\n", currentStates);
 
+    while (fgets(line, line_sz, file) != NULL)
+    {
         /* TODO: We need to do a few things here:
          *
          *       * Tokenize the line.
@@ -164,116 +171,78 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
          *       * Update the climate_info structure as necessary.
          */
 
-        char* foundCode = strtok(line, "\t");                   //tokenizes the first token to state code
+        char *foundCode = strtok(line, "\t");                   // tokenizes the first token to state code
         int rankOfState = compareOrder(states, foundCode, currentStates);
-        if(rankOfState == -1)               //if the state is the first of its kind in the struct
+        if (rankOfState == -1)               // if the state is the first of its kind in the struct
         {
-
-            states[currentStates] = (struct climate_info *) malloc(sizeof(struct climate_info) *num_states);
-            strcpy((states[currentStates]) -> code, foundCode);
-            states[currentStates] -> num_records=1;
-
-            char* currentTimeStamp = strtok(NULL, "\t");                    //From here the line is tokenized by the \\t operator
-            unsigned long TIMESTAMP;
-            sscanf(currentTimeStamp,"%lu", &TIMESTAMP);                        // the sscanf reads the file and input the
-
-            char* currentGeol = strtok(NULL, "\t");
-            long long GEOL;
-            sscanf(currentGeol,"%lld", &GEOL);
-
-            char* currentHumidity = strtok(NULL, "\t");
-            double HUMIDITY;
-            sscanf(currentHumidity, "%lf",&HUMIDITY);
-
-            char* currentSnow = strtok(NULL, "\t");
-            float SNOW;
-            sscanf(currentSnow, "%f", &SNOW);
-
-            char* currentCloud = strtok(NULL, "\t");
-            double CLOUD;
-            sscanf(currentCloud, "%lf",&CLOUD);
-
-            char* currentLightning = strtok(NULL, "\t");
-            float LIGHTNING;
-            sscanf(currentLightning, "%f", &LIGHTNING);
-
-            char* currentPressure = strtok(NULL,"\t");
-            double PRESSURE;
-            sscanf(currentPressure, "%lf", &PRESSURE);
-
-            char* currentTemp = strtok(NULL, "\t\n"); //time_t
-           // deg_f = deg_k * 1.8 - 459.67;
-            double TEMP;
-            sscanf(currentTemp, "%lf",&TEMP);
-
-            if (TEMP < states[currentStates]->lo_temp_reading || states[currentStates]->lo_temp_timestamp == 0)
+            if (currentStates >= num_states)
             {
-                states[currentStates]->lo_temp_reading = TEMP;
-                states[currentStates]->lo_temp_timestamp = TIMESTAMP;
+                fprintf(stderr, "Oops: too many states (%d already, and now one more!)\n",
+                        currentStates);
+                exit(EXIT_FAILURE);
             }
-            if (TEMP > states[currentStates]->hi_temp_reading || states[currentStates]->hi_temp_timestamp == 0)
-            {
-                states[currentStates]->hi_temp_reading = TEMP;
-                states[currentStates]->hi_temp_timestamp = TIMESTAMP;
-            }
-
-            currentStates++;
+            states[currentStates] = (struct climate_info *)calloc(sizeof(struct climate_info), 1);
+            strcpy((states[currentStates])->code, foundCode);
+            states[currentStates]->lo_temp_reading = 10000;
+            states[currentStates]->hi_temp_reading = -300;
+            rankOfState = currentStates++;
+            fprintf(stderr, "current states = %d\n", currentStates);
         }
-        else
-        {                                                   // required if multiple records exist for the same states
-            (*(states +rankOfState))->num_records +=1;
 
-            char* currentTimeStamp = strtok(NULL, "\t");
-            unsigned long TIMESTAMP;
-            sscanf(currentTimeStamp,"%lu", &TIMESTAMP);
+        fprintf(stderr, "rank of state %s = %d (cs = %d, ns = %d)\n",
+                foundCode, rankOfState, currentStates, num_states);
+        states[rankOfState]->num_records += 1;
 
-            char* currentGeol = strtok(NULL, "\t");
-            (*(states +rankOfState))->hi_millitime += *currentGeol;
+        char *currentTimeStamp = strtok(NULL, "\t");
+        unsigned long TIMESTAMP;
+        sscanf(currentTimeStamp, "%lu", &TIMESTAMP);
 
-            char* currentHumidity = strtok(NULL, "\t");
-            double HUMIDITY;
-            sscanf(currentHumidity, "%lf",&HUMIDITY);
-            (*(states +rankOfState))->humidity += HUMIDITY;
+        char *currentGeol = strtok(NULL, "\t");
+        states[rankOfState]->hi_millitime += *currentGeol;
 
-            char* currentSnow = strtok(NULL, "\t");
-            float SNOW;
-            sscanf(currentSnow, "%f", &SNOW);
-            (*(states +rankOfState))->snow += SNOW;
+        char *currentHumidity = strtok(NULL, "\t");
+        double HUMIDITY;
+        sscanf(currentHumidity, "%lf", &HUMIDITY);
+        states[rankOfState]->humidity += HUMIDITY;
 
-            char* currentCloud = strtok(NULL, "\t");
-            double CLOUD;
-            sscanf(currentCloud, "%lf",&CLOUD);
-            (*(states +rankOfState))->cloud += CLOUD;
+        char *currentSnow = strtok(NULL, "\t");
+        float SNOW;
+        sscanf(currentSnow, "%f", &SNOW);
+        states[rankOfState]->snow += SNOW;
 
-            char* currentLightning = strtok(NULL, "\t");
-            float LIGHTNING;
-            sscanf(currentLightning, "%f", &LIGHTNING);
-            (*(states +rankOfState))->lightning += LIGHTNING;
+        char *currentCloud = strtok(NULL, "\t");
+        double CLOUD;
+        sscanf(currentCloud, "%lf", &CLOUD);
+        states[rankOfState]->cloud += CLOUD;
 
-            char* currentPressure = strtok(NULL,"\t");
-            double PRESSURE;
-            sscanf(currentPressure, "%lf", &PRESSURE);
-            (*(states +rankOfState))->pressure += PRESSURE;
+        char *currentLightning = strtok(NULL, "\t");
+        float LIGHTNING;
+        sscanf(currentLightning, "%f", &LIGHTNING);
+        states[rankOfState]->lightning += LIGHTNING;
 
-            char* currentTemp = strtok(NULL, "\t\n");
-            double TEMP;
-            sscanf(currentTemp, "%lf",&TEMP);
+        char *currentPressure = strtok(NULL, "\t");
+        double PRESSURE;
+        sscanf(currentPressure, "%lf", &PRESSURE);
+        states[rankOfState]->pressure += PRESSURE;
 
-            (*(states +rankOfState))->temperature += TEMP;
+        char *currentTemp = strtok(NULL, "\t\n");
+        double TEMP;
+        sscanf(currentTemp, "%lf", &TEMP);
 
-            if (TEMP <= states[currentStates]->lo_temp_reading)
-            {
-                states[currentStates]->lo_temp_reading = TEMP;
-                states[currentStates]->lo_temp_timestamp = *currentTimeStamp;
-            }
-            else if (*currentTemp > states[currentStates]->hi_temp_reading)
-            {
-                states[currentStates]->hi_temp_reading = *currentTemp;
-                states[currentStates]->hi_temp_timestamp = *currentTimeStamp;
-            }
+        states[rankOfState]->temperature += TEMP;
 
-            currentStates++;
+        if (TEMP < states[rankOfState]->lo_temp_reading)
+        {
+            states[rankOfState]->lo_temp_reading = TEMP;
+            states[rankOfState]->lo_temp_timestamp = TIMESTAMP;
         }
+        else if (TEMP > states[rankOfState]->hi_temp_reading)
+        {
+            states[rankOfState]->hi_temp_reading = TEMP;
+            states[rankOfState]->hi_temp_timestamp = TIMESTAMP;
+        }
+
+        /* NO! currentStates++; */
     }
 }
 
@@ -281,8 +250,10 @@ void print_report(struct climate_info *states[], int num_states)
 {
     printf("States found: ");
     int i;
-    for (i = 0; i < num_states; ++i) {
-        if (states[i] != NULL) {
+    for (i = 0; i < num_states; ++i)
+    {
+        if (states[i] != NULL)
+        {
             struct climate_info *info = states[i];
             printf("%s ", info->code);
         }
@@ -293,21 +264,20 @@ void print_report(struct climate_info *states[], int num_states)
 
     for (i = 0; i < num_states && states[i] != NULL; i++)
     {
-        const long MAX = (((*(states + i)) -> hi_temp_timestamp)/1000);                                   //time stamp converstion
-        const long MIN = (((*(states + i)) -> lo_temp_timestamp)/1000);
-        double aTemp = ((states[i]->temperature)/(states[i]->num_records))* 1.8 - 459.67;                   //temperature conversions
-        double lTemp =  (states[i]->lo_temp_reading)* 1.8 - 459.67;
-        double hTemp =  (states[i]->hi_temp_reading)* 1.8 - 459.67;
+        const long MAX = (((*(states + i))->hi_temp_timestamp) / 1000);                                   // time stamp converstion
+        const long MIN = (((*(states + i))->lo_temp_timestamp) / 1000);
+        double aTemp = ((states[i]->temperature) / (states[i]->num_records)) * 1.8 - 459.67;                   // temperature conversions
+        double lTemp =  (states[i]->lo_temp_reading) * 1.8 - 459.67;
+        double hTemp =  (states[i]->hi_temp_reading) * 1.8 - 459.67;
 
         printf("-- State: %s --\n", states[i]->code);
         printf("Number of records:     %d\n", states[i]->num_records);
-        printf("Average humidity:%8.1f%%\n", (states[i]->humidity)/((states[i]->num_records)));
+        printf("Average humidity:%8.1f%%\n", (states[i]->humidity) / ((states[i]->num_records)));
         printf("Records With Lightning Strikes:   %.0f\n", states[i]->lightning);
         printf("Records with Snow Cover:        %.0f\n", states[i]->snow);
-        printf("Average Cloud Cover:       %.0f%%\n", (states[i]->cloud/(states[i]->num_records)));
+        printf("Average Cloud Cover:       %.0f%%\n", (states[i]->cloud / (states[i]->num_records)));
         printf("Average temperature: %.1f\n", aTemp);
-        printf("Lowest temperature: %9.1f at %s",lTemp, ctime(&MIN));
-        printf("Highest temperature: %9.1f at %s\n",hTemp, ctime(&MAX));
+        printf("Lowest temperature: %9.1f at %s", lTemp, ctime(&MIN));
+        printf("Highest temperature: %9.1f at %s\n", hTemp, ctime(&MAX));
     }
-
 }
