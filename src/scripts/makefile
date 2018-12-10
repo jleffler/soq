@@ -31,6 +31,7 @@ PROG17 = so-getchar
 PROG18 = so-c-reserved
 PROG19 = soqvg
 PROG20 = so-quotes
+PROG21 = so-reformat-c
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -68,6 +69,7 @@ PROGRAMS = \
 	${PROG18} \
 	${PROG19} \
 	${PROG20} \
+	${PROG21} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
