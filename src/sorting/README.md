@@ -22,6 +22,11 @@ so that the results can be merged.
 
 One generic (`void *`) sort, and one `int` array sort.
 
+## so-1802-8773 &mdash; Merging in merge sort algorithm
+
+Another example with one program implementing a merge sort for an array
+of `int` and another program implementing a generic merge sort.
+
 ## so-1882-0288 &mdash; Using qsort() for key + value list from file
 
 Curious text data layout, like:
@@ -74,6 +79,13 @@ Working from Wikipedia.  Hoare partitioning.  Using first element as pivot.
 * File `qs37.c` formas another.
 
 Code contains pseudo-code comments from Wikipedia.
+
+##  so-5332-1864 &mdash stable partition (sort)
+
+Sort array so that the numbers with the same digits are in front of
+those that don't have the same digits.
+
+This has code based on merge sort, insertion sort and selection sort.
 
 ## sortfile &mdash; sorting files
 
