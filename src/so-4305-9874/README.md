@@ -23,7 +23,7 @@ indirection - the closure structure stores pointers to functions, not
 pointers to pointers to functions.
 
 I sought input from Chris Dodd to find why the extra level of
-indirection is ncessary.
+indirection is necessary.
 It comes down to what happens when you build a predicate from a
 'manufactured' predicate using one or more of the predicates created by
 `mk_predicate()`.
