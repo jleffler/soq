@@ -24,6 +24,8 @@ struct list_t
 extern node_t *node_construct(data_t data);
 extern void    node_destruct(node_t *node);
 
+extern node_t *list_head(list_t *list);
+extern node_t *list_tail(list_t *list);
 extern size_t  list_size(list_t *list);
 extern void    list_insert_tail(list_t *list, node_t *node);
 extern node_t *list_remove_head(list_t *list);
