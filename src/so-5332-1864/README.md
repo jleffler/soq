@@ -1,4 +1,4 @@
-### Stack Overflow Question 5332-1864
+### Stack Overflow Question 5332-1864 — Deleted
 
 [SO 5332-1864](https://stackoverflow.com/q/53321864) &mdash;
 Sort array so that the numbers with the same digits are in front of
