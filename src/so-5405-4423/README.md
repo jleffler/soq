@@ -5,13 +5,24 @@ How To Avoid Abort Trap 6 Error at Runtime Using strncat()?
 
 # Answer on SO
 
-<sup> _I wrote the accompanying code in March 2018 to satisfy myself about what goes on with `strncat()` for another question that got deleted before I submitted an answer.  This is just retargeting that code._</sup>
+<sup> _I wrote the accompanying code in March 2018 to satisfy myself
+about what goes on with `strncat()` for another question that got
+deleted before I submitted an answer.  This is just retargeting that
+code._</sup>
 
-The `strncat()` function is (as I said in a [comment](https://stackoverflow.com/questions/54054423/how-to-avoid-abort-trap-6-error-at-runtime-using-strncat#comment94943480_54054423)) evil and vile.  It is inconsistent with the `strncpy()` interface, too — and different from anything you'll encounter anywhere else.  After reading this, you will decide (with luck) that you should never use `strncat()`.
+The `strncat()` function is (as I said in a
+[comment](https://stackoverflow.com/questions/54054423/how-to-avoid-abort-trap-6-error-at-runtime-using-strncat#comment94943480_54054423))
+evil and vile.  It is inconsistent with the `strncpy()` interface, too
+— and different from anything you'll encounter anywhere else.  After
+reading this, you will decide (with luck) that you should never use
+`strncat()`.
 
 # TL;DR — Never use `strncat()`
 
-The C standard defines [`strncat()`](https://port70.net/~nsz/c/c11/n1570.html#7.24.3.2) (and POSIX agrees — [`strncat()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strncat.html))
+The C standard defines
+[`strncat()`](https://port70.net/~nsz/c/c11/n1570.html#7.24.3.2) (and
+POSIX agrees —
+[`strncat()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strncat.html))
 
 > ### C11 §7.24.3.2 The `strncat` function
 >
@@ -22,15 +33,23 @@ The C standard defines [`strncat()`](https://port70.net/~nsz/c/c11/n1570.html#7.
 >
 > **Description**
 >
-> The `strncat` function appends not more than `n` characters (a null character and characters that follow it are not appended) from the array pointed to by `s2` to the end of the string pointed to by `s1`. The initial character of `s2` overwrites the null character at the end of `s1`. A terminating null character is always appended to the result.<sup>309)</sup> If copying takes place between objects that overlap, the behavior is undefined.
-
+> The `strncat` function appends not more than `n` characters (a null
+> character and characters that follow it are not appended) from the
+> array pointed to by `s2` to the end of the string pointed to by `s1`.
+> The initial character of `s2` overwrites the null character at the end
+> of `s1`.  A terminating null character is always appended to the
+> result.<sup>309)</sup> If copying takes place between objects that
+> overlap, the behavior is undefined.
+>
 > **Returns**
-
+>
 > The `strncat` function returns the value of `s1`.
+>
+> <sup>309)</sup> Thus, the maximum number of characters that can end up
+> in the array pointed to by `s1` is `strlen(s1)+n+1`.
 
-> <sup>309)</sup> Thus, the maximum number of characters that can end up in the array pointed to by `s1` is `strlen(s1)+n+1`.
-
-The footnote identifies the biggest trap with `strncat()` — you can't safely use:
+The footnote identifies the biggest trap with `strncat()` — you can't
+safely use:
 
     char *source = …;
 
@@ -38,37 +57,52 @@ The footnote identifies the biggest trap with `strncat()` — you can't safely u
 
     strncat(target, source, sizeof(target));
 
-This is contrary to what occurs with most other functions that take an array size argument **<sup>1</sup>** in C code.
+This is contrary to what occurs with most other functions that take an
+array size argument **<sup>1</sup>** in C code.
 
 To safely use `strncat()`, you should know:
 
 * `target`
-* `sizeof(target)` — or, for dynamically allocated space, the allocated length
-* `strlen(target)` — you must know the length of what is already in the target string
+* `sizeof(target)` — or, for dynamically allocated space, the
+   allocated length
+* `strlen(target)` — you must know the length of what is already in
+   the target string
 * `source`
-* `strlen(source)` — if you are concerned about whether the source string was truncated; not needed if you don't care
+* `strlen(source)` — if you are concerned about whether the source
+   string was truncated; not needed if you don't care
 
 With that information, you could use:
 
     strncat(target, source, sizeof(target) - strlen(target) - 1);
 
-However, doing that would be a little silly; if you know `strlen(target)`, you can avoid making `strncat()` find it out again by using:
+However, doing that would be a little silly; if you know
+`strlen(target)`, you can avoid making `strncat()` find it out again by
+using:
 
     strncat(target + strlen(target), source, sizeof(target) - strlen(target) - 1);
 
-Note that `strncat()` guarantees null termination, unlike [`strncpy()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strncpy.html).  That means that you could use:
+Note that `strncat()` guarantees null termination, unlike
+[`strncpy()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strncpy.html).
+That means that you could use:
 
     size_t t_size = sizeof(target);
     size_t t_length = strlen(target);
     strncpy(target + t_length, source, t_size - t_length - 1);
     target[t_size - 1] = '\0';
 
-and you would be guaranteed the same result if the source string is too long to be appended to the target.
+and you would be guaranteed the same result if the source string is too
+long to be appended to the target.
 
 
 ## Demo Code
 
-Multiple programs that illustrate aspects of `strncat()`.  Note that on macOS, there is a macro definition of `strncat()` in `<string.h>` which invokes a different function — `__builtin___strncat_chk` — which validates the uses of `strncat()`.  For compactness of the command lines, I've dropped two warning compiler options that I normally use — `-Wmissing-prototypes -Wstrict-prototypes` — but that doesn't affect any of the compilations.
+Multiple programs that illustrate aspects of `strncat()`.  Note that on
+macOS, there is a macro definition of `strncat()` in `<string.h>` which
+invokes a different function — `__builtin___strncat_chk` — which
+validates the uses of `strncat()`.  For compactness of the command
+lines, I've dropped two warning compiler options that I normally use —
+`-Wmissing-prototypes -Wstrict-prototypes` — but that doesn't affect
+any of the compilations.
 
 ### `strncat19.c`
 
@@ -89,7 +123,9 @@ This demonstrates one safe use of `strncat()`:
         return 0;
     }
 
-It compiles cleanly (with Apple's `clang` from XCode 10.1 (`Apple LLVM version 10.0.0 (clang-1000.11.45.5)`) and GCC 8.2.0, even with stringent warnings set:
+It compiles cleanly (with Apple's `clang` from XCode 10.1 (`Apple LLVM
+version 10.0.0 (clang-1000.11.45.5)`) and GCC 8.2.0, even with stringent
+warnings set:
 
     $ gcc -O3 -g -std=c11 -Wall -Wextra -Werror strncat19.c -o strncat19
     $ ./strncat19
@@ -100,7 +136,9 @@ It compiles cleanly (with Apple's `clang` from XCode 10.1 (`Apple LLVM version 1
 
 ### `strncat29.c`
 
-This is similar to `strncat19.c` but (a) allows you to specify a string to be copied on the command line, and (b) incorrectly uses `sizeof(buffer)` instead of `sizeof(buffer) - 1` for the length.
+This is similar to `strncat19.c` but (a) allows you to specify a string
+to be copied on the command line, and (b) incorrectly uses
+`sizeof(buffer)` instead of `sizeof(buffer) - 1` for the length.
 
     #include <stdio.h>
     #include <string.h>
@@ -142,7 +180,8 @@ This code doesn't compile with the stringent warning options:
     cc1: all warnings being treated as errors
     $
 
-Even with no warnings requested, the warning is given by GCC, but because the `-Werror` option is absent, it produces an executable:
+Even with no warnings requested, the warning is given by GCC, but
+because the `-Werror` option is absent, it produces an executable:
 
     $ gcc -o strncat29 strncat29.c
     In file included from /usr/include/string.h:190,
@@ -165,7 +204,10 @@ That is the `__builtin__strncat_chk` function at work.
 
 ### `strncat97.c`
 
-This code also takes an optional string argument; it also pays attention to whether there is another argument on the command line, and if so, it invokes the `strncat()` function directly, rather than letting the macro check it first:
+This code also takes an optional string argument; it also pays attention
+to whether there is another argument on the command line, and if so, it
+invokes the `strncat()` function directly, rather than letting the macro
+check it first:
 
     #include <stdio.h>
     #include <string.h>
@@ -210,7 +252,10 @@ Now the compilers produce different results:
     $ clang -O3 -g -std=c11 -Wall -Wextra -Werror strncat97.c -o strncat97
     $
 
-This demonstrates an advantage of using more than one compiler — different compilers detect different problems on occasion.  This code is messy trying to used different numbers of options to do multiple things.  It suffices to show:
+This demonstrates an advantage of using more than one compiler —
+different compilers detect different problems on occasion.  This code is
+messy trying to used different numbers of options to do multiple things.
+It suffices to show:
 
     $ ./strncat97
     0x7ffee7506420: buffer 15: [ABCDEFGHIJKLMNO]
@@ -226,7 +271,13 @@ This demonstrates an advantage of using more than one compiler — different com
 
 ### `strncat37.c`
 
-This is the all-singing, all-dancing version of the programs above, with option handling via `getopt()`.  It also uses my error reporting routines; the code for them is available in my [SOQ](https://github.com/jleffler/soq) (Stack Overflow Questions) repository on GitHub as files `stderr.c` and `stderr.h` in the [src/libsoq](https://github.com/jleffler/soq/tree/master/src/libsoq) sub-directory.
+This is the all-singing, all-dancing version of the programs above, with
+option handling via `getopt()`.  It also uses my error reporting
+routines; the code for them is available in my
+[SOQ](https://github.com/jleffler/soq) (Stack Overflow Questions)
+repository on GitHub as files `stderr.c` and `stderr.h` in the
+[src/libsoq](https://github.com/jleffler/soq/tree/master/src/libsoq)
+sub-directory.
 
     #include "stderr.h"
     #include <stdio.h>
@@ -317,8 +368,9 @@ This is the all-singing, all-dancing version of the programs above, with option 
         return 0;
     }
 
-
-As before, Clang and GCC have different views on the acceptability of the code (and `-Werror` means the warning from GCC is treated as an error):
+As before, Clang and GCC have different views on the acceptability of
+the code (and `-Werror` means the warning from GCC is treated as an
+error):
 
     $ clang -O3 -g -I./inc -std=c11 -Wall -Wextra -Werror strncat37.c -o strncat37 -L./lib  -lsoq
     $ gcc -O3 -g -I./inc -std=c11 -Wall -Wextra -Werror strncat37.c -o strncat37 -L./lib  -lsoq
@@ -376,8 +428,237 @@ When run:
     0x7ffeed8d33e0: spare2  3: [xyz]
     $
 
-The default behaviour is also the correct behaviour; the program doesn't crash and doesn't produce unexpected side-effects.  When run using the macro and with too long a length specified (`-m -l`), the program crashes.  When run using the function and too long a length (`-f -l`), the program overwrites the first byte of array `spare1` with the null added after the end of `buffer`, and shows 16 bytes of data instead of 15.
+The default behaviour is also the correct behaviour; the program doesn't
+crash and doesn't produce unexpected side-effects.  When run using the
+macro and with too long a length specified (`-m -l`), the program
+crashes.  When run using the function and too long a length (`-f -l`),
+the program overwrites the first byte of array `spare1` with the null
+added after the end of `buffer`, and shows 16 bytes of data instead of
+15.
 
 <hr>
 
-**<sup>1</sup>** One exception is in `scanf()` when you use `%31s` or similar; the number specified is the number of non-null characters that can be stored in the string; it will add a null byte after reading 31 other characters.  So again, the maximum size that can be used safely is `sizeof(string) - 1`.
+**<sup>1</sup>** One exception is in `scanf()` when you use `%31s` or
+similar; the number specified is the number of non-null characters that
+can be stored in the string; it will add a null byte after reading 31
+other characters.  So again, the maximum size that can be used safely is
+`sizeof(string) - 1`.
+
+You can find the code for `strncatXX.c` in my
+[SOQ](https://github.com/jleffler/soq) (Stack Overflow Questions)
+repository on GitHub in the
+[src/so-5405-4423](https://github.com/jleffler/soq/tree/master/src/so-5405-4423)
+sub-directory.
+
+<hr>
+
+# Analysis of Code from Question
+
+Taking the code from the question and changing `int main(){` to `int
+main(void){` because my default compilation options generate an error
+(it would be a warning if I didn't use `-Werror`) for the non-prototype
+`main()`, and adding `return 0;` at the end of `main()`, what's left
+gives me these errors compiling with GCC 8.2.0 on a Mac running macOS
+10.14.2 Mojave:
+
+    $ gcc -O3 -g -std=c11 -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes so-5405-4423-v1.c -o so-5405-4423-v1
+    In file included from /opt/gcc/v8.2.0/lib/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed/stdio.h:425,
+                     from so-5405-4423-v1.c:1:
+    so-5405-4423-v1.c: In function ‘main’:
+    so-5405-4423-v1.c:32:29: error: ‘%d’ directive writing between 1 and 2 bytes into a region of size between 1 and 100 [-Werror=format-overflow=]
+                 sprintf(result, "%s%d, ", text, i); // Format the text and store it in result
+                                 ^~~~~~~~
+    so-5405-4423-v1.c:32:29: note: directive argument in the range [0, 10]
+    so-5405-4423-v1.c:32:13: note: ‘__builtin___sprintf_chk’ output between 4 and 104 bytes into a destination of size 100
+                 sprintf(result, "%s%d, ", text, i); // Format the text and store it in result
+                 ^~~~~~~
+    so-5405-4423-v1.c:37:29: error: ‘ ’ directive writing 1 byte into a region of size between 0 and 99 [-Werror=format-overflow=]
+                 sprintf(result, "%s%d ", text, i); // Format the text and store it in result
+                                 ^~~~~~~
+    so-5405-4423-v1.c:37:13: note: ‘__builtin___sprintf_chk’ output between 3 and 102 bytes into a destination of size 100
+                 sprintf(result, "%s%d ", text, i); // Format the text and store it in result
+                 ^~~~~~~
+    cc1: all warnings being treated as errors
+    $
+
+The compiler notes that `text` is a string that can contain 0 to 99
+characters, so it could in theory cause an overflow when concatenated
+with a number and the `", "` (or the `" "` for one iteration).  The fact
+that it is initialized to `"String No."` means that there isn't an
+overflow risk, but you can mitigate that by using a shorter length for
+`text` — say `20` instead of `100`.
+
+I admit that this warning, which is relatively new in GCC, is not always
+as helpful as all that (and this is a case where the code is OK, but the
+warning still appears).  I usually _do_ fix the problem, if only because
+it currently shows up with my default options and code doesn't compile
+with any warnings with `-Werror` and I'm not ready to do without that
+level of protection.  I don't use `clang`'s `-Weverything` option raw;
+it produces warnings which are definitely counter-productive (at least
+AFAIAC).  However, I countermand the 'everything' options that don't
+work for me.  If a `-Wall` or `-Wextra` option was too painful, for some
+reason, I'd countermand it, but cautiously.  I'd review the pain level,
+and aim to deal with whatever the symptom is.
+
+You also have the loop:
+
+    for(j = 0; j < 10; j++){ // Now loop to change the line
+
+        strcpy(lines[i], line); // Copy the line of text into each line of the array
+
+        fputs(lines[i], file); // Put each line into the file
+
+    }
+
+
+Unfortunately, when this loop runs, `i` is equal to `10`, which is out
+of bounds of the array `lines`.  This can lead to a crash.  Presumably,
+the index should be `j` instead of `i`.
+
+Here's an instrumented version of your code (`so-5405-4423-v2.c`):
+
+    #include <stdio.h>
+    #include <string.h>
+
+    char line[1001];
+    char lines[11][1001];
+    char info[100];
+
+    char *extra_info(char string_1[], char string_2[], char string_3[],
+                     char string_4[], char string_5[]);
+
+    int main(void)
+    {
+        char result[100], text[20];
+        const char filename[] = "test.txt";
+        FILE *file;
+
+        strcpy(text, "String No.");
+
+        file = fopen(filename, "w+");
+        if (file == NULL)
+        {
+            fprintf(stderr, "Failed to open file '%s' for writing/update\n", filename);
+            return 1;
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            if (i != 9)
+                sprintf(result, "%s%d, ", text, i);
+            else
+                sprintf(result, "%s%d ", text, i);
+
+            fprintf(stderr, "Iteration %d:\n", i);
+            fprintf(stderr, "1 result (%4zu): [%s]\n", strlen(result), result);
+            fprintf(stderr, "1 line   (%4zu): [%s]\n", strlen(line), line);
+            extra_info("st", "nd", "rd", "th", "th");
+            fprintf(stderr, "2 line   (%4zu): [%s]\n", strlen(line), line);
+            fprintf(stderr, "1 info   (%4zu): [%s]\n", strlen(info), info);
+            strncat(line, info, 100);
+            fprintf(stderr, "3 line   (%4zu): [%s]\n", strlen(line), line);
+            printf("%s", result);
+            strncat(line, result, 15);
+            fprintf(stderr, "3 line   (%4zu): [%s]\n", strlen(line), line);
+        }
+
+        fprintf(stderr, "4 line   (%4zu): [%s]\n", strlen(line), line);
+        strncat(line, "\n\n", 2);
+
+        for (int j = 0; j < 10; j++)
+        {
+            strcpy(lines[j], line);
+            fputs(lines[j], file);
+        }
+
+        fclose(file);
+
+        return 0;
+    }
+
+    char *extra_info(char string_1[], char string_2[], char string_3[],
+                     char string_4[], char string_5[])
+    {
+        char text[100];
+
+        sprintf(text, " 1%s", string_1);
+        fprintf(stderr, "EI 1: add (%zu) [%s] to (%zu) [%s]\n", strlen(string_1), string_1, strlen(line), line);
+        strncat(line, text, 100);
+
+        sprintf(text, ", 2%s", string_2);
+        fprintf(stderr, "EI 2: add (%zu) [%s] to (%zu) [%s]\n", strlen(string_2), string_2, strlen(line), line);
+        strncat(line, text, 100);
+
+        sprintf(text, ", 3%s", string_3);
+        fprintf(stderr, "EI 3: add (%zu) [%s] to (%zu) [%s]\n", strlen(string_3), string_3, strlen(line), line);
+        strncat(line, text, 100);
+
+        sprintf(text, ", 4%s", string_4);
+        fprintf(stderr, "EI 4: add (%zu) [%s] to (%zu) [%s]\n", strlen(string_4), string_4, strlen(line), line);
+        strncat(line, text, 100);
+
+        sprintf(text, ", 5%s.", string_5);
+        fprintf(stderr, "EI 5: add (%zu) [%s] to (%zu) [%s]\n", strlen(string_5), string_5, strlen(line), line);
+        strncat(line, text, 100);
+
+        fprintf(stderr, "EI 6: copy (%zu) [%s] to info\n", strlen(line), line);
+        strcpy(info, line);
+
+        return line;
+    }
+
+When run, it produces output similar to:
+
+    Iteration 0:
+    1 result (  13): [String No.0, ]
+    1 line   (   0): []
+    EI 1: add (2) [st] to (0) []
+    EI 2: add (2) [nd] to (4) [ 1st]
+    EI 3: add (2) [rd] to (9) [ 1st, 2nd]
+    EI 4: add (2) [th] to (14) [ 1st, 2nd, 3rd]
+    EI 5: add (2) [th] to (19) [ 1st, 2nd, 3rd, 4th]
+    EI 6: copy (25) [ 1st, 2nd, 3rd, 4th, 5th.] to info
+    2 line   (  25): [ 1st, 2nd, 3rd, 4th, 5th.]
+    1 info   (  25): [ 1st, 2nd, 3rd, 4th, 5th.]
+    3 line   (  50): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.]
+    3 line   (  63): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0, ]
+    Iteration 1:
+    1 result (  13): [String No.1, ]
+    1 line   (  63): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0, ]
+    EI 1: add (2) [st] to (63) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0, ]
+    EI 2: add (2) [nd] to (67) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st]
+    EI 3: add (2) [rd] to (72) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd]
+    EI 4: add (2) [th] to (77) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd]
+    EI 5: add (2) [th] to (82) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th]
+    EI 6: copy (88) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.] to info
+    2 line   (  88): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.]
+    1 info   (  88): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.]
+    3 line   ( 176): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.]
+    3 line   ( 189): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1, ]
+    Iteration 2:
+    1 result (  13): [String No.2, ]
+    1 line   ( 189): [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1, ]
+    EI 1: add (2) [st] to (189) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1, ]
+    EI 2: add (2) [nd] to (193) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1,  1st]
+    EI 3: add (2) [rd] to (198) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1,  1st, 2nd]
+    EI 4: add (2) [th] to (203) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1,  1st, 2nd, 3rd]
+    EI 5: add (2) [th] to (208) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1,  1st, 2nd, 3rd, 4th]
+    EI 6: copy (214) [ 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th. 1st, 2nd, 3rd, 4th, 5th.String No.0,  1st, 2nd, 3rd, 4th, 5th.String No.1,  1st, 2nd, 3rd, 4th, 5th.] to info
+    String No.0, String No.1, Abort trap: 6
+
+When you observe that 214 bytes are copied from `line` (which is big
+enough to hold that string) to `info` (which is not — it is but 100
+bytes long), the ensuing crash is not very surprising.  It isn't
+entirely clear what the desired behaviour is.
+
+On my Mac, the `lldb` debugger reports the crash in `__strcpy_chk`;
+AFAICT, it's in the line highlighted at the end of `extra_info()`:
+
+    frame #6: 0x00007fff681bbe84 libsystem_c.dylib`__strcpy_chk + 83
+    frame #7: 0x00000001000017cc so-5405-4423-v2`extra_info(string_1=<unavailable>, string_2=<unavailable>, string_3="rd", string_4="th", string_5="th") at so-5405-4423-v2.c:86
+
+So, while it apparently isn't `strncat()` that causes the crash here,
+the way that `strncat()` _is_ used is not obviously correct — IMO, it
+is incorrect, but views may differ.  And I still stand by my basic
+conclusion: **Do not use `strncat()`**.
+
