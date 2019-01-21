@@ -17,6 +17,8 @@ PROG12 = vlastruct
 PROG13 = alloc3dmat
 PROG14 = vla53
 PROG15 = vla67
+PROG16 = allocvla47
+
 
 PROGRAMS = \
 	${PROG01} \
@@ -34,6 +36,7 @@ PROGRAMS = \
 	${PROG13} \
 	${PROG14} \
 	${PROG15} \
+	${PROG16} \
 
 all: ${PROGRAMS}
 
