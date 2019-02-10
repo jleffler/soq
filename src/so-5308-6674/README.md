@@ -1,4 +1,4 @@
-### Stack Overflow Question 5308-6674
+### Stack Overflow Question 5308-6674 (deleted)
 
 [SO 5308-6674](https://stackoverflow.com/q/53086674) &mdash;
 A rhombus filled with prime numbers
@@ -9,7 +9,7 @@ See also:
 
 * [SO 5333-9734](https://stackoverflow.com/q/53339734) "Finding the
    first prime number after the entered number"
-* [SO 53320995](https://stackoverflow.com/q/53320995) "Finding closest
+* [SO 5332-0995](https://stackoverflow.com/q/53320995) "Finding closest
    prime number".
 
 There are a couple of parts to the rhombus problem.
@@ -25,6 +25,11 @@ given value.
 It uses the 6N±1 technique to look for prime numbers, bootstrapping off
 a list of prime numbers up to 1013 to speed up many prime number
 determinations.
+
+### `npt23.c`
+
+This program contains a function to find the nearest prime number before
+or after the given value.
 
 ### `rhom59.c`
 
