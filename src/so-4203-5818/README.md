@@ -13,3 +13,6 @@ orders work.
 
 The material in so-4203-5818.md is from my answer to the question, and
 it does in fact use `qsort()`, not any of these 'sort 3' operations.
+
+The files `s6v23.c` and `s6v59.c` both sort 6 fixed name variables,
+not necessarily in the most efficient way possible.
