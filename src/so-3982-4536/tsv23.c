@@ -1,4 +1,5 @@
 /* SO 3982-4536 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,11 +1,12 @@
 /*
 ** Explicitly used in SO answers:
-** SO 18437779: Do I need to do anything with a SIGCHLD handler if I am just
+** SO 1843-7779: Do I need to do anything with a SIGCHLD handler if I am just
 **              using wait() to wait for one child to finish at a time?
-** SO 20016194: Linux - sleep of a parent process interrupted by child process
+** SO 2001-6194: Linux - sleep of a parent process interrupted by child process
 ** Referenced in commentary to:
-** SO 25039369: system() function while SIGCHLD is ignored
+** SO 2503-9369: system() function while SIGCHLD is ignored
 */
+#include "posixver.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>

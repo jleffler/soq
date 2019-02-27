@@ -1,4 +1,4 @@
-/* SO 18579583 */
+/* SO 1857-9583 */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

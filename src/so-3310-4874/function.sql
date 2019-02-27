@@ -1,4 +1,4 @@
--- @(#)SO 33104874
+-- @(#)SO 3310-4874
 -- @(#)Create states_starting function
 
 DROP FUNCTION IF EXISTS states_starting;

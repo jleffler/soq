@@ -2,6 +2,10 @@
 
 include ../../etc/soq-head.mk
 
+# The new library deprecates its old interface.
+# That's painful!
+CFLAGS += -Wno-error=deprecated-declarations
+
 CP      = cp
 CPFLAGS = -fp
 

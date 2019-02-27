@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4319-0158
 
-[SO 4319-0158](http://stackoverflow.com/q/43190158) &mdash;
+[SO 4319-0158](https://stackoverflow.com/q/43190158) &mdash;
 How to make a process ring with fork and mkfifo?
 
 This code substantially rewrites the whole damn thing, but once all the

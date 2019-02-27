@@ -1,9 +1,13 @@
-/* SO 1538644 - Determine if a number is prime */
+/* SO 0153-8644 - Determine if a number is prime */
+#include "posixver.h"
+#include "stderr.h"
 #include <assert.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 /*
 ** NB: setitimer() is marked obsolescent in POSIX 2008.  However, the
@@ -149,6 +153,57 @@ static int isprime3(unsigned number)
     return 1;
 }
 
+/*
+** Late-comer.  One test showed it slightly slower than isprime3() - but
+** the same test showed isprime2() faster than both isprime3() and
+** isprime4()
+*/
+static int isprime4(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned x = 5; x * x <= number; x += 6)
+    {
+        if (number % x == 0 || number % (x + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Another trial - this seems to be a little faster than either isprime3() or isprime4() */
+static int isprime5(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    static const unsigned int small_primes[] =
+    {
+         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
+        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
+    };
+    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
+    for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
+    {
+        if (number == small_primes[i])
+            return 1;
+        if (number % small_primes[i] == 0)
+            return 0;
+    }
+    for (unsigned i = 101; i * i <= number; i += 6)
+    {
+        if (number % i == 0 || number % (i + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
 static void test_primality_tester(const char *tag, int seed, int (*prime)(unsigned), int count)
 {
     srand(seed);
@@ -177,26 +232,32 @@ static int check_number(unsigned v)
     int p4 = isprime1(v);
     int p5 = isprime2(v);
     int p6 = isprime3(v);
-    if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6)
+    int p7 = isprime4(v);
+    int p8 = isprime5(v);
+    if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6 || p1 != p7 || p1 != p8)
     {
         PROGRESS_REPORT(putchar('\n'));
         printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
                 " IsPrime3() %d; isprime1() %d; isprime2() %d;"
-                " isprime3() %d\n",
-                v, p1, p2, p3, p4, p5, p6);
+                " isprime3() %d; isprime4() %d; isprime5() %d\n",
+                v, p1, p2, p3, p4, p5, p6, p7, p8);
         return 1;
     }
     return 0;
 }
 
 #ifndef NO_PROGRESS_REPORTING
-static int icounter = 0;
+static volatile sig_atomic_t icounter = 0;
 static void alarm_handler(int signum)
 {
     assert(signum == SIGALRM);
-    write(STDOUT_FILENO, ".", 1);
+    if (write(STDOUT_FILENO, ".", 1) != 1)
+        exit(1);
     if (++icounter % 60 == 0)
-        write(STDOUT_FILENO, "\n", 1);
+    {
+        if (write(STDOUT_FILENO, "\n", 1) != 1)
+            exit(1);
+    }
 }
 
 static void set_interval_timer(int interval)
@@ -217,7 +278,8 @@ static void bake_off(int seed, int count)
     srand(seed);
     Clock clk;
     clk_init(&clk);
-    printf("Bake-off...warning this could take three minutes or more.\n");
+    printf("Seed: %d\n", seed);
+    printf("Bake-off...warning this often takes more than two minutes.\n");
     PROGRESS_REPORT(set_interval_timer(1));
 
     clk_start(&clk);
@@ -251,31 +313,73 @@ static void bake_off(int seed, int count)
         printf("!! FAIL !! %d failures in %s s\n", failures, buffer);
 }
 
-static void one_test(int seed)
+enum { COUNT = 10000000 };
+
+static void one_test(int seed, bool do_IsPrimeX)
 {
-    static int bake_off_counter = 0;
-    printf("Seed; %d\n", seed);
-    enum { COUNT = 10000000 };
-    if (bake_off_counter++ == 0)
-        bake_off(seed, COUNT);
+    printf("Seed: %d\n", seed);
     assert(COUNT > 100000);
-    test_primality_tester("IsPrime0", seed, IsPrime0, COUNT / 100000);
-    test_primality_tester("IsPrime1", seed, IsPrime1, COUNT);
-    test_primality_tester("IsPrime2", seed, IsPrime2, COUNT);
-    test_primality_tester("IsPrime3", seed, IsPrime3, COUNT);
+    if (do_IsPrimeX)
+    {
+        test_primality_tester("IsPrime0", seed, IsPrime0, COUNT / 100000);
+        test_primality_tester("IsPrime1", seed, IsPrime1, COUNT);
+        test_primality_tester("IsPrime2", seed, IsPrime2, COUNT);
+        test_primality_tester("IsPrime3", seed, IsPrime3, COUNT);
+    }
     test_primality_tester("isprime1", seed, isprime1, COUNT);
     test_primality_tester("isprime2", seed, isprime2, COUNT);
     test_primality_tester("isprime3", seed, isprime3, COUNT);
+    test_primality_tester("isprime4", seed, isprime4, COUNT);
+    test_primality_tester("isprime5", seed, isprime5, COUNT);
 }
+
+static const char optstr[] = "bhz";
+static const char usestr[] = "[-bhz] [seed ...]";
+static const char hlpstr[] =
+    "  -b  Suppress the bake-off check\n"
+    "  -h  Print this help message and exit\n"
+    "  -z  Test speed of IsPrime0..IsPrime3 too\n"
+    ;
 
 int main(int argc, char **argv)
 {
-    if (argc > 1)
+    int opt;
+    bool do_bake_off = true;
+    bool do_IsPrimeX = false;
+
+    err_setarg0(argv[0]);
+    while ((opt = getopt(argc, argv, optstr)) != -1)
     {
-        for (int i = 1; i < argc; i++)
-            one_test(atoi(argv[i]));
+        switch (opt)
+        {
+            case 'b':
+                do_bake_off = false;
+                break;
+            case 'h':
+                err_help(usestr, hlpstr);
+                /*NOTREACHED*/
+            case 'z':
+                do_IsPrimeX = true;
+                break;
+            default:
+                err_usage(usestr);
+                /*NOTREACHED*/
+        }
+    }
+
+    int seed = time(0);
+    if (do_bake_off)
+    {
+        bake_off(seed, COUNT);
+    }
+
+    if (optind != argc)
+    {
+        for (int i = optind; i < argc; i++)
+            one_test(atoi(argv[i]), do_IsPrimeX);
     }
     else
-        one_test(time(0));
+        one_test(seed, do_IsPrimeX);
+
     return(0);
 }

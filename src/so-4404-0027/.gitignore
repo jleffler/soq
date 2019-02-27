@@ -1,0 +1,11 @@
+*.dat
+*.off
+article.txt
+misspelling.txt
+misspellings.20*.*
+mknopunct
+new.dictionary
+no-punctuation-linux.words
+sc19
+sc61
+spell-checker-ac

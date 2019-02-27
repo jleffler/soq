@@ -1,10 +1,10 @@
-typedef struct Data 
+typedef struct Data
 {
     int x;
     int y;
 } Data;
 
-typedef struct DataNode 
+typedef struct DataNode
 {
     struct DataNode *next;
     struct Data *data;

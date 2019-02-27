@@ -10,8 +10,9 @@ A pity since the answers were far better than the question (and mine was
 the accepted answer, with 7 up-votes).
 
 Now transferred to:
-SO 10818443: Short/long options with option argument -- Is this some sort of convention?
-SO 2160083:  What is the general syntax of a Unix shell command?
+
+* SO 1081-8443: [Short/long options with option argument -- Is this some sort of convention?](https://stackoverflow.com/questions/10818443)
+* SO 0216-0083: [What is the general syntax of a Unix shell command?](https://stackoverflow.com/questions/2160083)
 
 My answer (in MarkDown):
 

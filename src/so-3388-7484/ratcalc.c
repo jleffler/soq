@@ -1,4 +1,4 @@
-/* Crude calculator (left-to-right evaluation only) for SO 33887484 */
+/* Crude calculator (left-to-right evaluation only) for SO 3388-7484 */
 #include "so.33887484.h"
 #include <ctype.h>
 #include <errno.h>
@@ -11,17 +11,21 @@
 int main(void)
 {
     char line[4096];
+    printf("Fraction calculator: enter calculations such as:\n"
+           "[13/4] + [19/7] * [29/13] / [14/23]\n"
+           "which should yield the result [+111389/5096]\n\n");
     while (fgets(line, sizeof(line), stdin) != 0)
     {
-        RationalInt lhs;
-        RationalInt rhs;
+        line[strcspn(line, "\n")] = '\0';
+        Fraction lhs;
+        Fraction rhs;
         const char *eon;
         const char *str = line;
 
         if (ri_scn(str, &eon, &lhs) != 0)
         {
             if (eon == str)
-                printf("Unrecognizable number: %s", str);
+                printf("Unrecognizable number: %s\n", str);
             else
             {
                 int len = (int)(eon - str);
@@ -29,22 +33,24 @@ int main(void)
                 printf("%*.*s invalid (%d: %s)\n",
                         len, len, str, errnum, strerror(errnum));
             }
+            continue;
         }
 
         eon = skip_space(eon);
-        char buffer[32];
 
         while (*eon != '\0')
         {
+            char buffer[32];
             printf("lhs = %s\n", ri_fmt(lhs, buffer, sizeof(buffer)));
             int op = *eon;
+            printf("op  = '%c'\n", op);
             eon = skip_space(eon + 1);
 
             str = eon;
             if (ri_scn(str, &eon, &rhs) != 0)
             {
                 if (eon == str)
-                    printf("Unrecognizable number: %s", str);
+                    printf("Unrecognizable number: %s\n", str);
                 else
                 {
                     int len = (int)(eon - str);
@@ -52,10 +58,11 @@ int main(void)
                     printf("%*.*s invalid (%d: %s)\n",
                             len, len, str, errnum, strerror(errnum));
                 }
+                continue;
             }
             printf("rhs = %s\n", ri_fmt(rhs, buffer, sizeof(buffer)));
 
-            RationalInt res;
+            Fraction res;
             switch (op)
             {
                 case '+':
@@ -77,9 +84,9 @@ int main(void)
                     printf("Invalid operation %c - try again\n", op);
                     goto next_line;
             }
-            printf("res = %s (op = '%c')\n\n", ri_fmt(res, buffer, sizeof(buffer)), op);
+            printf("res = %s\n\n", ri_fmt(res, buffer, sizeof(buffer)));
             lhs = res;
-            eon = skip_space(eon + 1);
+            eon = skip_space(eon);
         }
 next_line:
         putchar('\n');

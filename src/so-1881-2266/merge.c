@@ -1,4 +1,4 @@
-/* http://stackoverflow.com/q/18812266 Merging multiple sorted files */
+/* https://stackoverflow.com/q/18812266 Merging multiple sorted files */
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>

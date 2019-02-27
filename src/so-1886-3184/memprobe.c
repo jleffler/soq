@@ -1,4 +1,4 @@
-/* Derived from code in SO 18863184 */
+/* Derived from code in SO 1886-3184 */
 /* Original answer by https://stackoverflow.com/users/703016/kretab-chabawenizc */
 #include "memprobe.h"
 #include <assert.h>
@@ -10,7 +10,7 @@ static int fd[2] = { -1, -1 };
 
 int probe_init(void)
 {
-    if (fd[0] == -1) 
+    if (fd[0] == -1)
     {
         assert(fd[1] == -1);
         if (pipe(fd) != 0)
@@ -61,7 +61,8 @@ int probe_memory_ro(const void *address, size_t length)
     if (result == 1)
     {
         char buffer[length];
-        read(fd[0], buffer, length);
+        if (read(fd[0], buffer, length) != (ssize_t)length)
+            return -1;
     }
 
     /* Reinstate errno */
@@ -105,7 +106,6 @@ int probe_memory_rw(void *address, size_t length)
     {
         if ((io_len = read(fd[0], address, length)) < 0 || (size_t)io_len != length || errno == EFAULT)
             result = 0;
-
     }
 
     /* Reinstate errno */
@@ -138,6 +138,7 @@ static void test_rw(void *address, size_t length, const char *tag)
         printf("%s is BAD (%d: %s)\n", tag, errno, strerror(errno));
 }
 
+/* The tests citing probe_memory_ro do not compile cleanly under -pedantic */
 int main(void)
 {
     int matrix[4] = { 0, 1, 2, 3 };

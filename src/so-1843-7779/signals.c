@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>

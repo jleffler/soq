@@ -1,4 +1,5 @@
-/* SO 35678399 */
+/* SO 3567-8399 */
+#include "posixver.h"
 #include "stderr.h"
 #include "chkstrint.h"
 #include <assert.h>

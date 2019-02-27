@@ -1,10 +1,12 @@
-# SO 42407174
+# SO 4240-7174
 
 include ../../etc/soq-head.mk
 
 PROG1 = sq61
 
 PROGRAMS = ${PROG1}
+
+LDLIB2 = -lm
 
 all: ${PROGRAMS}
 

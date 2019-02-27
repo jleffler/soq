@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4282-2480
 
-[SO 4282-2480](http://stackoverflow.com/q/42822480) &mdash;
+[SO 4282-2480](https://stackoverflow.com/q/42822480) &mdash;
 POSIX Threads, unique execution
 
 One major difficulty is tracking when to create a new random number.
@@ -50,3 +50,12 @@ You can find the code (including the barrier code) at the linked site.
 It also provides better separation of 'start of new cycle' activities
 and 'continue with new cycle' activities.
 
+Note the POSIX 2008 (2016) provides:
+
+* [`pthread_barrierattr_destroy()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrierattr_destroy.html)
+* [`pthread_barrierattr_getpshared()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrierattr_getpshared.html)
+* [`pthread_barrierattr_init()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrierattr_init.html)
+* [`pthread_barrierattr_setpshared()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrierattr_setpshared.html)
+* [`pthread_barrier_destroy()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrier_destroy.html)
+* [`pthread_barrier_init()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrier_init.html)
+* [`pthread_barrier_wait()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrier_wait.html)

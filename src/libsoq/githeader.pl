@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 #
 #   Convert JLSS RCS Heading to Git
+#   Use to convert latest version of code from lib/JL to SOQ
 
 use strict;
 use warnings;
@@ -49,7 +50,44 @@ while (<>)
     }
 }
 
-print while (<>);
+if (!eof)
+{
+    my $last = "\n";  # Can't match chomped input
+    my $echo = 1;
+    my $group = 0;
+    while (<>)
+    {
+        chomp;
+        if ($_ eq "")
+        {
+            if ($echo && $last ne "")
+            {
+                print "$_\n";
+                $last = $_;
+            }
+        }
+        elsif ($echo == 1 &&
+                (m/^\s*#\s*ifn?def\s+(MAIN_PROGRAM|lint|NOSTRICT)\b/ ||
+                 m/^\s*#\s*if\s*(?:\!\s*)?\bdefined\s*(?:\(\s*)?\b(MAIN_PROGRAM|lint|NOSTRICT)\b/
+                )
+              )
+        {
+            $echo = 0;
+            $group = 1;
+        }
+        elsif ($echo)
+        {
+            print "$_\n";
+            $last = $_;
+        }
+        else
+        {
+            $group--  if (m/^\s*#\s*endif\b/);
+            $group++  if (m/^\s*#\s*if(?:n?def)?\b/);
+            $echo = 1 if ($group == 0);
+        }
+    }
+}
 
 __END__
 

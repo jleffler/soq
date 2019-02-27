@@ -1,5 +1,5 @@
 /* SO 7365814 In-place array reordering */
-/* Code by AnT (http://stackoverflow.com/users/187690/ant) */
+/* Code by AnT (https://stackoverflow.com/users/187690/ant) */
 #include <assert.h>
 
 static void mutate(int *a, int *indices, int n)

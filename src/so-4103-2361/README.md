@@ -1,6 +1,6 @@
 ### Stack Overflow Question 4103-2361
 
-[SO 4102-2361](http://stackoverflow.com/q/41032361) &mdash;
+[SO 4102-2361](https://stackoverflow.com/q/41032361) &mdash;
 Generate values with unique digits
 
 The objective is to generate number with all digits unique.  For

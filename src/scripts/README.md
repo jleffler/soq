@@ -10,3 +10,22 @@ to `$PATH`.
 It is recommended that it is added at the end of the PATH, not the
 beginning.
 
+The scripts include:
+
+* `ddpr` — double-digit prime number
+* `posixcmd` — URL for POSIX command(s) specified on command line
+* `posixfun` — URL for POSIX functions(s) specified on command line
+* `posixhdr` — URL for POSIX header(s) specified on command line
+* `rfn` — Generate unique random file name with prefix and a 2-digit prime number
+    * `rfn-c` — Generate a `.c` file
+    * `rfn-cpp` — Generate a `.cpp` file
+    * `rfn-h` — Generate a `.h` file
+    * `rfn-pl` — Generate a `.pl` file
+    * `rfn-sh` — Generate a `.sh` file
+    * `rfn-sql` — Generate a `.sql` file
+* `so` — Indent non-empty lines by 4 spaces
+* `so-books` — List of books and URLs
+* `so-late` — Comment for a late answer to an old question
+* `sops` — Set PS1, PS2 for use with `so`, etc.
+* `sow` — Welcome to SO; please create an MCVE
+* `wso` — Welcome to SO; please accept an answer

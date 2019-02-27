@@ -2,43 +2,16 @@
 @(#)File:           gcd.c
 @(#)Purpose:        Implement Greatest Common Divisor for two integers
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993,1997,2000,2005,2012,2015-16
-@(#)Derivation:     gcd.c 1.7 2015/06/02 03:05:40
+@(#)Copyright:      (C) JLSS 1993-2017
+@(#)Derivation:     gcd.c 1.8 2017/08/25 22:50:04
 */
 
 /*TABSTOP=4*/
 
 #include "gcd.h"
 
-int gcd(int x, int y)
-{
-    int r;
-
-    if (x <= 0 || y <= 0)
-        return(0);
-
-    while ((r = x % y) != 0)
-    {
-        x = y;
-        y = r;
-    }
-    return(y);
-}
-
-unsigned long long gcd_ull(unsigned long long x, unsigned long long y)
-{
-    unsigned long long r;
-
-    if (x == 0 || y == 0)
-        return(0);
-
-    while ((r = x % y) != 0)
-    {
-        x = y;
-        y = r;
-    }
-    return(y);
-}
+DEFINE_GCD_FUNCTION(extern, int, gcd)
+DEFINE_GCD_FUNCTION(extern, unsigned long long, gcd_ull)
 
 #if defined(TEST)
 

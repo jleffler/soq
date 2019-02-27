@@ -1,6 +1,6 @@
 /* SO 4098-8815 */
 /*
-** Code by [NanonA](http://stackoverflow.com/users/2390668/nanona).
+** Code by [NanonA](https://stackoverflow.com/users/2390668/nanona).
 ** This is code modified by NanonA based on SO 4098-8815 (which morphed
 ** into SO 4099-0884).
 **

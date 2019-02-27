@@ -1,6 +1,6 @@
 ### Stack Overflow Question 0253-0751
 
-[SO 0253-0751](http://stackoverflow.com/q/02530751) &mdash;
+[SO 0253-0751](https://stackoverflow.com/q/02530751) &mdash;
 How can I partial compare two strings in C?
 
 This ends up as a speed comparison exercise for Boyer-Moore (BM) versus

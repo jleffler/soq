@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# SO 15858766 - Tilde expansion in quotes
-# http://stackoverflow.com/questions/15858766
+# SO 1585-8766 - Tilde expansion in quotes
+# https://stackoverflow.com/questions/15858766
 #
 # Working function - painful, but can you simplify any of it?
 # NB: Assumes that ~user does not expand to a name with double spaces or

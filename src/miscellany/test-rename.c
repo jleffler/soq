@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include "stderr.h"
 #include <stdio.h>
 #include <unistd.h>

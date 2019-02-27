@@ -1,6 +1,6 @@
 /*
 ** Code by Jonathan Leffler
-** SO: http://stackoverflow.com/questions/2371292/
+** SO: https://stackoverflow.com/questions/2371292/
 ** SPOJ: http://www.spoj.pl/problems/INTEST/
 ** @(#)$Id: mmf.c,v 1.1 2010/03/06 17:49:04 jleffler Exp $
 */

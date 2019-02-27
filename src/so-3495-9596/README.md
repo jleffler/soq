@@ -3,7 +3,7 @@
 Miscellaneous bits of AVL tree code, all of them non-operational, and
 not written by Jonathan Leffler (and not yet debugged or rewritten).
 
-### [SO 3495-9596](http://stackoverflow.com/q/34959596)
+### [SO 3495-9596](https://stackoverflow.com/q/34959596)
 
 This question is still on SO.
 
@@ -24,7 +24,7 @@ The official accepted answer is a self-answer:
   code is replace pointer to pointer by just pointer and update pointer
   by returning value.
 
-### [SO 3611-6746](http://stackoverflow.com/q/36116746)
+### [SO 3611-6746](https://stackoverflow.com/q/36116746)
 
 * `avl-36116746.c`
   Deleted (but identified) question on SO.  Crashes.
@@ -34,3 +34,14 @@ The official accepted answer is a self-answer:
 * `avl-tree.c`
   Deleted (but unidentified) question on SO.  Crashes.
 
+### Diatribe
+
+Commit 4e18820... avl/avl-tree.c: found on SO 2015-06-28.
+Question deleted without ID number.
+Found replica at
+http://eclipsexina.blogspot.com/2015/06/access-violation-error-avl-tree-during.html
+in April 2016 (notified SO Team about copy without due recognition).
+Still cannot identify original question number.
+However, the title "Access Violation error.
+AVL TREE during insertion.
+C" suggests that the code has problems.

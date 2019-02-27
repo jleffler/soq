@@ -1,5 +1,6 @@
 /* SO 3945-8053 Determine shift used for text encrypted using Caesar Cipher */
 
+#include "posixver.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

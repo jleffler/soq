@@ -7,10 +7,12 @@
 ** Any thread may evaluate the new random number.
 */
 
+#include "posixver.h"
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 #include "stderr.h"

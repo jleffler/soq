@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # SO 7365814 In-place array reordering
-# Code by QWERTY (http://stackoverflow.com/users/937390/qwerty).
+# Code by QWERTY (https://stackoverflow.com/users/937390/qwerty).
 
 a = [8, 6, 7, 5, 3, 0, 9]
 indices = [3, 6, 2, 4, 0, 1, 5]

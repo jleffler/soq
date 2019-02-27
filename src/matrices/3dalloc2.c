@@ -1,4 +1,4 @@
-/* SO 18579583 Segmentation fault error in 3d array memory allocation */
+/* SO 1857-9583 Segmentation fault error in 3d array memory allocation */
 /*
 ** The code in 3dalloc2.c was known-to-be-buggy in the releasing of
 ** memory on allocation failure, and 3dalloc3.c contained the fix for
@@ -8,6 +8,7 @@
 ** improved testing framework but leave the memory release bugs in situ.
 ** Code now annotated to reduce chance of re-redoing the debugging.
 */
+#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

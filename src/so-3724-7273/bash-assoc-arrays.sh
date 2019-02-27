@@ -19,8 +19,8 @@ unset aa
 # ----------------------------------------------------------------------
 
 # SO 3929-7530 asked about indirect access to associative arrays.
-# http://stackoverflow.com/q/39397530
-# User pjh (http://stackoverflow.com/users/4154375/pjh) suggests:
+# https://stackoverflow.com/q/39397530
+# User pjh (https://stackoverflow.com/users/4154375/pjh) suggests:
 
 humantocheck=human1
 
@@ -56,7 +56,7 @@ new_array=( "${old_array[@]}" )
 
 # ----------------------------------------------------------------------
 
-# User Charles Duffy (http://stackoverflow.com/users/14122/charles-duffy)
+# User Charles Duffy (https://stackoverflow.com/users/14122/charles-duffy)
 # suggests:
 
 # This is exactly the scenario that the bash 4.3 feature namevars

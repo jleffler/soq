@@ -1,4 +1,4 @@
-/* http://stackoverflow.com/q/18928821 Merge sort code debugging */
+/* https://stackoverflow.com/q/18928821 Merge sort code debugging */
 /* valgrind gives this a clean bill of health */
 
 #include <iostream>

@@ -2,8 +2,8 @@
 @(#)File:           debug.h
 @(#)Purpose:        Definitions for the debugging system
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-93,1997-99,2003,2005,2008,2011,2013,2016
-@(#)Derivation:     debug.h 3.13 2016/01/17 15:47:27
+@(#)Copyright:      (C) JLSS 1990-2018
+@(#)Derivation:     debug.h 3.17 2018/06/17 06:23:46
 */
 
 #ifndef DEBUG_H
@@ -30,6 +30,7 @@
 ** arguments fmt requires (possibly nothing).
 **
 ** Usage:  DB_TRACE(level, fmt, ...);
+** Usage:  DB_TRACELOC(level, fmt, ...);
 **
 ** The structure of the macros means that the code is always validated
 ** but is not called when DEBUG is undefined.
@@ -39,11 +40,13 @@
             do { if (DB_ACTIVE) db_print x; } while (0)
 #define DB_TRACE(level, ...)\
             do { if (DB_ACTIVE) db_print(level, __VA_ARGS__); } while (0)
+#define DB_TRACELOC(level, ...)\
+            do { if (DB_ACTIVE) db_printloc(level, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
 
 /*
 ** Usage:  DB_CALL(level, ...);
 **
-** Example: DB_CALL(1, dump_structure(db_getfileptr(), "tag", arg1, arg2));
+** Example: DB_CALL(1, dump_structure(db_getfileptr(), "tag", arg1));
 **
 ** If trace is active at given level, execute the code in the variable
 ** arguments.  Normally used to selectively execute printing functions.
@@ -52,29 +55,24 @@
             do { if (DB_ACTIVE && db_getdebug() >= (level)) { __VA_ARGS__; } } while (0)
 
 /*
-** DB_TRACKING(); uses the FEATURE macro from klduge.h to embed a string
-** in a function identifying that the file is compiled with debug
-** enabled.  It should be the preferred mechanism for recording this, in
-** preference to the non-descriptive, passive jlss_id_debug_enabled
-** string (which can't identify the source file by name).  The old
-** mechanism will be phased out at some time after 2017-01-01.
+** DB_TRACKING(); uses the FEATURE_FILE macro from klduge.h to embed a
+** string in a function identifying that the file is compiled with debug
+** enabled.
 */
 #define DB_TRACKING() \
-            do { if (DB_ACTIVE) FEATURE("** DEBUG ** (" __FILE__ ")") } while (0)
+            do { if (DB_ACTIVE) FEATURE_FILE("** DEBUGGING ENABLED **") } while (0)
 
-#ifndef lint
-#ifdef DEBUG
-/* This string can't be made extern - multiple definition in general */
-static const char jlss_id_debug_enabled[] = "@(#)*** DEBUG ***";
-#endif /* DEBUG */
-#endif /* lint */
+enum DB_Options { DB_OPT_PID = 0x01 };     // Record PID at start of message
 
 extern int      db_getdebug(void);
 extern int      db_newindent(void);
 extern int      db_oldindent(void);
 extern int      db_setdebug(int level);
 extern int      db_setindent(int i);
-extern void     db_print(int level, const char *fmt,...);
+extern int      db_setoptions(int opts);
+extern void     db_print(int level, const char *fmt, ...);
+extern void     db_printloc(int level, const char *file, int line,
+                            const char *func, const char *fmt, ...);
 extern void     db_setfilename(const char *fn);
 extern void     db_setfileptr(FILE *fp);
 extern FILE    *db_getfileptr(void);
@@ -99,11 +97,15 @@ extern const char *db_indent(void);
 ** whatever extra arguments fmt requires (possibly nothing).
 **
 ** Usage:  DB_MDTRACE(subsys, level, fmt, ...);
+** Usage:  DB_MDTRACELOC(subsys, level, fmt, ...);
 */
 #define MDTRACE(x) \
             do { if (DB_ACTIVE) db_mdprint x; } while (0)
 #define DB_MDTRACE(subsys, level, ...) \
             do { if (DB_ACTIVE) db_mdprint(subsys, level, __VA_ARGS__); } while (0)
+#define DB_MDTRACELOC(subsys, level, ...) \
+            do { if (DB_ACTIVE) db_mdprintloc(subsys, level, __FILE__, __LINE__, \
+                                              __func__, __VA_ARGS__); } while (0)
 
 /*
 ** Usage:  DB_MDCALL(subsys, level, ...);
@@ -117,10 +119,21 @@ extern const char *db_indent(void);
 #define DB_MDCALL(subsys, level, ...) \
             do { if (DB_ACTIVE && db_mdgetdebug(subsys) >= (level)) { __VA_ARGS__; } } while (0)
 
+/*
+** DB_MDTRACKING(); uses the FEATURE_FILE macro from klduge.h to embed a
+** string in a function identifying that the file is compiled with debug
+** enabled.
+*/
+#define DB_MDTRACKING() \
+            do { if (DB_ACTIVE) FEATURE_FILE("** DEBUGGING SUBSYSTEMS ENABLED **") } while (0)
+
 extern int      db_mdgetdebug(int subsys);
 extern int      db_mdparsearg(char *arg);
 extern int      db_mdsetdebug(int subsys, int level);
-extern void     db_mdprint(int subsys, int level, const char *fmt,...);
+extern int      db_mdsetoptions(int opts);
+extern void     db_mdprint(int subsys, int level, const char *fmt, ...);
+extern void     db_mdprintloc(int subsys, int level, const char *file,
+                              int line, const char *func, const char *fmt, ...);
 extern void     db_mdsubsysnames(char * const *names);
 
 #endif /* DEBUG_H */

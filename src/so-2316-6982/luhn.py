@@ -1,5 +1,5 @@
 #!usr/bin/python
-"""Luhn Algorithm over 1000 Amex Trial Numbers - SO 23166982."""
+"""Luhn Algorithm over 1000 Amex Trial Numbers - SO 2316-6982."""
 
 min_base = 37828224631000
 max_base = 37828224631999
@@ -19,7 +19,7 @@ def luhn(number):
         y = 10 - y
     return n + y
 
-# Borrowed from Wikipedia via SO 20179439
+# Borrowed from Wikipedia via SO 2017-9439
 def luhn_checksum(card_number):
     def digits_of(n):
         return [int(d) for d in str(n)]

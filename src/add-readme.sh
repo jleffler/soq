@@ -2,7 +2,7 @@
 #
 # Find official description of SO questions for README.md file
 
-site="http://stackoverflow.com"
+site="https://stackoverflow.com"
 
 case "$#" in
 (0) set -- so-*;;
@@ -10,19 +10,20 @@ esac
 
 for dir in "$@"
 do
-    [ -h "$dir" ] && continue;
-    [ -f "$dir/README.md" ] && continue;
+    [ -h "$dir" ] && continue
+    [ ! -d "$dir" ] && continue
+    [ -f "$dir/README.md" ] && continue
     echo $dir
     (
     qd=${dir#so-}
     qn=${qd/-/}
     redirect=$(curl -s "$site/q/$qn" |
                perl -lne 'print $1 if m/.*Object moved to <a href="([^"]*)".*/')
-    title=$(curl -s "$redirect" |
+    title=$(curl -s "$site$redirect" |
             perl -lne 'print $1 if m/<title>(?:[^-]*? - )?(.+?) - [^-]*<\/title>.*/')
     echo "### Stack Overflow Question $qd"
     echo
-    echo "[SO $qd](http://stackoverflow.com/q/$qn) &mdash;"
+    echo "[SO $qd]($site/q/$qn) &mdash;"
     echo "$title"
     ) > $dir/README.md
 done

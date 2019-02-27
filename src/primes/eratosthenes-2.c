@@ -1,5 +1,6 @@
 /* Sieve of Eratosthenes */
 /* 8 bits per flag - odd numbers after 2 */
+#include "posixver.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>

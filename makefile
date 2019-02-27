@@ -10,8 +10,6 @@ default:
 
 all:
 	+cd src; ${MAKE} $@
-	+cd Primes; ${MAKE} $@
-	+cd Matrices; ${MAKE} $@
 
 remove:
 	@if [ -z "${PROG}" ]; then echo "You must set PROG=name on command line" && exit 1; else exit 0; fi
@@ -22,5 +20,3 @@ clean:
 
 realclean:
 	+cd src; ${MAKE} clean
-	+cd Primes; ${MAKE} clean
-	+cd Matrices; ${MAKE} clean

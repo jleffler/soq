@@ -1,0 +1,6 @@
+1. line-1 with spaces (                 |   | here
+1.line-2
+1.line-4    with tabs > 
+ 1.line-6
+2.line-2
+        3.line-5 (tabs)

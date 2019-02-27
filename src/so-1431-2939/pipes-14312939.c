@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -8,7 +9,11 @@ int main(void)
     int filedes[2];
     int corpse;
     int status;
-    pipe(filedes);
+    if (pipe(filedes) != 0)
+    {
+        perror("pipe()");
+        exit(1);
+    }
 
     /* Run LS. */
     pid_t pid = fork();

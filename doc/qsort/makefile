@@ -1,4 +1,4 @@
-# SO 11027679
+# Quicksort documentation
 
 include ../../etc/soq-head.mk
 
@@ -13,6 +13,7 @@ PROG06 = qs-06-bad
 PROG07 = qs-07-int
 PROG08 = ls73
 PROG09 = ls79
+
 PROG10 = oddascevendesc
 PROG11 = qs79
 PROG12 = sr19

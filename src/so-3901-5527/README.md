@@ -1,4 +1,4 @@
-# [SO 3901-5527](http://stackoverflow.com/q/39015527) &mdash; Is it safe to rename files while using readdir?
+# [SO 3901-5527](https://stackoverflow.com/q/39015527) &mdash; Is it safe to rename files while using readdir?
 
 A simple question couched in terms of Perl rather than C.
 
@@ -42,8 +42,8 @@ it probably isn't portable to other systems.
 
 ### Demonstration
 
-[ikegami](http://stackoverflow.com/users/589924/ikegami)
-[asked](http://stackoverflow.com/questions/39015527/is-it-safe-to-rename-files-while-using-readdir/39017355?noredirect=1#comment65400149_39017355):
+[ikegami](https://stackoverflow.com/users/589924/ikegami)
+[asked](https://stackoverflow.com/questions/39015527/is-it-safe-to-rename-files-while-using-readdir/39017355?noredirect=1#comment65400149_39017355):
 
 > `rename` neither adds nor removes any directory entries, though.
 > It just edits one.

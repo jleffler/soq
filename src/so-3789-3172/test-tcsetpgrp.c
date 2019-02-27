@@ -1,4 +1,5 @@
 /* https://stackoverflow.com/questions/37893172/tcsetpgrps-enigmatic-behavior-in-this-very-short-program-in-c */
+#include "posixver.h"
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>

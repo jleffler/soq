@@ -1,4 +1,4 @@
-/* SO 17192011 */
+/* SO 1719-2011 */
 #if defined(__cplusplus)
 #error "This code uses VLA and should not compile under C++"
 #endif

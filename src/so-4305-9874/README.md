@@ -1,11 +1,11 @@
 ### Stack Overflow Question 4305-9874
 
-[SO 4305-9874](http://stackoverflow.com/q/43059874) &mdash;
+[SO 4305-9874](https://stackoverflow.com/q/43059874) &mdash;
 Composite Predicate of function pointers in C
 
 This code is closely based on [Chris
-Dodd](http://stackoverflow.com/users/16406/chris-dodd)'s
-[answer](http://stackoverflow.com/a/43060435/) — or at least, the
+Dodd](https://stackoverflow.com/users/16406/chris-dodd)'s
+[answer](https://stackoverflow.com/a/43060435/) — or at least, the
 initial versions of it were.
 
 The source in pd31.c is a modestly extended version of Chris's code, but
@@ -23,7 +23,7 @@ indirection - the closure structure stores pointers to functions, not
 pointers to pointers to functions.
 
 I sought input from Chris Dodd to find why the extra level of
-indirection is ncessary.
+indirection is necessary.
 It comes down to what happens when you build a predicate from a
 'manufactured' predicate using one or more of the predicates created by
 `mk_predicate()`.

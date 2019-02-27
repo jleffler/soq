@@ -1,4 +1,4 @@
-/* SO 13674617 Adding word to trie structure dictionary */
+/* SO 1367-4617 Adding word to trie structure dictionary */
 
 #ifndef TRIE_H_INCLUDED
 #define TRIE_H_INCLUDED
@@ -12,6 +12,7 @@ extern void trie_free(tNode *trie);
 
 #endif /* TRIE_H_INCLUDED */
 
+#include "posixver.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>

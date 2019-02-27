@@ -1,4 +1,4 @@
-/* http://stackoverflow.com/q/14824668 Merge sort function */
+/* https://stackoverflow.com/q/14824668 Merge sort function */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

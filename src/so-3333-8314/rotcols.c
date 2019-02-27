@@ -1,4 +1,4 @@
-/* SO 33338314 */
+/* SO 3333-8314 */
 #include <stdio.h>
 #include "gcd.h"
 

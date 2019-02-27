@@ -1,6 +1,9 @@
-/* SO 20271977 - sort arrays x, y, z, w (type double, size n) in parallel based on values in x and y */
+/* SO 2027-1977 - sort 4 arrays in parallel */
 
 /*
+** sort arrays x, y, z, w (type double, size n) in parallel based on
+** values in x and y
+**
 ** To apply this to the real code, where there are 4 arrays to be sorted
 ** in parallel, you might write:
 **
@@ -16,11 +19,13 @@
 **
 **    quicksort_random((Array4){ .n = n, .x = x, .y = y, .z = z, .w = w });
 **
-** combining designated initializers and compound literals.  Or you could write a
-** trivial wrapper so that you can call:
+** combining designated initializers and compound literals.  Or you
+** could write a trivial wrapper so that you can call:
 **
 **    quicksort_random_wrapper(n, x, y, z, w);
 */
+
+#include "posixver.h"
 
 /* SOF so-20271977.h */
 #include <stddef.h>

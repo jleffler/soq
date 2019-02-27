@@ -1,4 +1,4 @@
-/* SO 12762944 - Huge matrix and segmentation fault */
+/* SO 1276-2944 - Huge matrix and segmentation fault */
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>

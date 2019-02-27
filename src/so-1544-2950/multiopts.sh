@@ -1,4 +1,4 @@
-# http://stackoverflow.com/questions/15442950/calling-different-programs-with-different-options
+# https://stackoverflow.com/questions/15442950/calling-different-programs-with-different-options
 GETOPT=/usr/gnu/bin/getopt
 
 args=$($GETOPT -o :v -l prog1:,prog2: -- "$@")

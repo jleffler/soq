@@ -1,6 +1,6 @@
 ### Stack Overflow Question 0612-7503
 
-[SO 0612-7503](http://stackoverflow.com/q/06127503) &mdash;
+[SO 0612-7503](https://stackoverflow.com/q/06127503) &mdash;
 Shuffle array in C
 
 Note the discussions at:
@@ -11,7 +11,7 @@ Note the discussions at:
   on his web site.
 * [The Danger of Naivete](http://www.codinghorror.com/blog/2007/12/the-danger-of-naivete.html)
   on the Coding Horror blog site.
-* [Why does this simple shuffle algorithm produce biassed results?](http://stackoverflow.com/questions/859253)
+* [Why does this simple shuffle algorithm produce biassed results?](https://stackoverflow.com/questions/859253)
   on SO.
 * [Is this C implementation of Fisher-Yates shuffle correct?](https://stackoverflow.com/questions/3343797/)
   on SO, especially the answer by Roland Ilig.

@@ -1,5 +1,5 @@
 /* Segmented Sieve of Eratosthenes */
-/* See SO 10249378 */
+/* See SO 1024-9378 */
 
 /*
 ** For a given range of primes L..H, determine N = sqrt(H) and the set
@@ -19,6 +19,7 @@
 ** Currently, this is mostly a piece of spaghetti.
 */
 
+#include "posixver.h"
 //#include "debug.h"
 #define WRAPPED_HEADER "debug.h"
 #include "wraphead.h"

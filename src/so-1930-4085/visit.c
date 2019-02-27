@@ -1,12 +1,13 @@
 /*
-** Intended for http://stackoverflow.com/questions/19239445 originally.
-** Posted for http://stackoverflow.com/questions/19304085.
+** Intended for https://stackoverflow.com/questions/19239445 originally.
+** Posted for https://stackoverflow.com/questions/19304085.
 */
 
 #if defined(__cplusplus)
 #error "This code uses VLA and cannot be compiled by strict C++"
 #endif
 
+#include "posixver.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

@@ -1,3 +1,4 @@
+#include "posixver.h"
 #include "stderr.h"
 #include <assert.h>
 #include <fcntl.h>
@@ -8,6 +9,7 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#include "microsleep.h"
 
 #define MIN_PROC 2
 #define MAX_PROC 20
@@ -168,7 +170,7 @@ int main(int argc, char **argv)
         }
         else if (pid == 0)
         {
-            usleep((i + 1) * 100000);   // Tenths of a second
+            micro_sleep((i + 1) * 100000);   // Tenths of a second
             err_remark("Child process #%d (PID %d) at work\n", i, (int)getpid());
             be_childish(n, i, tubes);
             int status = (i + 1) * 16;

@@ -1,4 +1,4 @@
-/* SO 19607450 -- heavily extended compared with original answer */
+/* SO 1960-7450 -- heavily extended compared with original answer */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

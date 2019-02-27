@@ -1,9 +1,10 @@
 /*
-** http://stackoverflow.com/questions/19782086
+** https://stackoverflow.com/questions/19782086
 ** Allocating memory dynamically to a 2D array of strings
 **
 ** The 4-star solution.
 */
+#include "posixver.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

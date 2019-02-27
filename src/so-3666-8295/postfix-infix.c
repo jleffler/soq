@@ -22,13 +22,13 @@
 
 static const char optstr[] = "hV";
 static const char usestr[] = "[-hV] expression [expression...]";
-static const char hlpstr[] = 
+static const char hlpstr[] =
     "  -h  Print this help message and exit\n"
     "  -V  Print version information and exit\n"
     ;
 
 /*
-** SO 36668295
+** SO 3666-8295
 ** Convert postfix expressions with single digit numbers into infix expressions.
 */
 

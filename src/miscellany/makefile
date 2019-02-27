@@ -14,13 +14,14 @@ PROG09 = test-rename
 PROG10 = check-rename
 PROG11 = quine-c
 PROG12 = quine-py
-PROG13 = dec_to_hex
+PROG13 = #dec_to_hex
 PROG14 = map
 PROG15 = uint128
 PROG16 = rev
 PROG17 = revlist
 PROG18 = select
 PROG19 = factorial
+PROG20 = random59
 
 PROGRAMS = \
 	${PROG01} \
@@ -42,6 +43,7 @@ PROGRAMS = \
 	${PROG17} \
 	${PROG18} \
 	${PROG19} \
+	${PROG20} \
 
 all: ${PROGRAMS}
 

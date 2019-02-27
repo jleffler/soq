@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
-# http://stackoverflow.com/q/18812266 Merging multiple sorted files
+# https://stackoverflow.com/q/18812266 Merging multiple sorted files
 use strict;
 use warnings;
 
 # Generate sorted, merge-worthy data
 
-die "Usage: num-files lines-per-file [basename]" unless scalar(@ARGV) == 2 || scalar(@ARGV) == 3;
+die "Usage: $0 num-files lines-per-file [basename]" unless scalar(@ARGV) == 2 || scalar(@ARGV) == 3;
 my $num_files = $ARGV[0];
 my $num_lines = $ARGV[1];
 die "Enter a number of files between 2 and 999" unless $num_files >= 2 && $num_files <= 999;

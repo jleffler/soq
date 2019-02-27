@@ -1,5 +1,5 @@
 /* SO 4408170 */
-/* Code by http://stackoverflow.com/users/1691280/brandin */
+/* Code by https://stackoverflow.com/users/1691280/brandin */
 
 #include <stdio.h>      /* XXX: temporary while debugging */
 #include <stdbool.h>

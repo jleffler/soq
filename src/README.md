@@ -19,4 +19,4 @@ It should not normally contain any other files.
 
 <hr>
 
-A self-deleted question: [SO 3909-2852](http://stackoverflow.com/questions/39092852/whats-the-bug-in-my-code-or-is-the-bug-in-gcc)
+A self-deleted question: [SO 3909-2852](https://stackoverflow.com/questions/39092852/whats-the-bug-in-my-code-or-is-the-bug-in-gcc)

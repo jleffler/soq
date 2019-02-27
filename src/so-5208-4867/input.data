@@ -1,0 +1,3 @@
+*.c
+*[mM]*
+*.[ch] *[mM]* ~/.profile $HOME/.profile

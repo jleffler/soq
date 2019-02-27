@@ -1,4 +1,4 @@
-/* SO 32578455 */
+/* SO 3257-8455 */
 /* Swap elements A and B in a doubly-linked list */
 /*
 ** Issues:
@@ -43,6 +43,7 @@
 **    delete A and B; insert A before P3; insert B after P1.
 */
 
+#include "posixver.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>

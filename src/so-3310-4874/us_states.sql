@@ -1,4 +1,4 @@
--- @(#)SO 33104874
+-- @(#)SO 3310-4874
 -- @(#)Create US_States table
 
 DROP TABLE IF EXISTS US_States;

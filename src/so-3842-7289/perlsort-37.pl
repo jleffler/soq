@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# SO 38427289
+# SO 3842-7289
 # More Perlish way to sort string with leading floating point number?
 
 use strict;

@@ -15,14 +15,6 @@
 extern "C" {
 #endif
 
-#ifdef MAIN_PROGRAM
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_isqrt_h[];
-const char jlss_id_isqrt_h[] = "@(#)$Id: isqrt.h,v 1.1 2015/07/11 07:00:48 jleffler Exp $";
-#endif /* lint */
-#endif /* MAIN_PROGRAM */
-
 #include <stdint.h>
 
 extern int32_t isqrt_32(uint32_t x);

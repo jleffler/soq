@@ -3,10 +3,16 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
-extern node_t *list_head(list_t *list);
-extern node_t *list_tail(list_t *list);
-extern void    list_destruct(list_t *list);
-extern list_t *list_construct(void);
+node_t *list_head(list_t *list)
+{
+    return list->head;
+}
+
+node_t *list_tail(list_t *list)
+{
+    return list->tail;
+}
+
 
 size_t list_size(list_t *list)
 {

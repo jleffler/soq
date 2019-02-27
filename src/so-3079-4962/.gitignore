@@ -1,6 +1,11 @@
 binsearch-speed
 bs-files
+bscheck
 bsmax
 bsmin
+bsrange
+bsrange-chux-00
+bsrange-chux-01
 modbinsearch
+rangebinsearch
 shiftbinsearch

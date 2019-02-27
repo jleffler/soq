@@ -12,9 +12,11 @@
 extern void shuffle(void *array, size_t number, size_t size, size_t (*randomizer)(size_t n));
 
 /*
-** rand_int() and shuffle() based on code for integers in
-** http://stackoverflow.com/a/3348142 - an answer by Roland Illig
-** (http://stackoverflow.com/users/225757/roland-illig).
+** rand_int() and shuffle() based on code for integers in an answer to
+** "Is this C implementation of the Fisher-Yates shuffle correct?"
+** https://stackoverflow.com/q/3343797 (and specifically the answer
+** https://stackoverflow.com/a/3348142 by Roland Illig
+** (https://stackoverflow.com/users/225757/roland-illig)).
 **
 ** https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 ** To shuffle an array a of n elements (indices 0..n-1):

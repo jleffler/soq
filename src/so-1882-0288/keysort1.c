@@ -1,4 +1,4 @@
-/* http://stackoverflow.com/q/18820288 Sorting based on key from a file */
+/* https://stackoverflow.com/q/18820288 Sorting based on key from a file */
 
 /*
 ** Input format
@@ -11,6 +11,7 @@
 ** Read from standard input; write to standard output.
 */
 
+#include "posixver.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
