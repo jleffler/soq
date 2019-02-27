@@ -1,6 +1,5 @@
 # Questions and answers related to sorting
 
-
 ## so-0765-6915 &mdash; Sort and merge separate files
 
 Using multiple child processes to sort separate files, and then merge
@@ -39,16 +38,21 @@ The key value is the sort criterion.
 * `keysort2.c` reads files or standard input, overwriting file or
    writing to standard output
 
+## so-1892-8821 &mdash; Templated C++ merge sort using vectors
 
-## so-1892-8821 &mdash;
+Probably not stellar C++ code, but fixes OP's problems and gets clean
+bill of health from Valgrind.
 
-Templatized C++ merge sort using vectors.
+## so-1901-6840 &mdash; merge sort for linked lists
 
-## so-1947-1071 &mdash;
+Some fairly generic list code (though the list structure with head,
+tail, size is not always necessary), plus code to use a merge sort on
+the lists.
+
+## so-1947-1071 &mdash; Radix Sort
 
 Basic fix-ups of radix code provided in question.
 Radix sorts are relatively unusual, so I've kept note of it.
-
 
 ## so-1960-7450 &mdash; Semi-basic quick sort
 
@@ -57,11 +61,24 @@ Uses Lomuto partitioning.
 
 The test code is a simplified version of what's in sorttest.
 
-
-## so-1972-7309 &mdash;
+## so-1972-7309 &mdash; quick sort with Lomuto partitioning
 
 * `qs3.c` - basic quick sort with Lomuto partitioning on last element
 * `qs7.c` - same code with extensive debugging
+
+## so-2027-1977 &mdash; sort 4 arrays in parallel
+
+Unusual requirement (it's normally better to have one array of a structure
+type with 4 elements), but it can be done with a modicum of care.
+
+## so-2029-3405 &mdsh; counting inversions
+
+Two different ways of counting the inversions, one using a merge sort to
+avoid quadratic performance, at the cost of sorting the data.
+
+## so-2087-5751 &mdash; "finding the Nth largest number in an array" — deleted
+
+Code for quick select rather than full quick sort.
 
 ## so-3442-6337 &mdash; Batcher sort
 
@@ -71,14 +88,19 @@ A particular sorting algorithm.
 
 Mildly complex sort criterion in Perl.
 
-## so-4178-6918 &mdash;
+## so-4178-6918 &mdash; quick sort with Hoare partitioning
 
 Working from Wikipedia.  Hoare partitioning.  Using first element as pivot.
 
 * Files `qs-hp37.c`, `qs-main.c`, `qs-main.h` form one program.
-* File `qs37.c` formas another.
+* File `qs37.c` forms another.
 
 Code contains pseudo-code comments from Wikipedia.
+
+## so-4203-5818 &mdash; sorting sets of 3 elements
+
+Various test programs for sequences of 3 comparisons which lead to
+sorted data.
 
 ##  so-5332-1864 &mdash stable partition (sort)
 
