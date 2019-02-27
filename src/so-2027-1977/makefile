@@ -2,6 +2,7 @@
 
 include ../../etc/soq-head.mk
 
+# PROG1 doesn't have a main() function!
 PROG1 = #so-20271977-core
 PROG2 = so-20271977
 
