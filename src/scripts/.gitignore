@@ -17,6 +17,7 @@ so-c-reserved
 so-getchar
 so-late
 so-quotes
+so-reformat-c
 so-stderr
 soa
 sops
