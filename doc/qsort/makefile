@@ -2,7 +2,7 @@
 
 include ../../etc/soq-head.mk
 
-PROG0 = qs47
+PROG00 = qs47
 
 PROG01 = qs-01-int
 PROG02 = qs-02-str
@@ -13,9 +13,13 @@ PROG06 = qs-06-bad
 PROG07 = qs-07-int
 PROG08 = ls73
 PROG09 = ls79
-PROG10 = qs79
-PROG11 = sr19
-PROG12 = oddascevendesc
+
+PROG10 = oddascevendesc
+PROG11 = qs79
+PROG12 = sr19
+PROG13 = qs8m
+
+COMPARATOR_SOURCE = altcmp1.c
 
 PROGRAMS = \
 	${PROG00} \
@@ -31,7 +35,11 @@ PROGRAMS = \
 	${PROG10} \
 	${PROG11} \
 	${PROG12} \
+	${PROG13} \
 
 all: ${PROGRAMS}
+
+${PROG07}:
+	${CC} -o $@ ${CFLAGS} ${PROG07}.c -DCOMPARATOR_SOURCE='"${COMPARATOR_SOURCE}"' ${LDFLAGS} ${LDLIBS}
 
 include ../../etc/soq-tail.mk
