@@ -7,6 +7,7 @@ PROGRAMS = \
 	chk-wchar-test \
 	utf8-test \
 	wchar-test \
+	wchar37 \
 
 all: ${PROGRAMS}
 
