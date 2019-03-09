@@ -22,6 +22,7 @@ PROG17 = revlist
 PROG18 = select
 PROG19 = factorial
 PROG20 = random59
+PROG21 = suit9
 
 PROGRAMS = \
 	${PROG01} \
@@ -44,6 +45,7 @@ PROGRAMS = \
 	${PROG18} \
 	${PROG19} \
 	${PROG20} \
+	${PROG21} \
 
 all: ${PROGRAMS}
 

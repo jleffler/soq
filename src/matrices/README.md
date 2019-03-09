@@ -75,3 +75,14 @@ It's an attempt to code up arbitrary dimensional arrays (e.g. 3D or 4D
 or 5D) using a single structure, though there are numerous issues still
 to resolve.
 
+### [SO 5428-2732](https://stackoverflow.com/q/54282732)
+
+* `alloc2dvla47.c` &mdash; yet another 2D VLA allocation.
+
+### [SO 4885-6272](https://stackoverflow.com/q/48856272)
+
+* `alloc2d19.c` — dynamic allocation of 2D array of arbitrary type
+* `alloc3d79.c` — dynamic allocation of 3D array of arbitrary type
+
+These programs exhibit 3-star and 4-star program.
+What's good for generals is not, in general, good for programmers.
