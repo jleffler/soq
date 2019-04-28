@@ -9,20 +9,65 @@
 
 static void err_setarg0(char const *argv0);
 static void err_sysexit(char const *fmt, ...);
-static void err_syswarn(char const *fmt, ...);
+static void err_usage(char const *usestr);
+static void err_remark(char const *fmt, ...);
 
 #endif /* STDERR_H_INCLUDED */
 
 /* pipeline.c */
-#include "posixver.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 /*#include "stderr.h"*/
 
 typedef int Pipe[2];
+
+enum { DESCRIPTORS_PER_LINE = 64 };
+
+static int vflag = 0;
+
+static void open_fds(int max_fd)
+{
+    int fd;
+    struct stat buff;
+
+    fprintf(stderr, "%d: ", (int)getpid());
+    for (fd = 0; fd < max_fd; fd++)
+    {
+        if (fstat(fd, &buff) < 0)
+            putc('-', stderr);
+        else
+            putc('o', stderr);
+        if (fd % DESCRIPTORS_PER_LINE == DESCRIPTORS_PER_LINE - 1)
+            putc('\n', stderr);
+    }
+    if (fd % DESCRIPTORS_PER_LINE != 0)
+        putc('\n', stderr);
+}
+
+static void fd_info(int fd)
+{
+    struct stat buff;
+    if (fstat(fd, &buff) < 0)
+        err_remark("Failed to fstat(%d)", fd);
+    else
+    {
+        int flags;
+        int status;
+        if ((flags = fcntl(fd, F_GETFD)) < 0)
+            err_sysexit("Failed to fcntl(%d, F_GETFD)", fd);
+        if ((status = fcntl(fd, F_GETFL)) < 0)
+            err_sysexit("Failed to fcntl(%d, F_GETFL)", fd);
+        err_remark("fd %d: inode %d, dev %d; F_GETFD = 0x%.4X; F_GETFL "
+                   "= 0x%.4X (Mask 0x%X: Access = 0x%X)",
+                   fd, buff.st_ino, buff.st_dev, flags, status,
+                   O_ACCMODE, status & O_ACCMODE);
+    }
+}
 
 /* exec_nth_command() and exec_pipe_command() are mutually recursive */
 static void exec_pipe_command(int ncmds, char ***cmds, Pipe output);
@@ -37,6 +82,9 @@ static void exec_nth_command(int ncmds, char ***cmds)
         Pipe input;
         if (pipe(input) != 0)
             err_sysexit("Failed to create pipe");
+        err_remark("Pipe: r %d, w %d", input[0], input[1]);
+        if (vflag)
+            open_fds(10);
         if ((pid = fork()) < 0)
             err_sysexit("Failed to fork");
         if (pid == 0)
@@ -45,9 +93,18 @@ static void exec_nth_command(int ncmds, char ***cmds)
             exec_pipe_command(ncmds - 1, cmds, input);
         }
         /* Fix standard input to read end of pipe */
-        dup2(input[0], 0);
-        close(input[0]);
-        close(input[1]);
+        if (dup2(input[0], 0) != 0)
+            err_sysexit("dup2(%d, %d) in %s()", input[0], 0, __func__);
+        if (close(input[0]) != 0)
+            err_sysexit("close(%d) in %s()", input[0], __func__);
+        if (close(input[1]) != 0)
+            err_sysexit("close(%d) in %s()", input[0], __func__);
+    }
+    if (vflag)
+    {
+        open_fds(10);
+        fd_info(0);
+        err_remark("Execute: %s\n", cmds[ncmds - 1][0]);
     }
     execvp(cmds[ncmds - 1][0], cmds[ncmds - 1]);
     err_sysexit("Failed to exec %s", cmds[ncmds - 1][0]);
@@ -59,9 +116,19 @@ static void exec_pipe_command(int ncmds, char ***cmds, Pipe output)
 {
     assert(ncmds >= 1);
     /* Fix stdout to write end of pipe */
-    dup2(output[1], 1);
-    close(output[0]);
-    close(output[1]);
+    err_remark("Pipe: r %d, w %d", output[0], output[1]);
+    if (dup2(output[1], 1) != 1)
+        err_sysexit("dup2(%d, %d) in %s()", output[1], 1, __func__);
+    if (close(output[0]) != 0)
+        err_sysexit("close(%d) in %s()", output[0], __func__);
+    if (close(output[1]) != 0)
+        err_sysexit("close(%d) in %s()", output[0], __func__);
+    if (vflag)
+    {
+        open_fds(10);
+        fd_info(0);
+        err_remark("Execute: %s\n", cmds[ncmds - 1][0]);
+    }
     exec_nth_command(ncmds, cmds);
 }
 
@@ -71,7 +138,7 @@ static void exec_pipeline(int ncmds, char ***cmds)
     assert(ncmds >= 1);
     pid_t pid;
     if ((pid = fork()) < 0)
-        err_syswarn("Failed to fork");
+        err_sysexit("Failed to fork");
     if (pid != 0)
         return;
     exec_nth_command(ncmds, cmds);
@@ -149,8 +216,31 @@ static void sigchld_status(void)
 
 int main(int argc, char **argv)
 {
+    int opt;
+    char *argv0 = argv[0];
+
+    setvbuf(stderr, 0, _IOLBF, BUFSIZ);
     err_setarg0(argv[0]);
     sigchld_status();
+
+    while ((opt = getopt(argc, argv, "v")) != -1)
+    {
+        switch (opt)
+        {
+        case 'v':
+            vflag = 1;
+            break;
+        default:
+            err_usage("[-v] [cmd1 | cmd2 ...]");
+            break;
+        }
+    }
+    argv += optind - 1;
+    argc -= optind - 1;
+    argv[0] = argv0;
+
+    fd_info(0);
+
     if (argc == 1)
     {
         /* Run the built in pipe-line */
@@ -180,6 +270,22 @@ static void err_setarg0(char const *argv0)
     arg0 = argv0;
 }
 
+static void err_usage(char const *usestr)
+{
+    fprintf(stderr, "Usage: %s %s\n", arg0, usestr);
+    exit(0);
+}
+
+static void err_remark(char const *fmt, ...)
+{
+    va_list args;
+    fprintf(stderr, "%s:%d: ", arg0, (int)getpid());
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    putc('\n', stderr);
+}
+
 static void err_vsyswarn(char const *fmt, va_list args)
 {
     int errnum = errno;
@@ -188,14 +294,6 @@ static void err_vsyswarn(char const *fmt, va_list args)
     if (errnum != 0)
         fprintf(stderr, " (%d: %s)", errnum, strerror(errnum));
     putc('\n', stderr);
-}
-
-static void err_syswarn(char const *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    err_vsyswarn(fmt, args);
-    va_end(args);
 }
 
 static void err_sysexit(char const *fmt, ...)
