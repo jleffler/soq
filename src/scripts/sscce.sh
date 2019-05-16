@@ -2,8 +2,14 @@
 #
 # Analog to WSO for SSCCE and MCVE (and HTAQTSW)
 
-echo 'MCVE ([How to create a Minimal, Complete, and Verifiable Example?](https://stackoverflow.com/help/mcve))'
+echo 'MCVE ([Minimal, Complete, Verifiable Example?](https://stackoverflow.com/help/mcve))'
+echo '(or whatever name is now in use by SO;'
+echo 'MCVE was good for over five years, and the replacement is not better)'
 
-# Verified http not https 2018-05-06
+# Verified http not https 2019-05-15
+echo 'or an'
 echo 'SSCCE ([Short, Self-Contained, Correct Example](http://sscce.org/))'
-echo '[How to Ask Questions the Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)'
+
+# Verified http not https 2019-05-15
+echo 'See also'
+echo '[How to Ask Questions the Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html).'
