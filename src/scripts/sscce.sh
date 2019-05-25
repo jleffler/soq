@@ -14,4 +14,5 @@ echo 'SSCCE ([Short, Self-Contained, Correct Example](http://sscce.org/)).'
 echo 'See also'
 echo '[How to Ask Questions the Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)'
 
-echo 'and [Writing the perfect question](http://tinyurl.com/stack-hints)'
+#echo 'and [Writing the perfect question](http://tinyurl.com/stack-hints)'
+echo 'and [Writing the perfect question](https://codeblog.jonskeet.uk/2010/08/29/writing-the-perfect-question/)'
