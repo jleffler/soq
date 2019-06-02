@@ -67,7 +67,9 @@
 #include "posixver.h"
 
 #include "stderr.h"
-#include "time_io.h"
+#include "timespec_io.h"
+#include "timeval_math.h"
+#include "timeval_io.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdio.h>
@@ -105,6 +107,10 @@ static void set_delay_timeout(void);
 static void cancel_timeout(void);
 static void alarm_handler(int signum);
 
+// Using signal() manages to set SA_RESTART on a Mac.
+// This is allowed by standard C and POSIX, sadly.
+// signal(SIGALRM, alarm_handler);
+
 #if defined(USE_ALARM)
 
 static void set_chunk_timeout(void)
@@ -116,7 +122,6 @@ static void set_chunk_timeout(void)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGALRM, &sa, NULL);
-    //signal(SIGALRM, alarm_handler);
 }
 
 static void set_delay_timeout(void)
@@ -144,10 +149,71 @@ static void alarm_handler(int signum)
 
 #elif defined(USE_SETITIMER)
 
-static void set_chunk_timeout(void);
-static void set_delay_timeout(void);
-static void cancel_timeout(void);
-static void alarm_handler(int signum);
+static inline struct timeval cvt_timespec_to_timeval(struct timespec ts)
+{
+    return (struct timeval){ .tv_sec = ts.tv_sec, .tv_usec = ts.tv_nsec / 1000 };
+}
+
+static void set_chunk_timeout(void)
+{
+    err_remark("In %s()\n", __func__);
+    struct itimerval tv_new = { { 0, 0 }, { 0, 0 } };
+    tv_new.it_value = cvt_timespec_to_timeval(time_chunk);
+    struct itimerval tv_old;
+    if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
+        err_syserr("failed to set interval timeer: ");
+    struct sigaction sa;
+    sa.sa_handler = alarm_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGALRM, &sa, NULL);
+}
+
+static void set_delay_timeout(void)
+{
+    err_remark("In %s()\n", __func__);
+    struct itimerval tv_until;
+    if (getitimer(ITIMER_REAL, &tv_until) != 0)
+        err_syserr("failed to set interval timeer: ");
+    struct timeval tv_delay = cvt_timespec_to_timeval(time_delay);
+
+    char buff1[32];
+    fmt_timeval(&tv_delay, 6, buff1, sizeof(buff1));
+    char buff2[32];
+    fmt_timeval(&tv_until.it_value, 6, buff2, sizeof(buff2));
+    err_remark("%s(): delay %s, left %s\n", __func__, buff1, buff2);
+
+    if (cmp_timeval(tv_until.it_value, tv_delay) > 0)
+    {
+        struct itimerval tv_new = { { 0, 0 }, { 0, 0 } };
+        tv_new.it_value = cvt_timespec_to_timeval(time_delay);
+        struct itimerval tv_old;
+        if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
+            err_syserr("failed to set interval timeer: ");
+        err_remark("%s(): set delay timer\n", __func__);
+    }
+    else
+        err_remark("%s(): no need for delay timer\n", __func__);
+}
+
+static void cancel_timeout(void)
+{
+    err_remark("In %s()\n", __func__);
+    struct itimerval tv_new =
+    {
+        .it_value    = { .tv_sec = 0, .tv_usec = 0 },
+        .it_interval = { .tv_sec = 0, .tv_usec = 0 },
+    };
+    struct itimerval tv_old;
+    if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
+        err_syserr("failed to set interval timeer: ");
+}
+
+static void alarm_handler(int signum)
+{
+    assert(signum == SIGALRM);
+    err_remark("In %s()\n", __func__);
+}
 
 #else /* USE_TIMER_GETTIME */
 
