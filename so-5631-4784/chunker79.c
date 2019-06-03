@@ -156,44 +156,46 @@ static inline struct timeval cvt_timespec_to_timeval(struct timespec ts)
 
 static void set_chunk_timeout(void)
 {
-    err_remark("In %s()\n", __func__);
+    err_remark("-->> %s()\n", __func__);
     struct itimerval tv_new = { { 0, 0 }, { 0, 0 } };
     tv_new.it_value = cvt_timespec_to_timeval(time_chunk);
     struct itimerval tv_old;
     if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
-        err_syserr("failed to set interval timeer: ");
+        err_syserr("failed to set interval timer: ");
     struct sigaction sa;
     sa.sa_handler = alarm_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGALRM, &sa, NULL);
+    err_remark("<<-- %s()\n", __func__);
 }
 
 static void set_delay_timeout(void)
 {
-    err_remark("In %s()\n", __func__);
+    err_remark("-->> %s()\n", __func__);
     struct itimerval tv_until;
     if (getitimer(ITIMER_REAL, &tv_until) != 0)
-        err_syserr("failed to set interval timeer: ");
+        err_syserr("failed to set interval timer: ");
     struct timeval tv_delay = cvt_timespec_to_timeval(time_delay);
 
     char buff1[32];
     fmt_timeval(&tv_delay, 6, buff1, sizeof(buff1));
     char buff2[32];
     fmt_timeval(&tv_until.it_value, 6, buff2, sizeof(buff2));
-    err_remark("%s(): delay %s, left %s\n", __func__, buff1, buff2);
+    err_remark("---- %s(): delay %s, left %s\n", __func__, buff1, buff2);
 
-    if (cmp_timeval(tv_until.it_value, tv_delay) > 0)
+    if (cmp_timeval(tv_until.it_value, tv_delay) <= 0)
+        err_remark("---- %s(): no need for delay timer\n", __func__);
+    else
     {
         struct itimerval tv_new = { { 0, 0 }, { 0, 0 } };
         tv_new.it_value = cvt_timespec_to_timeval(time_delay);
         struct itimerval tv_old;
         if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
-            err_syserr("failed to set interval timeer: ");
-        err_remark("%s(): set delay timer\n", __func__);
+            err_syserr("failed to set interval timer: ");
+        err_remark("---- %s(): set delay timer\n", __func__);
     }
-    else
-        err_remark("%s(): no need for delay timer\n", __func__);
+    err_remark("<<-- %s()\n", __func__);
 }
 
 static void cancel_timeout(void)
@@ -206,7 +208,7 @@ static void cancel_timeout(void)
     };
     struct itimerval tv_old;
     if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
-        err_syserr("failed to set interval timeer: ");
+        err_syserr("failed to set interval timer: ");
 }
 
 static void alarm_handler(int signum)
@@ -217,10 +219,83 @@ static void alarm_handler(int signum)
 
 #else /* USE_TIMER_GETTIME */
 
-static void set_chunk_timeout(void) { }
-static void set_delay_timeout(void) { }
-static void cancel_timeout(void) { }
-static void alarm_handler(int signum) { assert(signum == SIGALRM); }
+#include "timespec_math.h"
+
+static timer_t t0 = { 0 };
+
+static void set_chunk_timeout(void)
+{
+    err_remark("-->> %s()\n", __func__);
+
+    struct sigevent ev =
+    {
+        .sigev_notify = SIGEV_SIGNAL,
+        .sigev_signo = SIGALRM,
+        .sigev_value.sival_int = 0,
+        .sigev_notify_function = 0,
+        .sigev_notify_attributes = 0,
+    };
+    if (timer_create(CLOCK_REALTIME, &ev, &t0) < 0)
+        err_syserr("failed to create a timer: ");
+
+    struct itimerspec it =
+    {
+        .it_interval = { .tv_sec = 0, .tv_nsec = 0 },
+        .it_value = time_chunk,
+    };
+    struct itimerspec ot;
+    if (timer_settime(t0, 0, &it, &ot) != 0)
+        err_syserr("failed to activate timer: ");
+
+    struct sigaction sa;
+    sa.sa_handler = alarm_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGALRM, &sa, NULL);
+    err_remark("<<-- %s()\n", __func__);
+}
+
+static void set_delay_timeout(void)
+{
+    err_remark("-->> %s()\n", __func__);
+    struct itimerspec time_until;
+    if (timer_gettime(t0, &time_until) != 0)
+        err_syserr("failed to set per-process timer: ");
+
+    char buff1[32];
+    fmt_timespec(&time_delay, 6, buff1, sizeof(buff1));
+    char buff2[32];
+    fmt_timespec(&time_until.it_value, 6, buff2, sizeof(buff2));
+    err_remark("---- %s(): delay %s, left %s\n", __func__, buff1, buff2);
+
+    if (cmp_timespec(time_until.it_value, time_delay) <= 0)
+        err_remark("---- %s(): no need for delay timer\n", __func__);
+    else
+    {
+        struct itimerspec time_new =
+        {
+            .it_interval = { .tv_sec = 0, .tv_nsec = 0 },
+            .it_value = time_delay,
+        };
+        struct itimerspec time_old;
+        if (timer_settime(t0, 0, &time_new, &time_old) != 0)
+        err_syserr("failed to set per-process timer: ");
+        err_remark("---- %s(): set delay timer\n", __func__);
+    }
+    err_remark("<<-- %s()\n", __func__);
+}
+
+static void cancel_timeout(void)
+{
+    if (timer_delete(t0) != 0)
+        err_syserr("failed to delete timer: ");
+}
+
+static void alarm_handler(int signum)
+{
+    assert(signum == SIGALRM);
+    err_remark("In %s()\n", __func__);
+}
 
 #endif /* Timing mode */
 
