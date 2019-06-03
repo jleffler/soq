@@ -68,20 +68,21 @@
 
 #include "stderr.h"
 #include "timespec_io.h"
-#include "timeval_math.h"
-#include "timeval_io.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef USE_SETITIMER
-#include <sys/time.h>
-#endif /* USE_SETITIMER */
 #include <sys/uio.h>
 #include <time.h>
 #include <unistd.h>
+
+#ifdef USE_SETITIMER
+#include "timeval_math.h"
+#include "timeval_io.h"
+#include <sys/time.h>
+#endif /* USE_SETITIMER */
 
 static const char optstr[] = "hvVc:d:f:";
 static const char usestr[] = "[-hvV][-c chunk][-d delay][-f file]";
