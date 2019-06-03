@@ -72,6 +72,7 @@
 #include "timeval_io.h"
 #include <assert.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -82,19 +83,22 @@
 #include <time.h>
 #include <unistd.h>
 
-static const char optstr[] = "hVc:d:f:";
-static const char usestr[] = "[-hV][-c chunk][-d delay][-f file]";
+static const char optstr[] = "hvVc:d:f:";
+static const char usestr[] = "[-hvV][-c chunk][-d delay][-f file]";
 static const char hlpstr[] =
     "  -c chunk  Maximum time to wait for data in a chunk (default 10)\n"
     "  -d delay  Maximum delay after line read (default: 5)\n"
     "  -f file   Read from file instead of standard input\n"
     "  -h        Print this help message and exit\n"
+    "  -v        Verbose mode: print timing information to stderr\n"
     "  -V        Print version information and exit\n"
     ;
 
 static struct timespec time_delay = { .tv_sec =  5, .tv_nsec = 0 };
 static struct timespec time_chunk = { .tv_sec = 10, .tv_nsec = 0 };
 static struct timespec time_start;
+
+static bool verbose = false;
 
 #ifndef lint
 /* Prevent over-aggressive optimizers from eliminating ID string */
@@ -115,36 +119,39 @@ static void alarm_handler(int signum);
 
 static void set_chunk_timeout(void)
 {
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     alarm(time_chunk.tv_sec);
     struct sigaction sa;
     sa.sa_handler = alarm_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGALRM, &sa, NULL);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 static void set_delay_timeout(void)
 {
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     unsigned time_left = alarm(0);
     if (time_left > time_delay.tv_sec)
         alarm(time_delay.tv_sec);
     else
         alarm(time_left);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 static void cancel_timeout(void)
 {
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     alarm(0);
     signal(SIGALRM, SIG_IGN);
-}
-
-static void alarm_handler(int signum)
-{
-    assert(signum == SIGALRM);
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 #elif defined(USE_SETITIMER)
@@ -156,7 +163,8 @@ static inline struct timeval cvt_timespec_to_timeval(struct timespec ts)
 
 static void set_chunk_timeout(void)
 {
-    err_remark("-->> %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     struct itimerval tv_new = { { 0, 0 }, { 0, 0 } };
     tv_new.it_value = cvt_timespec_to_timeval(time_chunk);
     struct itimerval tv_old;
@@ -167,25 +175,33 @@ static void set_chunk_timeout(void)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGALRM, &sa, NULL);
-    err_remark("<<-- %s()\n", __func__);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 static void set_delay_timeout(void)
 {
-    err_remark("-->> %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     struct itimerval tv_until;
     if (getitimer(ITIMER_REAL, &tv_until) != 0)
         err_syserr("failed to set interval timer: ");
     struct timeval tv_delay = cvt_timespec_to_timeval(time_delay);
 
-    char buff1[32];
-    fmt_timeval(&tv_delay, 6, buff1, sizeof(buff1));
-    char buff2[32];
-    fmt_timeval(&tv_until.it_value, 6, buff2, sizeof(buff2));
-    err_remark("---- %s(): delay %s, left %s\n", __func__, buff1, buff2);
+    if (verbose)
+    {
+        char buff1[32];
+        fmt_timeval(&tv_delay, 6, buff1, sizeof(buff1));
+        char buff2[32];
+        fmt_timeval(&tv_until.it_value, 6, buff2, sizeof(buff2));
+        err_remark("---- %s(): delay %s, left %s\n", __func__, buff1, buff2);
+    }
 
     if (cmp_timeval(tv_until.it_value, tv_delay) <= 0)
-        err_remark("---- %s(): no need for delay timer\n", __func__);
+    {
+        if (verbose)
+            err_remark("---- %s(): no need for delay timer\n", __func__);
+    }
     else
     {
         struct itimerval tv_new = { { 0, 0 }, { 0, 0 } };
@@ -193,14 +209,17 @@ static void set_delay_timeout(void)
         struct itimerval tv_old;
         if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
             err_syserr("failed to set interval timer: ");
-        err_remark("---- %s(): set delay timer\n", __func__);
+        if (verbose)
+            err_remark("---- %s(): set delay timer\n", __func__);
     }
-    err_remark("<<-- %s()\n", __func__);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 static void cancel_timeout(void)
 {
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     struct itimerval tv_new =
     {
         .it_value    = { .tv_sec = 0, .tv_usec = 0 },
@@ -209,12 +228,8 @@ static void cancel_timeout(void)
     struct itimerval tv_old;
     if (setitimer(ITIMER_REAL, &tv_new, &tv_old) != 0)
         err_syserr("failed to set interval timer: ");
-}
-
-static void alarm_handler(int signum)
-{
-    assert(signum == SIGALRM);
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 #else /* USE_TIMER_GETTIME */
@@ -225,7 +240,8 @@ static timer_t t0 = { 0 };
 
 static void set_chunk_timeout(void)
 {
-    err_remark("-->> %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
 
     struct sigevent ev =
     {
@@ -252,12 +268,14 @@ static void set_chunk_timeout(void)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGALRM, &sa, NULL);
-    err_remark("<<-- %s()\n", __func__);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 static void set_delay_timeout(void)
 {
-    err_remark("-->> %s()\n", __func__);
+    if (verbose)
+        err_remark("-->> %s()\n", __func__);
     struct itimerspec time_until;
     if (timer_gettime(t0, &time_until) != 0)
         err_syserr("failed to set per-process timer: ");
@@ -269,7 +287,10 @@ static void set_delay_timeout(void)
     err_remark("---- %s(): delay %s, left %s\n", __func__, buff1, buff2);
 
     if (cmp_timespec(time_until.it_value, time_delay) <= 0)
-        err_remark("---- %s(): no need for delay timer\n", __func__);
+    {
+        if (verbose)
+            err_remark("---- %s(): no need for delay timer\n", __func__);
+    }
     else
     {
         struct itimerspec time_new =
@@ -279,10 +300,12 @@ static void set_delay_timeout(void)
         };
         struct itimerspec time_old;
         if (timer_settime(t0, 0, &time_new, &time_old) != 0)
-        err_syserr("failed to set per-process timer: ");
-        err_remark("---- %s(): set delay timer\n", __func__);
+            err_syserr("failed to set per-process timer: ");
+        if (verbose)
+            err_remark("---- %s(): set delay timer\n", __func__);
     }
-    err_remark("<<-- %s()\n", __func__);
+    if (verbose)
+        err_remark("<<-- %s()\n", __func__);
 }
 
 static void cancel_timeout(void)
@@ -291,15 +314,17 @@ static void cancel_timeout(void)
         err_syserr("failed to delete timer: ");
 }
 
+#endif /* Timing mode */
+
+/* Writing to stderr via err_remark() is not officially supported */
 static void alarm_handler(int signum)
 {
     assert(signum == SIGALRM);
-    err_remark("In %s()\n", __func__);
+    if (verbose)
+        err_remark("---- %s(): signal %d\n", __func__, signum);
 }
 
-#endif /* Timing mode */
-
-static void read_chunks(FILE *fp, const char *name)
+static void read_chunks(FILE *fp)
 {
     size_t num_data = 0;
     size_t max_data = 0;
@@ -309,7 +334,6 @@ static void read_chunks(FILE *fp, const char *name)
     ssize_t length;
     size_t chunk_len = 0;
 
-    printf("file:  %s\n", name);
     clock_gettime(CLOCK_REALTIME, &time_start);
 
     set_chunk_timeout();
@@ -327,7 +351,8 @@ static void read_chunks(FILE *fp, const char *name)
         data[num_data].iov_base = buffer;
         data[num_data].iov_len = length;
         num_data++;
-        err_remark("Received line %zu\n", num_data);
+        if (verbose)
+            err_remark("Received line %zu\n", num_data);
         chunk_len += length;
         buffer = 0;
         buflen = 0;
@@ -344,7 +369,8 @@ static void read_chunks(FILE *fp, const char *name)
                       "(short write of %zu bytes)\n", chunk_len, (size_t)length);
     }
 
-    err_remark("In %s(): data written\n", __func__);
+    if (verbose)
+        err_remark("---- %s(): data written (%zu bytes)\n", __func__, length);
 
     for (size_t i = 0; i < num_data; i++)
         free(data[i].iov_base);
@@ -364,12 +390,12 @@ int main(int argc, char **argv)
     {
         switch (opt)
         {
-        case 'd':
-            if (scn_timespec(optarg, &time_delay) != 0)
+        case 'c':
+            if (scn_timespec(optarg, &time_chunk) != 0)
                 err_error("Failed to convert '%s' into a time value\n", optarg);
             break;
-        case 'e':
-            if (scn_timespec(optarg, &time_chunk) != 0)
+        case 'd':
+            if (scn_timespec(optarg, &time_delay) != 0)
                 err_error("Failed to convert '%s' into a time value\n", optarg);
             break;
         case 'f':
@@ -380,6 +406,9 @@ int main(int argc, char **argv)
         case 'h':
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
+        case 'v':
+            verbose = true;
+            break;
         case 'V':
             err_version("CHUNKER79", &"@(#)$Revision$ ($Date$)"[4]);
             /*NOTREACHED*/
@@ -392,13 +421,14 @@ int main(int argc, char **argv)
     if (optind != argc)
         err_usage(usestr);
 
-#if 0
-    printf("chunk: %3lld.%09ld\n", (long long)time_chunk.tv_sec, time_chunk.tv_nsec);
-    printf("delay: %3lld.%09ld\n", (long long)time_delay.tv_sec, time_delay.tv_nsec);
-    printf("file:  %s\n", name);
-#endif /* 0 */
+    if (verbose)
+    {
+        err_remark("chunk: %3lld.%09ld\n", (long long)time_chunk.tv_sec, time_chunk.tv_nsec);
+        err_remark("delay: %3lld.%09ld\n", (long long)time_delay.tv_sec, time_delay.tv_nsec);
+        err_remark("file:  %s\n", name);
+    }
 
-    read_chunks(fp, name);
+    read_chunks(fp);
 
     return 0;
 }
