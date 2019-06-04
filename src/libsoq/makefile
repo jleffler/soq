@@ -29,6 +29,10 @@ FILES.c = \
 	range.c \
 	stderr.c \
 	timer.c \
+	timespec_io.c \
+	timespec_math.c \
+	timeval_io.c \
+	timeval_math.c \
 
 # AUXFILES.c lists source files for which there isn't a matching header
 AUXFILES.c = \

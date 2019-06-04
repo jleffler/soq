@@ -2,8 +2,8 @@
 @(#)File:           debug.c
 @(#)Purpose:        Provide varargs support for debugging
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2018
-@(#)Derivation:     debug.c 3.15 2018/01/04 23:33:27
+@(#)Copyright:      (C) JLSS 1990-2019
+@(#)Derivation:     debug.c 3.16 2019/05/03 18:11:35
 */
 
 /*TABSTOP=4*/
@@ -29,7 +29,7 @@ static char    *indent = &blanks[sizeof(blanks) - 1];
 static int      inlevel = 0;
 /* GNU C library does not allow you to initialize debugfp to stderr */
 static FILE    *debugfp = 0;
-static char     fn[128] = "/dev/stderr";
+static char     fn[256] = "/dev/stderr";
 static int      options;
 
 int db_setoptions(int opts)
@@ -73,7 +73,8 @@ void db_setfilename(const char *nfn)
     if ((nfp = fopen(nfn, "a+")) != (FILE *)NULL)
     {
         db_setfileptr(nfp);
-        strncpy(fn, nfn, sizeof(fn));
+        strncpy(fn, nfn, sizeof(fn) - 1);
+        fn[sizeof(fn) - 1] = '\0';
     }
 }
 
