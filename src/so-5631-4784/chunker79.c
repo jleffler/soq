@@ -1,11 +1,8 @@
 /*
-@(#)File:           $RCSfile$
-@(#)Version:        $Revision$
-@(#)Last changed:   $Date$
+@(#)File:           chunker79.c
 @(#)Purpose:        Chunk Reader for SO 5631-4784
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2019
-@(#)Product:        :PRODUCT:
 */
 
 /*TABSTOP=4*/
@@ -42,13 +39,15 @@
 **     terminate producing no output.  This timeout is controlled by the
 **     value of time_chunk in the code.
 ** 2.  If data arrives more or less consistently, then the collection
-**     should continue for 10s and then finish.  This timeout is also
-**     controlled by the value of time_chunk in the code.
+**     should continue for 5s after the first line appears and then
+**     finish.  This timeout is also controlled by the value of
+**     time_delay in the code.
 ** 3.  If a line of data arrives before 5 seconds have elapsed, and no
 **     more arrives for 5 seconds, then the collection should finish.
 **     (If the first line arrives after 5 seconds and no more arrives
 **     for more than 5 seconds, then the 10 second timeout cuts in.)
-**     This timeout is controlled by the value of time_delay in the code.
+**     This timeout is controlled by the value of time_delay in the
+**     code.
 ** 4.  This means that we want two separate timers at work:
 **     - Chunk timer (started when the program starts).
 **     - Delay timer (started each time a line is read).
@@ -58,10 +57,10 @@
 **
 ** -- Using alarm(2) is tricky because it provides only one time, not two.
 ** -- Using getitimer(2), setitimer(2) uses obsolescent POSIX functions,
-**    but these are available on macOS.
+**    but these are available on macOS 10.14.5 Mojave.
 ** -- Using timer_create(2), timer_destroy(2), timer_settime(2),
-**    timer_gettime(2) uses current POSIX function but is not available
-**    on macOS.
+**    timer_gettime(2) uses current POSIX functions but they are not
+**    available on macOS 10.14.5 Mojave.
 */
 
 #include "posixver.h"
@@ -100,12 +99,6 @@ static struct timespec time_chunk = { .tv_sec = 10, .tv_nsec = 0 };
 static struct timespec time_start;
 
 static bool verbose = false;
-
-#ifndef lint
-/* Prevent over-aggressive optimizers from eliminating ID string */
-extern const char jlss_id_chunker79_c[];
-const char jlss_id_chunker79_c[] = "@(#)$Id$";
-#endif /* lint */
 
 static void set_chunk_timeout(void);
 static void set_delay_timeout(void);
