@@ -3,16 +3,6 @@
 ** SO 1363-6252 C Minishell adding pipelines
 */
 
-/* stderr.h */
-#ifndef STDERR_H_INCLUDED
-#define STDERR_H_INCLUDED
-
-static void err_setarg0(char const *argv0);
-static void err_sysexit(char const *fmt, ...);
-static void err_syswarn(char const *fmt, ...);
-
-#endif /* STDERR_H_INCLUDED */
-
 /* pipeline.c */
 #include "posixver.h"
 #include <assert.h>
@@ -20,7 +10,7 @@ static void err_syswarn(char const *fmt, ...);
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-/*#include "stderr.h"*/
+#include "stderr.h"
 
 typedef int Pipe[2];
 
@@ -36,9 +26,9 @@ static void exec_nth_command(int ncmds, char ***cmds)
         pid_t pid;
         Pipe input;
         if (pipe(input) != 0)
-            err_sysexit("Failed to create pipe");
+            err_syserr("Failed to create pipe");
         if ((pid = fork()) < 0)
-            err_sysexit("Failed to fork");
+            err_syserr("Failed to fork");
         if (pid == 0)
         {
             /* Child */
@@ -50,7 +40,7 @@ static void exec_nth_command(int ncmds, char ***cmds)
         close(input[1]);
     }
     execvp(cmds[ncmds - 1][0], cmds[ncmds - 1]);
-    err_sysexit("Failed to exec %s", cmds[ncmds - 1][0]);
+    err_syserr("Failed to exec %s", cmds[ncmds - 1][0]);
     /*NOTREACHED*/
 }
 
@@ -71,7 +61,7 @@ static void exec_pipeline(int ncmds, char ***cmds)
     assert(ncmds >= 1);
     pid_t pid;
     if ((pid = fork()) < 0)
-        err_syswarn("Failed to fork");
+        err_syserr("Failed to fork");
     if (pid != 0)
         return;
     exec_nth_command(ncmds, cmds);
@@ -116,9 +106,9 @@ static void exec_arguments(int argc, char **argv)
         if (strcmp(arg, "|") == 0)
         {
             if (i == 1)
-                err_sysexit("Syntax error: pipe before any command");
+                err_syserr("Syntax error: pipe before any command");
             if (args[argn - 1] == 0)
-                err_sysexit("Syntax error: two pipes with no command between");
+                err_syserr("Syntax error: two pipes with no command between");
             arg = 0;
         }
         args[argn++] = arg;
@@ -126,7 +116,7 @@ static void exec_arguments(int argc, char **argv)
             cmdv[cmdn++] = &args[argn];
     }
     if (args[argn - 1] == 0)
-        err_sysexit("Syntax error: pipe with no command following");
+        err_syserr("Syntax error: pipe with no command following");
     args[argn] = 0;
     exec_pipeline(cmdn, cmdv);
 }
@@ -165,44 +155,3 @@ int main(int argc, char **argv)
     return(0);
 }
 
-/* stderr.c */
-/*#include "stderr.h"*/
-/*#include <stdio.h>*/
-#include <stdarg.h>
-#include <errno.h>
-/*#include <string.h>*/
-#include <stdlib.h>
-
-static char const *arg0 = "<undefined>";
-
-static void err_setarg0(char const *argv0)
-{
-    arg0 = argv0;
-}
-
-static void err_vsyswarn(char const *fmt, va_list args)
-{
-    int errnum = errno;
-    fprintf(stderr, "%s:%d: ", arg0, (int)getpid());
-    vfprintf(stderr, fmt, args);
-    if (errnum != 0)
-        fprintf(stderr, " (%d: %s)", errnum, strerror(errnum));
-    putc('\n', stderr);
-}
-
-static void err_syswarn(char const *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    err_vsyswarn(fmt, args);
-    va_end(args);
-}
-
-static void err_sysexit(char const *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    err_vsyswarn(fmt, args);
-    va_end(args);
-    exit(1);
-}

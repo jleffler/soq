@@ -3,17 +3,6 @@
 ** SO 1363-6252 C Minishell adding pipelines
 */
 
-/* stderr.h */
-#ifndef STDERR_H_INCLUDED
-#define STDERR_H_INCLUDED
-
-static void err_setarg0(char const *argv0);
-static void err_sysexit(char const *fmt, ...);
-static void err_usage(char const *usestr);
-static void err_remark(char const *fmt, ...);
-
-#endif /* STDERR_H_INCLUDED */
-
 /* pipeline.c */
 #include <assert.h>
 #include <stdio.h>
@@ -22,7 +11,7 @@ static void err_remark(char const *fmt, ...);
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
-/*#include "stderr.h"*/
+#include "stderr.h"
 
 typedef int Pipe[2];
 
@@ -59,12 +48,12 @@ static void fd_info(int fd)
         int flags;
         int status;
         if ((flags = fcntl(fd, F_GETFD)) < 0)
-            err_sysexit("Failed to fcntl(%d, F_GETFD)", fd);
+            err_syserr("Failed to fcntl(%d, F_GETFD)", fd);
         if ((status = fcntl(fd, F_GETFL)) < 0)
-            err_sysexit("Failed to fcntl(%d, F_GETFL)", fd);
-        err_remark("fd %d: inode %d, dev %d; F_GETFD = 0x%.4X; F_GETFL "
-                   "= 0x%.4X (Mask 0x%X: Access = 0x%X)",
-                   fd, buff.st_ino, buff.st_dev, flags, status,
+            err_syserr("Failed to fcntl(%d, F_GETFL)", fd);
+        err_remark("fd %d: inode %lld, dev %d; F_GETFD = 0x%.4X; F_GETFL "
+                   "= 0x%.4X (Mask 0x%X: Access = 0x%X)\n",
+                   fd, (long long)buff.st_ino, buff.st_dev, flags, status,
                    O_ACCMODE, status & O_ACCMODE);
     }
 }
@@ -81,12 +70,12 @@ static void exec_nth_command(int ncmds, char ***cmds)
         pid_t pid;
         Pipe input;
         if (pipe(input) != 0)
-            err_sysexit("Failed to create pipe");
-        err_remark("Pipe: r %d, w %d", input[0], input[1]);
+            err_syserr("Failed to create pipe");
+        err_remark("Pipe: r %d, w %d\n", input[0], input[1]);
         if (vflag)
             open_fds(10);
         if ((pid = fork()) < 0)
-            err_sysexit("Failed to fork");
+            err_syserr("Failed to fork");
         if (pid == 0)
         {
             /* Child */
@@ -94,11 +83,11 @@ static void exec_nth_command(int ncmds, char ***cmds)
         }
         /* Fix standard input to read end of pipe */
         if (dup2(input[0], 0) != 0)
-            err_sysexit("dup2(%d, %d) in %s()", input[0], 0, __func__);
+            err_syserr("dup2(%d, %d) in %s()", input[0], 0, __func__);
         if (close(input[0]) != 0)
-            err_sysexit("close(%d) in %s()", input[0], __func__);
+            err_syserr("close(%d) in %s()", input[0], __func__);
         if (close(input[1]) != 0)
-            err_sysexit("close(%d) in %s()", input[0], __func__);
+            err_syserr("close(%d) in %s()", input[0], __func__);
     }
     if (vflag)
     {
@@ -107,7 +96,7 @@ static void exec_nth_command(int ncmds, char ***cmds)
         err_remark("Execute: %s\n", cmds[ncmds - 1][0]);
     }
     execvp(cmds[ncmds - 1][0], cmds[ncmds - 1]);
-    err_sysexit("Failed to exec %s", cmds[ncmds - 1][0]);
+    err_syserr("Failed to exec %s", cmds[ncmds - 1][0]);
     /*NOTREACHED*/
 }
 
@@ -116,13 +105,13 @@ static void exec_pipe_command(int ncmds, char ***cmds, Pipe output)
 {
     assert(ncmds >= 1);
     /* Fix stdout to write end of pipe */
-    err_remark("Pipe: r %d, w %d", output[0], output[1]);
+    err_remark("Pipe: r %d, w %d\n", output[0], output[1]);
     if (dup2(output[1], 1) != 1)
-        err_sysexit("dup2(%d, %d) in %s()", output[1], 1, __func__);
+        err_syserr("dup2(%d, %d) in %s()", output[1], 1, __func__);
     if (close(output[0]) != 0)
-        err_sysexit("close(%d) in %s()", output[0], __func__);
+        err_syserr("close(%d) in %s()", output[0], __func__);
     if (close(output[1]) != 0)
-        err_sysexit("close(%d) in %s()", output[0], __func__);
+        err_syserr("close(%d) in %s()", output[0], __func__);
     if (vflag)
     {
         open_fds(10);
@@ -138,7 +127,7 @@ static void exec_pipeline(int ncmds, char ***cmds)
     assert(ncmds >= 1);
     pid_t pid;
     if ((pid = fork()) < 0)
-        err_sysexit("Failed to fork");
+        err_syserr("Failed to fork");
     if (pid != 0)
         return;
     exec_nth_command(ncmds, cmds);
@@ -183,9 +172,9 @@ static void exec_arguments(int argc, char **argv)
         if (strcmp(arg, "|") == 0)
         {
             if (i == 1)
-                err_sysexit("Syntax error: pipe before any command");
+                err_syserr("Syntax error: pipe before any command");
             if (args[argn - 1] == 0)
-                err_sysexit("Syntax error: two pipes with no command between");
+                err_syserr("Syntax error: two pipes with no command between");
             arg = 0;
         }
         args[argn++] = arg;
@@ -193,7 +182,7 @@ static void exec_arguments(int argc, char **argv)
             cmdv[cmdn++] = &args[argn];
     }
     if (args[argn - 1] == 0)
-        err_sysexit("Syntax error: pipe with no command following");
+        err_syserr("Syntax error: pipe with no command following");
     args[argn] = 0;
     exec_pipeline(cmdn, cmdv);
 }
@@ -221,6 +210,7 @@ int main(int argc, char **argv)
 
     setvbuf(stderr, 0, _IOLBF, BUFSIZ);
     err_setarg0(argv[0]);
+    err_setlogopts(ERR_PID);
     sigchld_status();
 
     while ((opt = getopt(argc, argv, "v")) != -1)
@@ -255,52 +245,3 @@ int main(int argc, char **argv)
     return(0);
 }
 
-/* stderr.c */
-/*#include "stderr.h"*/
-/*#include <stdio.h>*/
-#include <stdarg.h>
-#include <errno.h>
-/*#include <string.h>*/
-#include <stdlib.h>
-
-static char const *arg0 = "<undefined>";
-
-static void err_setarg0(char const *argv0)
-{
-    arg0 = argv0;
-}
-
-static void err_usage(char const *usestr)
-{
-    fprintf(stderr, "Usage: %s %s\n", arg0, usestr);
-    exit(0);
-}
-
-static void err_remark(char const *fmt, ...)
-{
-    va_list args;
-    fprintf(stderr, "%s:%d: ", arg0, (int)getpid());
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    putc('\n', stderr);
-}
-
-static void err_vsyswarn(char const *fmt, va_list args)
-{
-    int errnum = errno;
-    fprintf(stderr, "%s:%d: ", arg0, (int)getpid());
-    vfprintf(stderr, fmt, args);
-    if (errnum != 0)
-        fprintf(stderr, " (%d: %s)", errnum, strerror(errnum));
-    putc('\n', stderr);
-}
-
-static void err_sysexit(char const *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    err_vsyswarn(fmt, args);
-    va_end(args);
-    exit(1);
-}
