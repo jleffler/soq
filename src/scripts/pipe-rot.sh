@@ -56,6 +56,28 @@ Even if the parent uses the pipe without using `dup2()`, it should
 normally close at least one end of the pipe — it is extremely rare for
 a program to read and write on both ends of a single pipe.
 
+Note that the `O_CLOEXEC` option to 
+[`open()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/open.html),
+and the `FD_CLOEXEC` and `F_DUPFD_CLOEXEC` options to `fcntl()` can also factor
+into this discussion.
+
+If you use
+[`posix_spawn()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn.html)
+and its extensive family of support functions (21 functions in total),
+you will need to review how to close file descriptors in the spawned process
+([`posix_spawn_file_actions_addclose()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_addclose.html),
+etc.).
+
+Note that using `dup2(a, b)` is safer than using `close(b); dup(a, b)`
+for a variety of reasons.
+One is that if you want to force the file descriptor to a larger than
+usual number, `dup2()` is the only sensible way to do that.
+Another is that if `a` is the same as `b` (e.g. both `0`), then `dup2()`
+handles it correctly (it doesn't close `b` before duplicating `a`)
+whereas the separate `close()` and `dup()` fails horribly.
+This is an unlikely, but nor impossible, circumstance.
+
+
 EOF
 
 else
