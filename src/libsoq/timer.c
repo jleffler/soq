@@ -2,8 +2,8 @@
 @(#)File:           timer.c
 @(#)Purpose:        Simple timing package for multiple systems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993,1995-2001,2003,2005,2007-08,2011,2013,2015
-@(#)Derivation:     timer.c 2.31 2015/02/21 17:32:35
+@(#)Copyright:      (C) JLSS 1993-2019
+@(#)Derivation:     timer.c 3.1 2019/08/26 05:23:27
 */
 
 /*TABSTOP=4*/
@@ -99,9 +99,9 @@
 
 /*===============================================================*/
 
-#define NANOSECOND     1000000000
-#define MICROSECOND    1000000
-#define MILLISECOND    1000
+#define NS_PER_SECOND   1000000000  /* nanoseconds per second */
+#define US_PER_SECOND   1000000     /* microseconds per second */
+#define MS_PER_SECOND   1000        /* milliseconds per second */
 
 /* Rely on ISO C string concatenation */
 extern const char jlss_id_timer_type[];
@@ -120,7 +120,7 @@ extern const char jlss_id_timer_type[];
 TIMER_TYPE("POSIX 1003.4 clock_gettime()");
 
 static void
-clk_get(Time * t)
+clk_get(Time *t)
 {
     struct timespec mt;
 
@@ -134,13 +134,13 @@ clk_get(Time * t)
 TIMER_TYPE("Single Unix Specification (Unix-98) gettimeofday()");
 
 static void
-clk_get(Time * t)
+clk_get(Time *t)
 {
     struct timeval mt;
 
     gettimeofday(&mt, (struct timezone *)0);
     t->seconds = mt.tv_sec;
-    t->nanoseconds = mt.tv_usec * (NANOSECOND / MICROSECOND);
+    t->nanoseconds = mt.tv_usec * (NS_PER_SECOND / US_PER_SECOND);
 }
 
 #elif defined HAVE_FTIME
@@ -150,13 +150,13 @@ clk_get(Time * t)
 TIMER_TYPE("Version 7 Unix ftime()");
 
 static void
-clk_get(Time * t)
+clk_get(Time *t)
 {
     struct timeb mt;
 
     ftime(&mt);
     t->seconds = mt.time;
-    t->nanoseconds = mt.millitm * (NANOSECOND / MILLISECOND);
+    t->nanoseconds = mt.millitm * (NS_PER_SECOND / MS_PER_SECOND);
 }
 
 #elif defined HAVE_TIMES
@@ -176,7 +176,7 @@ static const char kludge[] = "@(#)KLUDGE - assume CLK_TCK is 100";
 TIMER_TYPE("POSIX.1 times()");
 
 static void
-clk_get(Time * t)
+clk_get(Time *t)
 {
     struct tms  mt;
     clock_t     sys_t;
@@ -187,8 +187,8 @@ clk_get(Time * t)
     /* Scaling algorithm OK for CLK_TCK of 60 or 100.      */
     sys_t = times(&mt);
     t->seconds = (sys_t / CLK_TCK);
-    us = ((sys_t % CLK_TCK) * MICROSECOND) / CLK_TCK;
-    t->nanoseconds = us * (NANOSECOND / MICROSECOND);
+    us = ((sys_t % CLK_TCK) * US_PER_SECOND) / CLK_TCK;
+    t->nanoseconds = us * (NS_PER_SECOND / US_PER_SECOND);
 }
 
 #elif defined HAVE_CLOCK
@@ -198,7 +198,7 @@ error HAVE_CLOCK defined but CLOCKS_PER_SEC undefined
 #endif
 
 /*
-** On NT, CLOCKS_PER_SEC is 1000, and if you multiply by NANOSECOND
+** On NT, CLOCKS_PER_SEC is 1000, and if you multiply by NS_PER_SECOND
 ** before dividing by CLOCKS_PER_SEC, you are likely to get overflows
 ** and nonsense on 32-bit machines.  Hence the compile time check
 ** (not reliable for cross-compilation, of course) and alternative
@@ -210,7 +210,7 @@ error HAVE_CLOCK defined but CLOCKS_PER_SEC undefined
 TIMER_TYPE("ISO C 1990 clock()");
 
 static void
-clk_get(Time * t)
+clk_get(Time *t)
 {
     long        us;
     clock_t cnt;
@@ -218,10 +218,10 @@ clk_get(Time * t)
     cnt = clock();
     t->seconds = cnt / CLOCKS_PER_SEC;
     us = (cnt % CLOCKS_PER_SEC);
-#if NANOSECOND % CLOCKS_PER_SEC == 0 && NANOSECOND > CLOCKS_PER_SEC
-    t->nanoseconds = us * (NANOSECOND/CLOCKS_PER_SEC);
+#if NS_PER_SECOND % CLOCKS_PER_SEC == 0 && NS_PER_SECOND > CLOCKS_PER_SEC
+    t->nanoseconds = us * (NS_PER_SECOND/CLOCKS_PER_SEC);
 #else
-    t->nanoseconds = (long)(((double)us*NANOSECOND)/CLOCKS_PER_SEC);
+    t->nanoseconds = (long)(((double)us*NS_PER_SECOND)/CLOCKS_PER_SEC);
 #endif
 }
 
@@ -243,7 +243,7 @@ clk_get(Time *t)
 
 /* Calculate difference between two times */
 void
-clk_diff(Time * t1, Time * t2, long *sec, long *nsec)
+clk_diff(Time *t1, Time *t2, long *sec, long *nsec)
 {
     long        s;
     long        n;
@@ -252,7 +252,7 @@ clk_diff(Time * t1, Time * t2, long *sec, long *nsec)
     n = t2->nanoseconds - t1->nanoseconds;
     if (n < 0)
     {
-        n += NANOSECOND;
+        n += NS_PER_SECOND;
         s--;
     }
     *sec = s;
@@ -269,7 +269,7 @@ clk_format(long sec, long subsec, char *buffer, size_t buflen, const char *fmt)
 
 /* Initialize a Clock structure */
 void
-clk_init(Clock * clk)
+clk_init(Clock *clk)
 {
     clk->t1.seconds = 0;
     clk->t1.nanoseconds = 0;
@@ -279,52 +279,77 @@ clk_init(Clock * clk)
 
 /* Start a clock (record the stop time in clk->t1) */
 void
-clk_start(Clock * clk)
+clk_start(Clock *clk)
 {
     clk_get(&clk->t1);
 }
 
 /* Stop a clock (record the stop time in clk->t2) */
 void
-clk_stop(Clock * clk)
+clk_stop(Clock *clk)
 {
     clk_get(&clk->t2);
 }
 
 /* Return elapsed time as string in seconds and milliseconds */
-char       *
-clk_elapsed_ms(Clock * clk, char *buffer, size_t buflen)
+char *
+clk_elapsed_ms(Clock *clk, char *buffer, size_t buflen)
 {
-    long        sec;
-    long        nsec;
+    long sec;
+    long nsec;
 
+    /* The % MS_PER_SECOND operation suppresses a warning from GCC 9.1.0 */
     clk_diff(&clk->t1, &clk->t2, &sec, &nsec);
-    nsec /= (NANOSECOND / MILLISECOND);
+    nsec = (nsec / (NS_PER_SECOND / MS_PER_SECOND)) % MS_PER_SECOND;
     return(clk_format(sec, nsec, buffer, buflen, "%ld.%03ld"));
 }
 
 /* Return elapsed time as string in seconds and microseconds */
-char       *
-clk_elapsed_us(Clock * clk, char *buffer, size_t buflen)
+char *
+clk_elapsed_us(Clock *clk, char *buffer, size_t buflen)
 {
-    long        sec;
-    long        nsec;
+    long sec;
+    long nsec;
 
+    /* The % US_PER_SECOND operation suppresses a warning from GCC 9.1.0 */
     clk_diff(&clk->t1, &clk->t2, &sec, &nsec);
-    nsec /= (NANOSECOND / MICROSECOND);
+    nsec = (nsec / (NS_PER_SECOND / US_PER_SECOND)) % US_PER_SECOND;
     return(clk_format(sec, nsec, buffer, buflen, "%ld.%06ld"));
 }
 
 /* Return elapsed time as string in seconds and nanoseconds */
-char       *
-clk_elapsed_ns(Clock * clk, char *buffer, size_t buflen)
+char *
+clk_elapsed_ns(Clock *clk, char *buffer, size_t buflen)
 {
-    long        sec;
-    long        nsec;
+    long sec;
+    long nsec;
 
+    /* The % NS_PER_SECOND operation suppresses a warning from GCC 9.1.0 */
     clk_diff(&clk->t1, &clk->t2, &sec, &nsec);
+    nsec %= NS_PER_SECOND;
     return(clk_format(sec, nsec, buffer, buflen, "%ld.%09ld"));
 }
+
+#ifndef TIMER_VERSION_1
+/* Simpler formatting interface because of structure containing buffer */
+/* Old interface is retained, so recompilation is sufficient for old code */
+
+char *clk_fmt_elapsed_ms(Clock *clk)
+{
+    return clk_elapsed_ms(clk, clk->buffer, sizeof(clk->buffer));
+}
+
+char *clk_fmt_elapsed_us(Clock *clk)
+{
+    return clk_elapsed_us(clk, clk->buffer, sizeof(clk->buffer));
+}
+
+char *clk_fmt_elapsed_ns(Clock *clk)
+{
+    return clk_elapsed_ns(clk, clk->buffer, sizeof(clk->buffer));
+}
+
+#endif /* !TIMER_VERSION_1 */
 
 #ifdef TEST
 
@@ -347,7 +372,12 @@ main(void)
     char       *p1;
     char       *p2;
     char       *p3;
+    char       *p4;
     size_t      max = 1000000;
+    char *(*fmt[3])(Clock *clk) =
+    {
+        clk_fmt_elapsed_ms, clk_fmt_elapsed_us, clk_fmt_elapsed_ns
+    };
 
     clk_init(&clk);
 
@@ -360,7 +390,8 @@ main(void)
         p1 = clk_elapsed_ms(&clk, buf1, sizeof(buf1));
         p2 = clk_elapsed_us(&clk, buf2, sizeof(buf2));
         p3 = clk_elapsed_ns(&clk, buf3, sizeof(buf3));
-        printf("Clock: %s = %s = %s (%zu)\n", p1, p2, p3, counter);
+        p4 = (*fmt[i % 3])(&clk);
+        printf("Clock: %s = %s = %s = %-24s (%zu)\n", p1, p2, p3, p4, counter);
     }
     return(0);
 }
