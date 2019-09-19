@@ -17,6 +17,6 @@ for use as identifiers with file scope in both the ordinary and tag name
 spaces._
 
 See also [What does double underscore (`__const`) mean in
-C?](https://stackoverflow.com/a/1449301)
+C?](https://stackoverflow.com/q/1449181)
 
 EOF
