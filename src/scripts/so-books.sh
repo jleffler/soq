@@ -66,7 +66,7 @@ Brian W Kernighan and Dennis M Ritchie
 Excellent but even more dated than the second edition.
 
 Steve Maguire
-[Writing Solid Code: 20th Anniversary 2nd Edn](https://smile.amazon.com/dp/1570740550)
+[Writing Solid Code: 20th Anniversary 2nd Edn](https://smile.amazon.com/dp/1570740550) 2013.
 [Writing Solid Code](https://smile.amazon.com/dp/1556155514) 1993.
 There are those who intensely dislike this book; I think it is quite useful.
 
