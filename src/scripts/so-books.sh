@@ -34,7 +34,7 @@ CodeSourcery LLC
 by Mark Mitchell, Jeffrey Oldham, and Alex Samuel, of CodeSourcery LLC
 published by New Riders Publishing
 ISBN 0-7357-1043-0
-First Edition, June 2001
+First Edn, June 2001
 
 Jon Bentley
 [Programming Pearls, 2nd Edn](https://smile.amazon.com/dp/0201657880/) 1999.
@@ -59,8 +59,21 @@ David R Hanson
 
 Brian W Kernighan and Dennis M Ritchie
 [The C Programming Language, 2nd Edn](https://smile.amazon.com/dp/0131103628) 1988.
+Excellent but dated.
 
 Brian W Kernighan and Dennis M Ritchie
 [The C Programming Language, 1st Edn](https://smile.amazon.com/dp/0131101633) 1978.
+Excellent but even more dated than the second edition.
+
+Steve Maguire
+[Writing Solid Code: 20th Anniversary 2nd Edn](https://smile.amazon.com/dp/1570740550)
+[Writing Solid Code](https://smile.amazon.com/dp/1556155514) 1993.
+There are those who intensely dislike this book; I think it is quite useful.
+
+Eric S Raymond
+[The Art of Unix Programming](https://smile.amazon.com/dp/0131429019/) 2004.
+
+Steve McConnell
+[Code Complete 2nd Edn](https://smile.amazon.com/dp/0735619670/) 2004.
 
 EOF
