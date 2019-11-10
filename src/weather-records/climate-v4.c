@@ -67,11 +67,12 @@
 #define NUM_STATES 50
 
 /* TODO: Add elements to the climate_info struct as necessary. */
-struct climate_info {
+struct climate_info
+{
     char code[3];
     unsigned int num_records;
-   unsigned long long lo_millitime;
-   unsigned  long long hi_millitime;
+    unsigned long long lo_millitime;
+    unsigned long long hi_millitime;
     double humidity;
     double snow;
     double cloud;
@@ -89,10 +90,11 @@ struct climate_info {
 void analyze_file(FILE *file, struct climate_info *states[], int num_states);
 void print_report(struct climate_info *states[], int num_states);
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     /* TODO: fix this conditional. You should be able to read multiple files. */
-    if (argc < 2) {
+    if (argc < 2)
+    {
         fprintf(stderr, "Usage: %s tdv_file1 tdv_file2 ... tdv_fileN \n", argv[0]);
         return EXIT_FAILURE;
     }
@@ -110,7 +112,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "%s: error opening file %s for reading\n", argv[0], argv[i]);
             continue;
         }
-        analyze_file(fp,states, NUM_STATES);
+        analyze_file(fp, states, NUM_STATES);
         fclose(fp);
     }
 
@@ -120,29 +122,31 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-static int compareOrder(struct climate_info **states, char codex[3], int currentStates)          //returns the order of each state in the array
+// returns the order of each state in the array
+static int compareOrder(struct climate_info **states, char codex[3], int currentStates)
 {
     int order = 0;
-    while (order < currentStates)          //while order is less than number of states analyzed
+    while (order < currentStates)          // while order is less than number of states analyzed
     {
         if (states[order] == NULL)
         {
             fprintf(stderr, "states[%d] == 0\n", order);
             break;
         }
-        if(strcmp((states[order])->code, codex) == 0)       //if the states is present
+        if (strcmp((states[order])->code, codex) == 0)   // if the state is present
         {
             return order;
         }
-        order++;                                                //increment here to check every line for when to update state codes
+        order++;                                         // increment here to check every line for when to update state codes
     }
-    return -1;                                                  //returns -1 the state is not prsent in struct
+    return -1;                                           // returns -1 the state is not prsent in struct
 }
 
-static int countStates(struct climate_info **states, int num_states)                           //function to count number of states present
+// function to count number of states present
+static int countStates(struct climate_info **states, int num_states)
 {
     int num = 0;
-    while(num < num_states && states[num] != NULL)
+    while (num < num_states && states[num] != NULL)
     {
         num++;
     }
@@ -271,13 +275,15 @@ void print_report(struct climate_info *states[], int num_states)
         double hTemp =  (states[i]->hi_temp_reading) * 1.8 - 459.67;
 
         printf("-- State: %s --\n", states[i]->code);
-        printf("Number of records:     %d\n", states[i]->num_records);
-        printf("Average humidity:%8.1f%%\n", (states[i]->humidity) / ((states[i]->num_records)));
-        printf("Records With Lightning Strikes:   %.0f\n", states[i]->lightning);
-        printf("Records with Snow Cover:        %.0f\n", states[i]->snow);
-        printf("Average Cloud Cover:       %.0f%%\n", (states[i]->cloud / (states[i]->num_records)));
-        printf("Average temperature: %.1f\n", aTemp);
-        printf("Lowest temperature: %9.1f at %s", lTemp, ctime(&MIN));
+        printf("Number of records:  %6d\n", states[i]->num_records);
+        printf("Average humidity:   %8.1f%%\n",
+               (states[i]->humidity) / ((states[i]->num_records)));
+        printf("Records With Lightning Strikes:   %4.0f\n", states[i]->lightning);
+        printf("Records with Snow Cover:          %4.0f\n", states[i]->snow);
+        printf("Average Cloud Cover:              %4.0f%%\n",
+               (states[i]->cloud / (states[i]->num_records)));
+        printf("Average temperature: %9.1f\n", aTemp);
+        printf("Lowest temperature:  %9.1f at %s\n", lTemp, ctime(&MIN));
         printf("Highest temperature: %9.1f at %s\n", hTemp, ctime(&MAX));
     }
 }

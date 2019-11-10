@@ -9,7 +9,8 @@ CFLAGS = -std=c99 -O3 -Wall -Werror -g -pedantic -Wmissing-prototypes -Wstrict-p
 PROG1 = climate
 PROG2 = climate-v2
 PROG3 = climate-v3
-PROGS = ${PROG1} ${PROG2} ${PROG3}
+PROG4 = climate-v4
+PROGS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
 
 all: ${PROGS}
 
