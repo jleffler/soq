@@ -241,6 +241,7 @@ BUILD_DIRECTORIES = \
 	libcs50 \
 	libsoq \
 	matrices \
+	medium-challenge \
 	miscellany \
 	posix-regex \
 	primes \
