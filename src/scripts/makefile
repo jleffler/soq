@@ -33,6 +33,7 @@ PROG19 = soqvg
 PROG20 = so-quotes
 PROG21 = so-reformat-c
 PROG22 = so-esql
+PROG23 = so-dotarrow
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -72,6 +73,7 @@ PROGRAMS = \
 	${PROG20} \
 	${PROG21} \
 	${PROG22} \
+	${PROG23} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
