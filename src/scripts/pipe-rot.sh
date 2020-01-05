@@ -75,7 +75,7 @@ usual number, `dup2()` is the only sensible way to do that.
 Another is that if `a` is the same as `b` (e.g. both `0`), then `dup2()`
 handles it correctly (it doesn't close `b` before duplicating `a`)
 whereas the separate `close()` and `dup()` fails horribly.
-This is an unlikely, but nor impossible, circumstance.
+This is an unlikely, but not impossible, circumstance.
 
 
 EOF
