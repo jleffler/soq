@@ -43,7 +43,7 @@ The rule also applies if you duplicate the descriptors with either
 [`dup()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/dup.html)
 or
 [`fcntl()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/fcntl.html)
-with `F_DUPFD`
+with `F_DUPFD` or `F_DUPFD_CLOEXEC`.
 
 <hr>
 
@@ -68,7 +68,7 @@ you will need to review how to close file descriptors in the spawned process
 ([`posix_spawn_file_actions_addclose()`](http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_addclose.html),
 etc.).
 
-Note that using `dup2(a, b)` is safer than using `close(b); dup(a, b)`
+Note that using `dup2(a, b)` is safer than using `close(b); dup(a);`
 for a variety of reasons.
 One is that if you want to force the file descriptor to a larger than
 usual number, `dup2()` is the only sensible way to do that.
@@ -76,7 +76,6 @@ Another is that if `a` is the same as `b` (e.g. both `0`), then `dup2()`
 handles it correctly (it doesn't close `b` before duplicating `a`)
 whereas the separate `close()` and `dup()` fails horribly.
 This is an unlikely, but not impossible, circumstance.
-
 
 EOF
 
