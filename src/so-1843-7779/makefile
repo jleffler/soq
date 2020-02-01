@@ -6,8 +6,9 @@ PROG1 = sigalrm
 PROG2 = sigchld
 PROG3 = signals
 PROG4 = sigsync
+PROG5 = sigexit73
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5}
 
 all: ${PROGRAMS}
 

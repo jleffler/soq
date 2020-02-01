@@ -1,4 +1,5 @@
 sigalrm
 sigchld
+sigexit73
 signals
 sigsync
