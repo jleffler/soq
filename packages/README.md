@@ -60,3 +60,37 @@ The release has a SHA2-256 checksum and size as shown:
 
     SHA-256 d116d9e85c77826c1fd3ff4d18c56c311a6295c8247f83686cd7e8805963220f    28953 newgid-1.10.tgz
 
+### `utf8-unicode`
+
+The code for `utf8-unicode` which processes named files or standard
+input as UTF-8 and prints the sequence of bytes that make up a single
+character and the Unicode character it corresponds to.
+
+For example:
+
+    $ echo "grep –i where | wc -l" | utf8-unicode
+    0x67 = U+0067
+    0x72 = U+0072
+    0x65 = U+0065
+    0x70 = U+0070
+    0x20 = U+0020
+    0xE2 0x80 0x93 = U+2013
+    0x69 = U+0069
+    0x20 = U+0020
+    0x77 = U+0077
+    0x68 = U+0068
+    0x65 = U+0065
+    0x72 = U+0072
+    0x65 = U+0065
+    0x20 = U+0020
+    0x7C = U+007C
+    0x20 = U+0020
+    0x77 = U+0077
+    0x63 = U+0063
+    0x20 = U+0020
+    0x2D = U+002D
+    0x6C = U+006C
+    $
+
+The Unicode EN DASH U+2013 was why that `grep` command was failing with
+an error about being unable to find the file `where`.
