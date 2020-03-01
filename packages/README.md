@@ -94,3 +94,46 @@ For example:
 
 The Unicode EN DASH U+2013 was why that `grep` command was failing with
 an error about being unable to find the file `where`.
+
+### `timecmd`
+
+The code for `timecmd` which measures elapsed time of commands specified as part of its command line.
+
+    Usage: timecmd [-bhoqrsV][-m|-u|-n] [-d fd] [--] cmd [arg ...]
+
+      -b     Do not print beginning information
+      -d fd  Print information to file descriptor fd (default: 2, stderr)
+      -h     Print this help message and exit
+      -m     Print elapsed time with milliseconds
+      -n     Print elapsed time with nanoseconds
+      -o     Only print command name and non-option arguments
+      -q     Only print command name (not arguments)
+      -r     Repeat command after total time
+      -s     Print elapsed time in seconds (not hours, minutes, seconds)
+      -u     Print elapsed time with microseconds
+      -V     Print version information and exit
+
+Example uses:
+
+    $  timecmd -m sleep 65
+    2020-03-01 08:42:58.079 [PID 16916] sleep 65
+    2020-03-01 08:44:03.086 [PID 16916; status 0x0000]  -  1m 5.007s
+    $ timecmd -b -m sleep 65
+    2020-03-01 12:22:54.646 [PID 18761; status 0x0000]  -  1m 5.007s
+    $
+
+    $ timecmd -u fast89
+    2020-03-01 07:58:41.032007 [PID 14566] fast89
+    2020-03-01 07:58:41.043518 [PID 14566; status 0x0000]  -  0.011511s
+    $ timecmd -u slow61
+    2020-03-01 07:58:41.053114 [PID 14568] slow61
+    2020-03-01 07:58:41.128938 [PID 14568; status 0x0000]  -  0.075824s
+    $ timecmd -u slow11
+    2020-03-01 07:58:41.136826 [PID 14570] slow11
+    2020-03-01 07:58:44.971013 [PID 14570; status 0x0000]  -  3.834187s
+    $
+
+The sample commands all produced no output.  It works fine with commands that do.
+
+Jonathan Leffler (jonathan.leffler@gmail.com)
+Sunday 1st March 2020
