@@ -1,8 +1,7 @@
-/* SO 5125919 */
-#define _XOPEN_SOURCE 700
+/* SO 0512-5919 */
+#define _XOPEN_SOURCE 700   /* POSIX 2008 plus ... */
 #include <dirent.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -19,41 +18,33 @@ int main(int argc, char **argv)
 
     for (int i = 1; i < argc; i++)
     {
-        DIR *dp;
+        const char *name = argv[i];
+
+        DIR *dp = opendir(name);
+        if (dp == NULL)
+        {
+            fprintf(stderr, "failed to open directory %s (%d: %s)\n",
+                    name, errno, strerror(errno));
+            return -1;
+        }
+
+        int dfd = dirfd(dp);    /* Very, very unlikely to fail */
+
+        printf("%-20s %s\n", "Directory:", name);
+
         struct dirent *dirp;
-        struct stat sb;
-        int dfd = open(argv[i], O_RDONLY);
-        if (dfd == -1)
-        {
-            fprintf(stderr, "Failed to open directory %s for reading (%d: %s)\n",
-                    argv[i], errno, strerror(errno));
-            continue;
-        }
-        if (fstat(dfd, &sb) != 0 || !S_ISDIR(sb.st_mode))
-        {
-            errno = ENOTDIR;
-            fprintf(stderr, "%s: %d %s\n", argv[i], errno, strerror(errno));
-            continue;
-        }
-
-        if ((dp = opendir(argv[i]))==NULL)
-        {
-            perror("can't open dir");
-            continue;
-        }
-        printf("%-20s %s\n", "Directory:", argv[i]);
-
         while ((dirp = readdir(dp)) != NULL)
         {
+            struct stat sb;
             if (fstatat(dfd, dirp->d_name, &sb, 0) == -1) {
-                fprintf(stderr, "fstatat(\"%s\") failed (%d: %s)\n",
-                        dirp->d_name, errno, strerror(errno));
-                continue;
+                fprintf(stderr, "fstatat(\"%s/%s\") failed (%d: %s)\n",
+                        name, dirp->d_name, errno, strerror(errno));
             }
-            printf("%-20s %s\n", "File name:", dirp->d_name);
+            else
+                printf("%-20s %s/%s\n", "File name:", name, dirp->d_name);
         }
+
         closedir(dp);
-        close(dfd);
     }
     return 0;
 }
