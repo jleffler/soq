@@ -60,6 +60,105 @@ The release has a SHA2-256 checksum and size as shown:
 
     SHA-256 d116d9e85c77826c1fd3ff4d18c56c311a6295c8247f83686cd7e8805963220f    28953 newgid-1.10.tgz
 
+### `strspan`
+
+The code for library functions `str_span()` and `str_cspan()`, which are
+related to, but different from `strspn()` and `strcspn()`.
+These functions are designed to be used repeatedly for the same set of
+searching.
+They precompute a table of which characters are to be matched.
+One of the functions `set_span()` or `set_ranges()` is used to
+initialize the precomputed data.
+They readily out-perform `strspn()` and `strcspn()` on moderate size
+searches.
+
+The distribution includes a timing program `test2.strspan` which can be
+run with a number files.
+It measures the time to read the files — processing them with
+`strlen()` and `strchr()` to warm up the cache and I/O buffers.
+It then runs `str_span()` and `str_cspan()` on the same files, and then
+`strspn()` and `strcspn()`.
+It can be effective to name the same file multiple times on the command
+line.
+
+Example use:
+
+    $ test2.strspan bible-be.txt bible-be.txt bible-be.txt
+    # NB: The tests for str_span and strspn are comparable
+    #     The tests for strlen and strchr are not comparable
+    strlen   0.187297 (4467663) bible-be.txt
+    strlen   0.186324 (4467663) bible-be.txt
+    strlen   0.187616 (4467663) bible-be.txt
+    strchr   0.182676 (4467663) bible-be.txt
+    strchr   0.185405 (4467663) bible-be.txt
+    strchr   0.184813 (4467663) bible-be.txt
+    str_span 0.195715 (4467663) bible-be.txt
+    str_span 0.199516 (4467663) bible-be.txt
+    str_span 0.194588 (4467663) bible-be.txt
+    strspn   0.347890 (4467663) bible-be.txt
+    strspn   0.346028 (4467663) bible-be.txt
+    strspn   0.347305 (4467663) bible-be.txt
+    $ test2.strspan great.panjandrum great.panjandrum great.panjandrum
+    # NB: The tests for str_span and strspn are comparable
+    #     The tests for strlen and strchr are not comparable
+    strlen   0.000046 (487) great.panjandrum
+    strlen   0.000031 (487) great.panjandrum
+    strlen   0.000030 (487) great.panjandrum
+    strchr   0.000036 (487) great.panjandrum
+    strchr   0.000030 (487) great.panjandrum
+    strchr   0.000030 (487) great.panjandrum
+    str_span 0.000035 (487) great.panjandrum
+    str_span 0.000032 (487) great.panjandrum
+    str_span 0.000031 (487) great.panjandrum
+    strspn   0.000061 (487) great.panjandrum
+    strspn   0.000052 (487) great.panjandrum
+    strspn   0.000053 (487) great.panjandrum
+    $
+
+These results show that `str_span()` and `str_cspan()` are marginally
+slower than using `strlen()` or `strchr(), but considerably quicker than
+use `strspn()` and `strcspn()`.
+
+### `timecmd`
+
+The code for `timecmd` which measures elapsed time of commands specified as part of its command line.
+
+    Usage: timecmd [-bhoqrsV][-m|-u|-n] [-d fd] [--] cmd [arg ...]
+
+      -b     Do not print beginning information
+      -d fd  Print information to file descriptor fd (default: 2, stderr)
+      -h     Print this help message and exit
+      -m     Print elapsed time with milliseconds
+      -n     Print elapsed time with nanoseconds
+      -o     Only print command name and non-option arguments
+      -q     Only print command name (not arguments)
+      -r     Repeat command after total time
+      -s     Print elapsed time in seconds (not hours, minutes, seconds)
+      -u     Print elapsed time with microseconds
+      -V     Print version information and exit
+
+Example uses:
+
+    $ timecmd -m sleep 65
+    2020-03-01 08:42:58.079 [PID 16916] sleep 65
+    2020-03-01 08:44:03.086 [PID 16916; status 0x0000]  -  1m 5.007s
+    $ timecmd -b -m sleep 65
+    2020-03-01 12:22:54.646 [PID 18761; status 0x0000]  -  1m 5.007s
+    $
+
+    $ timecmd -u fast89
+    2020-03-01 07:58:41.032007 [PID 14566] fast89
+    2020-03-01 07:58:41.043518 [PID 14566; status 0x0000]  -  0.011511s
+    $ timecmd -u slow61
+    2020-03-01 07:58:41.053114 [PID 14568] slow61
+    2020-03-01 07:58:41.128938 [PID 14568; status 0x0000]  -  0.075824s
+    $ timecmd -u slow11
+    2020-03-01 07:58:41.136826 [PID 14570] slow11
+    2020-03-01 07:58:44.971013 [PID 14570; status 0x0000]  -  3.834187s
+    $
+
+The sample commands all produced no output.  It works fine with commands that do.
+
 ### `utf8-unicode`
 
 The code for `utf8-unicode` which processes named files or standard
@@ -95,45 +194,5 @@ For example:
 The Unicode EN DASH U+2013 was why that `grep` command was failing with
 an error about being unable to find the file `where`.
 
-### `timecmd`
-
-The code for `timecmd` which measures elapsed time of commands specified as part of its command line.
-
-    Usage: timecmd [-bhoqrsV][-m|-u|-n] [-d fd] [--] cmd [arg ...]
-
-      -b     Do not print beginning information
-      -d fd  Print information to file descriptor fd (default: 2, stderr)
-      -h     Print this help message and exit
-      -m     Print elapsed time with milliseconds
-      -n     Print elapsed time with nanoseconds
-      -o     Only print command name and non-option arguments
-      -q     Only print command name (not arguments)
-      -r     Repeat command after total time
-      -s     Print elapsed time in seconds (not hours, minutes, seconds)
-      -u     Print elapsed time with microseconds
-      -V     Print version information and exit
-
-Example uses:
-
-    $  timecmd -m sleep 65
-    2020-03-01 08:42:58.079 [PID 16916] sleep 65
-    2020-03-01 08:44:03.086 [PID 16916; status 0x0000]  -  1m 5.007s
-    $ timecmd -b -m sleep 65
-    2020-03-01 12:22:54.646 [PID 18761; status 0x0000]  -  1m 5.007s
-    $
-
-    $ timecmd -u fast89
-    2020-03-01 07:58:41.032007 [PID 14566] fast89
-    2020-03-01 07:58:41.043518 [PID 14566; status 0x0000]  -  0.011511s
-    $ timecmd -u slow61
-    2020-03-01 07:58:41.053114 [PID 14568] slow61
-    2020-03-01 07:58:41.128938 [PID 14568; status 0x0000]  -  0.075824s
-    $ timecmd -u slow11
-    2020-03-01 07:58:41.136826 [PID 14570] slow11
-    2020-03-01 07:58:44.971013 [PID 14570; status 0x0000]  -  3.834187s
-    $
-
-The sample commands all produced no output.  It works fine with commands that do.
-
 Jonathan Leffler (jonathan.leffler@gmail.com)
-Sunday 1st March 2020
+Wednesday 18th March 2020
