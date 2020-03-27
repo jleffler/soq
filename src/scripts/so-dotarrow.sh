@@ -4,7 +4,7 @@
 
 usage()
 {
-    echo "Usage: $(basename "$0" .sh) [-a|-d] variable member" >&2
+    echo "Usage: $(basename "$0" .sh) [-a|-d] [variable member]" >&2
     exit 1
 }
 
@@ -37,7 +37,7 @@ str2=$(echo "$@" | sed 's/[[:space:]]\{1,\}/'"$separator"'/g')
 cat << EOF
 Style guide: the dot \`.\` and arrow \`->\` operators bind very tightly
 because they are [postfix operators](http://port70.net/~nsz/c/c11/n1570.html#6.5.2.3).
-They should not be used with spaces around them.
-Writing \`$str1\` is not idiomatic C and indicates that the code
+They should not be written with spaces around them.
+Writing \`$str1\` is not idiomatic C and indicates that the coder
 is a tyro (newbie).  Use \`$str2\`.
 EOF
