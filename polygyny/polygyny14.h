@@ -490,7 +490,7 @@ int her_current_partner(struct node_data *ptr, int female)
         return current_partner;
     else
     {
-        printf("serious error in her_current_partner function... partner count suggests she has a partner, but function could not find him. Exiting. \n");
+        printf("serious error in her_current_partner function... partner count suggests she has a partner, but function could not find him. Exiting.\n");
         exit(0);
     }
 }
@@ -657,7 +657,7 @@ int split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_
                 }
             }
         }
-//      printf("mother group is now size %d and daughter group is now size %d. \n",num_in_group(group_ptr, ptr, mother_group),num_in_group(group_ptr, ptr, daughter_group));
+//      printf("mother group is now size %d and daughter group is now size %d.\n",num_in_group(group_ptr, ptr, mother_group),num_in_group(group_ptr, ptr, daughter_group));
     }
 }
 
@@ -768,7 +768,7 @@ int seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *gro
                             most_desirable = a;
                             highest_desirability = desirability;
                         }
-//                          printf("P: %14.13f %14.13f %d \n",desirability,highest_desirability,most_desirable);
+//                          printf("P: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
                     }
                     else if ((ptr[a].strategy == 'M' || ptr[a].strategy == 'X') && ptr[a].num_partners == 0)
                     {
@@ -783,7 +783,7 @@ int seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *gro
                             most_desirable = a;
                             highest_desirability = desirability;
                         }
-//                          printf("MX: %14.13f %14.13f %d \n",desirability,highest_desirability,most_desirable);
+//                          printf("MX: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
                     }
                     else
                     {
@@ -861,7 +861,7 @@ int seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr
         }
         if (l >= 2)
         {
-            printf("checked %d times and could not find active group for exogamous female, even though there are %d groups left in the simulation! \n", MAXNUMGROUPS * check_factor, l);
+            printf("checked %d times and could not find active group for exogamous female, even though there are %d groups left in the simulation!\n", MAXNUMGROUPS * check_factor, l);
         }
     }
     else
@@ -1034,7 +1034,7 @@ int her_partner_not_with_detected_infection(struct node_data *ptr, int female)
     }
     else
     {
-        printf("serious error in her_partner_not_with_detected_infection function... partner count suggests she has a partner, but function could not find him. Exiting. \n");
+        printf("serious error in her_partner_not_with_detected_infection function... partner count suggests she has a partner, but function could not find him. Exiting.\n");
         exit(0);
     }
 }
@@ -1066,7 +1066,7 @@ int her_partner_fertile(struct node_data *ptr, int female)
     }
     else
     {
-        printf("serious error in her_partner_not_with_detected_infection function... partner count suggests she has a partner, but function could not find him. Exiting. \n");
+        printf("serious error in her_partner_not_with_detected_infection function... partner count suggests she has a partner, but function could not find him. Exiting.\n");
         exit(0);
     }
 }
@@ -1185,7 +1185,7 @@ int individual_born(struct node_data *ptr, struct group_data *group_ptr, int mot
 
     if (k == N)
     {
-        printf("Population size has hit the maximum allowable value N, so no more births are possible \n");
+        printf("Population size has hit the maximum allowable value N, so no more births are possible\n");
     }
     else
     {
@@ -1320,7 +1320,7 @@ int individual_born(struct node_data *ptr, struct group_data *group_ptr, int mot
                 ptr[k].birth_probability = exp(mean_birth_probability + SD_birth_probability * gasdev(&idummy));
 
 //              ptr[k].birth_probability = mean_birth_probability;
-//              printf("born %f \n",ptr[k].birth_probability);
+//              printf("born %f\n",ptr[k].birth_probability);
             }
         }
     }
