@@ -749,9 +749,7 @@ seek_partnership_inside(struct node_data *ptr, struct group_data *group_ptr, int
 /* in this version of ths function, the female ranks males and simply picks the male in the group with the highest ratio of wealth/(wives+1) */
 static void
 seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_ptr,
-                               int b, int n, double mate_exponent,
-                               double fertility_penalty, double cost_paid,
-                               double cost_imposed, double punishing_threshold)
+                               int b, int n, double mate_exponent, double fertility_penalty)
 {
     int a, ID;
     int suitable;
@@ -836,9 +834,7 @@ static int current_pop_size(struct node_data *ptr)
 
 static void
 seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
-                         int b, int n, double mate_exponent,
-                         double fertility_penalty, double cost_paid,
-                         double cost_imposed, double punishing_threshold)
+                         int b, int n, double mate_exponent, double fertility_penalty)
 {
     int a, ID, partner_flag = 0, group_flag;
     int k, j, l = 0;

@@ -649,11 +649,11 @@ int main(void)
 
                     if (kyrand() < exogamy && ptr[k].virgin == 1)
                     {
-                        seek_partnership_outside(ptr, group_ptr, k, n, mate_exponent, fertility_penalty, cost_paid, cost_imposed, punishing_threshold);  /* THX1138 */
+                        seek_partnership_outside(ptr, group_ptr, k, n, mate_exponent, fertility_penalty); /*JL*/
                     }
                     else
                     {
-                        seek_partnership_inside_ranked(ptr, group_ptr, k, n, mate_exponent, fertility_penalty, cost_paid, cost_imposed, punishing_threshold);
+                        seek_partnership_inside_ranked(ptr, group_ptr, k, n, mate_exponent, fertility_penalty); /*JL*/
                     }
                 }
 
