@@ -2,10 +2,11 @@
  *  polygyny14.h
  */
 
-#include <time.h>
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define MAXNUMPARTNERS 8
 
@@ -65,7 +66,7 @@ typedef struct group_data
 #define EPS 1.2e-7
 #define RNMX (1.0 - EPS)
 
-float ran1(long *idum)
+static float ran1(long *idum)
 {
     int j;
     long k;
@@ -113,11 +114,8 @@ float ran1(long *idum)
 #undef EPS
 #undef RNMX
 
-
-float gasdev(long *idum)
+static float gasdev(long *idum)
 {
-    float ran1(long *idum);
-
     static int iset = 0;
     static float gset;
     float fac, rsq, v1, v2;
@@ -142,7 +140,7 @@ float gasdev(long *idum)
     }
 }
 
-double kyrand()   /* returns random number between 0 and 1 */
+static double kyrand(void)   /* returns random number between 0 and 1 */
 {
     /* int maxnumber = 2147483647l; */ /* 2^31 - 1 */
     double answer;
@@ -150,7 +148,7 @@ double kyrand()   /* returns random number between 0 and 1 */
     return(answer);
 }
 
-float fac(int k)    /* factorial function */
+static float fac(int k)    /* factorial function */
 {
     int i;
     float answer = 1;
@@ -166,7 +164,7 @@ float fac(int k)    /* factorial function */
     return answer;
 }
 
-int not_yet_partners(struct node_data *ptr, int a, int b)
+static int not_yet_partners(struct node_data *ptr, int a, int b)
 {
     int c;
     int answer = 1;
@@ -179,7 +177,7 @@ int not_yet_partners(struct node_data *ptr, int a, int b)
     return answer;
 }
 
-int same_gender(struct node_data *ptr, int a, int b)
+static int same_gender(struct node_data *ptr, int a, int b)
 {
     if (ptr[a].gender == 'm' && ptr[b].gender == 'm')
         return 1;
@@ -189,7 +187,8 @@ int same_gender(struct node_data *ptr, int a, int b)
         return 0;
 }
 
-int make_partners(struct node_data *ptr, int a, int b)
+static void
+make_partners(struct node_data *ptr, int a, int b)
 {
     int i;
 
@@ -220,7 +219,7 @@ int make_partners(struct node_data *ptr, int a, int b)
         ptr[b].virgin = 0;
 }
 
-int num_P_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
+static int num_P_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
 {
     int j, k;
     int number_of_P = 0;
@@ -240,7 +239,7 @@ int num_P_in_group(struct group_data *group_ptr, struct node_data *ptr, int curr
     return number_of_P;
 }
 
-int num_M_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
+static int num_M_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
 {
     int j, k;
     int number_of_M = 0;
@@ -260,7 +259,7 @@ int num_M_in_group(struct group_data *group_ptr, struct node_data *ptr, int curr
     return number_of_M;
 }
 
-int num_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
+static int num_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
 {
     int j, k;
     int number_in_group = 0;
@@ -280,7 +279,7 @@ int num_in_group(struct group_data *group_ptr, struct node_data *ptr, int curren
     return number_in_group;
 }
 
-int num_groups(struct group_data *group_ptr, struct node_data *ptr)
+static int num_groups(struct group_data *group_ptr, struct node_data *ptr)
 {
     int k, number_of_groups = 0;
 
@@ -293,7 +292,7 @@ int num_groups(struct group_data *group_ptr, struct node_data *ptr)
     return number_of_groups;
 }
 
-int num_infected_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
+static int num_infected_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
 {
     int j, k;
     int number_of_infected = 0;
@@ -313,7 +312,7 @@ int num_infected_in_group(struct group_data *group_ptr, struct node_data *ptr, i
     return number_of_infected;
 }
 
-int num_X_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
+static int num_X_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
 {
     int j, k;
     int number_of_X = 0;
@@ -333,7 +332,9 @@ int num_X_in_group(struct group_data *group_ptr, struct node_data *ptr, int curr
     return number_of_X;
 }
 
-float his_penalty(struct group_data *group_ptr, struct node_data *ptr, int male, float cost_paid, float cost_imposed, float punishing_threshold)
+static float
+his_penalty(struct group_data *group_ptr, struct node_data *ptr, int male,
+            float cost_paid, float cost_imposed, float punishing_threshold)
 {
     int current_group;
     float penalty;
@@ -388,9 +389,14 @@ float his_penalty(struct group_data *group_ptr, struct node_data *ptr, int male,
     {
         return 1;
     }
+    assert(0);
+    exit(1);
 }
 
-float her_partners_penalty(struct group_data *group_ptr, struct node_data *ptr, int female, float cost_paid, float cost_imposed, float punishing_threshold)
+static float
+her_partners_penalty(struct group_data *group_ptr, struct node_data *ptr,
+                     int female, float cost_paid, float cost_imposed,
+                     float punishing_threshold)
 {
     int j, current_partner, current_group;
     int partner_flag = 0;
@@ -461,6 +467,8 @@ float her_partners_penalty(struct group_data *group_ptr, struct node_data *ptr, 
         {
             return 1;
         }
+        assert(0);
+        exit(1);
     }
     else
     {
@@ -468,7 +476,7 @@ float her_partners_penalty(struct group_data *group_ptr, struct node_data *ptr, 
     }
 }
 
-int her_current_partner(struct node_data *ptr, int female)
+static int her_current_partner(struct node_data *ptr, int female)
 {
     int j, current_partner;
     int partner_flag = 0;
@@ -495,7 +503,8 @@ int her_current_partner(struct node_data *ptr, int female)
     }
 }
 
-int kill_group(struct group_data *group_ptr, struct node_data *ptr, int winning_group, int vanquished_group)
+static void
+kill_group(struct group_data *group_ptr, struct node_data *ptr, int winning_group, int vanquished_group)
 {
     int j, k, q, h;
     int group_count = 0;
@@ -578,7 +587,8 @@ int kill_group(struct group_data *group_ptr, struct node_data *ptr, int winning_
     }
 }
 
-int split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_group, int initial_num_groups)
+static void
+split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_group, int initial_num_groups)
 {
     int j, k, q, h;
     int daughter_group;
@@ -597,7 +607,7 @@ int split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_
 
     if (num_of_searches < 100)
     {
-//      printf("group %d (size %d) is splitting and taking over spot of group %d. ",mother_group,num_in_group(group_ptr, ptr, mother_group),daughter_group);
+        //printf("group %d (size %d) is splitting and taking over spot of group %d. ",mother_group,num_in_group(group_ptr, ptr, mother_group),daughter_group);
 
         /* make sure daughter group is initialized */
 
@@ -657,11 +667,12 @@ int split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_
                 }
             }
         }
-//      printf("mother group is now size %d and daughter group is now size %d.\n",num_in_group(group_ptr, ptr, mother_group),num_in_group(group_ptr, ptr, daughter_group));
+        //printf("mother group is now size %d and daughter group is now size %d.\n",num_in_group(group_ptr, ptr, mother_group),num_in_group(group_ptr, ptr, daughter_group));
     }
 }
 
-int seek_partnership_inside(struct node_data *ptr, struct group_data *group_ptr, int b, int n)
+static void
+seek_partnership_inside(struct node_data *ptr, struct group_data *group_ptr, int b, int n)
 {
     int a, ID, partner_flag = 0;
     int members_checked[MAXGROUPSIZE];
@@ -727,7 +738,11 @@ int seek_partnership_inside(struct node_data *ptr, struct group_data *group_ptr,
 }
 
 /* in this version of ths function, the female ranks males and simply picks the male in the group with the highest ratio of wealth/(wives+1) */
-int seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_ptr, int b, int n, double mate_exponent, double fertility_penalty, double cost_paid, double cost_imposed, double punishing_threshold)
+static void
+seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_ptr,
+                               int b, int n, double mate_exponent,
+                               double fertility_penalty, double cost_paid,
+                               double cost_imposed, double punishing_threshold)
 {
     int a, ID, partner_flag = 0;
     int k, dummy;
@@ -760,30 +775,30 @@ int seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *gro
                         polygyny_penalty = 1.0 / (fertility_penalty * (ptr[a].num_partners + 1) + (1 - fertility_penalty)); /* THX1138 */
 
                         desirability = pow(ptr[a].birth_probability, mate_exponent) * polygyny_penalty;
-//                          desirability = pow(ptr[a].birth_probability,mate_exponent)*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
-//                          desirability = ptr[a].birth_probability*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                        //desirability = pow(ptr[a].birth_probability,mate_exponent)*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                        //desirability = ptr[a].birth_probability*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
 
                         if (desirability > highest_desirability)
                         {
                             most_desirable = a;
                             highest_desirability = desirability;
                         }
-//                          printf("P: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
+                        //printf("P: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
                     }
                     else if ((ptr[a].strategy == 'M' || ptr[a].strategy == 'X') && ptr[a].num_partners == 0)
                     {
                         suitable = 1;
 
                         desirability = pow(ptr[a].birth_probability, mate_exponent);
-//                          desirability = pow(ptr[a].birth_probability,mate_exponent)*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
-//                          desirability = ptr[a].birth_probability*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                        //desirability = pow(ptr[a].birth_probability,mate_exponent)*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                        //desirability = ptr[a].birth_probability*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
 
                         if (desirability > highest_desirability)
                         {
                             most_desirable = a;
                             highest_desirability = desirability;
                         }
-//                          printf("MX: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
+                        //printf("MX: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
                     }
                     else
                     {
@@ -813,7 +828,7 @@ int seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *gro
     }
 }
 
-int current_pop_size(struct node_data *ptr)
+static int current_pop_size(struct node_data *ptr)
 {
     int k, number = 0;
 
@@ -826,7 +841,11 @@ int current_pop_size(struct node_data *ptr)
     return number;
 }
 
-int seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr, int b, int n, double mate_exponent, double fertility_penalty, double cost_paid, double cost_imposed, double punishing_threshold)
+static void
+seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
+                         int b, int n, double mate_exponent,
+                         double fertility_penalty, double cost_paid,
+                         double cost_imposed, double punishing_threshold)
 {
     int a, ID, partner_flag = 0, group_flag;
     int k, j, l = 0;
@@ -983,7 +1002,7 @@ int seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr
     }
 }
 
-int break_partnership(struct node_data *ptr, int a, int b)
+static void break_partnership(struct node_data *ptr, int a, int b)
 {
     int i;
 
@@ -1007,7 +1026,7 @@ int break_partnership(struct node_data *ptr, int a, int b)
     ptr[b].num_partners--;
 }
 
-int her_partner_not_with_detected_infection(struct node_data *ptr, int female)
+static int her_partner_not_with_detected_infection(struct node_data *ptr, int female)
 {
     int j, current_partner;
     int partner_flag = 0;
@@ -1039,7 +1058,7 @@ int her_partner_not_with_detected_infection(struct node_data *ptr, int female)
     }
 }
 
-int her_partner_fertile(struct node_data *ptr, int female)
+static int her_partner_fertile(struct node_data *ptr, int female)
 {
     int j, current_partner;
     int partner_flag = 0;
@@ -1063,6 +1082,8 @@ int her_partner_fertile(struct node_data *ptr, int female)
             return 0;
         else if (ptr[current_partner].fertile == 1)
             return 1;
+        assert(0);
+        exit(1);
     }
     else
     {
@@ -1071,7 +1092,7 @@ int her_partner_fertile(struct node_data *ptr, int female)
     }
 }
 
-int individual_dies(struct node_data *ptr, struct group_data *group_ptr, int n)
+static void individual_dies(struct node_data *ptr, struct group_data *group_ptr, int n)
 {
     int k, l, group, partner;
 
@@ -1121,7 +1142,7 @@ int individual_dies(struct node_data *ptr, struct group_data *group_ptr, int n)
     ptr[n].fertile = 1;
 }
 
-float strategy_function(float parameter, float role_model_fitness, float average_male_fitness_in_group)
+static float strategy_function(float parameter, float role_model_fitness, float average_male_fitness_in_group)
 {
     float difference;
 
@@ -1133,7 +1154,7 @@ float strategy_function(float parameter, float role_model_fitness, float average
         return 0;
 }
 
-float average_group_fitness(struct group_data *group_ptr, struct node_data *ptr, int groupID)
+static float average_group_fitness(struct group_data *group_ptr, struct node_data *ptr, int groupID)
 {
     int j, k;
     float avg_group_fitness = 0;
@@ -1164,7 +1185,10 @@ float average_group_fitness(struct group_data *group_ptr, struct node_data *ptr,
         return 0;
 }
 
-int individual_born(struct node_data *ptr, struct group_data *group_ptr, int mother, float error_term, float parameter, float mean_birth_probability, float SD_birth_probability)
+static void
+individual_born(struct node_data *ptr, struct group_data *group_ptr,
+                int mother, float error_term, float parameter,
+                float mean_birth_probability, float SD_birth_probability)
 {
     int k, n, a, j, mothers_group, group_flag, role_model, ID;
     int members_checked[MAXGROUPSIZE];
@@ -1318,15 +1342,14 @@ int individual_born(struct node_data *ptr, struct group_data *group_ptr, int mot
                 }
 
                 ptr[k].birth_probability = exp(mean_birth_probability + SD_birth_probability * gasdev(&idummy));
-
-//              ptr[k].birth_probability = mean_birth_probability;
-//              printf("born %f\n",ptr[k].birth_probability);
+                //ptr[k].birth_probability = mean_birth_probability;
+                //printf("born %f\n",ptr[k].birth_probability);
             }
         }
     }
 }
 
-int room_in_group(struct group_data *group_ptr, int groupID)
+static int room_in_group(struct group_data *group_ptr, int groupID)
 {
     int k, group_size = 0;
 
@@ -1342,7 +1365,7 @@ int room_in_group(struct group_data *group_ptr, int groupID)
         return 0;
 }
 
-float population_X_fitness(struct node_data *ptr)
+static float population_X_fitness(struct node_data *ptr)
 {
     int k;
     float average_X_fitness = 0;
@@ -1369,7 +1392,7 @@ float population_X_fitness(struct node_data *ptr)
     }
 }
 
-float population_M_fitness(struct node_data *ptr)
+static float population_M_fitness(struct node_data *ptr)
 {
     int k;
     float average_M_fitness = 0;
@@ -1396,7 +1419,7 @@ float population_M_fitness(struct node_data *ptr)
     }
 }
 
-float population_P_fitness(struct node_data *ptr)
+static float population_P_fitness(struct node_data *ptr)
 {
     int k;
     float average_P_fitness = 0;
@@ -1423,7 +1446,7 @@ float population_P_fitness(struct node_data *ptr)
     }
 }
 
-float group_X_fitness(struct node_data *ptr, struct group_data *group_ptr, int groupID)
+static float group_X_fitness(struct node_data *ptr, struct group_data *group_ptr, int groupID)
 {
     int k;
     float average_fitness = 0;
@@ -1454,7 +1477,7 @@ float group_X_fitness(struct node_data *ptr, struct group_data *group_ptr, int g
     }
 }
 
-float group_M_fitness(struct node_data *ptr, struct group_data *group_ptr, int groupID)
+static float group_M_fitness(struct node_data *ptr, struct group_data *group_ptr, int groupID)
 {
     int k;
     float average_fitness = 0;
@@ -1485,7 +1508,7 @@ float group_M_fitness(struct node_data *ptr, struct group_data *group_ptr, int g
     }
 }
 
-float group_P_fitness(struct node_data *ptr, struct group_data *group_ptr, int groupID)
+static float group_P_fitness(struct node_data *ptr, struct group_data *group_ptr, int groupID)
 {
     int k;
     float average_fitness = 0;
@@ -1515,5 +1538,3 @@ float group_P_fitness(struct node_data *ptr, struct group_data *group_ptr, int g
         return 0;
     }
 }
-
-S1

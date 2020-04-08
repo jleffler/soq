@@ -10,7 +10,7 @@ int main()
     ran1(&idummy);        /* initialize random number generator */
     idummy = 1;
 
-    int loop_count1;
+    int loop_count1 = 0;
 
     int numruns = 1;
     int disease_intro_time = (int)(1000 * 12);
@@ -640,28 +640,25 @@ int main()
     /* check setup */
     /***************/
 
-    /*      for (k = 0 ; k < initial_pop_size + 10 ; k ++)
-       {
-       printf("node=%d num_ptnrs=%d || gen=%c status=%c || gp=%d || str=%c || %d %d %d %d %d %d\n",k,ptr[k].num_partners,ptr[k].gender,ptr[k].status,ptr[k].group,ptr[k].strategy,ptr[k].partner[0],ptr[k].partner[1],ptr[k].partner[2],ptr[k].partner[3],ptr[k].partner[4],ptr[k].partner[5]);
-       }
+    /*
+    for (k = 0 ; k < initial_pop_size + 10 ; k ++)
+    {
+        printf("node=%d num_ptnrs=%d || gen=%c status=%c || gp=%d || str=%c || %d %d %d %d %d %d\n", k, ptr[k].num_partners, ptr[k].gender, ptr[k].status, ptr[k].group, ptr[k].strategy, ptr[k].partner[0], ptr[k].partner[1], ptr[k].partner[2], ptr[k].partner[3], ptr[k].partner[4], ptr[k].partner[5]);
+    }
 
-       for (k = 0 ; k < initial_num_groups; k ++)
-       {
-       printf("%d %d || ",group_ptr[k].size,group_ptr[k].carrying_capacity);
-       for (j = 0 ; j < MAXGROUPSIZE ; j++)
-       {
-       printf("%d ",group_ptr[k].member[j]);
-       }
-       printf("\n");
-       }
-     */
+    for (k = 0 ; k < initial_num_groups; k ++)
+    {
+        printf("%d %d || ", group_ptr[k].size, group_ptr[k].carrying_capacity);
+        for (j = 0; j < MAXGROUPSIZE; j++)
+        {
+            printf("%d ", group_ptr[k].member[j]);
+        }
+        printf("\n");
+    }
+    */
 
-    /*********************/
-    /*********************/
     /*********************/
     /*      simulate     */
-    /*********************/
-    /*********************/
     /*********************/
 
     for (t = 0; t < numsteps; t++)
@@ -691,11 +688,7 @@ int main()
         }
 
         /***************************/
-        /***************************/
-        /***************************/
         /* main part of simulation */
-        /***************************/
-        /***************************/
         /***************************/
 
         /******************************************/
@@ -844,7 +837,6 @@ int main()
                 g2percentP = 100 * (float)num_P_in_group(group_ptr, ptr, group2) / (num_X_in_group(group_ptr, ptr, group2) + num_M_in_group(group_ptr, ptr, group2) + num_P_in_group(group_ptr, ptr, group2));
                 g2percentX = 100 * (float)num_X_in_group(group_ptr, ptr, group2) / (num_X_in_group(group_ptr, ptr, group2) + num_M_in_group(group_ptr, ptr, group2) + num_P_in_group(group_ptr, ptr, group2));
 
-
                 if (kyrand() < competition_odds)
                 {
                     if (g1percentP > g1percentX && g2percentP < g2percentX)
@@ -885,13 +877,7 @@ int main()
         }
 
         /************************/
-        /************************/
-        /************************/
-        /************************/
         /* print out statistics */
-        /************************/
-        /************************/
-        /************************/
         /************************/
 
         for (k = 0; k < initial_num_groups; k++)
@@ -1004,11 +990,7 @@ int main()
         if (t % 60 == 0)
         {
             /************************************************************************************/
-            /************************************************************************************/
-            /************************************************************************************/
             /* Output group and individual time series                                          */
-            /************************************************************************************/
-            /************************************************************************************/
             /************************************************************************************/
 
             /*************************/
@@ -1091,11 +1073,7 @@ int main()
             fprintf(fg50, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[49], num_infected_bygroup[49], num_pairs_bygroup[49], num_X_bygroup[49], num_M_bygroup[49], num_P_bygroup[49], group_X_fitness(ptr, group_ptr, 49), group_M_fitness(ptr, group_ptr, 49), group_P_fitness(ptr, group_ptr, 49));
 
             /************************************************************************************/
-            /************************************************************************************/
-            /************************************************************************************/
             /*   Compute statistics on partnership distribution, before disease is introduced   */
-            /************************************************************************************/
-            /************************************************************************************/
             /************************************************************************************/
 
             if (t < disease_intro_time)
@@ -1148,7 +1126,6 @@ int main()
                                 M_avg_num_partners_temp += ptr[k].num_partners;
                                 M_avg_num_partners_count++;
 
-
                                 if (ptr[k].num_partners == 0)
                                     M_distrib_num_partners_temp[0]++;
                                 else if (ptr[k].num_partners == 1)
@@ -1166,7 +1143,6 @@ int main()
                             {
                                 P_avg_num_partners_temp += ptr[k].num_partners;
                                 P_avg_num_partners_count++;
-
 
                                 if (ptr[k].num_partners == 0)
                                     P_distrib_num_partners_temp[0]++;
@@ -1222,13 +1198,7 @@ int main()
             }
 
             /*******************************************************************************************************/
-            /*******************************************************************************************************/
-            /*******************************************************************************************************/
-            /*******************************************************************************************************/
             /*          Then, if disease has been introduced, compute average statistics for other variables       */
-            /*******************************************************************************************************/
-            /*******************************************************************************************************/
-            /*******************************************************************************************************/
             /*******************************************************************************************************/
 
             if (t > disease_intro_time)
@@ -1471,7 +1441,6 @@ int main()
                             }
                         }
 
-
                         if (ptr[k].status == 'i' || ptr[k].status == 'a')
                         {
                             num_infected++;
@@ -1653,9 +1622,7 @@ int main()
     }
 
     /******************************/
-    /******************************/
     /* close main simulation loop */
-    /******************************/
     /******************************/
 
     /******************************/
@@ -1899,7 +1866,6 @@ int main()
     fprintf(f6, " percent X wins = %f\n", (float)percent_X_wins / (percent_X_wins + percent_M_wins + percent_P_wins));
     fprintf(f6, " percent M wins = %f\n", (float)percent_M_wins / (percent_X_wins + percent_M_wins + percent_P_wins));
     fprintf(f6, " percent P wins = %f\n", (float)percent_P_wins / (percent_X_wins + percent_M_wins + percent_P_wins));
-    fprintf(f6, " ***********************************************************************************\n");
     fprintf(f6, " ***********************************************************************************\n");
     fprintf(f6, " ***********************************************************************************\n\n");
 
