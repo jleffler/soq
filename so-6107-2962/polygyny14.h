@@ -753,7 +753,7 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
                                double fertility_penalty, double cost_paid,
                                double cost_imposed, double punishing_threshold)
 {
-    int a, ID, partner_flag = 0;
+    int a, ID;
     int suitable;
     int most_desirable = -1;
     float highest_desirability = -1;
@@ -815,7 +815,6 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
         if (suitable && not_yet_partners(ptr, a, b))
         {
             make_partners(ptr, a, b);
-            partner_flag = 1;
         }
     }
 }

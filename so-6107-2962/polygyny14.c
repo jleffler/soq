@@ -89,21 +89,6 @@ int main(void)
     float total_prevalence;
     int time_count;
 
-    float X_prevalence1;
-    float M_prevalence1;
-    float P_prevalence1;
-    int time_count1;
-
-    float X_prevalence2;
-    float M_prevalence2;
-    float P_prevalence2;
-    int time_count2;
-
-    float X_prevalence3;
-    float M_prevalence3;
-    float P_prevalence3;
-    int time_count3;
-
     float X_prevalence_in_X_group;
     float M_prevalence_in_X_group;
     float P_prevalence_in_X_group;
@@ -116,7 +101,6 @@ int main(void)
     float M_prevalence_in_P_group;
     float P_prevalence_in_P_group;
     float prevalence_in_P_group;
-    int time_count0;
 
     int num_X_infected_in_X_group;
     int num_M_infected_in_X_group;
@@ -149,11 +133,6 @@ int main(void)
     int time_count_total_prevalence;
     int time_count_X_avg_num_partners, time_count_M_avg_num_partners, time_count_P_avg_num_partners;
     int time_count_X_distrib_num_partners, time_count_M_distrib_num_partners, time_count_P_distrib_num_partners;
-
-    float overall_prevalence_near_end;
-    int time_count_end;
-    float overall_prevalence_near_end2;
-    int time_count_end2;
 
     float X_group_size;
     float M_group_size;
@@ -353,12 +332,6 @@ int main(void)
 
     X_prevalence = M_prevalence = P_prevalence = total_prevalence = 0;
     time_count = 0;
-    X_prevalence1 = M_prevalence1 = P_prevalence1 = 0;
-    time_count1 = 0;
-    X_prevalence2 = M_prevalence2 = P_prevalence2 = 0;
-    time_count2 = 0;
-    X_prevalence3 = M_prevalence3 = P_prevalence3 = 0;
-    time_count3 = 0;
 
     time_count_X_fitness = time_count_M_fitness = time_count_P_fitness = 0;
     time_count_X_prevalence = time_count_M_prevalence = time_count_P_prevalence = 0;
@@ -381,9 +354,7 @@ int main(void)
     num_X_infected_in_X_group = num_M_infected_in_X_group = num_P_infected_in_X_group = 0;
     num_X_infected_in_M_group = num_M_infected_in_M_group = num_P_infected_in_M_group = 0;
     num_X_infected_in_P_group = num_M_infected_in_P_group = num_P_infected_in_P_group = 0;
-    time_count0 = 0;
 
-    time_count = 0;
     X_group_size = M_group_size = P_group_size = total_group_size = 0;
 
     X_avg_num_partners = M_avg_num_partners = P_avg_num_partners = 0;
@@ -394,11 +365,6 @@ int main(void)
         M_distrib_num_partners[k] = 0;
         P_distrib_num_partners[k] = 0;
     }
-
-    overall_prevalence_near_end = 0;
-    time_count_end = 0;
-    overall_prevalence_near_end2 = 0;
-    time_count_end2 = 0;
 
     /******************************/
     /* initialize group structure */
