@@ -160,18 +160,6 @@ int main(void)
     float P_group_size;
     float total_group_size;
 
-    float X_group_size1;
-    float M_group_size1;
-    float P_group_size1;
-
-    float X_group_size2;
-    float M_group_size2;
-    float P_group_size2;
-
-    float X_group_size3;
-    float M_group_size3;
-    float P_group_size3;
-
     int X_group_size_counter;
     int M_group_size_counter;
     int P_group_size_counter;
@@ -397,9 +385,6 @@ int main(void)
 
     time_count = 0;
     X_group_size = M_group_size = P_group_size = total_group_size = 0;
-    X_group_size1 = M_group_size1 = P_group_size1 = 0;
-    X_group_size2 = M_group_size2 = P_group_size2 = 0;
-    X_group_size3 = M_group_size3 = P_group_size3 = 0;
 
     X_avg_num_partners = M_avg_num_partners = P_avg_num_partners = 0;
     X_avg_fitness = M_avg_fitness = P_avg_fitness = 0;

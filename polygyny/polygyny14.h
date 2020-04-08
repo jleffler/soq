@@ -754,7 +754,6 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
                                double cost_imposed, double punishing_threshold)
 {
     int a, ID, partner_flag = 0;
-    int dummy;
     int suitable;
     int most_desirable = -1;
     float highest_desirability = -1;
@@ -771,11 +770,7 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
         {
             if (ptr[a].active)
             {
-                if (same_gender(ptr, a, b) || ptr[a].num_partners == MAXNUMPARTNERS)
-                {
-                    dummy = 0;
-                }
-                else
+                if (!(same_gender(ptr, a, b) || ptr[a].num_partners == MAXNUMPARTNERS))
                 {
                     if (ptr[a].strategy == 'P')
                     {
@@ -809,20 +804,8 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
                         }
                         //printf("MX: %14.13f %14.13f %d\n",desirability,highest_desirability,most_desirable);
                     }
-                    else
-                    {
-                        dummy = 0;
-                    }
                 }
             }
-            else
-            {
-                dummy = 0;
-            }
-        }
-        else
-        {
-            dummy = 0;
         }
     }
 
@@ -860,9 +843,7 @@ seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
 {
     int a, ID, partner_flag = 0, group_flag;
     int k, j, l = 0;
-    int dummy;
     int chosen_group;
-    int member_flag = 0;
     int check_factor = 100;
     int suitable;
     int most_desirable = -1;
@@ -920,11 +901,7 @@ seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
                 {
                     if (ptr[a].active)
                     {
-                        if (same_gender(ptr, a, b) || ptr[a].num_partners == MAXNUMPARTNERS)
-                        {
-                            dummy = 0;
-                        }
-                        else
+                        if (!(same_gender(ptr, a, b) || ptr[a].num_partners == MAXNUMPARTNERS))
                         {
                             if (ptr[a].strategy == 'P')
                             {
@@ -956,20 +933,8 @@ seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
                                     highest_desirability = desirability;
                                 }
                             }
-                            else
-                            {
-                                dummy = 0;
-                            }
                         }
                     }
-                    else
-                    {
-                        dummy = 0;
-                    }
-                }
-                else
-                {
-                    dummy = 0;
                 }
             }
 
