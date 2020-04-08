@@ -2,6 +2,8 @@
 
 #include "polygyny14.h"
 
+static FILE *open_group_file(int i);
+
 int main(void)
 {
     float shrink_factor = 1.0;
@@ -217,11 +219,8 @@ int main(void)
     float average_P_fitness, stdev_P_fitness;
 
     FILE *f1, *f2, *f3, *f4, *f5, *f6;
-    FILE *fg1, *fg2, *fg3, *fg4, *fg5, *fg6, *fg7, *fg8, *fg9, *fg10;
-    FILE *fg11, *fg12, *fg13, *fg14, *fg15, *fg16, *fg17, *fg18, *fg19, *fg20;
-    FILE *fg21, *fg22, *fg23, *fg24, *fg25, *fg26, *fg27, *fg28, *fg29, *fg30;
-    FILE *fg31, *fg32, *fg33, *fg34, *fg35, *fg36, *fg37, *fg38, *fg39, *fg40;
-    FILE *fg41, *fg42, *fg43, *fg44, *fg45, *fg46, *fg47, *fg48, *fg49, *fg50;
+
+    FILE *f_grp[initial_num_groups];
     FILE *fparam;
     FILE *ftemp;
 
@@ -236,56 +235,8 @@ int main(void)
 
     fparam = fopen("parameters.csv", "a");
 
-    fg1 = fopen("group1.csv", "a");
-    fg2 = fopen("group2.csv", "a");
-    fg3 = fopen("group3.csv", "a");
-    fg4 = fopen("group4.csv", "a");
-    fg5 = fopen("group5.csv", "a");
-    fg6 = fopen("group6.csv", "a");
-    fg7 = fopen("group7.csv", "a");
-    fg8 = fopen("group8.csv", "a");
-    fg9 = fopen("group9.csv", "a");
-    fg10 = fopen("group10.csv", "a");
-    fg11 = fopen("group11.csv", "a");
-    fg12 = fopen("group12.csv", "a");
-    fg13 = fopen("group13.csv", "a");
-    fg14 = fopen("group14.csv", "a");
-    fg15 = fopen("group15.csv", "a");
-    fg16 = fopen("group16.csv", "a");
-    fg17 = fopen("group17.csv", "a");
-    fg18 = fopen("group18.csv", "a");
-    fg19 = fopen("group19.csv", "a");
-    fg20 = fopen("group20.csv", "a");
-    fg21 = fopen("group21.csv", "a");
-    fg22 = fopen("group22.csv", "a");
-    fg23 = fopen("group23.csv", "a");
-    fg24 = fopen("group24.csv", "a");
-    fg25 = fopen("group25.csv", "a");
-    fg26 = fopen("group26.csv", "a");
-    fg27 = fopen("group27.csv", "a");
-    fg28 = fopen("group28.csv", "a");
-    fg29 = fopen("group29.csv", "a");
-    fg30 = fopen("group30.csv", "a");
-    fg31 = fopen("group31.csv", "a");
-    fg32 = fopen("group32.csv", "a");
-    fg33 = fopen("group33.csv", "a");
-    fg34 = fopen("group34.csv", "a");
-    fg35 = fopen("group35.csv", "a");
-    fg36 = fopen("group36.csv", "a");
-    fg37 = fopen("group37.csv", "a");
-    fg38 = fopen("group38.csv", "a");
-    fg39 = fopen("group39.csv", "a");
-    fg40 = fopen("group40.csv", "a");
-    fg41 = fopen("group41.csv", "a");
-    fg42 = fopen("group42.csv", "a");
-    fg43 = fopen("group43.csv", "a");
-    fg44 = fopen("group44.csv", "a");
-    fg45 = fopen("group45.csv", "a");
-    fg46 = fopen("group46.csv", "a");
-    fg47 = fopen("group47.csv", "a");
-    fg48 = fopen("group48.csv", "a");
-    fg49 = fopen("group49.csv", "a");
-    fg50 = fopen("group50.csv", "a");
+    for (int i = 0; i < initial_num_groups; i++)
+        f_grp[i] = open_group_file(i);
 
     for (j = 0; j < 10000; j++)
         kyrand();
@@ -844,56 +795,10 @@ int main(void)
         if (t == 0)
         {
             fprintf(f1, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness, #X groups, #M groups, #P groups\n");
-            fprintf(fg1, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg2, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg3, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg4, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg5, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg6, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg7, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg8, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg9, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg10, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg11, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg12, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg13, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg14, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg15, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg16, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg17, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg18, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg19, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg20, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg21, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg22, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg23, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg24, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg25, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg26, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg27, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg28, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg29, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg30, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg31, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg32, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg33, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg34, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg35, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg36, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg37, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg38, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg39, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg40, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg41, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg42, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg43, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg44, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg45, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg46, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg47, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg48, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg49, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
-            fprintf(fg50, "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
+
+            for (int i = 0; i < initial_num_groups; i++)
+                fprintf(f_grp[i], "time, year, population, #infected, #pairs, X, M, P, X fitness, M fitness, P fitness\n");
+
         }
 
         if (t % 60 == 0)
@@ -930,56 +835,14 @@ int main(void)
             /*   group level data    */
             /*************************/
 
-            fprintf(fg1, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[0], num_infected_bygroup[0], num_pairs_bygroup[0], num_X_bygroup[0], num_M_bygroup[0], num_P_bygroup[0], group_X_fitness(ptr, group_ptr, 0), group_M_fitness(ptr, group_ptr, 0), group_P_fitness(ptr, group_ptr, 0));
-            fprintf(fg2, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[1], num_infected_bygroup[1], num_pairs_bygroup[1], num_X_bygroup[1], num_M_bygroup[1], num_P_bygroup[1], group_X_fitness(ptr, group_ptr, 1), group_M_fitness(ptr, group_ptr, 1), group_P_fitness(ptr, group_ptr, 1));
-            fprintf(fg3, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[2], num_infected_bygroup[2], num_pairs_bygroup[2], num_X_bygroup[2], num_M_bygroup[2], num_P_bygroup[2], group_X_fitness(ptr, group_ptr, 2), group_M_fitness(ptr, group_ptr, 2), group_P_fitness(ptr, group_ptr, 2));
-            fprintf(fg4, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[3], num_infected_bygroup[3], num_pairs_bygroup[3], num_X_bygroup[3], num_M_bygroup[3], num_P_bygroup[3], group_X_fitness(ptr, group_ptr, 3), group_M_fitness(ptr, group_ptr, 3), group_P_fitness(ptr, group_ptr, 3));
-            fprintf(fg5, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[4], num_infected_bygroup[4], num_pairs_bygroup[4], num_X_bygroup[4], num_M_bygroup[4], num_P_bygroup[4], group_X_fitness(ptr, group_ptr, 4), group_M_fitness(ptr, group_ptr, 4), group_P_fitness(ptr, group_ptr, 4));
-            fprintf(fg6, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[5], num_infected_bygroup[5], num_pairs_bygroup[5], num_X_bygroup[5], num_M_bygroup[5], num_P_bygroup[5], group_X_fitness(ptr, group_ptr, 5), group_M_fitness(ptr, group_ptr, 5), group_P_fitness(ptr, group_ptr, 5));
-            fprintf(fg7, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[6], num_infected_bygroup[6], num_pairs_bygroup[6], num_X_bygroup[6], num_M_bygroup[6], num_P_bygroup[6], group_X_fitness(ptr, group_ptr, 6), group_M_fitness(ptr, group_ptr, 6), group_P_fitness(ptr, group_ptr, 6));
-            fprintf(fg8, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[7], num_infected_bygroup[7], num_pairs_bygroup[7], num_X_bygroup[7], num_M_bygroup[7], num_P_bygroup[7], group_X_fitness(ptr, group_ptr, 7), group_M_fitness(ptr, group_ptr, 7), group_P_fitness(ptr, group_ptr, 7));
-            fprintf(fg9, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[8], num_infected_bygroup[8], num_pairs_bygroup[8], num_X_bygroup[8], num_M_bygroup[8], num_P_bygroup[8], group_X_fitness(ptr, group_ptr, 8), group_M_fitness(ptr, group_ptr, 8), group_P_fitness(ptr, group_ptr, 8));
-            fprintf(fg10, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[9], num_infected_bygroup[9], num_pairs_bygroup[9], num_X_bygroup[9], num_M_bygroup[9], num_P_bygroup[9], group_X_fitness(ptr, group_ptr, 9), group_M_fitness(ptr, group_ptr, 9), group_P_fitness(ptr, group_ptr, 9));
-            fprintf(fg11, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[10], num_infected_bygroup[10], num_pairs_bygroup[10], num_X_bygroup[10], num_M_bygroup[10], num_P_bygroup[10], group_X_fitness(ptr, group_ptr, 10), group_M_fitness(ptr, group_ptr, 10), group_P_fitness(ptr, group_ptr, 10));
-            fprintf(fg12, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[11], num_infected_bygroup[11], num_pairs_bygroup[11], num_X_bygroup[11], num_M_bygroup[11], num_P_bygroup[11], group_X_fitness(ptr, group_ptr, 11), group_M_fitness(ptr, group_ptr, 11), group_P_fitness(ptr, group_ptr, 11));
-            fprintf(fg13, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[12], num_infected_bygroup[12], num_pairs_bygroup[12], num_X_bygroup[12], num_M_bygroup[12], num_P_bygroup[12], group_X_fitness(ptr, group_ptr, 12), group_M_fitness(ptr, group_ptr, 12), group_P_fitness(ptr, group_ptr, 12));
-            fprintf(fg14, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[13], num_infected_bygroup[13], num_pairs_bygroup[13], num_X_bygroup[13], num_M_bygroup[13], num_P_bygroup[13], group_X_fitness(ptr, group_ptr, 13), group_M_fitness(ptr, group_ptr, 13), group_P_fitness(ptr, group_ptr, 13));
-            fprintf(fg15, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[14], num_infected_bygroup[14], num_pairs_bygroup[14], num_X_bygroup[14], num_M_bygroup[14], num_P_bygroup[14], group_X_fitness(ptr, group_ptr, 14), group_M_fitness(ptr, group_ptr, 14), group_P_fitness(ptr, group_ptr, 14));
-            fprintf(fg16, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[15], num_infected_bygroup[15], num_pairs_bygroup[15], num_X_bygroup[15], num_M_bygroup[15], num_P_bygroup[15], group_X_fitness(ptr, group_ptr, 15), group_M_fitness(ptr, group_ptr, 15), group_P_fitness(ptr, group_ptr, 15));
-            fprintf(fg17, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[16], num_infected_bygroup[16], num_pairs_bygroup[16], num_X_bygroup[16], num_M_bygroup[16], num_P_bygroup[16], group_X_fitness(ptr, group_ptr, 16), group_M_fitness(ptr, group_ptr, 16), group_P_fitness(ptr, group_ptr, 16));
-            fprintf(fg18, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[17], num_infected_bygroup[17], num_pairs_bygroup[17], num_X_bygroup[17], num_M_bygroup[17], num_P_bygroup[17], group_X_fitness(ptr, group_ptr, 17), group_M_fitness(ptr, group_ptr, 17), group_P_fitness(ptr, group_ptr, 17));
-            fprintf(fg19, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[18], num_infected_bygroup[18], num_pairs_bygroup[18], num_X_bygroup[18], num_M_bygroup[18], num_P_bygroup[18], group_X_fitness(ptr, group_ptr, 18), group_M_fitness(ptr, group_ptr, 18), group_P_fitness(ptr, group_ptr, 18));
-            fprintf(fg20, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[19], num_infected_bygroup[19], num_pairs_bygroup[19], num_X_bygroup[19], num_M_bygroup[19], num_P_bygroup[19], group_X_fitness(ptr, group_ptr, 19), group_M_fitness(ptr, group_ptr, 19), group_P_fitness(ptr, group_ptr, 19));
-            fprintf(fg21, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[20], num_infected_bygroup[20], num_pairs_bygroup[20], num_X_bygroup[20], num_M_bygroup[20], num_P_bygroup[20], group_X_fitness(ptr, group_ptr, 20), group_M_fitness(ptr, group_ptr, 20), group_P_fitness(ptr, group_ptr, 20));
-            fprintf(fg22, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[21], num_infected_bygroup[21], num_pairs_bygroup[21], num_X_bygroup[21], num_M_bygroup[21], num_P_bygroup[21], group_X_fitness(ptr, group_ptr, 21), group_M_fitness(ptr, group_ptr, 21), group_P_fitness(ptr, group_ptr, 21));
-            fprintf(fg23, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[22], num_infected_bygroup[22], num_pairs_bygroup[22], num_X_bygroup[22], num_M_bygroup[22], num_P_bygroup[22], group_X_fitness(ptr, group_ptr, 22), group_M_fitness(ptr, group_ptr, 22), group_P_fitness(ptr, group_ptr, 22));
-            fprintf(fg24, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[23], num_infected_bygroup[23], num_pairs_bygroup[23], num_X_bygroup[23], num_M_bygroup[23], num_P_bygroup[23], group_X_fitness(ptr, group_ptr, 23), group_M_fitness(ptr, group_ptr, 23), group_P_fitness(ptr, group_ptr, 23));
-            fprintf(fg25, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[24], num_infected_bygroup[24], num_pairs_bygroup[24], num_X_bygroup[24], num_M_bygroup[24], num_P_bygroup[24], group_X_fitness(ptr, group_ptr, 24), group_M_fitness(ptr, group_ptr, 24), group_P_fitness(ptr, group_ptr, 24));
-            fprintf(fg26, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[25], num_infected_bygroup[25], num_pairs_bygroup[25], num_X_bygroup[25], num_M_bygroup[25], num_P_bygroup[25], group_X_fitness(ptr, group_ptr, 25), group_M_fitness(ptr, group_ptr, 25), group_P_fitness(ptr, group_ptr, 25));
-            fprintf(fg27, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[26], num_infected_bygroup[26], num_pairs_bygroup[26], num_X_bygroup[26], num_M_bygroup[26], num_P_bygroup[26], group_X_fitness(ptr, group_ptr, 26), group_M_fitness(ptr, group_ptr, 26), group_P_fitness(ptr, group_ptr, 26));
-            fprintf(fg28, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[27], num_infected_bygroup[27], num_pairs_bygroup[27], num_X_bygroup[27], num_M_bygroup[27], num_P_bygroup[27], group_X_fitness(ptr, group_ptr, 27), group_M_fitness(ptr, group_ptr, 27), group_P_fitness(ptr, group_ptr, 27));
-            fprintf(fg29, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[28], num_infected_bygroup[28], num_pairs_bygroup[28], num_X_bygroup[28], num_M_bygroup[28], num_P_bygroup[28], group_X_fitness(ptr, group_ptr, 28), group_M_fitness(ptr, group_ptr, 28), group_P_fitness(ptr, group_ptr, 28));
-            fprintf(fg30, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[29], num_infected_bygroup[29], num_pairs_bygroup[29], num_X_bygroup[29], num_M_bygroup[29], num_P_bygroup[29], group_X_fitness(ptr, group_ptr, 29), group_M_fitness(ptr, group_ptr, 29), group_P_fitness(ptr, group_ptr, 29));
-            fprintf(fg31, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[30], num_infected_bygroup[30], num_pairs_bygroup[30], num_X_bygroup[30], num_M_bygroup[30], num_P_bygroup[30], group_X_fitness(ptr, group_ptr, 30), group_M_fitness(ptr, group_ptr, 30), group_P_fitness(ptr, group_ptr, 30));
-            fprintf(fg32, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[31], num_infected_bygroup[31], num_pairs_bygroup[31], num_X_bygroup[31], num_M_bygroup[31], num_P_bygroup[31], group_X_fitness(ptr, group_ptr, 31), group_M_fitness(ptr, group_ptr, 31), group_P_fitness(ptr, group_ptr, 31));
-            fprintf(fg33, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[32], num_infected_bygroup[32], num_pairs_bygroup[32], num_X_bygroup[32], num_M_bygroup[32], num_P_bygroup[32], group_X_fitness(ptr, group_ptr, 32), group_M_fitness(ptr, group_ptr, 32), group_P_fitness(ptr, group_ptr, 32));
-            fprintf(fg34, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[33], num_infected_bygroup[33], num_pairs_bygroup[33], num_X_bygroup[33], num_M_bygroup[33], num_P_bygroup[33], group_X_fitness(ptr, group_ptr, 33), group_M_fitness(ptr, group_ptr, 33), group_P_fitness(ptr, group_ptr, 33));
-            fprintf(fg35, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[34], num_infected_bygroup[34], num_pairs_bygroup[34], num_X_bygroup[34], num_M_bygroup[34], num_P_bygroup[34], group_X_fitness(ptr, group_ptr, 34), group_M_fitness(ptr, group_ptr, 34), group_P_fitness(ptr, group_ptr, 34));
-            fprintf(fg36, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[35], num_infected_bygroup[35], num_pairs_bygroup[35], num_X_bygroup[35], num_M_bygroup[35], num_P_bygroup[35], group_X_fitness(ptr, group_ptr, 35), group_M_fitness(ptr, group_ptr, 35), group_P_fitness(ptr, group_ptr, 35));
-            fprintf(fg37, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[36], num_infected_bygroup[36], num_pairs_bygroup[36], num_X_bygroup[36], num_M_bygroup[36], num_P_bygroup[36], group_X_fitness(ptr, group_ptr, 36), group_M_fitness(ptr, group_ptr, 36), group_P_fitness(ptr, group_ptr, 36));
-            fprintf(fg38, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[37], num_infected_bygroup[37], num_pairs_bygroup[37], num_X_bygroup[37], num_M_bygroup[37], num_P_bygroup[37], group_X_fitness(ptr, group_ptr, 37), group_M_fitness(ptr, group_ptr, 37), group_P_fitness(ptr, group_ptr, 37));
-            fprintf(fg39, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[38], num_infected_bygroup[38], num_pairs_bygroup[38], num_X_bygroup[38], num_M_bygroup[38], num_P_bygroup[38], group_X_fitness(ptr, group_ptr, 38), group_M_fitness(ptr, group_ptr, 38), group_P_fitness(ptr, group_ptr, 38));
-            fprintf(fg40, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[39], num_infected_bygroup[39], num_pairs_bygroup[39], num_X_bygroup[39], num_M_bygroup[39], num_P_bygroup[39], group_X_fitness(ptr, group_ptr, 39), group_M_fitness(ptr, group_ptr, 39), group_P_fitness(ptr, group_ptr, 39));
-            fprintf(fg41, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[40], num_infected_bygroup[40], num_pairs_bygroup[40], num_X_bygroup[40], num_M_bygroup[40], num_P_bygroup[40], group_X_fitness(ptr, group_ptr, 40), group_M_fitness(ptr, group_ptr, 40), group_P_fitness(ptr, group_ptr, 40));
-            fprintf(fg42, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[41], num_infected_bygroup[41], num_pairs_bygroup[41], num_X_bygroup[41], num_M_bygroup[41], num_P_bygroup[41], group_X_fitness(ptr, group_ptr, 41), group_M_fitness(ptr, group_ptr, 41), group_P_fitness(ptr, group_ptr, 41));
-            fprintf(fg43, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[42], num_infected_bygroup[42], num_pairs_bygroup[42], num_X_bygroup[42], num_M_bygroup[42], num_P_bygroup[42], group_X_fitness(ptr, group_ptr, 42), group_M_fitness(ptr, group_ptr, 42), group_P_fitness(ptr, group_ptr, 42));
-            fprintf(fg44, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[43], num_infected_bygroup[43], num_pairs_bygroup[43], num_X_bygroup[43], num_M_bygroup[43], num_P_bygroup[43], group_X_fitness(ptr, group_ptr, 43), group_M_fitness(ptr, group_ptr, 43), group_P_fitness(ptr, group_ptr, 43));
-            fprintf(fg45, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[44], num_infected_bygroup[44], num_pairs_bygroup[44], num_X_bygroup[44], num_M_bygroup[44], num_P_bygroup[44], group_X_fitness(ptr, group_ptr, 44), group_M_fitness(ptr, group_ptr, 44), group_P_fitness(ptr, group_ptr, 44));
-            fprintf(fg46, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[45], num_infected_bygroup[45], num_pairs_bygroup[45], num_X_bygroup[45], num_M_bygroup[45], num_P_bygroup[45], group_X_fitness(ptr, group_ptr, 45), group_M_fitness(ptr, group_ptr, 45), group_P_fitness(ptr, group_ptr, 45));
-            fprintf(fg47, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[46], num_infected_bygroup[46], num_pairs_bygroup[46], num_X_bygroup[46], num_M_bygroup[46], num_P_bygroup[46], group_X_fitness(ptr, group_ptr, 46), group_M_fitness(ptr, group_ptr, 46), group_P_fitness(ptr, group_ptr, 46));
-            fprintf(fg48, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[47], num_infected_bygroup[47], num_pairs_bygroup[47], num_X_bygroup[47], num_M_bygroup[47], num_P_bygroup[47], group_X_fitness(ptr, group_ptr, 47), group_M_fitness(ptr, group_ptr, 47), group_P_fitness(ptr, group_ptr, 47));
-            fprintf(fg49, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[48], num_infected_bygroup[48], num_pairs_bygroup[48], num_X_bygroup[48], num_M_bygroup[48], num_P_bygroup[48], group_X_fitness(ptr, group_ptr, 48), group_M_fitness(ptr, group_ptr, 48), group_P_fitness(ptr, group_ptr, 48));
-            fprintf(fg50, "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n", t, (float)t / 12, num_individuals_bygroup[49], num_infected_bygroup[49], num_pairs_bygroup[49], num_X_bygroup[49], num_M_bygroup[49], num_P_bygroup[49], group_X_fitness(ptr, group_ptr, 49), group_M_fitness(ptr, group_ptr, 49), group_P_fitness(ptr, group_ptr, 49));
+            for (int i = 0; i < initial_num_groups; i++)
+            {
+                fprintf(f_grp[i], "%d, %f, %d, %d, %d, %d, %d, %d, %f, %f, %f\n",
+                        t, (float)t / 12, num_individuals_bygroup[i], num_infected_bygroup[i],
+                        num_pairs_bygroup[i], num_X_bygroup[i], num_M_bygroup[i],
+                        num_P_bygroup[i], group_X_fitness(ptr, group_ptr, i),
+                        group_M_fitness(ptr, group_ptr, i), group_P_fitness(ptr, group_ptr, i));
+            }
 
             /************************************************************************************/
             /*   Compute statistics on partnership distribution, before disease is introduced   */
@@ -1789,54 +1652,21 @@ int main(void)
     fclose(fparam);
     fclose(ftemp);
 
-    fclose(fg1);
-    fclose(fg2);
-    fclose(fg3);
-    fclose(fg4);
-    fclose(fg5);
-    fclose(fg6);
-    fclose(fg7);
-    fclose(fg8);
-    fclose(fg9);
-    fclose(fg10);
-    fclose(fg11);
-    fclose(fg12);
-    fclose(fg13);
-    fclose(fg14);
-    fclose(fg15);
-    fclose(fg16);
-    fclose(fg17);
-    fclose(fg18);
-    fclose(fg19);
-    fclose(fg20);
-    fclose(fg21);
-    fclose(fg22);
-    fclose(fg23);
-    fclose(fg24);
-    fclose(fg25);
-    fclose(fg26);
-    fclose(fg27);
-    fclose(fg28);
-    fclose(fg29);
-    fclose(fg30);
-    fclose(fg31);
-    fclose(fg32);
-    fclose(fg33);
-    fclose(fg34);
-    fclose(fg35);
-    fclose(fg36);
-    fclose(fg37);
-    fclose(fg38);
-    fclose(fg39);
-    fclose(fg40);
-    fclose(fg41);
-    fclose(fg42);
-    fclose(fg43);
-    fclose(fg44);
-    fclose(fg45);
-    fclose(fg46);
-    fclose(fg47);
-    fclose(fg48);
-    fclose(fg49);
-    fclose(fg50);
+    for (int i = 0; i < initial_num_groups; i++)
+        fclose(f_grp[i]);
+
+    return 0;
+}
+
+static FILE *open_group_file(int i)
+{
+    char name[32];
+    snprintf(name, sizeof(name), "group%d.csv", i + 1);
+    FILE *fp = fopen("group1.csv", "a");
+    if (fp == NULL)
+    {
+        fprintf(stderr, "failed to open file '%s' in append mode\n", name);
+        exit(EXIT_FAILURE);
+    }
+    return fp;
 }
