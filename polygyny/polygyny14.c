@@ -2,7 +2,7 @@
 
 #include "polygyny14.h"
 
-int main()
+int main(void)
 {
     float shrink_factor = 1.0;
 
@@ -76,7 +76,6 @@ int main()
     int group1, group2;
     int num_of_searches;
     int competition_occurs;
-    int partner_distribution_criterion_met;
 
     int num_groups;
 
@@ -105,7 +104,6 @@ int main()
     float P_prevalence3;
     int time_count3;
 
-    float prop_group;
     float X_prevalence_in_X_group;
     float M_prevalence_in_X_group;
     float P_prevalence_in_X_group;
@@ -179,34 +177,10 @@ int main()
     int P_group_size_counter;
     int total_group_size_counter;
 
-    int X_group_size_counter1;
-    int M_group_size_counter1;
-    int P_group_size_counter1;
-
-    int X_group_size_counter2;
-    int M_group_size_counter2;
-    int P_group_size_counter2;
-
-    int X_group_size_counter3;
-    int M_group_size_counter3;
-    int P_group_size_counter3;
-
     int X_group_size_temp;
     int M_group_size_temp;
     int P_group_size_temp;
     int total_group_size_temp;
-
-    int X_group_size_temp1;
-    int M_group_size_temp1;
-    int P_group_size_temp1;
-
-    int X_group_size_temp2;
-    int M_group_size_temp2;
-    int P_group_size_temp2;
-
-    int X_group_size_temp3;
-    int M_group_size_temp3;
-    int P_group_size_temp3;
 
     float X_avg_num_partners;
     float M_avg_num_partners;
@@ -244,19 +218,14 @@ int main()
     int M_avg_fitness_count;
     int P_avg_fitness_count;
 
-    float prev_X_temp, prev_M_temp, prev_P_temp;
-    float temp_prev1, temp_prev2;
-
     /**********/
 
     float g1percentP, g1percentX, g2percentP, g2percentX;
     int P_group_wins = 0, X_group_wins = 0;
-    int a, b, c, d, j, k, n, t, gp;
-    int partner_flag;
+    int b, c, d, j, k, n, t, gp;
     int group_assignment;
     int initial_group_size;
     int group_flag;
-    int P; /* number of partnerships */
     int num_infected = 0;
     int num_pairs = 0;
     int num_individuals = 0;
@@ -265,21 +234,9 @@ int main()
     int num_M = 0;
     int percent_X_wins, percent_P_wins, percent_M_wins;
 
-    float average_size_P_groups;
-    float average_size_X_groups;
-    float average_incidence_P_groups;
-
     int num_P_groups;
     int num_X_groups;
     int num_M_groups;
-
-    float prop_X_in_X, prop_M_in_X, prop_P_in_X;
-    float prop_X_in_M, prop_M_in_M, prop_P_in_M;
-    float prop_X_in_P, prop_M_in_P, prop_P_in_P;
-
-    float prop_X_in_X_previous, prop_M_in_X_previous, prop_P_in_X_previous;
-    float prop_X_in_M_previous, prop_M_in_M_previous, prop_P_in_M_previous;
-    float prop_X_in_P_previous, prop_M_in_P_previous, prop_P_in_P_previous;
 
     int num_infected_bygroup[initial_num_groups];
     int num_pairs_bygroup[initial_num_groups];
@@ -300,6 +257,7 @@ int main()
     FILE *fg41, *fg42, *fg43, *fg44, *fg45, *fg46, *fg47, *fg48, *fg49, *fg50;
     FILE *fparam;
     FILE *ftemp;
+
     ftemp = fopen("group_size_data.csv", "a");
 
     f1 = fopen("timeseries.csv", "a");

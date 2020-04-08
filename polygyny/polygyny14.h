@@ -56,6 +56,9 @@ typedef struct group_data
     int active;
 } group;
 
+/* Declarations before use */
+static int room_in_group(struct group_data *group_ptr, int groupID);
+
 #define IA 16807
 #define IM 2147483647
 #define AM (1.0 / IM)
@@ -148,6 +151,7 @@ static double kyrand(void)   /* returns random number between 0 and 1 */
     return(answer);
 }
 
+#ifdef DEFINE_UNUSED_FUNCTIONS
 static float fac(int k)    /* factorial function */
 {
     int i;
@@ -163,6 +167,7 @@ static float fac(int k)    /* factorial function */
     }
     return answer;
 }
+#endif /* DEFINE_UNUSED_FUNCTIONS */
 
 static int not_yet_partners(struct node_data *ptr, int a, int b)
 {
@@ -279,6 +284,7 @@ static int num_in_group(struct group_data *group_ptr, struct node_data *ptr, int
     return number_in_group;
 }
 
+#ifdef DEFINE_UNUSED_FUNCTIONS
 static int num_groups(struct group_data *group_ptr, struct node_data *ptr)
 {
     int k, number_of_groups = 0;
@@ -291,6 +297,7 @@ static int num_groups(struct group_data *group_ptr, struct node_data *ptr)
 
     return number_of_groups;
 }
+#endif /* DEFINE_UNUSED_FUNCTIONS */
 
 static int num_infected_in_group(struct group_data *group_ptr, struct node_data *ptr, int current_group)
 {
@@ -332,6 +339,7 @@ static int num_X_in_group(struct group_data *group_ptr, struct node_data *ptr, i
     return number_of_X;
 }
 
+#ifdef DEFINE_UNUSED_FUNCTIONS
 static float
 his_penalty(struct group_data *group_ptr, struct node_data *ptr, int male,
             float cost_paid, float cost_imposed, float punishing_threshold)
@@ -392,6 +400,7 @@ his_penalty(struct group_data *group_ptr, struct node_data *ptr, int male,
     assert(0);
     exit(1);
 }
+#endif /* DEFINE_UNUSED_FUNCTIONS */
 
 static float
 her_partners_penalty(struct group_data *group_ptr, struct node_data *ptr,
@@ -509,7 +518,6 @@ kill_group(struct group_data *group_ptr, struct node_data *ptr, int winning_grou
     int j, k, q, h;
     int group_count = 0;
     int current_partner;
-    int he_has_a_current_partner;
 
     /* first, kill vanquished group */
 
@@ -595,7 +603,6 @@ split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_grou
     int group_count = 0;
     int current_partner;
     int num_of_searches = 0;
-    int he_has_a_current_partner;
 
     /* find a new daughter group to move to */
 
@@ -671,6 +678,7 @@ split_group(struct group_data *group_ptr, struct node_data *ptr, int mother_grou
     }
 }
 
+#ifdef DEFINE_UNUSED_FUNCTIONS
 static void
 seek_partnership_inside(struct node_data *ptr, struct group_data *group_ptr, int b, int n)
 {
@@ -736,6 +744,7 @@ seek_partnership_inside(struct node_data *ptr, struct group_data *group_ptr, int
         partner_flag = 1;
     }
 }
+#endif /* DEFINE_UNUSED_FUNCTIONS */
 
 /* in this version of ths function, the female ranks males and simply picks the male in the group with the highest ratio of wealth/(wives+1) */
 static void
@@ -745,7 +754,7 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
                                double cost_imposed, double punishing_threshold)
 {
     int a, ID, partner_flag = 0;
-    int k, dummy;
+    int dummy;
     int suitable;
     int most_desirable = -1;
     float highest_desirability = -1;
@@ -828,6 +837,7 @@ seek_partnership_inside_ranked(struct node_data *ptr, struct group_data *group_p
     }
 }
 
+#ifdef DEFINE_UNUSED_FUNCTIONS
 static int current_pop_size(struct node_data *ptr)
 {
     int k, number = 0;
@@ -840,6 +850,7 @@ static int current_pop_size(struct node_data *ptr)
 
     return number;
 }
+#endif /* DEFINE_UNUSED_FUNCTIONS */
 
 static void
 seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
@@ -922,8 +933,8 @@ seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
                                 polygyny_penalty = 1.0 / (fertility_penalty * (ptr[a].num_partners + 1) + (1 - fertility_penalty)); /* THX1138 */
 
                                 desirability = pow(ptr[a].birth_probability, mate_exponent) * polygyny_penalty;
-//                              desirability = pow(ptr[a].birth_probability,mate_exponent)*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
-//                              desirability = ptr[a].birth_probability*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                                //desirability = pow(ptr[a].birth_probability,mate_exponent)*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                                //desirability = ptr[a].birth_probability*polygyny_penalty*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
 
                                 if (desirability > highest_desirability)
                                 {
@@ -936,8 +947,8 @@ seek_partnership_outside(struct node_data *ptr, struct group_data *group_ptr,
                                 suitable = 1;
 
                                 desirability = pow(ptr[a].birth_probability, mate_exponent);
-//                              desirability = pow(ptr[a].birth_probability,mate_exponent)*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
-//                              desirability = ptr[a].birth_probability*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                                //desirability = pow(ptr[a].birth_probability,mate_exponent)*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
+                                //desirability = ptr[a].birth_probability*his_penalty(group_ptr, ptr, a, cost_paid, cost_imposed, punishing_threshold);
 
                                 if (desirability > highest_desirability)
                                 {
@@ -1026,6 +1037,7 @@ static void break_partnership(struct node_data *ptr, int a, int b)
     ptr[b].num_partners--;
 }
 
+#ifdef DEFINE_UNUSED_FUNCTIONS
 static int her_partner_not_with_detected_infection(struct node_data *ptr, int female)
 {
     int j, current_partner;
@@ -1057,6 +1069,7 @@ static int her_partner_not_with_detected_infection(struct node_data *ptr, int fe
         exit(0);
     }
 }
+#endif /* DEFINE_UNUSED_FUNCTIONS */
 
 static int her_partner_fertile(struct node_data *ptr, int female)
 {
