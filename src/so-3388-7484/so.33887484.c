@@ -120,7 +120,7 @@ int ri_gcd(const Fraction *val)
 static Fraction ri_new(int numer, int denom)
 {
     assert(denom != 0);
-    assert(denom != INT_MIN && denom != INT_MIN);
+    assert(numer != INT_MIN && denom != INT_MIN);
     Fraction ri;
     /* Handle invalid inputs as 0 if assertions are not enabled */
     if (numer == 0 || numer == INT_MIN ||
