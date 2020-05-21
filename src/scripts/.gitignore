@@ -1,4 +1,5 @@
 ddpr
+dienet
 fixin
 man7
 pipe-rot
@@ -19,6 +20,7 @@ so-dotarrow
 so-esql
 so-getchar
 so-late
+so-primes
 so-quotes
 so-reformat-c
 so-stderr

@@ -36,6 +36,7 @@ PROG22 = so-esql
 PROG23 = so-dotarrow
 PROG24 = man7
 PROG25 = so-primes
+PROG26 = dienet
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -78,6 +79,7 @@ PROGRAMS = \
 	${PROG23} \
 	${PROG24} \
 	${PROG25} \
+	${PROG26} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 

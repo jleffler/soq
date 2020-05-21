@@ -2,7 +2,7 @@
 #
 # Echo URLs for Linux man pages on man7.org
 
-baseurl="http://man7.org/linux/man-pages"
+baseurl="http://linux.die.net/man"
 bq='`'
 
 section=2
@@ -22,5 +22,5 @@ fn="()"
 
 for name in "$@"
 do
-    echo "[$bq$name$fn$bq]($baseurl/man$section/$name.$section.html)"
+    echo "[$bq$name$fn$bq]($baseurl/$section/$name)"
 done
