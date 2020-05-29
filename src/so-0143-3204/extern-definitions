@@ -498,6 +498,7 @@ especially if you take the standard advice to
 
 Does this exposition miss anything?
 
+<sup>
 _Confession_: The 'avoiding duplicated code' scheme outlined here was
 developed because the issue affects some code I work on (but don't own),
 and is a niggling concern with the scheme outlined in the first part of
@@ -510,6 +511,7 @@ files with the names `fileNc.[ch]` (plus `external.h` and `externdef.h`)
 shows that it can be made to work.  Clearly, it would not be hard to
 create a header generator script to give you the standardized template
 for a variable defining and declaring header file.
+</sup>
 
 _NB_ These are toy programs with just barely enough code to make them
 marginally interesting.  There is repetition within the examples that
