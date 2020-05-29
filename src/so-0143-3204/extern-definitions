@@ -169,13 +169,20 @@ Because this technique is not always supported, it is best to avoid
 using it, _especially if your code needs to be portable_.
 Using this technique, you can also end up with unintentional type
 punning.
-If one of the files declared `i` as a `double` instead of as an `int`,
-C's type-unsafe linkers probably would not spot the mismatch.
-If you're on a machine with 64-bit `int` and `double`, you'd not even
-get a warning; on a machine with 32-bit `int` and 64-bit `double`, you'd
-probably get a warning about the different sizes — the linker would
-use the largest size, exactly as a Fortran program would take the
+
+If one of the files above declared `l` as a `double` instead of as a
+`long`, C's type-unsafe linkers probably would not spot the mismatch.
+If you're on a machine with 64-bit `long` and `double`, you'd not even
+get a warning; on a machine with 32-bit `long` and 64-bit `double`,
+you'd probably get a warning about the different sizes — the linker
+would use the largest size, exactly as a Fortran program would take the
 largest size of any common blocks.
+
+Note that GCC 10.1.0, which was released on 2020-05-07, changes the
+default compilation options to use
+[`-fno-common`](https://gcc.gnu.org/gcc-10/porting_to.html), which means
+that by default, the code above no longer links unless you override the
+default with `-fcommon` (or use attributes, etc — see the link).
 
 <hr>
 
