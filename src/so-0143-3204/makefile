@@ -3,6 +3,18 @@
 # NB: The mkdep program used may not have exactly the same interface as
 #     the 'standard' versions of the program.
 
+# The answer is so big it runs into the character limit (30,000) for
+# answers on SO.  The calculation on SO seems to treat newlines as CRLF
+# pairs, so the flatten.pl script replaces paragraphs of verbiage with a
+# single flattened line.  It also uses the newer ```..``` notation for
+# code to eliminate the leading blanks.  These shrink it down to just
+# within limits.  Any further modification (expansion) will require
+# paring previous verbiage away.  The 'confession' at the end of the
+# answer is one ccandidate for going.
+#
+# NB: remove the <!-- ... --> comment at the start of the
+# extern-definitions.txt file when posting on SO.
+
 PERL   = perl
 UNIQ   = uniq
 MKDEP  = mkdep
@@ -55,7 +67,8 @@ PROG9.o = prog8.o file8c.o file9c.o
 
 PROGS = ${PROG1} ${PROG2} ${PROG3} ${PROG4} ${PROG5} ${PROG6} ${PROG7} ${PROG8} ${PROG9}
 
-INSERT_CODE = insert-code.pl
+INSERT_CODE  = insert-code.pl
+FLATTEN_CODE = flatten.pl
 
 SOURCE = extern-definitions
 ANSWER = extern-definitions.txt
@@ -121,6 +134,7 @@ TAR_LIST = \
 	${FILES.c} \
 	${FILES.h} \
 	${INSERT_CODE} \
+	${FLATTEN_CODE} \
 	${MAKEFILE} \
 	${PROGS.c} \
 	${PROG1.mk} \
@@ -170,8 +184,9 @@ ${PROG9}: ${PROG9.o}
 clean:
 	${RM_FR} *.o *.dSYM core a.out ${PROGS} ${ANSWER} ${TARFILE}
 
-${ANSWER}: ${SOURCE} ${FILES.c} ${PROGS.c} ${FILES.h}
-	${PERL} ${INSERT_CODE} ${SOURCE} | ${UNIQ} > ${ANSWER}
+${ANSWER}: ${SOURCE} ${FILES.c} ${PROGS.c} ${FILES.h} ${INSERT_CODE} ${FLATTEN_CODE}
+	${PERL} ${INSERT_CODE} ${SOURCE} | \
+	${PERL} ${FLATTEN_CODE} | ${UNIQ} > ${ANSWER}
 
 ${TARFILE}: ${TAR_LIST}
 	${TAR} ${TARFLAGS} ${TARFILE} ${TAR_LIST}
