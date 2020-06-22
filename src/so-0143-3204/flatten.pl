@@ -5,6 +5,11 @@
 
 if (m/\w+(?: \w+){5,}/)
 {
+    if (m%/\* .* \*/%xsm)
+    {
+        # It contains a C comment - not running text
+        next;
+    }
     if (m/^>\s/)
     {
         s/^>\s+//gm;
