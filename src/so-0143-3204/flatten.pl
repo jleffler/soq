@@ -5,9 +5,9 @@
 
 if (m/\w+(?: \w+){5,}/)
 {
-    if (m%/\* .* \*/%xsm)
+    if (m%/\* .* \*/%xsm || m%^#%xsm)
     {
-        # It contains a C comment - not running text
+        # It contains a C or shell comment - not running text
         next;
     }
     if (m/^>\s/)
