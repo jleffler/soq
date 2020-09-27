@@ -4,6 +4,6 @@
 
 : "${VALGRIND:=valgrind}"
 : "${SOQDIR:=$HOME/soq}"
-: "${SUPPRESSIONS:=suppressions-macos-10.13.4}"
+: "${SUPPRESSIONS:=suppressions-macos-10.15}"
 
 exec ${VALGRIND} --suppressions="${SOQDIR}/etc/${SUPPRESSIONS}" "$@"
