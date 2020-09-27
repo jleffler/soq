@@ -2,7 +2,7 @@
 #
 # Echo URLs for POSIX headers
 
-baseurl="http://pubs.opengroup.org/onlinepubs/9699919799"
+baseurl="https://pubs.opengroup.org/onlinepubs/9699919799"
 bq='`'
 
 for header in "$@"

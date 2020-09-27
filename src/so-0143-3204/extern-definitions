@@ -15,6 +15,7 @@ variable](https://stackoverflow.com/questions/1410563):
 * A variable is **declared** when the compiler is informed that a
   variable exists (and this is its type); it does not allocate the
   storage for the variable at that point.
+
 * A variable is **defined** when the compiler allocates the storage for
   the variable.
 
@@ -86,18 +87,24 @@ Rules to be broken by experts only, and only with good reason:
 
 * A header file only contains `extern` declarations of variables — never
   `static` or unqualified variable definitions.
+
 * For any given variable, only one header file declares it (SPOT —
   Single Point of Truth).
+
 * A source file never contains `extern` declarations of variables —
   source files always include the (sole) header that declares them.
+
 * For any given variable, exactly one source file defines the variable,
   preferably initializing it too.  (Although there is no need to
   initialize explicitly to zero, it does no harm and can do some good,
   because there can be only one initialized definition of a particular
   global variable in a program).
+
 * The source file that defines the variable also includes the header to
   ensure that the definition and the declaration are consistent.
+
 * A function should never need to declare a variable using `extern`.
+
 * Avoid global variables whenever possible — use functions instead.
 
 <sup>_The source code and text of this answer are available in my
@@ -169,13 +176,20 @@ Because this technique is not always supported, it is best to avoid
 using it, _especially if your code needs to be portable_.
 Using this technique, you can also end up with unintentional type
 punning.
-If one of the files declared `i` as a `double` instead of as an `int`,
-C's type-unsafe linkers probably would not spot the mismatch.
-If you're on a machine with 64-bit `int` and `double`, you'd not even
-get a warning; on a machine with 32-bit `int` and 64-bit `double`, you'd
-probably get a warning about the different sizes — the linker would
-use the largest size, exactly as a Fortran program would take the
+
+If one of the files above declared `l` as a `double` instead of as a
+`long`, C's type-unsafe linkers probably would not spot the mismatch.
+If you're on a machine with 64-bit `long` and `double`, you'd not even
+get a warning; on a machine with 32-bit `long` and 64-bit `double`,
+you'd probably get a warning about the different sizes — the linker
+would use the largest size, exactly as a Fortran program would take the
 largest size of any common blocks.
+
+Note that GCC 10.1.0, which was released on 2020-05-07, changes the
+default compilation options to use
+[`-fno-common`](https://gcc.gnu.org/gcc-10/porting_to.html), which means
+that by default, the code above no longer links unless you override the
+default with `-fcommon` (or use attributes, etc — see the link).
 
 <hr>
 
@@ -369,11 +383,17 @@ However, it can be done subject to a not too unreasonable constraint.
 Let's introduce a new set of file names:
 
 * `external.h` for the EXTERN macro definitions, etc.
+
 * `file1c.h` to define types (notably, `struct oddball`, the type of `oddball_struct`).
+
 * `file2c.h` to define or declare the global variables.
+
 * `file3c.c` which defines the global variables.
+
 * `file4c.c` which simply uses the global variables.
+
 * `file5c.c` which shows that you can declare and then define the global variables.
+
 * `file6c.c` which shows that you can define and then (attempt to) declare the global variables.
 
 In these examples, `file5c.c` and `file6c.c` directly include the header
@@ -385,8 +405,10 @@ The restrictions for this to work are:
 
 1. The header defining or declaring the global variables may not itself
    define any types.
+
 2. Immediately before you include a header that should define variables,
    you define the macro DEFINE_VARIABLES.
+
 3. The header defining or declaring the variables has stylized contents.
 
 ### external.h
@@ -410,7 +432,9 @@ _The next source file completes the source (provides a main program) for `prog5`
 ### prog5.c
 
 * `prog5` uses `prog5.c`, `file3c.c`, `file4c.c`, `file1c.h`, `file2c.h`, `external.h`.
+
 * `prog6` uses `prog5.c`, `file5c.c`, `file4c.c`, `file1c.h`, `file2c.h`, `external.h`.
+
 * `prog7` uses `prog5.c`, `file6c.c`, `file4c.c`, `file1c.h`, `file2c.h`, `external.h`.
 
 <hr>
@@ -460,6 +484,7 @@ _The next two files complete the source for `prog8` and `prog9`:_
 ### file9c.c
 
 * `prog8` uses `prog8.c`, `file7c.c`, `file9c.c`.
+
 * `prog9` uses `prog8.c`, `file8c.c`, `file9c.c`.
 
 <hr>
@@ -473,6 +498,7 @@ especially if you take the standard advice to
 
 Does this exposition miss anything?
 
+<sup>
 _Confession_: The 'avoiding duplicated code' scheme outlined here was
 developed because the issue affects some code I work on (but don't own),
 and is a niggling concern with the scheme outlined in the first part of
@@ -485,6 +511,7 @@ files with the names `fileNc.[ch]` (plus `external.h` and `externdef.h`)
 shows that it can be made to work.  Clearly, it would not be hard to
 create a header generator script to give you the standardized template
 for a variable defining and declaring header file.
+</sup>
 
 _NB_ These are toy programs with just barely enough code to make them
 marginally interesting.  There is repetition within the examples that

@@ -2,16 +2,27 @@
 #
 # Analog to WSO for SSCCE and MCVE (and HTAQTSW)
 
+usestr="Usage: $(basename $0 .sh) [-hl]"
 usage()
 {
-    echo "Usage: $(basename $0 .sh) [-l]" >&2
+    echo "$usestr" >&2
     exit 1
+}
+help()
+{
+    echo "$usestr"
+    echo
+    echo "  -h  Print this help message and exit"
+    echo "  -l  Print long form message (extra URLs)"
+    echo
+    exit 0
 }
 
 long=no
-while getopts l arg
+while getopts hl arg
 do
     case "$arg" in
+    (h) help;;
     (l) long=yes;;
     (*) usage;;
     esac
@@ -22,16 +33,16 @@ if [ $# != 0 ]
 then usage
 fi
 
-echo 'MCVE ([Minimal, Complete, Verifiable Example](https://stackoverflow.com/help/mcve))'
-echo '(or MRE or whatever name SO now uses)'
+echo 'MCVE ([Minimal, Complete, Verifiable Example](https://stackoverflow.com/help/mcve)'
+echo ' — or MRE or whatever name SO now uses)'
 
-# Verified http not https 2019-05-15
+# Verified http not https 2020-08-03
 echo 'or an'
 echo 'SSCCE ([Short, Self-Contained, Correct Example](http://sscce.org/)).'
 
 if [ "$long" = "yes" ]
 then
-    # Verified http not https 2019-05-15
+    # Verified http not https 2020-08-03
     echo 'See also'
     echo '[How to Ask Questions the Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)'
     #echo 'and [Writing the perfect question](http://tinyurl.com/stack-hints)'

@@ -76,4 +76,12 @@ Eric S Raymond
 Steve McConnell
 [Code Complete 2nd Edn](https://smile.amazon.com/dp/0735619670/) 2004.
 
+Jens Gustedt
+[Modern C](https://smile.amazon.com/dp/1617295817) 2020.
+[Modern C](https://www.manning.com/books/modern-c)
+
+Kamran Amini
+[Extreme C](https://smile.amazon.com/dp/1789343623) 2019.
+[Extreme C](https://www.packtpub.com/free-ebook/extreme-c/9781789343625)
+
 EOF

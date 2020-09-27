@@ -8,21 +8,23 @@ $tabstop = 4;
 
 while (<>)
 {
-    if (m/^### (\w+\.[mch]k?)$/)
+    if (m/^### (\w+\.([mch]k?))$/)
     {
         my $file = $1;
+        my $extn = $2;
         print $_;
-        print "\n";
         open my $fh, "<", "$file" or die "Failed to open $file";
+        my $tag = "c";
+        $tag = "make" if $extn eq "mk";
+        print "\n```$tag\n";
         while (<$fh>)
         {
             chomp;
             s/\s+$//;
 			$_ = expand($_);
-            $_ = "    $_" if length($_) > 0;
             print "$_\n";
         }
-        print "\n";
+        print "```\n\n";
     }
     else
     {

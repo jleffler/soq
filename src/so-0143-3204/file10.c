@@ -1,5 +1,5 @@
 #include "prog2.h"
 
-int i;   /* Do not do this in portable code */
+long l;   /* Do not do this in portable code */
 
-void inc(void) { i++; }
+void inc(void) { l++; }
