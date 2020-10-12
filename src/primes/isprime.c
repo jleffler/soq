@@ -28,7 +28,7 @@
 #include "wraphead.h"
 
 /* Original code - extremely slow */
-static int IsPrime0(unsigned number)
+static int IsPrime0A(unsigned number)
 {
     for (unsigned i = 2; i < number; i++)
     {
@@ -39,8 +39,8 @@ static int IsPrime0(unsigned number)
     return 1;
 }
 
-/* First step up - radically better than IsPrime0() */
-static int IsPrime1(unsigned number)
+/* First step up - radically better than IsPrime0A() */
+static int IsPrime1A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -53,8 +53,22 @@ static int IsPrime1(unsigned number)
     return 1;
 }
 
-/* Second step up - noticeably better than IsPrime1() */
-static int IsPrime2(unsigned number)
+/* First step up - radically better than IsPrime0A() */
+static int IsPrime1B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    unsigned i;
+    for (i = 2; i <= number / i; i++)
+    {
+        if (number % i == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Second step up - noticeably better than IsPrime1A() */
+static int IsPrime2A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -70,8 +84,25 @@ static int IsPrime2(unsigned number)
     return 1;
 }
 
-/* Slight step back - marginally slower than IsPrime2() */
-static int IsPrime3(unsigned number)
+/* Second step up - noticeably better than IsPrime1A() */
+static int IsPrime2B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned i = 5; i <= number / i; i += 2)
+    {
+        if (number % i == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Slight step back - marginally slower than IsPrime2A() */
+static int IsPrime3A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -88,8 +119,8 @@ static int IsPrime3(unsigned number)
     return 1;
 }
 
-/* Third step up - noticeably better than IsPrime2() */
-static int isprime1(unsigned number)
+/* Third step up - noticeably better than IsPrime2A() */
+static int isprime1A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -106,8 +137,8 @@ static int isprime1(unsigned number)
     return 1;
 }
 
-/* Fourth step up - marginally worse than isprime1() */
-static int isprime2(unsigned number)
+/* Fourth step up - marginally worse than isprime1A() */
+static int isprime2A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -123,8 +154,25 @@ static int isprime2(unsigned number)
     return 1;
 }
 
-/* Fifth step up - usually marginally but measurably better than isprime1() */
-static int isprime3(unsigned number)
+/* Fourth step up - marginally worse than isprime1A() */
+static int isprime2B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned i = 6; (i - 1) <= number / (i - 1); i += 6)
+    {
+        if (number % (i - 1) == 0 || number % (i + 1) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Fifth step up - usually marginally but measurably better than isprime1A() */
+static int isprime3A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -153,12 +201,42 @@ static int isprime3(unsigned number)
     return 1;
 }
 
+/* Fifth step up - usually marginally but measurably better than isprime1A() */
+static int isprime3B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    static const unsigned int small_primes[] =
+    {
+         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
+        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
+    };
+    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
+    for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
+    {
+        if (number == small_primes[i])
+            return 1;
+        if (number % small_primes[i] == 0)
+            return 0;
+    }
+    for (unsigned i = 102; (i - 1) <= number / (i - 1); i += 6)
+    {
+        if (number % (i - 1) == 0 || number % (i + 1) == 0)
+            return 0;
+    }
+    return 1;
+}
+
 /*
-** Late-comer.  One test showed it slightly slower than isprime3() - but
-** the same test showed isprime2() faster than both isprime3() and
-** isprime4()
+** Late-comer.  One test showed it slightly slower than isprime3A() - but
+** the same test showed isprime2A() faster than both isprime3A() and
+** isprime4A()
 */
-static int isprime4(unsigned number)
+static int isprime4A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -174,8 +252,29 @@ static int isprime4(unsigned number)
     return 1;
 }
 
-/* Another trial - this seems to be a little faster than either isprime3() or isprime4() */
-static int isprime5(unsigned number)
+/*
+** Late-comer.  One test showed it slightly slower than isprime3A() - but
+** the same test showed isprime2A() faster than both isprime3A() and
+** isprime4A()
+*/
+static int isprime4B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned x = 5; x <= number / x; x += 6)
+    {
+        if (number % x == 0 || number % (x + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Another trial - this seems to be a little faster than either isprime3A() or isprime4A() */
+static int isprime5A(unsigned number)
 {
     if (number <= 1)
         return 0;
@@ -204,6 +303,36 @@ static int isprime5(unsigned number)
     return 1;
 }
 
+/* Another trial - this seems to be a little faster than either isprime3A() or isprime4A() */
+static int isprime5B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    static const unsigned int small_primes[] =
+    {
+         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
+        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
+    };
+    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
+    for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
+    {
+        if (number == small_primes[i])
+            return 1;
+        if (number % small_primes[i] == 0)
+            return 0;
+    }
+    for (unsigned i = 101; i <= number / i; i += 6)
+    {
+        if (number % i == 0 || number % (i + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
 static void test_primality_tester(const char *tag, int seed, int (*prime)(unsigned), int count)
 {
     srand(seed);
@@ -224,23 +353,36 @@ static void test_primality_tester(const char *tag, int seed, int (*prime)(unsign
            count, clk_elapsed_us(&clk, buffer, sizeof(buffer)));
 }
 
+/* XXX: probably time to use an array! */
 static int check_number(unsigned v)
 {
-    int p1 = IsPrime1(v);
-    int p2 = IsPrime2(v);
-    int p3 = IsPrime3(v);
-    int p4 = isprime1(v);
-    int p5 = isprime2(v);
-    int p6 = isprime3(v);
-    int p7 = isprime4(v);
-    int p8 = isprime5(v);
-    if (p1 != p2 || p1 != p3 || p1 != p4 || p1 != p5 || p1 != p6 || p1 != p7 || p1 != p8)
+    int p1a = IsPrime1A(v);
+    int p2a = IsPrime2A(v);
+    int p2b = IsPrime2B(v);
+    int p3a = IsPrime3A(v);
+    int p4a = isprime1A(v);
+    int p5a = isprime2A(v);
+    int p6a = isprime3A(v);
+    int p6b = isprime3B(v);
+    int p7a = isprime4A(v);
+    int p7b = isprime4B(v);
+    int p8a = isprime5A(v);
+    int p8b = isprime5B(v);
+    if (p1a != p2a || p1a != p2b || p1a != p3a || p1a != p4a || p1a != p5a ||
+        p1a != p6a || p1a != p6b || p1a != p7a || p1a != p7b || p1a != p8a ||
+        p1a != p8b)
     {
         PROGRESS_REPORT(putchar('\n'));
-        printf("!! FAIL !! %10u: IsPrime1() %d; isPrime2() %d;"
-                " IsPrime3() %d; isprime1() %d; isprime2() %d;"
-                " isprime3() %d; isprime4() %d; isprime5() %d\n",
-                v, p1, p2, p3, p4, p5, p6, p7, p8);
+        printf("!! FAIL !! %10u: IsPrime1A() %d; isPrime2A() %d; "
+                "IsPrime2B() %d; IsPrime3A() %d; isprime1A() %d; "
+                "isprime2A() %d; isprime3A() %d; isprime3B() %d; "
+                "isprime4A() %d; isprime4B() %d; isprime5A() %d; "
+                "isprime5B() %d\n",
+                v, p1a, p2a,
+                p2b, p3a, p4a,
+                p5a, p6a, p6b,
+                p7a, p7b, p8a,
+                p8b);
         return 1;
     }
     return 0;
@@ -273,13 +415,24 @@ static void set_interval_timer(int interval)
 }
 #endif
 
+static void print_utc(void)
+{
+    time_t now = time(0);
+    struct tm *utc = gmtime(&now);
+    char buffer[32];
+    strftime(buffer, sizeof(buffer), "Time: %Y-%m-%d %H:%M:%SZ", utc);
+    printf("%s\n", buffer);
+}
+
 static void bake_off(int seed, int count)
 {
     srand(seed);
     Clock clk;
     clk_init(&clk);
     printf("Seed: %d\n", seed);
-    printf("Bake-off...warning this often takes more than two minutes.\n");
+    printf("Bake-off...warning this can take more than four minutes.\n");
+    printf("        ...(60 dots per line, 1 dot per second, more or less).\n");
+    print_utc();
     PROGRESS_REPORT(set_interval_timer(1));
 
     clk_start(&clk);
@@ -311,6 +464,7 @@ static void bake_off(int seed, int count)
         printf("== PASS == %s s\n", buffer);
     else
         printf("!! FAIL !! %d failures in %s s\n", failures, buffer);
+    print_utc();
 }
 
 enum { COUNT = 10000000 };
@@ -321,16 +475,22 @@ static void one_test(int seed, bool do_IsPrimeX)
     assert(COUNT > 100000);
     if (do_IsPrimeX)
     {
-        test_primality_tester("IsPrime0", seed, IsPrime0, COUNT / 100000);
-        test_primality_tester("IsPrime1", seed, IsPrime1, COUNT);
-        test_primality_tester("IsPrime2", seed, IsPrime2, COUNT);
-        test_primality_tester("IsPrime3", seed, IsPrime3, COUNT);
+        test_primality_tester("IsPrime0A", seed, IsPrime0A, COUNT / 100000);
+        test_primality_tester("IsPrime1A", seed, IsPrime1A, COUNT);
+        test_primality_tester("IsPrime1B", seed, IsPrime1B, COUNT);
+        test_primality_tester("IsPrime2A", seed, IsPrime2A, COUNT);
+        test_primality_tester("IsPrime2B", seed, IsPrime2B, COUNT);
+        test_primality_tester("IsPrime3A", seed, IsPrime3A, COUNT);
     }
-    test_primality_tester("isprime1", seed, isprime1, COUNT);
-    test_primality_tester("isprime2", seed, isprime2, COUNT);
-    test_primality_tester("isprime3", seed, isprime3, COUNT);
-    test_primality_tester("isprime4", seed, isprime4, COUNT);
-    test_primality_tester("isprime5", seed, isprime5, COUNT);
+    test_primality_tester("isprime1A", seed, isprime1A, COUNT);
+    test_primality_tester("isprime2A", seed, isprime2A, COUNT);
+    test_primality_tester("isprime2B", seed, isprime2B, COUNT);
+    test_primality_tester("isprime3A", seed, isprime3A, COUNT);
+    test_primality_tester("isprime3B", seed, isprime3B, COUNT);
+    test_primality_tester("isprime4A", seed, isprime4A, COUNT);
+    test_primality_tester("isprime4B", seed, isprime4B, COUNT);
+    test_primality_tester("isprime5A", seed, isprime5A, COUNT);
+    test_primality_tester("isprime5B", seed, isprime5B, COUNT);
 }
 
 static const char optstr[] = "bhz";
@@ -338,7 +498,7 @@ static const char usestr[] = "[-bhz] [seed ...]";
 static const char hlpstr[] =
     "  -b  Suppress the bake-off check\n"
     "  -h  Print this help message and exit\n"
-    "  -z  Test speed of IsPrime0..IsPrime3 too\n"
+    "  -z  Test speed of IsPrime0A..IsPrime3A too\n"
     ;
 
 int main(int argc, char **argv)
