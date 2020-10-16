@@ -89,6 +89,27 @@ optimizing anything away — the numbers found are used.
   Amongst others, see SO 0002-3287 -- though I don't think this was a
   result of answering that question.
 
+* `prime-thread.c`
+
+  This code is a multi-threaded prime counter configured for primes up
+  to 10,000,000 (using 8 threads).
+  It is derived from SO 6438-1942.
+  It uses `IsPrime3B()` extracted from `isprime.c` and renamed
+  `isprime()`.
+
+  When run with 8 threads a MacBook Pro (15" 2017) with 2.9 GHz Intel
+  Core i7 and 16 GB 2133 MHz LPDDR3 memory, running macOS Mojave
+  10.14.6, it normally takes just under 0.250 seconds to count the
+  correct number of primes - 664579.
+
+  For comparison, a prime printing program using a Sieve of Eratosthenes
+  lists all the primes up to 10,000,000 in just under 0.150 seconds
+  (close to 0.100 seconds at times).
+  So the `prime-thread` code is not fast compared to that.
+  But the question says that their code took about 21 seconds up to
+  8,000,000 -- which leaves the efficacy of their prime tester function
+  in doubt.
+
 * `minimal-primes.c`
 
   SO 3383-8621 seeks minimal prime numbers, which are numbers that are

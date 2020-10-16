@@ -23,6 +23,7 @@ C_ONLY_PROGRAMS = \
 	minimal-primes \
 	prime-factors \
 	project-euler-87 \
+	prime-thread \
 
 PROGRAMS = \
 	${C_ONLY_PROGRAMS} \

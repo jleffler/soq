@@ -27,6 +27,13 @@
 #define WRAPPED_HEADER "timer.h"
 #include "wraphead.h"
 
+static const unsigned int small_primes[] =
+{
+     5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
+    53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
+};
+enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
+
 /* Original code - extremely slow */
 static int IsPrime0A(unsigned number)
 {
@@ -180,12 +187,6 @@ static int isprime3A(unsigned number)
         return 1;
     if (number % 2 == 0 || number % 3 == 0)
         return 0;
-    unsigned int small_primes[] =
-    {
-         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
-        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
-    };
-    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
     for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
     {
         if (number == small_primes[i])
@@ -210,12 +211,6 @@ static int isprime3B(unsigned number)
         return 1;
     if (number % 2 == 0 || number % 3 == 0)
         return 0;
-    static const unsigned int small_primes[] =
-    {
-         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
-        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
-    };
-    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
     for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
     {
         if (number == small_primes[i])
@@ -282,12 +277,6 @@ static int isprime5A(unsigned number)
         return 1;
     if (number % 2 == 0 || number % 3 == 0)
         return 0;
-    static const unsigned int small_primes[] =
-    {
-         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
-        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
-    };
-    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
     for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
     {
         if (number == small_primes[i])
@@ -312,12 +301,6 @@ static int isprime5B(unsigned number)
         return 1;
     if (number % 2 == 0 || number % 3 == 0)
         return 0;
-    static const unsigned int small_primes[] =
-    {
-         5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
-        53, 59, 61, 67, 71, 73, 79, 83, 87, 89, 91, 97
-    };
-    enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
     for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
     {
         if (number == small_primes[i])
@@ -536,7 +519,7 @@ int main(int argc, char **argv)
     if (optind != argc)
     {
         for (int i = optind; i < argc; i++)
-            one_test(atoi(argv[i]), do_IsPrimeX);
+            one_test(strtol(argv[i], NULL, 0), do_IsPrimeX);
     }
     else
         one_test(seed, do_IsPrimeX);
