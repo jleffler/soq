@@ -84,4 +84,11 @@ Kamran Amini
 [Extreme C](https://smile.amazon.com/dp/1789343623) 2019.
 [Extreme C](https://www.packtpub.com/free-ebook/extreme-c/9781789343625)
 
+Martin Fowler
+[Refactoring: Improving the Design of Existing Code, 2nd Edition](https://smile.amazon.com/dp/0134757599) May 2021. 
+[Refactoring: Improving the Design of Existing Code](https://smile.amazon.com/dp/0201485672) June 1999. 
+
+Robert C Martin
+[Clean Code: A Handbook of Agile Software Craftsmanship](https://smile.amazon.com/dp/0132350882) Aug 2008.
+
 EOF
