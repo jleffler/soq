@@ -15,29 +15,6 @@ static void print_dbl(const void *data, void *thunk)
     fprintf(fp, " %7.3f", *(double *)data);
 }
 
-#ifdef DEBUG
-static void print_int_debug(const void *data, void *thunk)
-{
-    FILE *fp = thunk;
-    fprintf(fp, "%d (0x%.12" PRIXPTR ",0x%.12" PRIXPTR ",0x%.12" PRIXPTR ")\n",
-            *(int *)data, (uintptr_t)np, (uintptr_t)np->prev, (uintptr_t)np->next);
-}
-
-static void print_dbl_debug(const void *data, void *thunk)
-{
-    FILE *fp = thunk;
-    fprintf(fp, "%7.3f (0x%.12" PRIXPTR ",0x%.12" PRIXPTR ",0x%.12" PRIXPTR ")\n",
-            *(double *)data, (uintptr_t)np, (uintptr_t)np->prev, (uintptr_t)np->next);
-}
-
-static void dump_list(const char *tag, const list *lp, Apply apply)
-{
-    printf("%s: %zu: 0x%.12" PRIXPTR ",0x%.12" PRIXPTR ",0x%.12" PRIXPTR "\n",
-           tag, lp->elementSize, (uintptr_t)lp, (uintptr_t)lp->head, (uintptr_t)lp->tail);
-    listApplyForward(lp, apply, stdout);
-}
-#endif /* DEBUG */
-
 static void int_sum(const void *data, void *thunk)
 {
     int *sum = thunk;
@@ -66,17 +43,11 @@ static void dbl_fun(const void *data, void *thunk)
 int main(void)
 {
     list *l1 = listCreate(sizeof(int));
-#ifdef DEBUG
-    dump_list("Created", l1, print_int_debug);
-#endif /* DEBUG */
     for (int i = 0; i < 10; i++)
     {
         //int j = 300 + i;
         //listPushTail(l1, &j);
         listPushTail(l1, &i);
-#ifdef DEBUG
-        dump_list("Added", l1, print_int_debug);
-#endif /* DEBUG */
         printf("List forward: ");
         listApplyForward(l1, print_int, stdout);
         putchar('\n');
@@ -90,16 +61,10 @@ int main(void)
     listDestroy(l1);
 
     list *l2 = listCreate(sizeof(double));
-#ifdef DEBUG
-    dump_list("Created", l2, print_dbl_debug);
-#endif /* DEBUG */
     for (int i = 0; i < 10; i++)
     {
         double d = (rand() % 20000) / 100.0 - 100.0;
         listPushHead(l2, &d);
-#ifdef DEBUG
-        dump_list("Added", l1, print_dbl_debug);
-#endif /* DEBUG */
         printf("List forward: ");
         listApplyForward(l2, print_dbl, stdout);
         putchar('\n');
