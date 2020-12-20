@@ -3,31 +3,31 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-static void print_int(const node *np, void *thunk)
+static void print_int(const void *data, void *thunk)
 {
     FILE *fp = thunk;
-    fprintf(fp, " %d", *(int *)np->data);
+    fprintf(fp, " %d", *(int *)data);
 }
 
-static void print_dbl(const node *np, void *thunk)
+static void print_dbl(const void *data, void *thunk)
 {
     FILE *fp = thunk;
-    fprintf(fp, " %7.3f", *(double *)np->data);
+    fprintf(fp, " %7.3f", *(double *)data);
 }
 
 #ifdef DEBUG
-static void print_int_debug(const node *np, void *thunk)
+static void print_int_debug(const void *data, void *thunk)
 {
     FILE *fp = thunk;
     fprintf(fp, "%d (0x%.12" PRIXPTR ",0x%.12" PRIXPTR ",0x%.12" PRIXPTR ")\n",
-            *(int *)np->data, (uintptr_t)np, (uintptr_t)np->prev, (uintptr_t)np->next);
+            *(int *)data, (uintptr_t)np, (uintptr_t)np->prev, (uintptr_t)np->next);
 }
 
-static void print_dbl_debug(const node *np, void *thunk)
+static void print_dbl_debug(const void *data, void *thunk)
 {
     FILE *fp = thunk;
     fprintf(fp, "%7.3f (0x%.12" PRIXPTR ",0x%.12" PRIXPTR ",0x%.12" PRIXPTR ")\n",
-            *(double *)np->data, (uintptr_t)np, (uintptr_t)np->prev, (uintptr_t)np->next);
+            *(double *)data, (uintptr_t)np, (uintptr_t)np->prev, (uintptr_t)np->next);
 }
 
 static void dump_list(const char *tag, const list *lp, Apply apply)
@@ -38,10 +38,10 @@ static void dump_list(const char *tag, const list *lp, Apply apply)
 }
 #endif /* DEBUG */
 
-static void int_sum(const node *np, void *thunk)
+static void int_sum(const void *data, void *thunk)
 {
     int *sum = thunk;
-    *sum += *(int *)np->data;
+    *sum += *(int *)data;
 }
 
 typedef struct DblFun
@@ -50,10 +50,10 @@ typedef struct DblFun
     int    idx;
 } DblFun;
 
-static void dbl_fun(const node *np, void *thunk)
+static void dbl_fun(const void *data, void *thunk)
 {
     DblFun *dp = thunk;
-    double val = *(double *)np->data;
+    double val = *(double *)data;
     if (dp->idx == 0)
         dp->val = val;
     else if (dp->idx % 2 == 1)

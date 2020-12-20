@@ -8,7 +8,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-static node *nCreate(void *data, size_t typeSize)
+typedef struct node node;
+
+typedef struct node
+{
+    void    *data;
+    node    *next;
+    node    *prev;
+};
+
+struct list
+{
+    node    *head;
+    node    *tail;
+    size_t  elementSize;
+};
+
+static node *nodeCreate(void *data, size_t typeSize)
 {
     node *np = malloc(sizeof(node));
     assert(np != NULL);
@@ -64,7 +80,7 @@ void listDestroy(list *lp)
 
 void listPushTail(list *lp, void *val)
 {
-    node *newNode = nCreate(val, lp->elementSize);
+    node *newNode = nodeCreate(val, lp->elementSize);
     if (lp->head == NULL)
     {
         lp->head = newNode;
@@ -80,7 +96,7 @@ void listPushTail(list *lp, void *val)
 
 void listPushHead(list *lp, void *val)
 {
-    node *newNode = nCreate(val, lp->elementSize);
+    node *newNode = nodeCreate(val, lp->elementSize);
     if (lp->head == NULL)
     {
         lp->head = newNode;
@@ -100,7 +116,7 @@ void listApplyForward(const list *lp, Apply apply, void *thunk)
     while (ptr != NULL)
     {
         // apply(ptr, thunk);
-        (*apply)(ptr, thunk);
+        (*apply)(ptr->data, thunk);
         ptr = ptr->next;
     }
 }
@@ -111,7 +127,7 @@ void listApplyReverse(const list *lp, Apply apply, void *thunk)
     while (ptr != NULL)
     {
         // apply(ptr, thunk);
-        (*apply)(ptr, thunk);
+        (*apply)(ptr->data, thunk);
         ptr = ptr->prev;
     }
 }
