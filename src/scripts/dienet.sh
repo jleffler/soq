@@ -17,10 +17,7 @@ done
 shift $(($OPTIND - 1))
 [ $# = 0 ] && usage
 
-fn="()"
-[ "$section" = 1 ] && fn=""
-
 for name in "$@"
 do
-    echo "[$bq$name$fn$bq]($baseurl/$section/$name)"
+    echo "[$bq$name($section)$bq]($baseurl/$section/$name)"
 done
