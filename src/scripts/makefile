@@ -42,6 +42,7 @@ PROG28 = wso-es
 PROG29 = wso-ja
 PROG30 = wso-pt
 PROG31 = wso-ru
+PROG32 = so-swrecs
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -90,6 +91,7 @@ PROGRAMS = \
 	${PROG29} \
 	${PROG30} \
 	${PROG31} \
+	${PROG32} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
