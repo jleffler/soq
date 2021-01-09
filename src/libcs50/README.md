@@ -11,7 +11,7 @@ Library](https://manual.cs50.net/library/) which provides support
 functions for the course.
 
 * There is also the [CS50](http://cs50.stackexchange.com/) Stack
-* Exchange site dedicated to the course.
+  Exchange site dedicated to the course.
 
 The code is available from GitHub:
 

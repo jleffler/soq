@@ -18,12 +18,14 @@ so-books
 so-c-reserved
 so-dotarrow
 so-esql
+so-factorials
 so-getchar
 so-late
 so-primes
 so-quotes
 so-reformat-c
 so-return-0
+so-sqlcmd
 so-stderr
 so-swrecs
 soa
