@@ -21,6 +21,7 @@ so-esql
 so-factorials
 so-getchar
 so-late
+so-premature
 so-primes
 so-quotes
 so-reformat-c
