@@ -20,7 +20,7 @@ PROG15 = vla67
 PROG16 = allocvla47
 PROG17 = alloc2d19
 PROG18 = alloc3d79
-
+PROG19 = dyn2dmat
 
 PROGRAMS = \
 	${PROG01} \
@@ -41,6 +41,7 @@ PROGRAMS = \
 	${PROG16} \
 	${PROG17} \
 	${PROG18} \
+	${PROG19} \
 
 all: ${PROGRAMS}
 

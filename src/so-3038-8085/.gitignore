@@ -4,3 +4,4 @@ output
 output.nolocale
 utf8-test
 wchar-test
+wchar37
