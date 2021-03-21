@@ -54,6 +54,8 @@ WFLAG6 = #-Wold-style-declaration   # Strict GCC only (not clang, it would seem)
 WFLAG7 = #-Wold-style-definition    # Part of -Wextra in GCC 7.1.0
 WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5} ${WFLAG6} ${WFLAG7}
 
+FFLAGS = -fno-common
+
 DXXFLAGS = #-DHAVE_CONFIG_H
 GXXFLAGS = -g
 IXXFLAGS = ${IFLAGS}
@@ -67,6 +69,8 @@ WXXFLAG3 = -Werror
 WXXFLAG4 =
 WXXFLAGS = ${WXXFLAG1} ${WXXFLAG2} ${WXXFLAG3} ${WXXFLAG4}
 
+FXXFLAGS = -fno-common
+
 LDFLAG1 = -L${LIBDIR}
 LDFLAG2 = #-L${HOME}/lib/64
 LDFLAGS = ${LDFLAG1} ${LDFLAG2}
@@ -74,8 +78,8 @@ LDLIB1  = -l${SOQBASE}
 LDLIB2  = #-l${CS50BASE}
 LDLIBS  = ${LDLIB1} ${LDLIB2}
 
-CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${DFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${TFLAGS}   ${UFLAGS}
-CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${DXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${TXXFLAGS} ${UXXFLAGS}
+CFLAGS   = ${OFLAGS}   ${GFLAGS}   ${DFLAGS}   ${IFLAGS}   ${SFLAGS}   ${WFLAGS}   ${TFLAGS}   ${FFLAGS}   ${UFLAGS}
+CXXFLAGS = ${OXXFLAGS} ${GXXFLAGS} ${DXXFLAGS} ${IXXFLAGS} ${SXXFLAGS} ${WXXFLAGS} ${TXXFLAGS} ${FXXFLAGS} ${UXXFLAGS}
 
 DEBRIS = core a.out *~ *.o
 RM_FR  = rm -fr
