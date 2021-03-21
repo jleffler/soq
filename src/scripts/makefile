@@ -46,6 +46,7 @@ PROG32 = so-swrecs
 PROG33 = so-factorials
 PROG34 = so-sqlcmd
 PROG35 = so-premature
+PROG36 = so-c-indent
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -98,6 +99,7 @@ PROGRAMS = \
 	${PROG33} \
 	${PROG34} \
 	${PROG35} \
+	${PROG36} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
