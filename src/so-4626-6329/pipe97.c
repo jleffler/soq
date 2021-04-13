@@ -262,7 +262,25 @@ int main(int argc, const char *argv[])
             exit(1);
         }
         else if (pid == 0)
+        {
+            for (int c = 0; c < i; c++)
+            {
+                if ((i + 1) % numproc != c)
+                {
+                    printf("%5d: closing %2d and %2d\n", (int)getpid(), tube[c][0], tube[c][1]);
+                    close(tube[c][0]);
+                    close(tube[c][1]);
+                }
+            }
             be_childish(i, tube[i], tube[(i+1) % numproc]);
+        }
+    }
+
+    for (int c = 2; c < numproc; c++)
+    {
+        printf("%5d: closing %2d and %2d\n", (int)getpid(), tube[c][0], tube[c][1]);
+        close(tube[c][0]);
+        close(tube[c][1]);
     }
 
     be_parental(tube[0], tube[1]);
