@@ -5,4 +5,5 @@ Two messages in a ring of N process in C with pipes
 
 Incomplete code.
 
-* `pipe97.c` — Partially worked on, but not complete.
+* `pipe97.c` — Working code.
+
