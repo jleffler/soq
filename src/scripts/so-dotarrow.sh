@@ -23,10 +23,10 @@ shift $(($OPTIND - 1))
 if [ $# -eq 0 ]
 then
     if [ "x$separator" = "x->" ]
-    then set -- ptr member
+    then set -- pointer member
     else set -- structure member
     fi
-elif [ $# -eq 1 ] || [ $# -gt 2 ]
+elif [ $# -eq 1 ]
 then usage
 fi
 
