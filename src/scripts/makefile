@@ -47,6 +47,7 @@ PROG33 = so-factorials
 PROG34 = so-sqlcmd
 PROG35 = so-premature
 PROG36 = so-c-indent
+PROG37 = so-c-reference-sites
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -100,6 +101,7 @@ PROGRAMS = \
 	${PROG34} \
 	${PROG35} \
 	${PROG36} \
+	${PROG37} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
