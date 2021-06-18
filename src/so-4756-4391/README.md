@@ -12,9 +12,9 @@ captures `(?<name>...)`:
 The code in `rx-posix-59.c` shows the use of POSIX regular expressions
 without the named captures, which meets the reqirements of the question.
 
-The code in `rx-pcre1-73.c` shows the equivalent use of PCRE vesion 1 regular
+The code in `rx-pcre1-73.c` shows the equivalent use of PCRE version 1 regular
 expression code.
 
-The code in `rx-pcre2-83.c` shows the equivalent use of PCRE vesion 2 regular
+The code in `rx-pcre2-83.c` shows the equivalent use of PCRE version 2 regular
 expression code.
 
