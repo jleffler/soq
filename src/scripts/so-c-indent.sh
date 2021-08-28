@@ -4,7 +4,7 @@
 
 cat <<'EOF'
 Please use a more orthodox indentation style for C.
-I strongly recommend either Allmann (which is what I use, more or less)
+I strongly recommend either Allman (which is what I use, more or less)
 or some version of 1TBS (which is used by many other people).
 See Wikipedia on [Indentation
 Style](https://en.wikipedia.org/wiki/Indentation_style) for information
