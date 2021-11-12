@@ -37,6 +37,7 @@ FILES.c = \
 # AUXFILES.c lists source files for which there isn't a matching header
 AUXFILES.c = \
 	errhelp.c \
+	estrdup.c \
 	filterio.c \
 	isqrt32.c \
 	isqrt64.c \
