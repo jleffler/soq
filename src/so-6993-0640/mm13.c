@@ -105,6 +105,7 @@ static Cell multiply_row_by_column(int r, int c, Matrix m1, Matrix m2)
     size_t reslen = 0;
     for (int k = 0; k < N; k++)
     {
+        // Consider analyzing cells here before creating the result
         int nbytes = snprintf(&result[reslen], len - reslen, "%s(%s).(%s)",
                               pad, m1[r][k], m2[k][c]);
         reslen += nbytes;
