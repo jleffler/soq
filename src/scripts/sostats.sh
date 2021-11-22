@@ -7,7 +7,7 @@ dir="$HOME/soq/Scores"
 mkdir -p "$dir"
 cd "$dir"
 
-time="$(isodate compact)"
+time="$(date +'%Y%m%d.%H%M%S')"
 raw="raw.$time"
 
 trap "rm -f raw.$time log.$time" 0 1 2 3 13 15

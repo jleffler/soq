@@ -11,7 +11,7 @@ by Kernighan and Pike.
 <sup>
 _TPOP was previously at
 http://plan9.bell-labs.com/cm/cs/tpop and
-http://cm.bell-labs.com/cm/cs/tpop but both are now ($(isodate date)) broken._
+http://cm.bell-labs.com/cm/cs/tpop but both are now ($(date +'%Y-%m-%d')) broken._
 </sup>
 
 EOF
