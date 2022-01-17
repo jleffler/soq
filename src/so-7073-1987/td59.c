@@ -63,9 +63,9 @@
 **
 ** Non-zero elements have c = r + { -1, 0, +1 }
 ** X[r,c] = 0         if |r - c| > 1
-** X[r,c] = 3 * r - 3 if r == c + 0     Main diagonal
-** X[r,c] = 3 * r - 2 if r == c - 1     Upper diagonal
-** X[r,c] = 3 * r - 1 if r == c + 1     Lower diagonal
+** X[r,c] = 3 * r - 2 if r == c + 0     Main diagonal
+** X[r,c] = 3 * r - 1 if r == c - 1     Upper diagonal
+** X[r,c] = 3 * r - 0 if r == c + 1     Lower diagonal
 ** Always subject to 1 <= r <= N; 1 <= c <= N
 **
 ** Check:
@@ -200,56 +200,84 @@ static int get_rm_0(int r, int c)
 {
     assert(r >= 0 && r < N);
     assert(c >= 0 && c < N);
+    //printf("%s(): r = %d, c = %d\n", __func__, r, c);
     if (abs(r - c) > 1)         /* Off tridiagonal */
         return 0;
+    int index;
     if (r == c)                 /* Main diagonal */
-        return Y[3 * r + 0];
-    if (r == c - 1)             /* Upper diagonal */
-        return Y[3 * r + 1];
-    assert(r == c + 1);
-    return Y[3 * r - 1];        /* Lower diagonal */
+        index = 3 * r + 0;
+    else if (r == c - 1)             /* Upper diagonal */
+        index = 3 * r + 1;
+    else
+    {
+        assert(r == c + 1);
+        index = 3 * r - 1;      /* Lower diagonal */
+    }
+    //printf("%s(): r = %d, c = %d, i = %d, v = %d\n", __func__, r, c, index, Y[index]);
+    return Y[index];
 }
 
 static int get_rm_1(int r, int c)
 {
     assert(r > 0 && r <= N);
     assert(c > 0 && c <= N);
+    //printf("%s(): r = %d, c = %d\n", __func__, r, c);
     if (abs(r - c) > 1)         /* Off tridiagonal */
         return 0;
+    int index;
     if (r == c)                 /* Main diagonal */
-        return Y[(3 * r - 3) - 1];
-    if (r == c - 1)             /* Upper diagonal */
-        return Y[(3 * r - 2) - 1];
-    assert(r == c + 1);
-    return Y[(3 * r - 1) - 1];  /* Lower diagonal */
+        index = 3 * r - 2;
+    else if (r == c - 1)        /* Upper diagonal */
+        index = 3 * r - 1;
+    else
+    {
+        assert(r == c + 1);
+        index = 3 * r - 0;      /* Lower diagonal */
+    }
+    printf("%s(): r = %d, c = %d, i = %d, v = %d\n", __func__, r, c, index, Y[index-1]);
+    return Y[index-1];
 }
 
 static int get_cm_0(int r, int c)
 {
     assert(r >= 0 && r < N);
     assert(c >= 0 && c < N);
+    //printf("%s(): r = %d, c = %d\n", __func__, r, c);
     if (abs(r - c) > 1)         /* Off tridiagonal */
         return 0;
+    int index;
     if (r == c)                 /* Main diagonal */
-        return Y[3 * c + 0];
-    if (r == c - 1)             /* Upper diagonal */
-        return Y[3 * c + 2];
-    assert(r == c + 1);
-    return Y[3 * c + 1];        /* Lower diagonal */
+        index = 3 * c + 0;
+    else if (r == c - 1)        /* Upper diagonal */
+        index = 3 * c + 2;
+    else
+    {
+        assert(r == c + 1);
+        index = 3 * c + 1;      /* Lower diagonal */
+    }
+    printf("%s(): r = %d, c = %d, i = %d, v = %d\n", __func__, r, c, index, Z[index]);
+    return Z[index];
 }
 
 static int get_cm_1(int r, int c)
 {
     assert(r > 0 && r <= N);
     assert(c > 0 && c <= N);
+    //printf("%s(): r = %d, c = %d\n", __func__, r, c);
     if (abs(r - c) > 1)         /* Off tridiagonal */
         return 0;
+    int index;
     if (r == c)                 /* Main diagonal */
-        return Y[(3 * c - 2) - 1];
-    if (r == c - 1)             /* Upper diagonal */
-        return Y[(3 * c - 0) - 1];
-    assert(r == c + 1);
-    return Y[(3 * c - 1) - 1];  /* Lower diagonal */
+        index = 3 * c - 2;
+    else if (r == c - 1)             /* Upper diagonal */
+        index = 3 * c - 0;
+    else
+    {
+        assert(r == c + 1);
+        index = 3 * c - 1;  /* Lower diagonal */
+    }
+    printf("%s(): r = %d, c = %d, i = %d, v = %d\n", __func__, r, c, index, Z[index-1]);
+    return Z[index-1];
 }
 
 static void dump_matrix(const char *tag, int rows, int cols,
@@ -311,10 +339,15 @@ int main(void)
 {
     dump_matrix("Tridiagonal matrix X", N, N, X, 0);
     reconstruct_matrix("Reconstructed Row-Major Matrix", "Y", 3 * N - 2, Y, N, N, get_rm_0, 0);
-    reconstruct_matrix("Reconstructed Row-Major Matrix", "Y", 3 * N - 2, Y, N, N, get_rm_1, 1);
-    puts("\n\n");
     dump_matrix("Tridiagonal matrix X", N, N, X, 1);
+    reconstruct_matrix("Reconstructed Row-Major Matrix", "Y", 3 * N - 2, Y, N, N, get_rm_1, 1);
+
+    puts("\n\n");
+
+    dump_matrix("Tridiagonal matrix X", N, N, X, 0);
     reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_0, 0);
+    dump_matrix("Tridiagonal matrix X", N, N, X, 1);
     reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_1, 1);
+
     return 0;
 }
