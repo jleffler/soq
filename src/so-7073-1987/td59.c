@@ -22,6 +22,7 @@
 ** D = diagonal, L = lower diagonal, U = upper diagonal
 **        D  U  L  D  U  L  D  U  L  D  U  L  D  U  L D
 ** Y = {  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 }
+** Index  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
 **
 ** Elements on main  diagonal at indexes: 0, 3, 6, 9, 12, 15
 ** Elements on upper diagonal at indexes: 1, 4, 7, 10, 13
@@ -56,6 +57,7 @@
 ** D = diagonal, L = lower diagonal, U = upper diagonal
 **        D  U  L  D  U  L  D  U  L  D  U  L  D  U  L D
 ** Y = {  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 }
+** Index  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
 **
 ** Elements on main  diagonal at indexes: 1, 4, 7, 10, 13, 16
 ** Elements on upper diagonal at indexes: 2, 5, 8, 11, 14
@@ -157,7 +159,7 @@
 **
 ** X[r,c] = 0         if |c - r| > 1
 ** X[r,c] = 3 * c + 0 if c == r + 0 Main diagonal
-** X[r,c] = 3 * c + 2 if c == r + 1 Upper diagonal
+** X[r,c] = 3 * c - 1 if c == r + 1 Upper diagonal
 ** X[r,c] = 3 * c + 1 if c == r - 1 Lower diagonal
 ** Always subject to 0 <= r < N; 0 <= c < N.
 **
@@ -248,13 +250,13 @@ static inline int get_cm_0(int r, int c)
     if (abs(r - c) > 1)         /* Off tridiagonal */
         return 0;
     int index;
-    if (r == c)                 /* Main diagonal */
+    if (c == r)                 /* Main diagonal */
         index = 3 * c + 0;
-    else if (r == c - 1)        /* Upper diagonal */
-        index = 3 * c + 2;
+    else if (c == r + 1)        /* Upper diagonal */
+        index = 3 * c - 1;
     else
     {
-        assert(r == c + 1);
+        assert(c == r - 1);
         index = 3 * c + 1;      /* Lower diagonal */
     }
     //printf("%s(): r = %d, c = %d, i = %d, v = %d\n", __func__, r, c, index, Z[index]);
@@ -339,15 +341,15 @@ static void reconstruct_matrix(const char *matrix_tag, const char *vector_tag,
 
 int main(void)
 {
-    //dump_matrix("Tridiagonal matrix X", N, N, X, 0);
-    //reconstruct_matrix("Reconstructed Row-Major Matrix", "Y", 3 * N - 2, Y, N, N, get_rm_0, 0);
+    dump_matrix("Tridiagonal matrix X", N, N, X, 0);
+    reconstruct_matrix("Reconstructed Row-Major Matrix", "Y", 3 * N - 2, Y, N, N, get_rm_0, 0);
     dump_matrix("Tridiagonal matrix X", N, N, X, 1);
     reconstruct_matrix("Reconstructed Row-Major Matrix", "Y", 3 * N - 2, Y, N, N, get_rm_1, 1);
 
     puts("\n\n");
 
-    //dump_matrix("Tridiagonal matrix X", N, N, X, 0);
-    //reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_0, 0);
+    dump_matrix("Tridiagonal matrix X", N, N, X, 0);
+    reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_0, 0);
     //dump_matrix("Tridiagonal matrix X", N, N, X, 1);
     //reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_1, 1);
 
