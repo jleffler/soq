@@ -271,14 +271,14 @@ static inline int get_cm_1(int r, int c)
     if (abs(r - c) > 1)         /* Off tridiagonal */
         return 0;
     int index;
-    if (r == c)                 /* Main diagonal */
+    if (c == r)                 /* Main diagonal */
         index = 3 * c - 2;
-    else if (r == c - 1)             /* Upper diagonal */
-        index = 3 * c - 0;
+    else if (c == r + 1)        /* Upper diagonal */
+        index = 3 * c - 3;
     else
     {
-        assert(r == c + 1);
-        index = 3 * c - 1;  /* Lower diagonal */
+        assert(c == r - 1);
+        index = 3 * c - 1;      /* Lower diagonal */
     }
     //printf("%s(): r = %d, c = %d, i = %d, v = %d\n", __func__, r, c, index, Z[index-1]);
     return Z[index-1];
@@ -350,8 +350,8 @@ int main(void)
 
     dump_matrix("Tridiagonal matrix X", N, N, X, 0);
     reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_0, 0);
-    //dump_matrix("Tridiagonal matrix X", N, N, X, 1);
-    //reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_1, 1);
+    dump_matrix("Tridiagonal matrix X", N, N, X, 1);
+    reconstruct_matrix("Reconstructed Column-Major Matrix", "Z", 3 * N - 2, Z, N, N, get_cm_1, 1);
 
     return 0;
 }
