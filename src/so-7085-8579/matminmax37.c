@@ -182,13 +182,13 @@ int main(void)
     return 0;
 }
 
-static int max_field_width(size_t n, const int matrix[n][n])
+static int max_field_width(size_t n, size_t m, const int matrix[n][m])
 {
     int min_val = matrix[0][0];
     int max_val = matrix[0][0];
     for (size_t i = 0; i < n; i++)
     {
-        for (size_t j = 0; j < n; j++)
+        for (size_t j = 0; j < m; j++)
         {
             if (matrix[i][j] < min_val)
                 min_val = matrix[i][j];
@@ -209,7 +209,7 @@ static int max_field_width(size_t n, const int matrix[n][n])
 static void print_matrix(const char *tag, size_t n, size_t m, const int matrix[n][m])
 {
     printf("%s (%zux%zu):\n", tag, n, m);
-    int w = max_field_width(n, matrix) + 1;
+    int w = max_field_width(n, m, matrix) + 1;
     for (size_t i = 0; i < n; i++)
     {
         for (size_t j = 0; j < m; j++)
