@@ -52,6 +52,7 @@ PROG38 = so-sqltables
 PROG39 = soac
 PROG40 = sostats
 PROG41 = tpop
+PROG42 = openbsd
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -110,6 +111,7 @@ PROGRAMS = \
 	${PROG39} \
 	${PROG40} \
 	${PROG41} \
+	${PROG42} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
