@@ -55,6 +55,7 @@ PROG41 = tpop
 PROG42 = openbsd
 PROG43 = netbsd
 PROG44 = freebsd
+PROG45 = soq-bin-links
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -116,6 +117,7 @@ PROGRAMS = \
 	${PROG42} \
 	${PROG43} \
 	${PROG44} \
+	${PROG45} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 

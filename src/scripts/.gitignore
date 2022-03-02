@@ -1,6 +1,7 @@
 ddpr
 dienet
 fixin
+freebsd
 man7
 netbsd
 openbsd
@@ -37,6 +38,7 @@ so-swrecs
 soa
 soac
 sops
+soq-bin-links
 soqvg
 sostats
 sow
