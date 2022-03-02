@@ -53,6 +53,8 @@ PROG39 = soac
 PROG40 = sostats
 PROG41 = tpop
 PROG42 = openbsd
+PROG43 = netbsd
+PROG44 = freebsd
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -112,6 +114,8 @@ PROGRAMS = \
 	${PROG40} \
 	${PROG41} \
 	${PROG42} \
+	${PROG43} \
+	${PROG44} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
