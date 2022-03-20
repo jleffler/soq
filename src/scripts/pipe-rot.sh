@@ -8,7 +8,7 @@
 
 usage() { echo "Usage: $(basename "$0" .sh) [-ac]" >&2; exit 1; }
 
-mode="answer"
+mode="comment"
 while getopts ac opt
 do
     case "$opt" in
@@ -101,5 +101,6 @@ The rule also applies with either `dup()` or
 with `F_DUPFD`.
 
 EOF
+echo ''
 
 fi

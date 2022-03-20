@@ -20,3 +20,4 @@ See also [What does double underscore (`__const`) mean in
 C?](https://stackoverflow.com/q/1449181)
 
 EOF
+echo ''

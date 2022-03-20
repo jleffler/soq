@@ -46,3 +46,4 @@ $list in the
 [$directory](https://github.com/jleffler/soq/tree/master/$directory)
 sub-directory.
 EOF
+echo ''

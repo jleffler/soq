@@ -11,3 +11,4 @@ people answering.
 Please also read the guidelines under the [tag:sql] tag
 [wiki](https://stackoverflow.com/tags/sql/info).
 EOF
+echo ''

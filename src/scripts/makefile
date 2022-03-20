@@ -49,6 +49,7 @@ PROG35 = so-premature
 PROG36 = so-c-indent
 PROG37 = so-c-reference-sites
 PROG38 = so-sqltables
+PROG39 = so-genderless
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -104,6 +105,7 @@ PROGRAMS = \
 	${PROG36} \
 	${PROG37} \
 	${PROG38} \
+	${PROG39} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
