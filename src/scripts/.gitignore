@@ -1,7 +1,10 @@
 ddpr
 dienet
 fixin
+freebsd
 man7
+netbsd
+openbsd
 pipe-rot
 posixcmd
 posixfun
@@ -34,10 +37,14 @@ so-sqltables
 so-stderr
 so-swrecs
 soa
+soac
 sops
+soq-bin-links
 soqvg
+sostats
 sow
 sscce
+tpop
 wso
 wso-es
 wso-ja
