@@ -57,6 +57,7 @@ PROG43 = netbsd
 PROG44 = freebsd
 PROG45 = soq-bin-links
 PROG46 = so-genderless
+PROG47 = so-shuffle
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -120,6 +121,7 @@ PROGRAMS = \
 	${PROG44} \
 	${PROG45} \
 	${PROG46} \
+	${PROG47} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
