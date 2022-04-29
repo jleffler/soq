@@ -1,0 +1,25 @@
+# Makefile template for code in an immediate (level 1) subdirectory of ~/soq
+
+# To suppress JL-specific options:
+# LDLIBS= LDFLAGS= IFLAGS=
+
+include ../etc/soq-head.mk
+
+# Suppress normal libraries
+LDLIBS  =
+LDFLAGS =
+IFLAGS  =
+
+# pthread.h on macOS has some dubious code in it
+# Fixed by editing the supplied header (yuck!)
+WFLAG6  = #-Wno-expansion-to-defined
+
+BASEDIR = ..
+
+PROGRAM1 = program1
+
+PROGRAMS = ${PROGRAM1}
+
+all: ${PROGRAMS}
+
+include ../etc/soq-tail.mk
