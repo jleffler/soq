@@ -92,8 +92,15 @@ What's good for generals is not, in general, good for programmers.
 * Nominally demonstrating the use of "\*" as a placeholder for VLA
   sizes in a function prototype.
 * As of 2022-06-23, these do not compile with GCC 11.2.0.
-* I believe these compiled OK as of January 2018.
-* Investigation needed to discover what's changed.
+* These compiled OK with GCC 8.3.0 (version compiled in March 2019).
+* Investigation discovered that GCC 11 added the `-Warray-parameter` and
+  `-Wvla-parameter` options, now included in `-Wall`.
+* See https://gcc.gnu.org/gcc-11/changes.html
+* The change is basically saying "parts of the C standard relating to
+  VLAs do not make sense".
+* Whether that's fully justified or not is debatable.
+* However, I'd never been tempted to actually use the "\*" notation
+  other than in these vignettes.
 * A sample error is:
 
         vla67.c:8:83: error: argument 6 of type ‘int[*][0]’ declared with 2 unspecified variable bounds [-Werror=vla-parameter]
