@@ -86,3 +86,32 @@ to resolve.
 
 These programs exhibit 3-star and 4-star program.
 What's good for generals is not, in general, good for programmers.
+
+### `vla17.c`, `vla53.c`, `vla67.c`
+
+* Nominally demonstrating the use of "\*" as a placeholder for VLA
+  sizes in a function prototype.
+* As of 2022-06-23, these do not compile with GCC 11.2.0.
+* I believe these compiled OK as of January 2018.
+* Investigation needed to discover what's changed.
+* A sample error is:
+
+        vla67.c:8:83: error: argument 6 of type ‘int[*][0]’ declared with 2 unspecified variable bounds [-Werror=vla-parameter]
+            8 | static void mat_multiply(int x, int y, int z, int mat1[*][*], int mat2[*][*], int result[*][*]);
+              |                                                                               ~~~~^~~~~~~~~~~~
+        vla67.c:65:83: note: subsequently declared as ‘int[x][z]’ with 0 unspecified variable bounds
+           65 | static void mat_multiply(int x, int y, int z, int mat1[x][y], int mat2[y][z], int result[x][z])
+              |                                                                               ~~~~^~~~~~~~~~~~
+
+### `maxfldwidth.c`, `vecmaxfldwidth.c`, `test-maxfldwidth.c`, `test-vecmaxfldwidth.c`
+
+Playing with determining the maximum field width needed to display the
+numbers in a matrix or a vector.
+
+The test programs include the non-test files directly.
+The non-test files contain more or less the outline of a header.
+The function names are not unique - this isn't ready for use in a
+library.
+
+I wonder if 'max' should be 'min' as it determines the field width that
+will allow all the values to be printed aligned in the calculated width?

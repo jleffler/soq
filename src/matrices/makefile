@@ -21,6 +21,8 @@ PROG16 = allocvla47
 PROG17 = alloc2d19
 PROG18 = alloc3d79
 PROG19 = dyn2dmat
+PROG20 = test-maxfldwidth
+PROG21 = test-vecmaxfldwidth
 
 PROGRAMS = \
 	${PROG01} \
@@ -42,6 +44,8 @@ PROGRAMS = \
 	${PROG17} \
 	${PROG18} \
 	${PROG19} \
+	${PROG20} \
+	${PROG21} \
 
 all: ${PROGRAMS}
 
