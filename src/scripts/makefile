@@ -59,6 +59,7 @@ PROG45 = soq-bin-links
 PROG46 = so-genderless
 PROG47 = so-shuffle
 PROG48 = so-realloc
+PROG49 = so-codereview
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -124,6 +125,7 @@ PROGRAMS = \
 	${PROG46} \
 	${PROG47} \
 	${PROG48} \
+	${PROG49} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
