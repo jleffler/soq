@@ -2,8 +2,8 @@
 @(#)File:           timespec_math.c
 @(#)Purpose:        Add, subtract, compare two struct timespec values
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015-2017
-@(#)Derivation:     timespec_math.c 2.1 2019/06/02 05:12:31
+@(#)Copyright:      (C) JLSS 2015-2019
+@(#)Derivation:     timespec_math.c 2.2 2019/08/16 05:25:57
 */
 
 /*TABSTOP=4*/

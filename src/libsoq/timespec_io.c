@@ -2,8 +2,8 @@
 @(#)File:           timespec_io.c
 @(#)Purpose:        Convert string to timespec and vice versa
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015-16
-@(#)Derivation:     timespec_io.c 2.1 2019/06/02 05:12:31
+@(#)Copyright:      (C) JLSS 2015-2019
+@(#)Derivation:     timespec_io.c 2.2 2019/08/16 05:25:57
 */
 
 /*TABSTOP=4*/
