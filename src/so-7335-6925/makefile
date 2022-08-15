@@ -16,11 +16,16 @@ WFLAGS = ${WFLAG1} ${WFLAG2} ${WFLAG3} ${WFLAG4} ${WFLAG5}
 CFLAGS = ${OFLAGS} ${GFLAGS} ${SFLAGS} ${WFLAGS} ${UFLAGS}
 
 PROG1 = gcc23
-FILE.c = ${PROG1}.c
+PROG2 = gcc37
+FILE1.c = ${PROG1}.c
+FILE2.c = ${PROG2}.c
 
-PROGRAMS = ${PROG1}
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
 ${PROG1}:
-	${CC} ${CFLAGS} ${FILE.c} -o $@
+	${CC} ${CFLAGS} ${FILE1.c} -o $@
+
+${PROG2}:
+	${CC} ${CFLAGS} ${FILE2.c} -o $@

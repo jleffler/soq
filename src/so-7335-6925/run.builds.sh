@@ -2,10 +2,13 @@
 #
 # Run sequence of compilations
 
-set -x
-rm -f gcc23
-make CC=gcc "$@"
-rm -f gcc23
-make CC=clang "$@"
-rm -f gcc23
-make CC=clang UFLAGS=-Weverything "$@"
+for program in gcc23 gcc37
+do
+    set -x
+    rm -f $program
+    make CC=gcc $program "$@"
+    rm -f $program
+    make CC=clang $program "$@"
+    rm -f $program
+    make CC=clang UFLAGS=-Weverything $program "$@"
+done
