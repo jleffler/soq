@@ -52,8 +52,10 @@ AUXFILES.c = \
 AUXFILES.h = \
 	isqrt.h \
 	jlss.h \
+	matmaxfldwid.h \
 	posixver.h \
 	reldiff.h \
+	vecmaxfldwid.h \
 	wraphead.h \
 
 FILES.o = ${FILES.c:.c=.o} ${AUXFILES.c:.c=.o}
