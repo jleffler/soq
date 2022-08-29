@@ -1,3 +1,4 @@
+/* Calculate range of factorials using floating point arithmetic */
 #include <stdio.h>
 #include <math.h>
 
@@ -75,11 +76,11 @@ static inline int l_factorial(int f_max, int l_max)
 int main(void)
 {
     int f_max = f_factorial();
-    putchar('\n');
+    printf("%-12s %4d\n\n", "float:", f_max);
     int d_max = d_factorial(f_max);
-    putchar('\n');
+    printf("%-12s %4d\n\n", "double:", d_max);
     int l_max = l_factorial(f_max, d_max);
-    putchar('\n');
+    printf("%-12s %4d\n\n", "long double:", l_max);
     printf("Maximum: %d!\n", l_max);
 
     return 0;
