@@ -28,3 +28,47 @@ Consider the merits of `/dev/urandom` too — remembering that
 repeatability is not one of the merits.
 And on BSD-derived systems, `arc4random()` may be a good choice.
 
+### Bar Gelfer algorithm
+
+One new [answer](https://stackoverflow.com/a/74122335/15168) by
+[Bar Gelfer](https://stackoverflow.com/users/20280604/bar-gelfer)
+postulates a shuffle that is encapsulated in the code:
+
+* `check-conservation.c`
+* `check-conservation.h`
+
+These are prototypes for what will probably end up in my private library,
+and maybe in `libsoq` too.
+
+There are multiple potentially useful functions in here.  Note that they are
+fairly expensive, using an O(N^2) algorithm and O(N) storage.
+
+* `check_conservation()`
+
+  Compare two arrays for equivalence.  It spots whether there are differences
+  between the data.
+
+* `print_sorted_copy_of_array()`
+
+  Generate a copy of an array, and print both the original and the sorted copy.
+  The copy is stored in space provided by the calling code.
+
+* `print_array_differences()`
+
+  Print the differences between two versions of an array.  The code sorts the
+  arrays (`print_sorted_copy_of_array()`) and then steps through the arrays
+  identifying where the entries differ.  It it believed to work sanely for any
+  two arrays, but it [pii
+
+The code should be genericized, but the biggest problem is genericizing the
+printing.  That'll probably need to be done by a function pointer passed to
+the code.  And it's likely that the code should format into a string.  The
+memory management for that remains to be decided - but POSIX `getline()` might
+be an exemplar.
+
+The test code shows that the Bar Gelfer algorithm does not conserve the input
+data.  Consequently, it is not an acceptable shuffle algorithm.  It also uses
+the Fisher-Yates code (`fyshuffle.c`, `fyshuffle.h` - not yet available in
+`libsoq`) along with random seeding code (`randseed.c`, `randseed.h` - also not
+yet available in `libsoq`) to show that that shuffle does conserve the data.
+
