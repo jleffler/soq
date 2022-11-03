@@ -2,9 +2,14 @@
 
 include ../../etc/soq-head.mk
 
-PROG1 = run-processes
+IFLAG2  = -I${HOME}/inc
+LDFLAG2 = -L${HOME}/lib/64
+LDLIB2  = -ljl
 
-PROGRAMS = ${PROG1}
+PROG1 = run-processes
+PROG2 = numproc23
+
+PROGRAMS = ${PROG1} ${PROG2}
 
 all: ${PROGRAMS}
 
