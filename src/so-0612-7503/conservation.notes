@@ -1,0 +1,27 @@
+Checking for conservation qualities of sort or shuffle algorithms
+=================================================================
+
+The idea behind this code is to be able to identify whether a sort or
+shuffle algorithm preserves the input data.
+
+Given two arrays (A and B), one holding the input data and another
+holding the sorted data (which must be of the same size; if they aren't
+there's a difference), is every value in A also in B, and every value in
+B in A, with the same repeat count where data is repeated in either
+array.
+
+The code in check-conservation.[ch] is supposed to make that check.  The
+check_conservation() function has a generic interface to match the
+standard C qsort() and bsearch() functions.
+
+The code in compare-arrays.c is similar but is non-generic; it analyzes
+only arrays of integers.
+
+However, check-conservation.c has better code for comparing the tail end
+of the array.  That would need to be retrofitted into compare-arrays.
+
+------------------------------------------------------------------------
+Jonathan Leffler <jonathan.leffler@gmail.com>
+Saturday 5th November 2022
+
+@(#)$Id$

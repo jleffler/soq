@@ -2,7 +2,7 @@
 @(#)File:           $RCSfile$
 @(#)Version:        $Revision$
 @(#)Last changed:   $Date$
-@(#)Purpose:        Check equivalence of two arrays 
+@(#)Purpose:        Check equivalence of two arrays
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2022
 @(#)Product:        :PRODUCT:
@@ -12,6 +12,7 @@
 
 #include "posixver.h"
 #include "check-conservation.h"  /* SSC: Self-sufficiency check */
+#include <assert.h>
 #include <stdbool.h>
 #include "fyshuffle.h"
 #include "randseed.h"
@@ -67,7 +68,7 @@ size_t check_conservation(const void *data1, const void *data2,
 #include "stderr.h"
 
 /*
-** Algorithm proposed by Bar Gelfer (https://stackoverflow.com/users/20280604/bar-gelfer) 
+** Algorithm proposed by Bar Gelfer (https://stackoverflow.com/users/20280604/bar-gelfer)
 ** in https://stackoverflow.com/a/74122335
 */
 
@@ -132,13 +133,15 @@ static void print_array_differences(size_t number,
     print_sorted_copy_of_array(a1_name, number, a1_data, a1_copy);
     print_sorted_copy_of_array(a2_name, number, a2_data, a2_copy);
 
-    size_t j = 0;
-    for (size_t i = 0; i < number; i++)
+    size_t i;
+    size_t j;
+    for (i = 0, j = 0; i < number && j < number; )
     {
         if (a1_copy[i] == a2_copy[j])
         {
             printf("Equality: (%s[%zu] = %d) and (%s[%zu] = %d)\n",
                    a1_name, i, a1_copy[i], a2_name, j, a2_copy[j]);
+            i++;
             j++;
         }
         else if (a1_copy[i] < a2_copy[j])
@@ -154,6 +157,7 @@ static void print_array_differences(size_t number,
             {
                 printf("  Resync: (%s[%zu] = %d)  =  (%s[%zu] = %d)\n",
                        a1_name, i, a1_copy[i], a2_name, j, a2_copy[j]);
+                i++;
                 j++;
             }
         }
@@ -170,8 +174,52 @@ static void print_array_differences(size_t number,
             {
                 printf("  Resync: (%s[%zu] = %d)  =  (%s[%zu] = %d)\n",
                        a1_name, i, a1_copy[i], a2_name, j, a2_copy[j]);
+                i++;
                 j++;
             }
+        }
+    }
+    assert(i == number || j == number);
+
+    if (i < number)
+    {
+        i++;
+        while (i < number)
+        {
+            assert(j == number);
+            printf("tail loop 1\n");
+            assert(a1_copy[i] > a2_copy[j - 1]);
+            if (a1_copy[i] < a2_copy[j - 1])
+                printf("Mismatch: (%s[%zu] = %d)  <  (%s[%zu] = %d)\n",
+                        a1_name, i, a1_copy[i], a2_name, j - 1, a2_copy[j - 1]);
+            else if (a1_copy[i] > a2_copy[j - 1])
+                printf("Mismatch: (%s[%zu] = %d)  >  (%s[%zu] = %d)\n",
+                        a1_name, i, a1_copy[i], a2_name, j - 1, a2_copy[j - 1]);
+            else
+                printf("Equality: (%s[%zu] = %d) and (%s[%zu] = %d)\n",
+                       a1_name, i, a1_copy[i], a2_name, j - 1, a2_copy[j - 1]);
+            i++;
+        }
+    }
+
+    if (j < number)
+    {
+        j++;
+        while (j < number)
+        {
+            assert(i == number);
+            printf("tail loop 2\n");
+            assert(a1_copy[i - 1] < a2_copy[j]);
+            if (a1_copy[i - 1] < a2_copy[j])
+                printf("Mismatch: (%s[%zu] = %d)  <  (%s[%zu] = %d)\n",
+                        a1_name, i - 1, a1_copy[i - 1], a2_name, j, a2_copy[j]);
+            else if (a1_copy[i - 1] > a2_copy[j])
+                printf("Mismatch: (%s[%zu] = %d)  >  (%s[%zu] = %d)\n",
+                        a1_name, i - 1, a1_copy[i - 1], a2_name, j, a2_copy[j]);
+            else
+                printf("Equality: (%s[%zu] = %d) and (%s[%zu] = %d)\n",
+                       a1_name, i - 1, a1_copy[i - 1], a2_name, j, a2_copy[j]);
+            j++;
         }
     }
 }
@@ -217,8 +265,14 @@ int main(void)
     enum { ARRAY2_SIZE = 32 };
 
     test_conservation("array1 vs array1", ARRAY1_SIZE, "array1", array1, "array1", array1);
+    print_array_differences(ARRAY1_SIZE, "array1", array1, "array1", array1);
+    putchar('\n');
+
     test_conservation("array1 vs array2", ARRAY1_SIZE, "array1", array1, "array2", array2);
     print_array_differences(ARRAY1_SIZE, "array1", array1, "array2", array2);
+    putchar('\n');
+    print_array_differences(ARRAY1_SIZE, "array2", array2, "array1", array1);
+    putchar('\n');
 
     printf("\nBar Gelfer shuffle:\n");
     /*
