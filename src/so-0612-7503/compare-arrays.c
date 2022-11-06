@@ -138,7 +138,7 @@ static void print_sorted_copy_of_array(const char *tag, size_t number, size_t si
                                        const void *data, void *copy,
                                        Comparator compare, Formatter format)
 {
-    printf("-->> %s()\n", __func__);
+    //printf("-->> %s()\n", __func__);
     memmove(copy, data, size * number);
     qsort(copy, number, size, compare);
     size_t rc = check_conservation(data, copy, number, size, cmp_int);
@@ -150,7 +150,7 @@ static void print_sorted_copy_of_array(const char *tag, size_t number, size_t si
     dump_generic_array(buffer, number, size, data, format);
     snprintf(buffer, sizeof(buffer), "Sorted copy of %s array", tag);
     dump_generic_array(buffer, number, size, copy, format);
-    printf("<<-- %s()\n", __func__);
+    //printf("<<-- %s()\n", __func__);
 }
 
 enum { MAX_INT_FMT_LEN = 16 };
@@ -172,14 +172,14 @@ static void print_array_differences(size_t number, size_t size,
                                     const char *a2_name, const void *a2_data,
                                     Comparator compare, Formatter format)
 {
-    printf("-->> %s() (%zu x %zu)\n", __func__, number, size);
+    //printf("-->> %s() (%zu x %zu)\n", __func__, number, size);
     void *a1_copy = malloc(size * number);
     void *a2_copy = malloc(size * number);
     if (a1_copy == 0 || a2_copy == 0)
     {
         free(a1_copy);
         free(a2_copy);
-        printf("<<-- %s() - error exit (memory allocation failed)\n", __func__);
+        //printf("<<-- %s() - error exit (memory allocation failed)\n", __func__);
         return;
     }
 
@@ -307,25 +307,26 @@ static void print_array_differences(size_t number, size_t size,
     free(a2_buffer);
     free(a1_copy);
     free(a2_copy);
-    printf("<<-- %s()\n", __func__);
+    //printf("<<-- %s()\n", __func__);
 }
 
-static void test_conservation(const char *tag, size_t number,
+static void test_conservation(const char *tag, size_t number, size_t size,
                               const char *a1_name, const int *a1_data,
-                              const char *a2_name, const int *a2_data)
+                              const char *a2_name, const int *a2_data,
+                              Comparator compare, Formatter format)
 {
     printf("\n%s:\n", tag);
-    dump_generic_array(a1_name, number, sizeof(a1_data[0]), a1_data, format_int);
-    dump_generic_array(a2_name, number, sizeof(a2_data[0]), a2_data, format_int);
-    size_t rc = check_conservation(a1_data, a2_data, number, sizeof(a1_data[0]), cmp_int);
+    dump_generic_array(a1_name, number, size, a1_data, format_int);
+    dump_generic_array(a2_name, number, size, a2_data, format_int);
+    size_t rc = check_conservation(a1_data, a2_data, number, size, compare);
     if (rc == 0)
         printf("== PASS == %s is equivalent to %s\n\n", a1_name, a2_name);
     else
     {
         printf("!! FAIL !! %s and %s have %zu differences\n\n",
                a1_name, a2_name, rc);
-        print_array_differences(number, sizeof(a1_data[0]), a1_name, a1_data,
-                                a2_name, a2_data, cmp_int, format_int);
+        print_array_differences(number, size, a1_name, a1_data,
+                                a2_name, a2_data, compare, format);
     }
 }
 
@@ -351,26 +352,40 @@ int main(void)
     };
     enum { ARRAY2_SIZE = 32 };
 
-    test_conservation("array1 vs array1", ARRAY1_SIZE, "array1", array1, "array1", array1);
-    test_conservation("array1 vs array2", ARRAY1_SIZE, "array1", array1, "array2", array2);
+    test_conservation("array1 vs array1", ARRAY1_SIZE, sizeof(array1[0]),
+                      "array1", array1, "array1", array1,
+                      cmp_int, format_int);
+    test_conservation("array1 vs array2", ARRAY1_SIZE, sizeof(array1[0]),
+                      "array1", array1, "array2", array2,
+                      cmp_int, format_int);
 
+    /*
+    ** The subterfuge of copying array1 to array3 is necessary because
+    ** the Bar Gelfer shuffle_array() modifies its input array as well
+    ** as writing to the output array.  In fact, it destroys the input
+    ** array and does not conserve the input values as it shuffles into
+    ** the output array.  The algorithm is of no use, therefore, except
+    ** as a test for this code.
+    */
     printf("\nBar Gelfer shuffle:\n");
     unsigned seed = random_seed_uint32();
     printf("# Seed: 0x%.8X\n", seed);
     srand(seed);
-    /*
-    ** The subterfuge of copying array1 to array3 is necessary because
-    ** shuffle_array() modifies both its input parameters.
-    */
     int array3[ARRAY1_SIZE];
     int array4[ARRAY1_SIZE];
     memmove(array3, array1, sizeof(array3));
     memmove(array4, array1, sizeof(array4));
-    dump_generic_array("Before shuffling - array3", ARRAY1_SIZE, sizeof(array3[0]), array3, format_int);
+    dump_generic_array("Before shuffling - array3", ARRAY1_SIZE, sizeof(array3[0]),
+                       array3, format_int);
     shuffle_array(array3, array4, ARRAY1_SIZE);
-    dump_generic_array("After shuffling  - array3", ARRAY1_SIZE, sizeof(array3[0]), array3, format_int);
-    test_conservation("array1 vs array4", ARRAY1_SIZE, "array1", array1, "array4", array4);
+    dump_generic_array("After shuffling  - array3", ARRAY1_SIZE, sizeof(array3[0]),
+                       array3, format_int);
+    test_conservation("array1 vs array4", ARRAY1_SIZE, sizeof(array1[0]),
+                      "array1", array1, "array4", array4, cmp_int, format_int);
 
+    /*
+    ** The fisher-Yates shuffle works in place and does conserve its input.
+    */
     printf("\nFisher-Yates shuffle:\n");
     uint16_t fy_seed[3];
     random_seed_bytes(sizeof(fy_seed), fy_seed);
@@ -378,7 +393,8 @@ int main(void)
     int array5[ARRAY1_SIZE];
     memmove(array5, array1, sizeof(array5));
     fisher_yates_shuffle(array5, ARRAY1_SIZE, sizeof(array5[0]), fy_seed);
-    test_conservation("array1 vs array5", ARRAY1_SIZE, "array1", array1, "array5", array5);
+    test_conservation("array1 vs array5", ARRAY1_SIZE, sizeof(array1[0]),
+                      "array1", array1, "array5", array5, cmp_int, format_int);
 
     return 0;
 }
