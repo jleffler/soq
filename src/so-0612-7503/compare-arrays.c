@@ -194,17 +194,19 @@ static void print_array_differences(size_t number, size_t size,
     const char *a2_base = a2_copy;
 
     size_t j = 0;
-    for (size_t i = 0; i < number && j < number; i++)
+    size_t i = 0;
+    while (i < number && j < number)
     {
         const char *a1_value = a1_base + i * size;
         const char *a2_value = a2_base + j * size;
-        int rc = (*compare)(a1_value, a2_value);
         (*format)(a1_value, &a1_buffer, &a1_buflen);
         (*format)(a2_value, &a2_buffer, &a2_buflen);
+        int rc = (*compare)(a1_value, a2_value);
         if (rc == 0)
         {
             printf("Equality: (%s[%zu] = %s) and (%s[%zu] = %s)\n",
                    a1_name, i, a1_buffer, a2_name, j, a2_buffer);
+            i++;
             j++;
         }
         else if (rc < 0)
@@ -226,6 +228,7 @@ static void print_array_differences(size_t number, size_t size,
                 (*format)(a1_value, &a1_buffer, &a1_buflen);
                 printf("  Resync: (%s[%zu] = %s)  =  (%s[%zu] = %s)\n",
                        a1_name, i, a1_buffer, a2_name, j, a2_buffer);
+                i++;
                 j++;
             }
         }
@@ -235,11 +238,11 @@ static void print_array_differences(size_t number, size_t size,
                    a1_name, i, a1_buffer, a2_name, j, a2_buffer);
             while (++j < number &&
                    (a2_value = a2_base + j * size) &&
-                   (*compare)(a1_value, a2_value) < 0)
+                   (*compare)(a1_value, a2_value) > 0)
             {
                 (*format)(a2_value, &a2_buffer, &a2_buflen);
                 printf("Mismatch: (%s[%zu] = %s)  >  (%s[%zu] = %s)\n",
-                       a1_name, i, a1_buffer, a2_name, j, a1_buffer);
+                       a1_name, i, a1_buffer, a2_name, j, a2_buffer);
             }
             if (i < number && j < number &&
                 (a2_value = a2_base + j * size) &&
@@ -248,8 +251,55 @@ static void print_array_differences(size_t number, size_t size,
                 (*format)(a2_value, &a2_buffer, &a2_buflen);
                 printf("  Resync: (%s[%zu] = %s)  =  (%s[%zu] = %s)\n",
                        a1_name, i, a1_buffer, a2_name, j, a2_buffer);
+                i++;
                 j++;
             }
+        }
+    }
+
+    assert(i == number || j == number);
+
+    if (i < number)
+    {
+        const char *a2_value = a2_base + (j - 1) * size;
+        (*format)(a2_value, &a2_buffer, &a2_buflen);
+        while (++i < number)
+        {
+            assert(j == number);
+            const char *a1_value = a1_base + i * size;
+            (*format)(a1_value, &a1_buffer, &a1_buflen);
+            int rc = (*compare)(a1_value, a2_value);
+            if (rc < 0)
+                printf("Mismatch: (%s[%zu] = %s)  <  (%s[%zu] = %s)\n",
+                        a1_name, i, a1_buffer, a2_name, j - 1, a2_buffer);
+            else if (rc > 0)
+                printf("Mismatch: (%s[%zu] = %s)  >  (%s[%zu] = %s)\n",
+                        a1_name, i, a1_buffer, a2_name, j - 1, a2_buffer);
+            else
+                printf("Equality: (%s[%zu] = %s) and (%s[%zu] = %s)\n",
+                       a1_name, i, a1_buffer, a2_name, j - 1, a2_buffer);
+        }
+    }
+
+    if (j < number)
+    {
+        const char *a1_value = a1_base + (i - 1) * size;
+        (*format)(a1_value, &a1_buffer, &a1_buflen);
+        while (++j < number)
+        {
+            assert(i == number);
+            const char *a2_value = a2_base + j * size;
+            (*format)(a1_value, &a1_buffer, &a1_buflen);
+            int rc = (*compare)(a1_value, a2_value);
+            if (rc < 0)
+                printf("Mismatch: (%s[%zu] = %s)  <  (%s[%zu] = %s)\n",
+                        a1_name, i - 1, a1_buffer, a2_name, j, a2_buffer);
+            else if (rc > 0)
+                printf("Mismatch: (%s[%zu] = %s)  >  (%s[%zu] = %s)\n",
+                        a1_name, i - 1, a1_buffer, a2_name, j, a2_buffer);
+            else
+                printf("Equality: (%s[%zu] = %s) and (%s[%zu] = %s)\n",
+                       a1_name, i - 1, a1_buffer, a2_name, j, a2_buffer);
         }
     }
 
@@ -271,16 +321,17 @@ static void test_conservation(const char *tag, size_t number,
     if (rc == 0)
         printf("== PASS == %s is equivalent to %s\n\n", a1_name, a2_name);
     else
-        printf("!! FAIL !! %s and %s have %zu differences\n\n", a1_name, a2_name, rc);
+    {
+        printf("!! FAIL !! %s and %s have %zu differences\n\n",
+               a1_name, a2_name, rc);
+        print_array_differences(number, sizeof(a1_data[0]), a1_name, a1_data,
+                                a2_name, a2_data, cmp_int, format_int);
+    }
 }
 
 int main(void)
 {
     err_setarg0("check-conservation");
-
-    unsigned seed = random_seed_uint32();
-    printf("# Seed: 0x%.8X\n", seed);
-    srand(seed);
 
     /* Created by: gen_matrix -C -E -v 32 -n array1 -i -l 75 */
     /* Random seed: 0xE1F5C1C7 */
@@ -302,11 +353,11 @@ int main(void)
 
     test_conservation("array1 vs array1", ARRAY1_SIZE, "array1", array1, "array1", array1);
     test_conservation("array1 vs array2", ARRAY1_SIZE, "array1", array1, "array2", array2);
-    print_array_differences(ARRAY1_SIZE, sizeof(array1[0]),
-                            "array1", array1, "array2", array2, cmp_int, format_int);
 
-#ifdef USE_GENERIC_BAR_GELFER_SHUFFLE
     printf("\nBar Gelfer shuffle:\n");
+    unsigned seed = random_seed_uint32();
+    printf("# Seed: 0x%.8X\n", seed);
+    srand(seed);
     /*
     ** The subterfuge of copying array1 to array3 is necessary because
     ** shuffle_array() modifies both its input parameters.
@@ -319,10 +370,6 @@ int main(void)
     shuffle_array(array3, array4, ARRAY1_SIZE);
     dump_generic_array("After shuffling  - array3", ARRAY1_SIZE, sizeof(array3[0]), array3, format_int);
     test_conservation("array1 vs array4", ARRAY1_SIZE, "array1", array1, "array4", array4);
-
-    print_array_differences(ARRAY1_SIZE, sizeof(array1[0]),
-                            "array1", array1, "array4", array4, cmp_int, format_int);
-#endif /* USE_GENERIC_BAR_GELFER_SHUFFLE */
 
     printf("\nFisher-Yates shuffle:\n");
     uint16_t fy_seed[3];
