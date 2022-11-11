@@ -11,8 +11,9 @@ TFLAGS  = -DTEST
 PROG1 = genshuffle
 PROG2 = check-conservation
 PROG3 = compare-arrays
+PROG4 = antonin-gavrel-shuffle
 
-PROGRAMS = ${PROG1} ${PROG2} ${PROG3}
+PROGRAMS = ${PROG1} ${PROG2} ${PROG3} ${PROG4}
 
 all: ${PROGRAMS}
 
