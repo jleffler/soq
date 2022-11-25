@@ -179,6 +179,16 @@ static noreturn void err_error(const char *arg0, const char *fmt, ...)
     exit(EXIT_FAILURE);
 }
 
+/*
+** Usage: set-sk [-h hi][-l lo][-r repeat][-s seed][-v]
+**
+**    -h hi      Longest array length (default 15)
+**    -l lo      Shortest array length (default 5)
+**    -r repeat  Number of times to shuffle the array (default 1)
+**    -s seed    Use the given number as the random seed
+**    -v         Verbose mode
+*/
+
 int main(int argc, char **argv)
 {
     int seed = (int)time(0);
