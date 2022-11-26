@@ -35,7 +35,8 @@
 #include <time.h>
 #include <unistd.h>
 
-int verbose = 0;
+static int verbose = 0;
+static int all = 0;
 
 struct pair_int { int a; int b; };
 
@@ -49,20 +50,6 @@ static void chk_set_a(int *a, int n)
         sum += a[i];
     }
     assert(sum == n * (n - 1) / 2);
-}
-
-static void print_cycle_a(int *a, int n, int i)
-{
-    int k = a[i];
-    assert(k >= 0 && k < n);
-    printf("  Cycle = { %d", k);
-    while (a[k] != a[i])
-    {
-        printf(", %d", a[k]);
-        k = a[k];
-        assert(k >= 0 && k < n);
-    }
-    puts(" }");
 }
 
 static int size_of_set_k(int *a, int n, int i)
@@ -79,14 +66,47 @@ static int size_of_set_k(int *a, int n, int i)
     return len;
 }
 
+static void print_cycle_a(int *a, int n, int i)
+{
+    int k = a[i];
+    assert(k >= 0 && k < n);
+    printf("  Cycle = { %d", k);
+    while (a[k] != a[i])
+    {
+        printf(", %d", a[k]);
+        k = a[k];
+        assert(k >= 0 && k < n);
+    }
+    printf(" }; length = %d\n", size_of_set_k(a, n, i));
+}
+
+static int found_before(int *a, int n, int i)
+{
+    for (int x = 0; x < i; x++)
+    {
+        if (a[x] == i)
+            return 1;
+        int k = a[x];
+        assert(k >= 0 && k < n);
+        while (a[k] != x)
+        {
+            if (a[k] == i)
+                return 1;
+            k = a[k];
+            assert(k >= 0 && k < n);
+        }
+    }
+    return 0;
+}
+
 static struct pair_int max_size_of_set_k(int *a, int n)
 {
     int s_max = 0;
     int s_bgn = 0;
     chk_set_a(a, n);
-    for (int i = 0; i < n && s_max  * 2 < n; i++)
+    for (int i = 0; i < n && ((all && s_max != n) || s_max * 2 < n); i++)
     {
-        if (verbose)
+        if (verbose && !found_before(a, n, i))
             print_cycle_a(a, n, i);
         int n_max = size_of_set_k(a, n, i);
         if (n_max > s_max)
@@ -182,6 +202,7 @@ static noreturn void err_error(const char *arg0, const char *fmt, ...)
 /*
 ** Usage: set-sk [-h hi][-l lo][-r repeat][-s seed][-v]
 **
+**    -a         Print all distinct cycles
 **    -h hi      Longest array length (default 15)
 **    -l lo      Shortest array length (default 5)
 **    -r repeat  Number of times to shuffle the array (default 1)
@@ -196,10 +217,14 @@ int main(int argc, char **argv)
     int hi = 15;
     int repeats = 1;
     int opt;
-    while ((opt = getopt(argc, argv, "h:l:r:s:v")) != -1)
+    while ((opt = getopt(argc, argv, "ah:l:r:s:v")) != -1)
     {
         switch (opt)
         {
+        case 'a':
+            all = 1;
+            verbose = 1;
+            break;
         case 'h':
             hi = atoi(optarg);
             if (hi < 1 || hi > 1000)
