@@ -28,12 +28,11 @@
 
 #include "posixver.h"
 #include <assert.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdnoreturn.h>
 #include <time.h>
 #include <unistd.h>
+#include "stderr.h"
 
 static int verbose = 0;
 static int all = 0;
@@ -173,51 +172,27 @@ static void fisher_yates_shuffle(int *a, int n)
     }
 }
 
-/*
-** Not the standard design - usually use err_setarg0(const char *arg0)
-** to specify the program name, then static noreturn void
-** err_usage(const char *use_str) to specify the usage string (no need
-** for program name or word 'Usage').
-*/
-static noreturn void err_usage(char *arg0)
-{
-    fprintf(stderr, "Usage: %s [-v][-s seed][-l low][-h high][-r repeats]\n", arg0);
-    exit(EXIT_FAILURE);
-}
-
-/*
-** Not the standard design - usually use err_setarg0(const char *arg0)
-** to specify the program name.
-*/
-static noreturn void err_error(const char *arg0, const char *fmt, ...)
-{
-    va_list args;
-    fprintf(stderr, "%s: ", arg0);
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    exit(EXIT_FAILURE);
-}
-
-/*
-** Usage: set-sk [-h hi][-l lo][-r repeat][-s seed][-v]
-**
-**    -a         Print all distinct cycles
-**    -h hi      Longest array length (default 15)
-**    -l lo      Shortest array length (default 5)
-**    -r repeat  Number of times to shuffle the array (default 1)
-**    -s seed    Use the given number as the random seed
-**    -v         Verbose mode
-*/
+static const char optstr[] = "ahH:L:r:s:v";
+static const char usestr[] = "[-ahv][-s seed][-L low][-H high][-r repeats]";
+static const char hlpstr[] =
+    "  -a         Print all distinct cycles\n"
+    "  -h         Print this help message and exit\n"
+    "  -H hi      Longest array length (default 15)\n"
+    "  -L lo      Shortest array length (default 5)\n"
+    "  -r repeat  Number of times to shuffle each array (default 1)\n"
+    "  -s seed    Use the given number as the random seed\n"
+    "  -v         Verbose mode\n"
+    ;
 
 int main(int argc, char **argv)
 {
+    err_setarg0(argv[0]);
     int seed = (int)time(0);
     int lo = 5;
     int hi = 15;
     int repeats = 1;
     int opt;
-    while ((opt = getopt(argc, argv, "ah:l:r:s:v")) != -1)
+    while ((opt = getopt(argc, argv, optstr)) != -1)
     {
         switch (opt)
         {
@@ -226,19 +201,22 @@ int main(int argc, char **argv)
             verbose = 1;
             break;
         case 'h':
+            err_help(usestr, hlpstr);
+            /*NOTREACHED*/
+        case 'H':
             hi = atoi(optarg);
             if (hi < 1 || hi > 1000)
-                err_error(argv[0], "High limit %s (%d) out of range [1..1000]\n", optarg, hi);
+                err_error("High limit %s (%d) out of range [1..1000]\n", optarg, hi);
             break;
-        case 'l':
+        case 'L':
             lo = atoi(optarg);
             if (lo < 1 || lo > 1000)
-                err_error(argv[0], "Low limit %s (%d) out of range [1..1000]\n", optarg, lo);
+                err_error("Low limit %s (%d) out of range [1..1000]\n", optarg, lo);
             break;
         case 'r':
             repeats = atoi(optarg);
             if (repeats < 1 || repeats > 1000)
-                err_error(argv[0], "Number of repeats %s (%d) out of range [1..1000]\n", optarg, repeats);
+                err_error("Number of repeats %s (%d) out of range [1..1000]\n", optarg, repeats);
             break;
         case 's':
             seed = atoi(optarg);
@@ -247,13 +225,14 @@ int main(int argc, char **argv)
             verbose = 1;
             break;
         default:
-            err_usage(argv[0]);
+            err_usage(usestr);
         }
     }
+
     if (optind != argc)
-        err_usage(argv[0]);
+        err_usage(usestr);
     if (lo > hi)
-        err_error(argv[0], "Low limit %d bigger than high limit %d\n", lo, hi);
+        err_error("Low limit %d bigger than high limit %d\n", lo, hi);
 
     /* Base case from question */
     int A[] = { 5, 4, 0, 3, 1, 6, 2, };
