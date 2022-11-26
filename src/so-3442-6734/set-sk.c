@@ -41,7 +41,7 @@ static int all = 0;
 struct pair_int { int a; int b; };
 
 /* sum(0..N) = n * (n - 1) / 2 */
-static void chk_set_a(int *a, int n)
+static void chk_set_a(const int *a, int n)
 {
     int sum = 0;
     for (int i = 0; i < n; i++)
@@ -52,7 +52,7 @@ static void chk_set_a(int *a, int n)
     assert(sum == n * (n - 1) / 2);
 }
 
-static int size_of_set_k(int *a, int n, int i)
+static int size_of_set_k(const int *a, int n, int i)
 {
     int len = 1;
     int k = a[i];
@@ -66,7 +66,7 @@ static int size_of_set_k(int *a, int n, int i)
     return len;
 }
 
-static void print_cycle_a(int *a, int n, int i)
+static void print_cycle_a(const int *a, int n, int i)
 {
     int k = a[i];
     assert(k >= 0 && k < n);
@@ -80,7 +80,7 @@ static void print_cycle_a(int *a, int n, int i)
     printf(" }; length = %d\n", size_of_set_k(a, n, i));
 }
 
-static int found_before(int *a, int n, int i)
+static int found_before(const int *a, int n, int i)
 {
     for (int x = 0; x < i; x++)
     {
@@ -99,7 +99,7 @@ static int found_before(int *a, int n, int i)
     return 0;
 }
 
-static struct pair_int max_size_of_set_k(int *a, int n)
+static struct pair_int max_size_of_set_k(const int *a, int n)
 {
     int s_max = 0;
     int s_bgn = 0;
@@ -119,7 +119,7 @@ static struct pair_int max_size_of_set_k(int *a, int n)
     return s;
 }
 
-static void print_set_a(int *a, int n)
+static void print_set_a(const int *a, int n)
 {
     printf("A[%d] = {", n);
     const char *pad = " ";
@@ -131,7 +131,7 @@ static void print_set_a(int *a, int n)
     puts(" }");
 }
 
-static void test_set_a(int *a, int n)
+static void test_set_a(const int *a, int n)
 {
     struct pair_int s;
     print_set_a(a, n);
