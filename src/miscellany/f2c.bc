@@ -1,0 +1,10 @@
+#!/usr/bin/env bc
+#
+# Fahrenheit to Celsius (Centigrade) conversion
+
+define f2c(f) {
+    return ((f + 40) * 5 / 9 - 40)
+}
+define c2f(c) {
+    return ((c + 40) * 9 / 5 - 40)
+}
