@@ -49,11 +49,20 @@ I am moderately convinced this is not a useful change.
 
 <hr>
 
-The code in old-cs50.h and old-cs50.c was directly copied from the
+The code in cs50-2013.h and cs50-2013.c was directly copied from the
 Harvard site in early 2016.
 It is the version prior to the name changing.
 
-The code in cs50.h and cs50.c was copied from GitHub on 2017-08-13.
+The code in cs50-2017.h and cs50-2017.c was copied from GitHub on 2017-08-13.
+
+The code in cs50-2022.h and cs50-2022.c was copied from a clone of the
+GitHub repo on 2022-12-29.
+The code in the header is simplified compared with the prior version of
+the code.
+It also has a function `get_long()` which was previously missing (and
+its absence triggered the update).
+
+The symlinks cs50.h and cs50.c are currently pointing at the 2022 versions of the source files.
 
 Note that on a Mac running macOS Sierra 10.12.6, there is a
 system-provided function `get_string()` with a different interface.
