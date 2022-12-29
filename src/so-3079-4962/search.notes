@@ -7,9 +7,9 @@ the key to be compared with value.
 1. Find any entry with key = value.
     EQ
 2. Find lowest entry with key = value.
-    NEQ (N from miNimum)
+    NEQ (N from miNimum) (MinEQ)
 3. Find highest entry with key = value.
-    XEQ (X from maXimum)
+    XEQ (X from maXimum) (MaxEQ)
 4. Find highest entry with key < value.
     XLT (X from maXimum)
 5. Find highest entry with key <= value.
@@ -19,12 +19,25 @@ the key to be compared with value.
 7. Find lowest entry with key >= value.
     NGE (N from miNimum)
 
+One key issue is whether there are any duplicates the list of key values.
+Cases 2 and 3 are immaterial if the key values are all unique.
+
+For case 5, if the value is found equal to the key, is it the first of
+the matching keys, the last, or some indeterminate matching key?
+Similarly for case 7.  These questions only arise when the keys are not
+unique.  For case 5 with a match, the best choice is likely the highest
+entry with the key; for case 7 with a match, the best choice is likely
+the lowest entry with the key.
+
 LUBGT - Least Upper Bound Greater Than
 LUBGE - Least Upper Bound Greater Than Or Equal
 GLBLT - Greatest Lower Bound Less Than
 GLBLE - Greatest Lower Bound Less Than Or Equal
 
-
 Relevant SO questions:
-* so-5308-6674
-* so-3079-4962
+* [SO 5305-8133](https://stackoverflow.com/q/53058133) &mdash;
+  A query regarding the algorithm of binary search using C
+* [SO 3079-4962](https://stackoverflow.com/q/30794962) &mdash;
+  How to return positive occurrence
+
+* [Extra, Extra – Read All About It: Nearly All Binary Searches and Merge Sorts are Broken](https://ai.googleblog.com/2006/06/extra-extra-read-all-about-it-nearly.html)
