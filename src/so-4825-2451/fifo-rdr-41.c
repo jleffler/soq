@@ -25,7 +25,6 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -72,18 +71,7 @@ int main(int argc, char **argv)
 
     err_setlogopts(ERR_PID|ERR_MILLI);
     set_handler();
-
-    struct stat sb;
-    if (stat(FIFO, &sb) != 0 || !S_ISFIFO(sb.st_mode))
-    {
-        err_remark("Creating FIFO '%s'\n", FIFO);
-        if (mkfifo(FIFO, 0644) != 0)
-        {
-            chk_signal();
-            err_syserr("failed to create FIFO '%s': ", FIFO);
-        }
-        chk_signal();
-    }
+    create_fifo();
 
     int wfd = -1;
 
@@ -161,7 +149,8 @@ static void set_handler(void)
     struct sigaction sa;
     sa.sa_flags = 0;
     sa.sa_handler = sig_handler;
-    sigemptyset(&sa.sa_mask);
+    if (sigemptyset(&sa.sa_mask) != 0)
+        err_syserr("sigemptyset() failed despite everything! ");
     for (int i = 0; i < NUM_TRAPS; i++)
     {
         int signum = trap[i].number;

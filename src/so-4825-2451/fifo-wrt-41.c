@@ -16,7 +16,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 static size_t wr_fifo(int fd, const char *name, size_t buflen, char buffer[buflen])
@@ -34,15 +33,9 @@ int main(int argc, char **argv)
     err_setarg0(argv[0]);
     if (argc != 1)
         err_usage("");
-
-    struct stat sb;
-    if (stat(FIFO, &sb) != 0 || !S_ISFIFO(sb.st_mode))
-    {
-        err_remark("Creating FIFO '%s'\n", FIFO);
-        if (mkfifo(FIFO, 0644) != 0)
-            err_syserr("failed to create FIFO '%s': ", FIFO);
-    }
     err_setlogopts(ERR_PID|ERR_MILLI);
+
+    create_fifo();
 
     err_remark("Open FIFO '%s' for writing\n", FIFO);
     int fd = open(FIFO, O_WRONLY);
