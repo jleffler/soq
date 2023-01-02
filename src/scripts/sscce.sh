@@ -38,8 +38,8 @@ echo ' — or MRE or whatever name SO now uses)'
 
 # Verified http not https 2020-08-03
 echo 'or an'
-echo 'SSCCE ([Short, Self-Contained, Correct Example](http://sscce.org/))'
-echo ' — the same idea by a different name'
+echo 'SSCCE ([Short, Self-Contained, Correct Example](http://sscce.org/)'
+echo ' — the same idea by a different name)'
 
 if [ "$long" = "yes" ]
 then
