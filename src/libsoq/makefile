@@ -28,6 +28,7 @@ FILES.c = \
 	microsleep.c \
 	range.c \
 	stderr.c \
+	stderrloc.c \
 	timer.c \
 	timespec_io.c \
 	timespec_math.c \
@@ -53,6 +54,7 @@ AUXFILES.h = \
 	isqrt.h \
 	jlss.h \
 	matmaxfldwid.h \
+	noreturn.h \
 	posixver.h \
 	reldiff.h \
 	vecmaxfldwid.h \
