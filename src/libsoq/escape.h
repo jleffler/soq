@@ -2,8 +2,8 @@
 @(#)File:           escape.h
 @(#)Purpose:        Escape a string to protect against shell expansion
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2005,2007-08,2012
-@(#)Derivation:     escape.h 1.5 2012/07/22 01:34:03
+@(#)Copyright:      (C) JLSS 2005-2018
+@(#)Derivation:     escape.h 2.1 2018/11/02 05:29:46
 */
 
 /*TABSTOP=4*/

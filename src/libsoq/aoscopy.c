@@ -2,15 +2,16 @@
 @(#)File:           aoscopy.c
 @(#)Purpose:        Array of Strings - Copy Semantics
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2017-2018
-@(#)Derivation:     aoscopy.c 1.7 2018/06/05 06:37:54
+@(#)Copyright:      (C) JLSS 2017-2023
+@(#)Derivation:     aoscopy.c 1.9 2023/01/10 06:24:27
 */
 
 /*TABSTOP=4*/
 
 #include "posixver.h"
-#include "aoscopy.h"
+#include "aoscopy.h"         /* SSC: Self-sufficiency check */
 #include <assert.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -20,6 +21,12 @@ struct AoS_Copy
     size_t  max_str;
     char  **strings;
 };
+
+typedef struct
+{
+    FILE   *fp;
+    size_t  index;
+} AoS_Context;
 
 #ifndef AOS_MIN_ALLOCATION
 #define AOS_MIN_ALLOCATION 4
@@ -136,19 +143,19 @@ bool aosc_set(AoS_Copy *aos, size_t index, const char *str)
     return true;
 }
 
-char **aosc_base(AoS_Copy *aos)
+char **aosc_base(const AoS_Copy *aos)
 {
     assert(aos != 0);
     return aos->strings;
 }
 
-size_t aosc_length(AoS_Copy *aos)
+size_t aosc_length(const AoS_Copy *aos)
 {
     assert(aos != 0);
     return aos->num_str;
 }
 
-char *aosc_item_copy(AoS_Copy *aos, size_t index)
+char *aosc_item_copy(const AoS_Copy *aos, size_t index)
 {
     assert(aos != 0);
     if (index >= aos->num_str)
@@ -156,7 +163,7 @@ char *aosc_item_copy(AoS_Copy *aos, size_t index)
     return strdup(aos->strings[index]);
 }
 
-const char *aosc_item(AoS_Copy *aos, size_t index)
+const char *aosc_item(const AoS_Copy *aos, size_t index)
 {
     assert(aos != 0);
     if (index >= aos->num_str)
@@ -164,7 +171,21 @@ const char *aosc_item(AoS_Copy *aos, size_t index)
     return aos->strings[index];
 }
 
-void aosc_apply(AoS_Copy *aos, size_t bos, size_t eos, AoS_SimpleApply function)
+void aosc_delete(AoS_Copy *aos, size_t bos, size_t eos)
+{
+    assert(aos != 0);
+    assert(bos <= eos);
+    assert(eos <= aos->num_str);
+    if (aos == 0 || bos > eos || eos > aos->num_str)
+        return;
+    for (size_t i = bos; i < eos; i++)
+        free(aos->strings[i]);
+    if (eos < aos->num_str)
+        memmove(&aos->strings[bos], &aos->strings[eos], (aos->num_str - eos) * sizeof(aos->strings[0]));
+    aos->num_str = bos + (aos->num_str - eos);
+}
+
+void aosc_apply(const AoS_Copy *aos, size_t bos, size_t eos, AoS_SimpleApply function)
 {
     assert(aos != 0);
     if (eos == 0)
@@ -176,7 +197,7 @@ void aosc_apply(AoS_Copy *aos, size_t bos, size_t eos, AoS_SimpleApply function)
         (*function)(aos->strings[i]);
 }
 
-extern void aosc_apply_ctxt(AoS_Copy *aos, size_t bos, size_t eos, AoS_ContextApply function, void *ctxt)
+void aosc_apply_ctxt(const AoS_Copy *aos, size_t bos, size_t eos, AoS_ContextApply function, void *ctxt)
 {
     assert(aos != 0);
     if (eos == 0)
@@ -188,11 +209,24 @@ extern void aosc_apply_ctxt(AoS_Copy *aos, size_t bos, size_t eos, AoS_ContextAp
         (*function)(aos->strings[i], ctxt);
 }
 
+static void aosc_dump_ctxt(const char *str, void *ctxt)
+{
+    AoS_Context *cp = ctxt;
+    fprintf(cp->fp, "%zu [%s]\n", cp->index++, str);
+}
+
+void aosc_dump(FILE *fp, const char *tag, const AoS_Copy *aos)
+{
+    AoS_Context ctxt = { fp, 0 };
+    fprintf(fp, "%s (0x%12" PRIXPTR "):\n", tag, (uintptr_t)aos);
+    fprintf(fp, " - Number %zu, Allocated %zu\n", aos->num_str, aos->max_str);
+    aosc_apply_ctxt(aos, 0, aosc_length(aos), aosc_dump_ctxt, &ctxt);
+}
+
 #ifdef TEST
 
 #undef NDEBUG
 #include <assert.h>
-#include <stdio.h>
 #include <unistd.h>
 #include "stderr.h"
 
@@ -234,7 +268,7 @@ int main(int argc, char **argv)
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
         case 'V':
-            err_version("AOSCOPY", &"@(#)$Revision: 1.7 $ ($Date: 2018/06/05 06:37:54 $)"[4]);
+            err_version("AOSCOPY", &"@(#)$Revision: 1.9 $ ($Date: 2023/01/10 06:24:27 $)"[4]);
             /*NOTREACHED*/
         default:
             err_usage(usestr);
@@ -276,7 +310,12 @@ int main(int argc, char **argv)
         printf("aos[%zu] = [%s]\n", i, base[i]);
     }
 
+    aosc_dump(stdout, "Before deleting [0..4)", aos);
+    aosc_delete(aos, 0, 4);
+    aosc_dump(stdout, "After deleting [0..4)", aos);
+
     free(item1);
+
     aosc_destroy(aos);
 
     return 0;

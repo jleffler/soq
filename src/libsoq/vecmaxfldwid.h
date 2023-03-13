@@ -3,7 +3,7 @@
 @(#)Purpose:        Determine the maximum field width of values in vector of N integers
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2022
-@(#)Derivation:     vecmaxfldwid.h 1.1 2022/06/25 20:02:29
+@(#)Derivation:     vecmaxfldwid.h 1.2 2022/08/15 20:24:56
 */
 
 /*TABSTOP=4*/
@@ -23,6 +23,11 @@
 ** fixed-point or exponential notation.  And a small magnitude number
 ** (1.23456789E-123) might require more space than a large magnitude
 ** number (1234.0).
+**
+** Configuration:
+** #define MFW_CONST const to const-qualify matrices.
+** -- See also: SO 7335-6925 (https://stackoverflow.com/q/73356925).
+** #define MFW_UNSIGNED if the type is an unsigned type
 */
 
 #ifndef JLSS_ID_VECMAXFLDWID_H
@@ -34,6 +39,10 @@ extern "C" {
 
 #if !defined(MFW_VECTOR_TYPE)
 #define MFW_VECTOR_TYPE int
+#endif
+
+#if !defined(MFW_CONST)
+#define MFW_CONST /* Nothing */
 #endif
 
 #define MFW_CONCAT3(a, b, c)        a ## b ## c
@@ -70,7 +79,7 @@ static inline int MFW_NUM_DIGITS(MFW_VECTOR_TYPE)(MFW_VECTOR_TYPE value)
     return result;
 }
 
-static inline int MFW_MAX_FIELD_WIDTH(MFW_VECTOR_TYPE)(size_t n, const MFW_VECTOR_TYPE vector[n])
+static inline int MFW_MAX_FIELD_WIDTH(MFW_VECTOR_TYPE)(size_t n, MFW_CONST MFW_VECTOR_TYPE vector[n])
 {
     MFW_VECTOR_TYPE min_val = vector[0];
     MFW_VECTOR_TYPE max_val = vector[0];
@@ -82,12 +91,14 @@ static inline int MFW_MAX_FIELD_WIDTH(MFW_VECTOR_TYPE)(size_t n, const MFW_VECTO
             max_val = vector[i];
     }
     int fld_width = MFW_NUM_DIGITS(MFW_VECTOR_TYPE)(max_val);
+#if !defined(MFW_UNSIGNED)
     if (min_val < 0)
     {
         int min_width = MFW_NUM_DIGITS(MFW_VECTOR_TYPE)(min_val);
         if (min_width > fld_width)
             fld_width = min_width;
     }
+#endif /* MFW_UNSIGNED */
     return fld_width;
 }
 

@@ -2,8 +2,8 @@
 @(#)File:           filter.h
 @(#)Purpose:        Header for filter functions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993,1995-98,2003-04,2006,2008,2014-15
-@(#)Derivation:     filter.h 2015.2 2015/02/17 04:51:48
+@(#)Copyright:      (C) JLSS 1993-2022
+@(#)Derivation:     filter.h 2022.1 2022/10/05 03:23:59
 */
 
 /*TABSTOP=4*/
@@ -48,6 +48,16 @@ extern int filter_output(int argc, char **argv, int optnum, OutputFilter functio
 /* Source: outfiltera.c */
 typedef int (*OutputFilterAnon)(FILE *ifp, FILE *ofp);
 extern int filter_output_anon(int argc, char **argv, int optnum, OutputFilterAnon function);
+
+/* Modern mode 3 - without output file specified and user-provided context */
+/* Source: ctxfilter.c */
+typedef int (*StdoutFilterContext)(FILE *ifp, const char *fn, void *context);
+extern int filter_stdout_context(int argc, char **argv, int optnum, StdoutFilterContext function, void *context);
+
+/* Modern mode 4 - with output file specified and user-provided context */
+/* Source: ctxfilter.c */
+typedef int (*OutputFilterContext)(FILE *ifp, const char *fn, FILE *ofp, void *context);
+extern int filter_output_context(int argc, char **argv, int optnum, OutputFilterContext function, void *context);
 
 /* Set output file for filter_output() and filter_output_anon() */
 /* Returns previous value of the file (does not set new value if passed null pointer). */

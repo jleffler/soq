@@ -2,8 +2,8 @@
 @(#)File:           aoscopy.h
 @(#)Purpose:        Array of Strings - Copy Semantics
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2017
-@(#)Derivation:     aoscopy.h 1.4 2017/12/29 00:38:43
+@(#)Copyright:      (C) JLSS 2017-2023
+@(#)Derivation:     aoscopy.h 1.5 2023/01/09 23:20:35
 */
 
 /*TABSTOP=4*/
@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#include <stddef.h>     /* size_t */
+#include <stdio.h>      /* size_t, FILE */
 #include <stdbool.h>    /* bool */
 
 /*
@@ -43,12 +43,15 @@ extern void aosc_destroy(AoS_Copy *aos);
 extern bool aosc_add(AoS_Copy *aos, const char *str);
 extern bool aosc_addbytes(AoS_Copy *aos, const char *str, const char *eos);
 extern bool aosc_set(AoS_Copy *aos, size_t index, const char *str);
-extern char **aosc_base(AoS_Copy *aos);
-extern size_t aosc_length(AoS_Copy *aos);
-extern char *aosc_item_copy(AoS_Copy *aos, size_t index);
-extern const char *aosc_item(AoS_Copy *aos, size_t index);
-extern void aosc_apply(AoS_Copy *aos, size_t bos, size_t eos, AoS_SimpleApply function);
-extern void aosc_apply_ctxt(AoS_Copy *aos, size_t bos, size_t eos, AoS_ContextApply function, void *ctxt);
+extern char **aosc_base(const AoS_Copy *aos);
+extern size_t aosc_length(const AoS_Copy *aos);
+extern char *aosc_item_copy(const AoS_Copy *aos, size_t index);
+extern const char *aosc_item(const AoS_Copy *aos, size_t index);
+extern void aosc_delete(AoS_Copy *aos, size_t bos, size_t eos);
+extern void aosc_apply(const AoS_Copy *aos, size_t bos, size_t eos, AoS_SimpleApply function);
+extern void aosc_apply_ctxt(const AoS_Copy *aos, size_t bos, size_t eos, AoS_ContextApply function, void *ctxt);
+
+extern void aosc_dump(FILE *fp, const char *tag, const AoS_Copy *aos);
 
 #ifdef __cplusplus
 }

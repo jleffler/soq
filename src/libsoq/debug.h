@@ -2,8 +2,8 @@
 @(#)File:           debug.h
 @(#)Purpose:        Definitions for the debugging system
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2018
-@(#)Derivation:     debug.h 3.17 2018/06/17 06:23:46
+@(#)Copyright:      (C) JLSS 1990-2023
+@(#)Derivation:     debug.h 3.18 2023/01/09 23:15:25
 */
 
 #ifndef DEBUG_H
@@ -21,23 +21,17 @@
 #endif /* DEBUG */
 
 /*
-** TRACE is a legacy interface; new code should use DB_TRACE.
-**
-** Usage:  TRACE((level, fmt, ...));
+** Usage:  DB_TRACE(level, fmt, ...);
+** Usage:  DB_TRACELOC(level, fmt, ...);
 **
 ** "level" is the debugging level which must be operational for the output
 ** to appear. "fmt" is a printf format string. "..." is whatever extra
 ** arguments fmt requires (possibly nothing).
 **
-** Usage:  DB_TRACE(level, fmt, ...);
-** Usage:  DB_TRACELOC(level, fmt, ...);
-**
 ** The structure of the macros means that the code is always validated
 ** but is not called when DEBUG is undefined.
 ** -- See chapter 8 of 'The Practice of Programming', by Kernighan and Pike.
 */
-#define TRACE(x) \
-            do { if (DB_ACTIVE) db_print x; } while (0)
 #define DB_TRACE(level, ...)\
             do { if (DB_ACTIVE) db_print(level, __VA_ARGS__); } while (0)
 #define DB_TRACELOC(level, ...)\
@@ -85,9 +79,8 @@ extern const char *db_indent(void);
 \**************************************/
 
 /*
-** MDTRACE is a legacy interface; new code should use DB_MDTRACE.
-**
-** Usage:  MDTRACE((subsys, level, fmt, ...));
+** Usage:  DB_MDTRACE(subsys, level, fmt, ...);
+** Usage:  DB_MDTRACELOC(subsys, level, fmt, ...);
 **
 ** "subsys" is the debugging system to which this statement belongs.
 ** The significance of the subsystems is determined by the programmer,
@@ -95,12 +88,7 @@ extern const char *db_indent(void);
 ** "level" is the debugging level which must be operational for the
 ** output to appear. "fmt" is a printf format string. "..." is
 ** whatever extra arguments fmt requires (possibly nothing).
-**
-** Usage:  DB_MDTRACE(subsys, level, fmt, ...);
-** Usage:  DB_MDTRACELOC(subsys, level, fmt, ...);
 */
-#define MDTRACE(x) \
-            do { if (DB_ACTIVE) db_mdprint x; } while (0)
 #define DB_MDTRACE(subsys, level, ...) \
             do { if (DB_ACTIVE) db_mdprint(subsys, level, __VA_ARGS__); } while (0)
 #define DB_MDTRACELOC(subsys, level, ...) \
@@ -110,7 +98,7 @@ extern const char *db_indent(void);
 /*
 ** Usage:  DB_MDCALL(subsys, level, ...);
 **
-** Example: DB_CALL(subsys, 1, dump_structure(db_getfileptr(), "tag", arg1, arg2));
+** Example: DB_MDCALL(subsys, 1, dump_structure(db_getfileptr(), "tag", arg1, arg2));
 **
 ** If trace is active at given level for given subsystem, execute the
 ** code in the variable arguments.  Normally used to selectively execute

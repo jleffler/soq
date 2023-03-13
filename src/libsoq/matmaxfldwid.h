@@ -3,7 +3,7 @@
 @(#)Purpose:        Determine the maximum field width of values in NxM matrix of integers
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 2022
-@(#)Derivation:     matmaxfldwid.h 1.2 2022/06/25 22:28:37
+@(#)Derivation:     matmaxfldwid.h 1.3 2022/08/15 20:24:56
 */
 
 /*TABSTOP=4*/
@@ -23,6 +23,11 @@
 ** fixed-point or exponential notation.  And a small magnitude number
 ** (1.23456789E-123) might require more space than a large magnitude
 ** number (1234.0).
+**
+** Configuration:
+** #define MFW_CONST const to const-qualify matrices.
+** -- See also: SO 7335-6925 (https://stackoverflow.com/q/73356925).
+** #define MFW_UNSIGNED if the type is an unsigned type
 */
 
 #ifndef JLSS_ID_MATMAXFLDWID_H
@@ -34,6 +39,10 @@ extern "C" {
 
 #if !defined(MFW_MATRIX_TYPE)
 #define MFW_MATRIX_TYPE int
+#endif
+
+#if !defined(MFW_CONST)
+#define MFW_CONST /* Nothing */
 #endif
 
 #define MFW_CONCAT3(a, b, c)        a ## b ## c
@@ -70,7 +79,7 @@ static inline int MFW_NUM_DIGITS(MFW_MATRIX_TYPE)(MFW_MATRIX_TYPE value)
     return result;
 }
 
-static inline int MFW_MAX_FIELD_WIDTH(MFW_MATRIX_TYPE)(size_t n, size_t m, const MFW_MATRIX_TYPE matrix[n][m])
+static inline int MFW_MAX_FIELD_WIDTH(MFW_MATRIX_TYPE)(size_t n, size_t m, MFW_CONST MFW_MATRIX_TYPE matrix[n][m])
 {
     MFW_MATRIX_TYPE min_val = matrix[0][0];
     MFW_MATRIX_TYPE max_val = matrix[0][0];
@@ -85,12 +94,14 @@ static inline int MFW_MAX_FIELD_WIDTH(MFW_MATRIX_TYPE)(size_t n, size_t m, const
         }
     }
     int fld_width = MFW_NUM_DIGITS(MFW_MATRIX_TYPE)(max_val);
+#if !defined(MFW_UNSIGNED)
     if (min_val < 0)
     {
         int min_width = MFW_NUM_DIGITS(MFW_MATRIX_TYPE)(min_val);
         if (min_width > fld_width)
             fld_width = min_width;
     }
+#endif /* MFW_UNSIGNED */
     return fld_width;
 }
 

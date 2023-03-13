@@ -2,8 +2,8 @@
 @(#)File:           aommngd.h
 @(#)Purpose:        Array of Memory Blocks - Memory Managed Data
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2017-2018
-@(#)Derivation:     aommngd.h 1.1 2018/06/17 05:17:57
+@(#)Copyright:      (C) JLSS 2018-2023
+@(#)Derivation:     aommngd.h 1.4 2023/01/16 20:33:37
 */
 
 /*TABSTOP=4*/
@@ -15,8 +15,8 @@
 extern "C" {
 #endif
 
-#include <stddef.h>     /* size_t */
 #include <stdbool.h>    /* bool */
+#include "aomcore.h"    /* (FILE, size_t), AoM_Block, AoM_SimpleApply, AoM_ContextApply */
 
 /*
 ** The AoM_Managed structure is for an array of memory blocks which
@@ -29,19 +29,6 @@ extern "C" {
 ** terminated with a null pointer.
 */
 
-/* Also in aomptr.h, aomcopy.h */
-#ifndef AOM_BLOCK_DEFINED
-typedef struct AoM_Block AoM_Block;
-struct AoM_Block
-{
-    size_t  blk_size;
-    void   *blk_data;
-};
-typedef void (*AoM_SimpleApply)(const AoM_Block *blk);
-typedef void (*AoM_ContextApply)(const AoM_Block *blk, void *context);
-#define AOM_BLOCK_DEFINED
-#endif /* AOM_BLOCK_DEFINED */
-
 typedef struct AoM_Managed AoM_Managed;
 
 typedef AoM_Block (*AoM_BlkCopy)(size_t blk_size, const void *blk_data);
@@ -51,15 +38,18 @@ extern AoM_Managed *aomm_create(size_t num_ptrs, AoM_BlkCopy copier, AoM_BlkFree
 extern void aomm_destroy(AoM_Managed *aom);
 extern bool aomm_add(AoM_Managed *aom, size_t blk_size, const void *blk_data);
 extern bool aomm_set(AoM_Managed *aom, size_t index, size_t blk_size, const void *blk_data);
-extern AoM_Block *aomm_base(AoM_Managed *aom);
-extern size_t aomm_length(AoM_Managed *aom);
-extern AoM_Block aomm_item_copy(AoM_Managed *aom, size_t index);
-extern AoM_Block aomm_item(AoM_Managed *aom, size_t index);
-extern void aomm_apply(AoM_Managed *aom, size_t bos, size_t eos, AoM_SimpleApply function);
-extern void aomm_apply_ctxt(AoM_Managed *aom, size_t bos, size_t eos, AoM_ContextApply function, void *ctxt);
+extern AoM_Block *aomm_base(const AoM_Managed *aom);
+extern size_t aomm_length(const AoM_Managed *aom);
+extern AoM_Block aomm_item_copy(const AoM_Managed *aom, size_t index);
+extern AoM_Block aomm_item(const AoM_Managed *aom, size_t index);
+extern void aomm_delete(AoM_Managed *aom, size_t bos, size_t eos);
+extern void aomm_apply(const AoM_Managed *aom, size_t bos, size_t eos, AoM_SimpleApply function);
+extern void aomm_apply_ctxt(const AoM_Managed *aom, size_t bos, size_t eos, AoM_ContextApply function, void *ctxt);
+
+extern void aomm_dump(FILE *fp, const char *tag, const AoM_Managed *aom, AoM_PrintData printer, void *ctxt);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* JLSS_ID_AOSCOPY_H */
+#endif /* JLSS_ID_AOMMNGD */

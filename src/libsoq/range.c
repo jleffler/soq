@@ -2,8 +2,8 @@
 @(#)File:           range.c
 @(#)Purpose:        Decode string into range of integers.
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1991,1995,1997,2002,2005,2007-08,2015
-@(#)Derivation:     range.c 1.17 2015/06/02 02:55:44
+@(#)Copyright:      (C) JLSS 1991-2020
+@(#)Derivation:     range.c 1.18 2020/03/14 03:14:46
 */
 
 /*TABSTOP=4*/
@@ -87,7 +87,6 @@ const char *parse_range(const char *str, long *lo, long *hi)
 
 #ifdef TEST
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include "stderr.h"
 

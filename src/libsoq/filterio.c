@@ -2,8 +2,8 @@
 @(#)File:           filterio.c
 @(#)Purpose:        Perform standardized I/O error check for filter programs
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2003,2005,2008,2014
-@(#)Derivation:     filterio.c 2014.2 2014/12/27 23:14:36
+@(#)Copyright:      (C) JLSS 2003-2019
+@(#)Derivation:     filterio.c 2019.2 2019/08/16 05:47:20
 */
 
 /*TABSTOP=4*/
@@ -60,8 +60,8 @@ static int cat(FILE *ifp, const char *ifn, FILE *ofp)
     {
         if (fwrite(buffer, sizeof(char), nbytes, ofp) != nbytes)
         {
-            err_syserr1("write failed");
-            break;
+            err_syserr("write failed: ");
+            /*NOTREACHED*/
         }
     }
     return(filter_io_check(ifp, ifn, ofp));

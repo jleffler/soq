@@ -18,6 +18,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#define USE_JLSS_GETSUBOPT
+#define USE_JLSS_GETOPT
 #include "getopt.h"
 #include "strtoint.h"       /* strtoi() */
 
@@ -106,7 +108,7 @@ int db_mdparsearg(char *arg)
 
     while (*arg != '\0')
     {
-        if ((subsys = getsubopt(&arg, subsys_names, &vp)) < 0)
+        if ((subsys = GETSUBOPT(&arg, subsys_names, &vp)) < 0)
         {
             err_remark("unrecognized debug subsystem (%s)\n", vp);
             if (reported++ == 0)

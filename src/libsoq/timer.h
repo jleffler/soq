@@ -2,8 +2,8 @@
 @(#)File:           timer.h
 @(#)Purpose:        Timing package for multiple systems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993-2019
-@(#)Derivation:     timer.h 3.1 2019/08/26 05:23:27
+@(#)Copyright:      (C) JLSS 1993-2023
+@(#)Derivation:     timer.h 3.2 2023/02/02 23:16:33
 */
 
 /*TABSTOP=4*/
@@ -42,14 +42,18 @@ extern void     clk_init(Clock *clk);
 extern void     clk_start(Clock *clk);
 extern void     clk_stop(Clock *clk);
 
+/* Deprecated */
 extern char    *clk_elapsed_ms(Clock *clk, char *buffer, size_t buflen);
 extern char    *clk_elapsed_us(Clock *clk, char *buffer, size_t buflen);
 extern char    *clk_elapsed_ns(Clock *clk, char *buffer, size_t buflen);
 
 #ifndef TIMER_VERSION_1
+/* Preferred */
 extern char    *clk_fmt_elapsed_ms(Clock *clk);
 extern char    *clk_fmt_elapsed_us(Clock *clk);
 extern char    *clk_fmt_elapsed_ns(Clock *clk);
+extern char    *clk_fmt_elapsed_str(Clock *clk);
+extern double   clk_fmt_elapsed_dbl(Clock *clk);
 #endif /* !TIMER_VERSION_1 */
 
 #endif /* TIMER_H */

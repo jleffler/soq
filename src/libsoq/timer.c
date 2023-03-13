@@ -2,8 +2,8 @@
 @(#)File:           timer.c
 @(#)Purpose:        Simple timing package for multiple systems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1993-2019
-@(#)Derivation:     timer.c 3.1 2019/08/26 05:23:27
+@(#)Copyright:      (C) JLSS 1993-2023
+@(#)Derivation:     timer.c 3.2 2023/02/02 23:16:33
 */
 
 /*TABSTOP=4*/
@@ -275,6 +275,7 @@ clk_init(Clock *clk)
     clk->t1.nanoseconds = 0;
     clk->t2.seconds = 0;
     clk->t2.nanoseconds = 0;
+    clk->buffer[0] = '\0';
 }
 
 /* Start a clock (record the stop time in clk->t1) */
@@ -282,6 +283,7 @@ void
 clk_start(Clock *clk)
 {
     clk_get(&clk->t1);
+    clk->buffer[0] = '\0';
 }
 
 /* Stop a clock (record the stop time in clk->t2) */
@@ -289,6 +291,7 @@ void
 clk_stop(Clock *clk)
 {
     clk_get(&clk->t2);
+    clk->buffer[0] = '\0';
 }
 
 /* Return elapsed time as string in seconds and milliseconds */
@@ -349,6 +352,24 @@ char *clk_fmt_elapsed_ns(Clock *clk)
     return clk_elapsed_ns(clk, clk->buffer, sizeof(clk->buffer));
 }
 
+/* Return pointer to formatted string, formatting in nanoseconds if need be */
+char *
+clk_fmt_elapsed_str(Clock *clk)
+{
+    if (clk->buffer[0] == '\0')
+        clk_fmt_elapsed_ns(clk);
+    return clk->buffer;
+}
+
+double
+clk_fmt_elapsed_dbl(Clock *clk)
+{
+    long sec;
+    long nsec;
+    clk_diff(&clk->t1, &clk->t2, &sec, &nsec);
+    return((double)nsec / NS_PER_SECOND + (double)sec);
+}
+
 #endif /* !TIMER_VERSION_1 */
 
 #ifdef TEST
@@ -364,16 +385,8 @@ static void increment(void)
 int
 main(void)
 {
-    int         i;
     Clock       clk;
-    char        buf1[30];
-    char        buf2[30];
-    char        buf3[30];
-    char       *p1;
-    char       *p2;
-    char       *p3;
-    char       *p4;
-    size_t      max = 1000000;
+    size_t      max = 100000000;
     char *(*fmt[3])(Clock *clk) =
     {
         clk_fmt_elapsed_ms, clk_fmt_elapsed_us, clk_fmt_elapsed_ns
@@ -381,17 +394,24 @@ main(void)
 
     clk_init(&clk);
 
-    for (i = 0; i < 20; i++)
+    for (int i = 0; i < 20; i++)
     {
         clk_start(&clk);
         for (size_t j = 0; j < max; j++)
             increment();
         clk_stop(&clk);
-        p1 = clk_elapsed_ms(&clk, buf1, sizeof(buf1));
-        p2 = clk_elapsed_us(&clk, buf2, sizeof(buf2));
-        p3 = clk_elapsed_ns(&clk, buf3, sizeof(buf3));
-        p4 = (*fmt[i % 3])(&clk);
-        printf("Clock: %s = %s = %s = %-24s (%zu)\n", p1, p2, p3, p4, counter);
+        /* Test the old functions */
+        char buf1[32];
+        char buf2[32];
+        char buf3[32];
+        char *p1 = clk_elapsed_ms(&clk, buf1, sizeof(buf1));
+        char *p2 = clk_elapsed_us(&clk, buf2, sizeof(buf2));
+        char *p3 = clk_elapsed_ns(&clk, buf3, sizeof(buf3));
+        /* Test the new functions */
+        char *p4 = (*fmt[i % 3])(&clk);
+        double p5 = clk_fmt_elapsed_dbl(&clk);
+        char *p6 = clk_fmt_elapsed_str(&clk);
+        printf("Clock: %s = %s = %s = %-16s %16.9lf %-16s (%zu)\n", p1, p2, p3, p4, p5, p6, counter);
     }
     return(0);
 }

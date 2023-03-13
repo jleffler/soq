@@ -2,8 +2,8 @@
 @(#)File:           aosptr.h
 @(#)Purpose:        Array of Strings - Pointer Semantics
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2017
-@(#)Derivation:     aosptr.h 1.3 2017/12/03 04:24:05
+@(#)Copyright:      (C) JLSS 2017-2023
+@(#)Derivation:     aosptr.h 1.4 2023/01/09 23:21:02
 */
 
 /*TABSTOP=4*/
@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#include <stddef.h>     /* size_t */
+#include <stdio.h>      /* size_t, FILE */
 #include <stdbool.h>    /* bool */
 
 /*
@@ -36,12 +36,15 @@ extern AoS_Pointer *aosp_create(size_t num_ptrs);
 extern void aosp_destroy(AoS_Pointer *aos);
 extern bool aosp_add(AoS_Pointer *aos, char *str);
 extern bool aosp_set(AoS_Pointer *aos, size_t index, char *str);
-extern char **aosp_base(AoS_Pointer *aos);
-extern size_t aosp_length(AoS_Pointer *aos);
-extern char *aosp_item_copy(AoS_Pointer *aos, size_t index);
-extern const char *aosp_item(AoS_Pointer *aos, size_t index);
-extern void aosp_apply(AoS_Pointer *aos, size_t bos, size_t eos, AoS_SimpleApply function);
-extern void aosp_apply_ctxt(AoS_Pointer *aos, size_t bos, size_t eos, AoS_ContextApply function, void *ctxt);
+extern char **aosp_base(const AoS_Pointer *aos);
+extern size_t aosp_length(const AoS_Pointer *aos);
+extern char *aosp_item_copy(const AoS_Pointer *aos, size_t index);
+extern const char *aosp_item(const AoS_Pointer *aos, size_t index);
+extern void aosp_delete(AoS_Pointer *aos, size_t lo, size_t hi);
+extern void aosp_apply(const AoS_Pointer *aos, size_t bos, size_t eos, AoS_SimpleApply function);
+extern void aosp_apply_ctxt(const AoS_Pointer *aos, size_t bos, size_t eos, AoS_ContextApply function, void *ctxt);
+
+extern void aosp_dump(FILE *fp, const char *tag, const AoS_Pointer *aos);
 
 #ifdef __cplusplus
 }

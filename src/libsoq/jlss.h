@@ -2,8 +2,8 @@
 @(#)File:           jlss.h
 @(#)Purpose:        JLSS Library Functions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1997-2018
-@(#)Derivation:     jlss.h 2018.1 2018/06/12 06:11:47
+@(#)Copyright:      (C) JLSS 1997-2022
+@(#)Derivation:     jlss.h 2022.1 2022/01/07 17:13:58
 */
 
 /*TABSTOP=4*/
@@ -34,7 +34,8 @@ extern size_t strnlen(const char *str, size_t len);
 
 #ifndef HAVE_STRNDUP
 /* Defined by POSIX 2008 - available on GNU/Linux and Mac OS X Yosemite (10.10) */
-extern char *strndup(const char *str, size_t len);
+/* Parentheses hide function-like macro override */
+extern char *(strndup)(const char *str, size_t len);
 #endif /* HAVE_STRNDUP */
 
 /* Open temporary file via mkstemp() - read/write - name ends XXXXXX */

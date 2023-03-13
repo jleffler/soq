@@ -2,8 +2,8 @@
 @(#)File:           chkstrint.c
 @(#)Purpose:        Checked string to integer conversions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015-2018
-@(#)Derivation:     chkstrint.c 1.2 2016/01/18 03:39:42
+@(#)Copyright:      (C) JLSS 2015-2019
+@(#)Derivation:     chkstrint.c 1.4 2019/06/02 05:42:44
 */
 
 /*TABSTOP=4*/
@@ -179,3 +179,8 @@ bool chk_strtoumax(const char *data, char **eon, int base, uintmax_t *result)
     return rc;
 }
 
+#ifdef TEST
+
+#error No test yet created
+
+#endif /* TEST */

@@ -2,17 +2,19 @@
 @(#)File:           aommngd.c
 @(#)Purpose:        Array of Memory Blocks - Memory Managed Data
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2018
-@(#)Derivation:     aommngd.c 1.2 2018/06/17 05:33:38
+@(#)Copyright:      (C) JLSS 2018-2023
+@(#)Derivation:     aommngd.c 1.5 2023/01/17 03:17:51
 */
 
 /*TABSTOP=4*/
 
-#include "aommngd.h"
-#include "memdup.h"
+#include "aommngd.h"         /* SSC: Self-sufficiency check */
 #include <assert.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include "imageprt.h"
+#include "memdup.h"
 
 struct AoM_Managed
 {
@@ -23,23 +25,17 @@ struct AoM_Managed
     AoM_BlkFree    blk_rel;
 };
 
+typedef struct
+{
+    FILE          *fp;
+    AoM_PrintData  printer;
+    void          *u_context;
+    size_t         index;
+} AoM_Context;
+
 #ifndef AOM_MIN_ALLOCATION
 #define AOM_MIN_ALLOCATION 4
 #endif
-
-typedef AoM_Block (*AoM_BlkCopy)(size_t blk_size, const void *blk_data);
-typedef void      (*AoM_BlkFree)(size_t blk_size,       void *blk_data);
-
-extern AoM_Managed *aomm_create(size_t num_ptrs, AoM_BlkCopy copier, AoM_BlkFree release);
-extern void aomm_destroy(AoM_Managed *aom);
-extern bool aomm_add(AoM_Managed *aom, size_t blk_size, const void *blk_data);
-extern bool aomm_set(AoM_Managed *aom, size_t index, size_t blk_size, const void *blk_data);
-extern AoM_Block *aomm_base(AoM_Managed *aom);
-extern size_t aomm_length(AoM_Managed *aom);
-extern AoM_Block aomm_item_copy(AoM_Managed *aom, size_t index);
-extern AoM_Block aomm_item(AoM_Managed *aom, size_t index);
-extern void aomm_apply(AoM_Managed *aom, size_t bos, size_t eos, AoM_SimpleApply function);
-extern void aomm_apply_ctxt(AoM_Managed *aom, size_t bos, size_t eos, AoM_ContextApply function, void *ctxt);
 
 enum { MIN_ALLOCATION = AOM_MIN_ALLOCATION };
 
@@ -120,19 +116,19 @@ bool aomm_set(AoM_Managed *aom, size_t index, size_t blk_size, const void *blk_d
     return true;
 }
 
-AoM_Block *aomm_base(AoM_Managed *aom)
+AoM_Block *aomm_base(const AoM_Managed *aom)
 {
     assert(aom != 0);
     return aom->blk_arr;
 }
 
-size_t aomm_length(AoM_Managed *aom)
+size_t aomm_length(const AoM_Managed *aom)
 {
     assert(aom != 0);
     return aom->num_blk;
 }
 
-AoM_Block aomm_item_copy(AoM_Managed *aom, size_t index)
+AoM_Block aomm_item_copy(const AoM_Managed *aom, size_t index)
 {
     assert(aom != 0);
     if (index >= aom->num_blk)
@@ -142,7 +138,7 @@ AoM_Block aomm_item_copy(AoM_Managed *aom, size_t index)
     return blk;
 }
 
-AoM_Block aomm_item(AoM_Managed *aom, size_t index)
+AoM_Block aomm_item(const AoM_Managed *aom, size_t index)
 {
     assert(aom != 0);
     if (index >= aom->num_blk)
@@ -150,7 +146,7 @@ AoM_Block aomm_item(AoM_Managed *aom, size_t index)
     return aom->blk_arr[index];
 }
 
-void aomm_apply(AoM_Managed *aom, size_t bos, size_t eos, AoM_SimpleApply function)
+void aomm_apply(const AoM_Managed *aom, size_t bos, size_t eos, AoM_SimpleApply function)
 {
     assert(aom != 0);
     if (eos == 0)
@@ -162,7 +158,7 @@ void aomm_apply(AoM_Managed *aom, size_t bos, size_t eos, AoM_SimpleApply functi
         (*function)(&aom->blk_arr[i]);
 }
 
-extern void aomm_apply_ctxt(AoM_Managed *aom, size_t bos, size_t eos, AoM_ContextApply function, void *ctxt)
+extern void aomm_apply_ctxt(const AoM_Managed *aom, size_t bos, size_t eos, AoM_ContextApply function, void *ctxt)
 {
     assert(aom != 0);
     if (eos == 0)
@@ -174,13 +170,54 @@ extern void aomm_apply_ctxt(AoM_Managed *aom, size_t bos, size_t eos, AoM_Contex
         (*function)(&aom->blk_arr[i], ctxt);
 }
 
+static void aomm_dump_block(FILE *fp, const AoM_Block *blk, void *context)
+{
+    assert(context == NULL);
+    image_print_compressed(fp, 0, blk->blk_data, blk->blk_size);
+}
+
+static void aomm_dump_ctxt(const AoM_Block *blk, void *ctxt)
+{
+    AoM_Context *cp = ctxt;
+    fprintf(cp->fp, "%zu\n", cp->index++);
+    (*cp->printer)(cp->fp, blk, cp->u_context);
+}
+
+void aomm_dump(FILE *fp, const char *tag, const AoM_Managed *aom, AoM_PrintData printer, void *u_ctxt)
+{
+    if (printer == NULL)
+    {
+        printer = aomm_dump_block;
+        u_ctxt = NULL;
+    }
+    AoM_Context s_ctxt = { fp, printer, u_ctxt, 0 };
+    fprintf(fp, "%s (0x%12" PRIXPTR "):\n", tag, (uintptr_t)aom);
+    fprintf(fp, " - Number %zu, Allocated %zu\n", aom->num_blk, aom->max_blk);
+    aomm_apply_ctxt(aom, 0, aomm_length(aom), aomm_dump_ctxt, &s_ctxt);
+}
+
+void aomm_delete(AoM_Managed *aom, size_t bos, size_t eos)
+{
+    assert(aom != 0);
+    assert(bos <= eos);
+    assert(eos <= aom->num_blk);
+    if (aom == 0 || bos > eos || eos > aom->num_blk)
+        return;
+    for (size_t i = bos; i < eos; i++)
+    {
+        (*aom->blk_rel)(aom->blk_arr[i].blk_size, aom->blk_arr[i].blk_data);
+        /* Zeroing the memory is not strictly necessary */
+        memset(&aom->blk_arr[i], '\0', sizeof(aom->blk_arr[i]));
+    }
+    if (eos < aom->num_blk)
+        memmove(&aom->blk_arr[bos], &aom->blk_arr[eos], (aom->num_blk - eos) * sizeof(aom->blk_arr[0]));
+    aom->num_blk = bos + (aom->num_blk - eos);
+}
+
 #ifdef TEST
 
 #undef NDEBUG
-#include <assert.h>
-#include <stdio.h>
 #include <unistd.h>
-#include "kludge.h"
 #include "stderr.h"
 
 struct NoneSuch
@@ -238,7 +275,7 @@ static void aomm_blk_free(size_t blk_size, void *blk_data)
 static void aomm_applicator(const AoM_Block *ptr)
 {
     struct NoneSuch *np = ptr->blk_data;
-    printf("%d: '%s' = '%s'\n", np->number, np->name, np->value);
+    printf("(%p) %d: '%s' = '%s'\n", (void *)np, np->number, np->name, np->value);
 }
 
 static void aomm_applicator_ctxt(const AoM_Block *ptr, void *ctxt)
@@ -246,7 +283,7 @@ static void aomm_applicator_ctxt(const AoM_Block *ptr, void *ctxt)
     int *ip = ctxt;
     printf("%d - (%zu) ", ++*ip, ptr->blk_size);
     struct NoneSuch *np = ptr->blk_data;
-    printf("%d: '%s' = '%s'\n", np->number, np->name, np->value);
+    printf("(%p) %d: '%s' = '%s'\n", (void *)np, np->number, np->name, np->value);
 }
 
 static inline size_t min_size(size_t a, size_t b) { return (a < b) ? a : b; }
@@ -268,6 +305,31 @@ static int aomm_cmp(const void *v1, const void *v2)
     return (b1->number > b2->number) - (b1->number < b2->number);
 }
 
+typedef struct
+{
+    size_t  num_bytes;
+} AoM_Test_Context;
+
+static void print_bytes(FILE *fp, size_t offset, size_t nbytes, void *vp)
+{
+    unsigned char *data = vp;
+    fprintf(fp, "0x%.4zX: ", offset);
+    for (size_t i = 0; i < nbytes; i++)
+        fprintf(fp, " 0x%.2X", data[i]);
+    fputc('\n', fp);
+}
+
+static void aomm_print_minimal(FILE *fp, const AoM_Block *blk, void *context)
+{
+    assert(context != NULL);
+    AoM_Test_Context *cp = context;
+    assert(cp->num_bytes == sizeof(struct NoneSuch));
+    struct NoneSuch *data = blk->blk_data;
+    print_bytes(fp, offsetof(struct NoneSuch, number), sizeof(data->number), &data->number);
+    print_bytes(fp, offsetof(struct NoneSuch, name),   sizeof(data->name),   data->name);
+    print_bytes(fp, offsetof(struct NoneSuch, value),  sizeof(data->value),  data->value);
+}
+
 int main(int argc, char **argv)
 {
     err_setarg0(argv[0]);
@@ -281,7 +343,7 @@ int main(int argc, char **argv)
             err_help(usestr, hlpstr);
             /*NOTREACHED*/
         case 'V':
-            err_version("AOMCOPY", &"@(#)$Revision: 1.2 $ ($Date: 2018/06/17 05:33:38 $)"[4]);
+            err_version("AOMCOPY", &"@(#)$Revision: 1.5 $ ($Date: 2023/01/17 03:17:51 $)"[4]);
             /*NOTREACHED*/
         default:
             err_usage(usestr);
@@ -338,12 +400,6 @@ int main(int argc, char **argv)
 
     aomm_add(aom, sizeof(struct NoneSuch),
              &(struct NoneSuch){ sizeof("Hydrogenation"), (char []){ "Hy" }, (char []){ "Hydrogenation"} });
-    //aomm_add(aom, sizeof("Hydro generation"), "Hydro generation");
-    //aomm_add(aom, sizeof("Neonatal Clinic"), "Neonatal Clinic");
-    //aomm_add(aom, sizeof("Neon"), "Neon");
-    //aomm_add(aom, sizeof("Neo"), "Neo");
-
-    //assert(aomm_set(aom, 7, strlen(names[0]) + 1, names[0]));
 
     qsort(aomm_base(aom), aomm_length(aom), sizeof(AoM_Block), aomm_cmp);
 
@@ -359,6 +415,11 @@ int main(int argc, char **argv)
         printf("aom[%zu] (%zu) %p = [%d] [%s] [%s]\n", i, base[i].blk_size,
                base[i].blk_data, np->number, np->name, np->value);
     }
+
+    aomm_dump(stdout, "Before deleting", aom, NULL, NULL);
+    aomm_delete(aom, 2, 5);
+    AoM_Test_Context ctxt = { sizeof(struct NoneSuch) };
+    aomm_dump(stdout, "After deleting", aom, aomm_print_minimal, &ctxt);
 
     aomm_destroy(aom);
 

@@ -2,8 +2,8 @@
 @(#)File:           stderr.h
 @(#)Purpose:        Header file for standard error functions
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1989-2017
-@(#)Derivation:     stderr.h 10.12 2017/04/08 03:43:34
+@(#)Copyright:      (C) JLSS 1989-2022
+@(#)Derivation:     stderr.h 10.17 2022/06/20 19:16:29
 */
 
 #if !defined(STDERR_H)
@@ -35,19 +35,11 @@
 #endif /* __STDC_VERSION__ || __GNUC__ */
 #endif /* NORETURN */
 
-#if !defined(DEPRECATED)
-#if defined(__GNUC__)
-#define DEPRECATED __attribute__((deprecated))
-#else
-#define DEPRECATED /* If only */
-#endif /* __GNUC__ */
-#endif /* DEPRECATED */
-
 #if !defined(PRINTFLIKE)
 #if defined(__GNUC__)
-#define PRINTFLIKE(n,m) __attribute__((format(printf,n,m)))
+#define PRINTFLIKE(n, m) __attribute__((format(printf, n, m)))
 #else
-#define PRINTFLIKE(n,m) /* If only */
+#define PRINTFLIKE(n, m) /* If only */
 #endif /* __GNUC__ */
 #endif /* PRINTFLIKE */
 
@@ -103,31 +95,29 @@ extern void        err_setarg0(const char *argv0);
 extern FILE       *err_stderr(FILE *fp);
 extern const char *err_rcs_string(const char *s, char *buffer, size_t buflen);
 
-extern NORETURN void err_abort(const char *format, ...) PRINTFLIKE(1,2);
-extern NORETURN void err_error(const char *format, ...) PRINTFLIKE(1,2);
-extern NORETURN void err_error1(const char *s1) DEPRECATED;                 /* err_error() */
-extern NORETURN void err_error2(const char *s1, const char *s2) DEPRECATED; /* err_error() */
+extern NORETURN void err_abort(const char *format, ...) PRINTFLIKE(1, 2);
+extern NORETURN void err_error(const char *format, ...) PRINTFLIKE(1, 2);
 extern NORETURN void err_help(const char *use_str, const char *hlp_str);
 extern NORETURN void err_helplist(const char *use_str, const char * const *help_list);
-extern NORETURN void err_internal(const char *function, const char *format, ...) PRINTFLIKE(2,3);
-extern NORETURN void err_syserr(const char *format, ...) PRINTFLIKE(1,2);
-extern NORETURN void err_syserr1(const char *s1) DEPRECATED;                    /* err_syserr() */
-extern NORETURN void err_syserr2(const char *s1, const char *s2) DEPRECATED;    /* err_syserr() */
-extern NORETURN void err_syserror(int errnum, const char *format, ...) PRINTFLIKE(2,3);
+extern NORETURN void err_internal(const char *function, const char *format, ...) PRINTFLIKE(2, 3);
+extern NORETURN void err_syserr(const char *format, ...) PRINTFLIKE(1, 2);
+extern NORETURN void err_syserror(int errnum, const char *format, ...) PRINTFLIKE(2, 3);
 extern NORETURN void err_usage(const char *usestr);
+extern NORETURN void err_verror(const char *format, va_list args);
 extern NORETURN void err_version(const char *program, const char *verinfo);
 
-extern void err_logmsg(FILE *fp, int flags, int estat, const char *format, ...) PRINTFLIKE(4,5);
+extern void err_logmsg(FILE *fp, int flags, int estat, const char *format, ...) PRINTFLIKE(4, 5);
 extern void err_print(int flags, int estat, const char *format, va_list args);
 extern void err_printversion(const char *program, const char *verinfo);
-extern void err_remark(const char *format, ...) PRINTFLIKE(1,2);
-extern void err_remark1(const char *s1) DEPRECATED;                 /* err_remark() */
-extern void err_remark2(const char *s1, const char *s2) DEPRECATED; /* err_remark() */
-extern void err_report(int flags, int estat, const char *format, ...) PRINTFLIKE(3,4);
-extern void err_sysrem(const char *format, ...) PRINTFLIKE(1,2);
-extern void err_sysrem1(const char *s1) DEPRECATED;                 /* err_sysrem() */
-extern void err_sysrem2(const char *s1, const char *s2) DEPRECATED; /* err_sysrem() */
-extern void err_sysremark(int errnum, const char *format, ...) PRINTFLIKE(2,3);
+extern void err_remark(const char *format, ...) PRINTFLIKE(1, 2);
+extern void err_report(int flags, int estat, const char *format, ...) PRINTFLIKE(3, 4);
+extern void err_sysrem(const char *format, ...) PRINTFLIKE(1, 2);
+extern void err_sysremark(int errnum, const char *format, ...) PRINTFLIKE(2, 3);
+extern void err_syswarn(const char *format, ...) PRINTFLIKE(1, 2);
+extern void err_syswarning(int errnum, const char *format, ...) PRINTFLIKE(2, 3);
+extern void err_vlogmsg(FILE *fp, int flags, int estat, const char *format, va_list args);
+extern void err_vwarning(const char *format, va_list args);
+extern void err_warning(const char *format, ...) PRINTFLIKE(1, 2);
 
 extern int  err_getlogopts(void);           /* Get default log options */
 extern int  err_setlogopts(int new_opts);   /* Set default log options */
@@ -135,6 +125,9 @@ extern int  err_setlogopts(int new_opts);   /* Set default log options */
 /* Time format of NULL sets default format - returns previous format */
 extern const char *err_settimeformat(const char *new_fmt);
 extern const char *err_gettimeformat(void);
+
+/* Format a possibly multi-line usage message - mostly internal */
+extern void err_fmt_usage(size_t buflen, char *buffer, const char *s1);
 
 #if defined(USE_STDERR_FILEDESC)
 extern int  err_use_fd(int fd);             /* Use file descriptor */
@@ -145,22 +138,11 @@ extern int  err_use_syslog(int logopts, int facility);  /* Configure/use syslog(
 #endif /* USE_STDERR_SYSLOG */
 
 /*
-** JL 2003-07-31: Security Note.
-** Question: given that err_remark("abc\n") and err_remark1("abc")
-**           produce the same output, when should you use err_remark1()
-**           instead of err_remark()?
-** Answer 1: trivia - when you can't put the newline in the string.
-** Answer 2: security - when the argument contains user input and could,
-**           therefore, contain conversion specifiers, etc.  The code in
-**           err_remark() does not (and cannot) verify that you have
-**           passed correct arguments for the conversion specifiers in
-**           the format string.
-** Answer 3: inertia - when migrating code that uses remark().
-**
-** Generalizing: when you use a function that has 'const char *format'
-** in the prototype above, make sure your code is fully in charge of the
-** format string to avoid security lapses.  Do not allow the user to
-** provide that string unless you stringently check it beforehand.
+** JL 2022-06-20: Security Note.
+** When you use a function that has 'const char *format' in the
+** prototype above, make sure your code is fully in charge of the format
+** string to avoid security lapses.  Do not allow the user to provide
+** that string unless you stringently check it beforehand.
 */
 
 #endif /* STDERR_H */
