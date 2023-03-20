@@ -23,7 +23,9 @@ FILES.c = \
 	escape.c \
 	filter.c \
 	gcd.c \
+	imageprt.c \
 	kludge.c \
+	mddebug.c \
 	memdup.c \
 	microsleep.c \
 	range.c \
@@ -42,7 +44,6 @@ AUXFILES.c = \
 	filterio.c \
 	isqrt32.c \
 	isqrt64.c \
-	mddebug.c \
 	range2.c \
 	range3.c \
 	strtoi.c \
@@ -52,7 +53,6 @@ AUXFILES.c = \
 # AUXFILES.h list headers for which there isn't a matching source file
 AUXFILES.h = \
 	aomcore.h \
-	imageprt.h \
 	isqrt.h \
 	jlss.h \
 	matmaxfldwid.h \

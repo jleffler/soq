@@ -1,9 +1,9 @@
 /*
 @(#)File:           debug.c
-@(#)Purpose:        Provide varargs support for debugging
+@(#)Purpose:        Support for Debugging Printing
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2019
-@(#)Derivation:     debug.c 3.16 2019/05/03 18:11:35
+@(#)Copyright:      (C) JLSS 1990-2023
+@(#)Derivation:     debug.c 4.1 2023/03/13 17:14:56
 */
 
 /*TABSTOP=4*/

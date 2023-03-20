@@ -1,15 +1,16 @@
 /*
 @(#)File:           mddebug.c
-@(#)Purpose:        Provide varargs support for debugging multiple subsystems
+@(#)Purpose:        Support for Debugging Printing with Multiple Subsystems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2018
-@(#)Derivation:     mddebug.c 3.19 2018/06/12 06:20:45
+@(#)Copyright:      (C) JLSS 1990-2023
+@(#)Derivation:     mddebug.c 4.1 2023/03/13 17:14:56
 */
 
 /*TABSTOP=4*/
 #include "posixver.h"
 #undef DEBUG
 #define DEBUG
+#include "mddebug.h"         /* SSC: Self-sufficiency check */
 #include "debug.h"
 #include "stderr.h"
 
@@ -22,6 +23,10 @@
 #define USE_JLSS_GETOPT
 #include "getopt.h"
 #include "strtoint.h"       /* strtoi() */
+
+#ifndef GETSUBOPT
+#define GETSUBOPT(opt, tokens, value) getsubopt(opt, tokens, value)
+#endif
 
 #define DB_ON           3
 #define DB_OFF          0
@@ -37,10 +42,6 @@ int db_mdsetoptions(int opts)
     options = opts;
     return rv;
 }
-
-/**************************************\
-** MULTIPLE DEBUGGING SUBSYSTEMS CODE **
-\**************************************/
 
 /*
 **  Returns current debug level.
@@ -154,7 +155,7 @@ void db_mdprint(int subsys, int level, const char *fmt,...)
         fflush(stdout);
         flockfile(fp);
         fputs(db_indent(), fp);
-        if (options & DB_OPT_PID)
+        if (options & DB_MD_OPT_PID)
             fprintf(fp, "%d:", (int)getpid());
         fprintf(fp, "%s: ", subsys_names[subsys]);
         va_start(args, fmt);
@@ -178,7 +179,7 @@ void db_mdprintloc(int subsys, int level, const char *file, int line,
         fflush(stdout);
         flockfile(fp);
         fputs(db_indent(), fp);
-        if (options & DB_OPT_PID)
+        if (options & DB_MD_OPT_PID)
             fprintf(fp, "%d:", (int)getpid());
         fprintf(fp, "%s:%d:%s():%s: ", file, line, func, subsys_names[subsys]);
         va_start(args, fmt);
