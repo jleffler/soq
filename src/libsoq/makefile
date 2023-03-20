@@ -51,6 +51,8 @@ AUXFILES.c = \
 
 # AUXFILES.h list headers for which there isn't a matching source file
 AUXFILES.h = \
+	aomcore.h \
+	imageprt.h \
 	isqrt.h \
 	jlss.h \
 	matmaxfldwid.h \
