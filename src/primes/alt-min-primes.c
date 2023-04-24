@@ -19,7 +19,7 @@ static bool is_prime(const int candidate)
     if (candidate % 2 == 0 || candidate % 3 == 0)
         return false;
 
-    for (int64_t factor = 5; factor *factor <= candidate; factor += 6)
+    for (int64_t factor = 5; factor * factor <= candidate; factor += 6)
     {
         if (candidate % factor == 0 || candidate % (factor + 2) == 0)
             return false;
@@ -93,5 +93,5 @@ int main(const int argc, const char *argv[])
         }
     }
 
-    return true;
+    return 0;
 }
