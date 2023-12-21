@@ -19,6 +19,6 @@ See SO chat room [C Undefined
 References](https://chat.stackoverflow.com/rooms/152916/c-undefined-references).
 The triggering question was [Source file is required to include instead
 of header](https://stackoverflow.com/q/45899270).
-eThe question contains some links to the chat room, the C++ question, a
+The question contains some links to the chat room, the C++ question, a
 Google Sheet, etc.
 
