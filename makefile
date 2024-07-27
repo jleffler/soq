@@ -5,6 +5,8 @@ include etc/soq-head.mk
 
 BASEDIR = .
 
+CC = clang -Wno-nullability-completeness
+
 default:
 	@echo "You must specify a target to build"
 

@@ -2,8 +2,8 @@
 @(#)File:           aomcopy.h
 @(#)Purpose:        Array of Memory Blocks - Copy Semantics
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2017-2023
-@(#)Derivation:     aomcopy.h 1.6 2023/01/16 20:34:13
+@(#)Copyright:      (C) JLSS 2017-2024
+@(#)Derivation:     aomcopy.h 1.7 2024/05/20 14:43:13
 */
 
 /*TABSTOP=4*/
@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>    /* bool */
-#include "aomcore.h"    /* (FILE, size_t), AoM_Block, AoM_SimpleApply, AoM_ContextApply */
+#include "aomcore.h"    /* (FILE, size_t), AoM_Block, AoM_SimpleApply, AoM_ContextApply, AoM_PrintData */
 
 /*
 ** The AoM_Copy structure is for an array of memory blocks which makes a

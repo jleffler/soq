@@ -2,31 +2,24 @@
 @(#)File:           mddebug.c
 @(#)Purpose:        Support for Debugging Printing with Multiple Subsystems
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2023
-@(#)Derivation:     mddebug.c 4.1 2023/03/13 17:14:56
+@(#)Copyright:      (C) JLSS 1990-2024
+@(#)Derivation:     mddebug.c 4.3 2024/05/31 19:53:22
 */
 
 /*TABSTOP=4*/
-#include "posixver.h"
 #undef DEBUG
 #define DEBUG
-#include "mddebug.h"         /* SSC: Self-sufficiency check */
-#include "debug.h"
-#include "stderr.h"
 
+#include "posixver.h"
+#include "mddebug.h"         /* SSC: Self-sufficiency check */
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#define USE_JLSS_GETSUBOPT
-#define USE_JLSS_GETOPT
-#include "getopt.h"
-#include "strtoint.h"       /* strtoi() */
-
-#ifndef GETSUBOPT
-#define GETSUBOPT(opt, tokens, value) getsubopt(opt, tokens, value)
-#endif
+#include "debug.h"
+#include "jlss-getopt.h"
+#include "stderr.h"
+#include "strtoint.h"        /* strtoi() */
 
 #define DB_ON           3
 #define DB_OFF          0
@@ -89,7 +82,7 @@ void db_mdsubsysnames(char * const *names)
 /*
 ** Parse the value of an argument (eg -D subsys1=3,subsys2=9),
 ** setting the relevant subsystems to the relevant debug levels.
-** NB: argument is destroyed by getsubopt().
+** NB: argument is destroyed by jlss_getsubopt().
 ** Returns: 0 OK, -1 some fault occurred.
 */
 int db_mdparsearg(char *arg)
@@ -146,7 +139,7 @@ int db_mdparsearg(char *arg)
 /*
 **  Print debug information if subsys_debug[subsys] set at or above level.
 */
-void db_mdprint(int subsys, int level, const char *fmt,...)
+void db_mdprint(int subsys, int level, const char *fmt, ...)
 {
     if (subsys >= 0 && subsys < subsys_max && subsys_debug[subsys] >= level)
     {
@@ -170,7 +163,7 @@ void db_mdprint(int subsys, int level, const char *fmt,...)
 **  Print debug information if subsys_debug[subsys] set at or above level.
 */
 void db_mdprintloc(int subsys, int level, const char *file, int line,
-                   const char *func, const char *fmt,...)
+                   const char *func, const char *fmt, ...)
 {
     if (subsys >= 0 && subsys < subsys_max && subsys_debug[subsys] >= level)
     {
@@ -207,8 +200,8 @@ static char * const ss_names[] =
 static void db_test(void)
 {
     fprintf(stderr, "Should appear at indent = %d\n", db_newindent() + 1);
-    MDTRACE((TRACE, 1, "This should have appeared at debug level %d; %d %f\n",
-               1, 3, 3.141593));
+    DB_MDTRACE(TRACE, 1, "This should have appeared at debug level %d; %d %f\n",
+               1, 3, 3.141593);
     DB_MDTRACE(SUBSYS_1, 2, "This should have appeared at debug level %d; %d %f\n",
                2, 3, 3.141593);
     DB_MDTRACE(SUBSYS_2, 3, "This should have appeared at debug level %d; %d %f\n",

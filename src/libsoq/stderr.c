@@ -2,8 +2,8 @@
 @(#)File:           stderr.c
 @(#)Purpose:        Error reporting routines
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1988-2022
-@(#)Derivation:     stderr.c 10.30 2022/06/20 19:26:27
+@(#)Copyright:      (C) JLSS 1988-2024
+@(#)Derivation:     stderr.c 10.32 2024/03/24 20:49:47
 */
 
 /*TABSTOP=4*/
@@ -25,6 +25,8 @@
 ** HAVE_SYSLOG_H        - Define if <syslog.h> is available
 ** HAVE_SYSLOG          - Define if syslog() is available
 */
+
+/* #define __EXTENSIONS__  // Solaris 11.3 - declare flockfile(), funlockfile() */
 
 #include "posixver.h"
 #include "stderr.h"     /* Includes config.h if available */
@@ -279,7 +281,7 @@ const char *(err_rcs_string)(const char *s2, char *buffer, size_t buflen)
 
     /*
     ** Bother RCS!  We've probably been given something like:
-    ** "$Revision: 10.30 $ ($Date: 2022/06/20 19:26:27 $)"
+    ** "$Revision: 10.32 $ ($Date: 2024/03/24 20:49:47 $)"
     ** We only want to emit "7.5 (2001/08/11 06:25:48)".
     ** Skip the components between '$' and ': ', copy up to ' $',
     ** repeating as necessary.  And we have to test for overflow!
@@ -568,7 +570,7 @@ static NORETURN void err_exn_print(int flags, int estat, const char *format, ...
 
     va_start(args, format);
     err_vxn_print(flags, errno, estat, format, args);
-    va_end(args);   /* Superfluous because err_vxn_print() does not return */
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 /* Print error message to nominated output - returns unless flags say exit */
@@ -644,7 +646,7 @@ void (err_syserr)(const char *format, ...)
 
     va_start(args, format);
     err_vxn_print(ERR_SYSERR | err_getlogopts(), errno, ERR_STAT, format, args);
-    va_end(args);
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 /* Report error including message from errno */
@@ -654,7 +656,7 @@ void (err_syserror)(int errnum, const char *format, ...)
 
     va_start(args, format);
     err_vxn_print(ERR_SYSERR | err_getlogopts(), errnum, ERR_STAT, format, args);
-    va_end(args);   /* Superflouous - err_vxn_orint() does not return */
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 /* Report warning - identical to err_warning() */
@@ -687,6 +689,7 @@ void (err_vwarning)(const char *format, va_list args)
 NORETURN void err_verror(const char *format, va_list args)
 {
     err_vxn_print(ERR_ERR | err_getlogopts(), errno, ERR_STAT, format, args);
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 /* Report error */
@@ -696,7 +699,7 @@ NORETURN void (err_error)(const char *format, ...)
 
     va_start(args, format);
     err_vxn_print(ERR_ERR | err_getlogopts(), errno, ERR_STAT, format, args);
-    va_end(args);   /* Superfluous - err_vxn_print() does not return */
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 /* Report message - sometimes exiting too */
@@ -709,41 +712,79 @@ void (err_report)(int flags, int estat, const char *format, ...)
     va_end(args);
 }
 
-/* Format possibly multi-line usage message */
-void err_fmt_usage(size_t buflen, char *buffer, const char *s1)
+/* Format one continuation line of a usage message */
+static int fmt_usage_line(size_t buflen, char *buffer, int length, const char *line)
 {
-    const char *nl = strchr(s1, '\n');
-    if (nl != 0 && nl[1] != ' ' && nl[1] != '\0')
+    int arg0_len = (int)strlen(arg0);
+    const char *name = "";
+    if (line[0] == '@')
     {
-        /* Indent second and subsequent lines by length of usage + arg0 */
-        int arg0_len = (int)strlen(arg0);
+        name = arg0;
+        int whisp = strspn(&line[1], " \t");
+        line += whisp + 1;
+        length -= whisp + 1;
+    }
+    int out_len = snprintf(buffer, buflen, "%-*s%*s %.*s\n",
+                           (int)sizeof("Usage:"), "",
+                           arg0_len, name,
+                           length, line);
+    assert(out_len > 0 && (size_t)out_len < buflen);
+    return out_len;
+}
+
+/* Format possibly multi-line usage message */
+/*
+** Given usestr containing "abc\ndef", the output from a command "cmd" would be:
+** Usage: cmd abc
+**            def
+** Given usestr containing "abc\n@def \\\nghi\n@jkl", the output would be:
+** Usage: cmd abc
+**        cmd def \
+**            ghi
+**        cmd jkl
+** White space (blanks, tabs) after the `@` is skipped.
+** White space after the (first) newline suppresses the special formatting;
+** the remaining information is printed verbatim.
+** In 'real life', the "abc" parts would normally be a lot longer, of course.
+*/
+
+void err_fmt_usage(size_t buflen, char *buffer, const char *usestr)
+{
+    const char *newline = strchr(usestr, '\n');
+    if (newline != 0 && newline[1] != ' ' && newline[1] != '\0')
+    {
         char *bufptr = buffer;
-        int out_len = snprintf(bufptr, buflen, "Usage: %s %.*s\n", arg0, (int)(nl - s1), s1);
+        int out_len = snprintf(bufptr, buflen, "Usage: %s %.*s\n", arg0, (int)(newline - usestr), usestr);
         assert(out_len > 0 && (size_t)out_len < buflen);
         bufptr += out_len;
         buflen -= (size_t)out_len;
-        const char *eol;
-        while ((eol = strchr(nl + 1, '\n')) != 0)
+
+        int eol;
+        newline++;
+        while ((eol = strcspn(newline, "\n")) != 0)
         {
-            out_len = snprintf(bufptr, buflen, "%-*s%*s %.*s\n", (int)sizeof("Usage:"), "",
-                               arg0_len, "", (int)(eol - (nl + 1)), nl + 1);
+            out_len = fmt_usage_line(buflen, bufptr, eol, newline);
             assert(out_len > 0 && (size_t)out_len < buflen);
             bufptr += out_len;
             buflen -= (size_t)out_len;
-            nl = eol;
+            if (newline[eol] == '\0')
+                break;
+            newline += eol + 1;
         }
-        out_len = snprintf(bufptr, buflen, "%-*s%*s %s", (int)sizeof("Usage:"), "",
-                           arg0_len, "", nl + 1);
     }
     else
-        snprintf(buffer, buflen, "Usage: %s %s", arg0, s1);
+        snprintf(buffer, buflen, "Usage: %s %s", arg0, usestr);
+
+    size_t result_len = strlen(buffer);
+    if (result_len > 0 && buffer[result_len - 1] == '\n')
+        buffer[result_len - 1] = '\0';
 }
 
 /* Print usage message and exit with failure status */
-NORETURN void (err_usage)(const char *s1)
+NORETURN void (err_usage)(const char *usestr)
 {
     char buffer[MAX_MSGLEN];    /* Fairly big chunk of stack! */
-    err_fmt_usage(sizeof(buffer), buffer, s1);
+    err_fmt_usage(sizeof(buffer), buffer, usestr);
     err_exn_print(ERR_NOARG0|ERR_EXIT, EXIT_FAILURE, "%s\n", buffer);
 }
 
@@ -754,7 +795,7 @@ NORETURN void (err_abort)(const char *format, ...)
 
     va_start(args, format);
     err_vxn_print(ERR_ABORT | err_getlogopts(), errno, EXIT_FAILURE, format, args);
-    va_end(args);
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 /* Report version information (no exit), removing embedded RCS keyword strings (but not values) */
@@ -789,7 +830,7 @@ NORETURN void (err_internal)(const char *function, const char *format, ...)
     va_start(args, format);
     err_remark("unrecoverable internal error in function %s():\n", function);
     err_vxn_print(flags | err_getlogopts(), errnum, EXIT_FAILURE, format, args);
-    va_end(args);   /* Superfluous - err_vxn_print() does not return */
+    /* va_end(args);   // Superfluous - err_vxn_print() does not return */
 }
 
 #ifdef TEST

@@ -2,8 +2,8 @@
 @(#)File:           aomptr.h
 @(#)Purpose:        Array of Memory Blocks - Pointer Semantics
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2017-2023
-@(#)Derivation:     aomptr.h 1.4 2023/01/16 20:33:02
+@(#)Copyright:      (C) JLSS 2017-2024
+@(#)Derivation:     aomptr.h 1.5 2024/05/20 14:43:13
 */
 
 /*TABSTOP=4*/
@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>    /* bool */
-#include "aomcore.h"    /* (FILE, size_t), AoM_Block, AoM_SimpleApply, AoM_ContextApply */
+#include "aomcore.h"    /* (FILE, size_t), AoM_Block, AoM_SimpleApply, AoM_ContextApply, AoM_PrintData */
 
 /*
 ** The AoM_Pointer structure is for an array of memory blocks which

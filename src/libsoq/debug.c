@@ -3,7 +3,7 @@
 @(#)Purpose:        Support for Debugging Printing
 @(#)Author:         J Leffler
 @(#)Copyright:      (C) JLSS 1990-2023
-@(#)Derivation:     debug.c 4.1 2023/03/13 17:14:56
+@(#)Derivation:     debug.c 4.2 2024/05/31 19:53:09
 */
 
 /*TABSTOP=4*/
@@ -196,8 +196,8 @@ int db_setdebug(int level)
 static void db_test(void)
 {
     fprintf(stderr, "Should appear at indent = %d\n", db_newindent() + 1);
-    TRACE((1, "This should have appeared at debug level %d; %d %f\n",
-              1, 3, 3.141593));
+    DB_TRACE(1, "This should have appeared at debug level %d; %d %f\n",
+              1, 3, 3.141593);
     DB_TRACE(2, "This should have appeared at debug level %d; %d %f\n",
               2, 3, 3.141593);
     DB_TRACELOC(3, "This should have appeared at debug level %d; %d %f\n",

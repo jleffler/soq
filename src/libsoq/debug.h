@@ -2,8 +2,8 @@
 @(#)File:           debug.h
 @(#)Purpose:        Support for Debugging Printing
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2023
-@(#)Derivation:     debug.h 4.1 2023/03/13 17:14:56
+@(#)Copyright:      (C) JLSS 1990-2024
+@(#)Derivation:     debug.h 4.2 2024/05/21 04:48:42
 */
 
 #ifndef DEBUG_H
@@ -47,6 +47,17 @@
 */
 #define DB_CALL(level, ...)\
             do { if (DB_ACTIVE && db_getdebug() >= (level)) { __VA_ARGS__; } } while (0)
+
+/*
+** Usage: DB_BEGIN(level);
+**        ...conditional code...
+**        DB_END();
+** The semicolon after DB_BEGIN is optional, but harmless.
+** If DB_BEGIN/DB_END are not properly matched, all hell will break loose.
+*/
+
+#define DB_BEGIN(level) do { if (DB_ACTIVE && db_getdebug() >= (level)) {
+#define DB_END()        } } while (0)
 
 /*
 ** DB_TRACKING(); uses the FEATURE_FILE macro from klduge.h to embed a

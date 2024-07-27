@@ -42,7 +42,7 @@ IFLAG1 = -I${INCDIR}
 IFLAG2 = #-I${HOME}/inc
 IFLAGS = ${IFLAG1} ${IFLAG2}
 OFLAGS = -O3
-SFLAGS = -std=c11 # -pedantic
+SFLAGS = -std=c18 # -pedantic
 TFLAGS = # Set to -DTEST (or similar) when needed
 UFLAGS = # Set on command line
 WFLAG1 = -Wall
@@ -60,7 +60,7 @@ DXXFLAGS = #-DHAVE_CONFIG_H
 GXXFLAGS = -g
 IXXFLAGS = ${IFLAGS}
 OXXFLAGS = -O3
-SXXFLAGS = -std=c++11
+SXXFLAGS = -std=c++20
 TXXFLAGS = # Set to -DTEST (or similar) when needed
 UXXFLAGS = # Set on comand line
 WXXFLAG1 = -Wall

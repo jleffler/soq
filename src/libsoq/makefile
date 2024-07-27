@@ -8,7 +8,7 @@ include ../../etc/soq-head.mk
 #TFLAGS  = -DTEST
 CP      = cp
 CPFLAGS = -fp
-CFLAGS += -DHAVE_CONFIG_H
+CFLAGS += -DHAVE_NANOSLEEP
 
 # FILES.c lists source files for which there is a matching header
 FILES.c = \

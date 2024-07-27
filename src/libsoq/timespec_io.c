@@ -2,8 +2,8 @@
 @(#)File:           timespec_io.c
 @(#)Purpose:        Convert string to timespec and vice versa
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 2015-2019
-@(#)Derivation:     timespec_io.c 2.2 2019/08/16 05:25:57
+@(#)Copyright:      (C) JLSS 2015-2024
+@(#)Derivation:     timespec_io.c 3.1 2024/05/07 04:52:29
 */
 
 /*TABSTOP=4*/
@@ -19,21 +19,23 @@
 
 enum { NS_PER_SECOND = 1000000000 };
 
-int scn_timespec(const char *str, struct timespec *value)
+int scn_timespec(const char *string, struct timespec *value)
 {
+    const char *str = string;
     assert(str != 0 && value != 0);
     if (str == 0 || value == 0)
     {
         errno = EINVAL;
         return -1;
     }
-    long sec;
+
+    long sec = 0;
     long nsec = 0;
     int sign = +1;
     char *end;
+
     /* No library routine sets errno to 0 - but this one needs to */
     int old_errno = errno;
-
     errno = 0;
 
     /* Skip leading white space */
@@ -49,62 +51,65 @@ int scn_timespec(const char *str, struct timespec *value)
         str++;
     }
 
-    /* Next character must be a digit */
+    /* Next character must be a digit or decimal point */
+    if (!isdigit((unsigned char)*str) && *str != '.')
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (isdigit((unsigned char)*str))
+    {
+        /* Convert seconds part of string */
+        sec = strtol(str, &end, 10);
+        if (end == str || ((sec == LONG_MAX || sec == LONG_MIN) && errno == ERANGE))
+        {
+            errno = EINVAL;
+            return -1;
+        }
+        str = end;
+    }
+    else if (!isdigit((unsigned char)str[1]))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (str[0] != '.')
+    {
+        value->tv_sec = sec * sign;
+        value->tv_nsec = 0;
+        errno = old_errno;
+        return end - string;
+    }
+
+    str++;
     if (!isdigit((unsigned char)*str))
     {
-        errno = EINVAL;
-        return -1;
+        value->tv_sec = sec * sign;
+        value->tv_nsec = 0;
+        errno = old_errno;
+        return str - string;
     }
 
-    /* Convert seconds part of string */
-    sec = strtol(str, &end, 10);
-    if (end == str || ((sec == LONG_MAX || sec == LONG_MIN) && errno == ERANGE))
+    const char *frac = str;
+    nsec = strtol(frac, &end, 10);
+    if (end == frac ||
+        ((nsec == LONG_MAX || nsec == LONG_MIN) && errno == ERANGE) ||
+        (nsec < 0 || nsec >= NS_PER_SECOND) || (end - frac > 9))
     {
         errno = EINVAL;
         return -1;
     }
 
-    if (*end != '\0' && !isspace((unsigned char)*end))
-    {
-        if (*end++ != '.')
-        {
-            errno = EINVAL;
-            return -1;
-        }
-        if (*end == '\0')
-            nsec = 0;
-        else if (isdigit((unsigned char)*end))
-        {
-            char *frac = end;
-            nsec = strtol(frac, &end, 10);
-            if (end == str ||
-                ((nsec == LONG_MAX || nsec == LONG_MIN) && errno == ERANGE) ||
-                (nsec < 0 || nsec >= NS_PER_SECOND) || (end - frac > 9))
-            {
-                errno = EINVAL;
-                return -1;
-            }
-            for (int i = 0; i < 9 - (end - frac); i++)
-                nsec *= 10;
-        }
-    }
-
-    /* Allow trailing white space - only */
-    unsigned char uc;
-    while ((uc = (unsigned char)*end++) != '\0')
-    {
-        if (!isspace(uc))
-        {
-            errno = EINVAL;
-            return -1;
-        }
-    }
+    for (int i = 0; i < 9 - (end - frac); i++)
+        nsec *= 10;
 
     /* Success! */
     value->tv_sec = sec * sign;
     value->tv_nsec = nsec * sign;
     errno = old_errno;
-    return 0;
+    return end - string;
 }
 
 int fmt_timespec(const struct timespec *value, int dp, char *buffer, size_t buflen)
@@ -173,11 +178,12 @@ static const p1_test_case p1_tests[] =
     { "0",                    { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
     { "0.",                   { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
     { "0.  ",                 { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
+    { ".0  ",                 { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
     { "0.0",                  { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
     { "0.01",                 { .tv_sec =          0, .tv_nsec =   10000000 },          "0.010000000" },
     { "0.012",                { .tv_sec =          0, .tv_nsec =   12000000 },          "0.012000000" },
     { "0.0123",               { .tv_sec =          0, .tv_nsec =   12300000 },          "0.012300000" },
-    { "0.01234 \t\n",         { .tv_sec =          0, .tv_nsec =   12340000 },          "0.012340000" },
+    { "0.01234XXXXX",         { .tv_sec =          0, .tv_nsec =   12340000 },          "0.012340000" },
     { "0.012345   ",          { .tv_sec =          0, .tv_nsec =   12345000 },          "0.012345000" },
     { "0.0123456 ",           { .tv_sec =          0, .tv_nsec =   12345600 },          "0.012345600" },
     { "0.01234567",           { .tv_sec =          0, .tv_nsec =   12345670 },          "0.012345670" },
@@ -187,7 +193,7 @@ static const p1_test_case p1_tests[] =
     { "0.000000078  ",        { .tv_sec =          0, .tv_nsec =         78 },          "0.000000078" },
     { "-0.000000008 ",        { .tv_sec =          0, .tv_nsec =         -8 },         "-0.000000008" },
     { "0.000000000",          { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
-    { "-0.000000000",         { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
+    { "-0.000000001",         { .tv_sec =          0, .tv_nsec =         -1 },         "-0.000000001" },
     { "+0.000000000",         { .tv_sec =          0, .tv_nsec =          0 },          "0.000000000" },
     { "1.012345678",          { .tv_sec =          1, .tv_nsec =   12345678 },          "1.012345678" },
     { "12.012345678",         { .tv_sec =         12, .tv_nsec =   12345678 },         "12.012345678" },
@@ -203,8 +209,10 @@ static void p1_tester(const void *data)
     struct timespec t_out;
     char buffer1[32];
     int len;
+    int nbytes;
 
-    if (scn_timespec(test->input, &t_out) != 0)
+    nbytes = scn_timespec(test->input, &t_out);
+    if (nbytes <= 0)
         pt_fail("failed to convert [%s]\n", test->input);
     else if ((len = fmt_timespec(&t_out, 9, buffer1, sizeof(buffer1))) < 0)
         pt_fail("failed to format [%s]\n", test->input);
@@ -216,7 +224,7 @@ static void p1_tester(const void *data)
         char buffer3[32];
         str_cstrlit(test->input, buffer2, sizeof(buffer2));
         snprintf(buffer3, sizeof(buffer3), "[%.*s]", (int)(sizeof(buffer3)-3), buffer2);
-        pt_pass("%-22s formats to (%2d) [%s]\n", buffer3, len, buffer1);
+        pt_pass("%-22s formats to (%2d) [%s] residue [%s]\n", buffer3, len, buffer1, test->input + nbytes);
     }
 }
 
@@ -272,9 +280,6 @@ static const p3_test_case p3_tests[] =
     { "" },
     { " " },
     { " ." },
-    { " .0" },
-    { " 1 0" },
-    { "1.00X" },
     { "X1.00X" },
     { "12345678901234567890.112233" },
     { "1234.1234567890" },
