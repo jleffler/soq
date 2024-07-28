@@ -62,12 +62,10 @@ static node *reverse(node *head)
 {
     node *curr = head;
     node *prev = NULL;
-    node *next = NULL;
     while (curr != NULL)
     {
-        next = curr->next;
-        prev = curr->prev;
-        curr->next = prev;
+        node *next = curr->next;
+        curr->next = curr->prev;
         curr->prev = next;
         prev = curr;
         curr = next;
