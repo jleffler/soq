@@ -9,6 +9,13 @@
 #undef PRIXADDR
 #define PRIXADDR "0x%.12" PRIXPTR
 
+#undef PR_NODE_INFO
+#ifdef PRINT_NODE_INFO
+#define PR_NODE_INFO(tag, node) pr_node_info(tag, node)
+#else
+#define PR_NODE_INFO(tag, node) ((void)0)
+#endif /* PRINT_NODE_INFO */
+
 typedef struct node
 {
     int number;
@@ -36,6 +43,7 @@ static node *create_node(int n)
     return new;
 }
 
+#ifdef PRINT_NODE_INFO
 static inline void pr_node_info(const char *tag, const node *item)
 {
     printf("%s: " PRIXADDR, tag, (uintptr_t)item);
@@ -44,13 +52,17 @@ static inline void pr_node_info(const char *tag, const node *item)
                (uintptr_t)item->prev, (uintptr_t)item->next, item->number);
     putchar('\n');
 }
+#endif /* PRINT_NODE_INFO */
 
 static void display(node *head)
 {
     while (head != NULL)
     {
-        pr_node_info(__func__, head);
-        //printf("%i\t", head->number);
+#ifdef PRINT_NODE_INFO
+        PR_NODE_INFO(__func__, head);
+#else
+        printf("%i\t", head->number);
+#endif /* PRINT_NODE_INFO */
         head = head->next;
     }
     printf("\n");
@@ -102,7 +114,7 @@ static void destroy(node *head)
 {
     while (head != NULL)
     {
-        pr_node_info(__func__, head);
+        PR_NODE_INFO(__func__, head);
         node *temp = head;
         head = head->next;
         free(temp);
@@ -121,7 +133,6 @@ int main(void)
         node *prev = NULL;
         for (int i = 0; i < r; i++)
         {
-            printf("%d:\n", i);
             if (i % 3 != 0)
             {
                 if (prev == head)
@@ -135,8 +146,6 @@ int main(void)
                 if (prev == NULL)
                     prev = head;
             }
-            pr_node_info("head-1", head);
-            pr_node_info("prev-1", prev);
         }
         printf("Forwards\n");
         display(head);
