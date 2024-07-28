@@ -54,6 +54,13 @@ unsigned char *st_be(unsigned char *buffer, I value)
     return buffer + sizeof(I);
 }
 
+/* Overload of template for type unsigned char */
+inline unsigned char *st_be(unsigned char *buffer, unsigned char value)
+{
+    *buffer++ = value;
+    return buffer;
+}
+
 template <typename I>
 unsigned char *st_le(unsigned char *buffer, I value)
 {
@@ -62,6 +69,13 @@ unsigned char *st_le(unsigned char *buffer, I value)
         *buffer++ = value & 0xFF;
         value >>= 8;
     }
+    return buffer;
+}
+
+/* Overload of template for type unsigned char */
+inline unsigned char *st_le(unsigned char *buffer, unsigned char value)
+{
+    *buffer++ = value;
     return buffer;
 }
 

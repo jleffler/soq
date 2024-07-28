@@ -61,9 +61,14 @@ context that suggests it was related to SO.
 
   Demonstration of how to use `select()` system call.
 
-* `stld.cpp`:
+* `stld.cpp` and `stld.h`:
 
   Template-based integer loading and unloading as for C-ISAM, etc.
+  Updated to overload functions `st_le()` and `st_be()` for type
+  unsigned char to avoid warnings from Apple clang version 15.0.0
+  (clang-1500.3.9.4).
+
+  [What is the correct syntax for defining a specialization of a function template?](https://stackoverflow.com/q/8323530)
 
 * `suit89.c`:
 
