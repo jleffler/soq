@@ -36,10 +36,13 @@ static node *create_node(int n)
     return new;
 }
 
-static inline void pr_node_info(const char *func, const node *item)
+static inline void pr_node_info(const char *tag, const node *item)
 {
-    printf("%s(): " PRIXADDR " (N = " PRIXADDR ", P = " PRIXADDR "): %d\n",
-           func, (uintptr_t)item, (uintptr_t)item->next, (uintptr_t)item->prev, item->number);
+    printf("%s: " PRIXADDR, tag, (uintptr_t)item);
+    if (item != NULL)
+        printf(" (P = " PRIXADDR ", N = " PRIXADDR "): %d",
+               (uintptr_t)item->prev, (uintptr_t)item->next, item->number);
+    putchar('\n');
 }
 
 static void display(node *head)
@@ -73,12 +76,22 @@ static node *reverse(node *head)
     return prev;
 }
 
+/*
+** W = new, H = head, P = prev
+** B:  W[-- : NV : --] - H[-- : HV : HN]
+** A:  W[-- : NV : H ] - H[W  : HV : HN]
+** B:  P[PP : PV : H ] - W[-- : NV : --] - H[P : HV : HN]
+** A:  P[PP : PV : W ] - W[P  : NV : H ] - H[W : HV : HN]
+*/
+
 static node *add_node_before(node *head, node *node)
 {
     assert(node != NULL);
     node->next = head;
     if (head != NULL)
     {
+        if (head->prev != NULL)
+            head->prev->next = node;
         node->prev = head->prev;
         head->prev = node;
     }
@@ -103,15 +116,36 @@ int main(void)
 
     for (int r = 0; r <= NUM_NUMS; r++)
     {
-        node *head = NULL;
-        for (int i = 0; i < r; i++)
-            head = add_node_before(head, create_node(nums[i]));
         printf("List length: %d\n", r);
+        node *head = NULL;
+        node *prev = NULL;
+        for (int i = 0; i < r; i++)
+        {
+            printf("%d:\n", i);
+            if (i % 3 != 0)
+            {
+                if (prev == head)
+                    head = prev = add_node_before(prev, create_node(nums[i]));
+                else
+                    prev = add_node_before(prev, create_node(nums[i]));
+            }
+            else
+            {
+                head = add_node_before(head, create_node(nums[i]));
+                if (prev == NULL)
+                    prev = head;
+            }
+            pr_node_info("head-1", head);
+            pr_node_info("prev-1", prev);
+        }
+        printf("Forwards\n");
         display(head);
         head = reverse(head);
+        printf("Reversed\n");
         display(head);
-        putchar('\n');
+        printf("Destroy\n");
         destroy(head);
+        putchar('\n');
     }
 
     return 0;
