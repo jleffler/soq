@@ -178,8 +178,8 @@ optimizing anything away — the numbers found are used.
 
 ### Scripts
 
-These scripts use a program `timecmd` which is not yet in the
-respository (2016-07-15).
+These scripts use a program `timecmd`, one version of which is available 
+in https://github.com/jleffler/soq/tree/master/packages.
 It reports the date, command line, and PID of the command that is run,
 then waits for the command to complete and reports the exit status and
 elapsed time.
