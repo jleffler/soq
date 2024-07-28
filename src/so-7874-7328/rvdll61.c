@@ -53,16 +53,23 @@ static void display(node *head)
     printf("\n");
 }
 
+/*
+** Before: P[PP : PV : C] - C[P : CV : N] - N[C : NV : NN]
+** After   P[PP : PV : C] - C[N : CV : P] - N[C : NV : NN]
+*/
+
 static node *reverse(node *head)
 {
     node *curr = head;
     node *prev = NULL;
+    node *next = NULL;
     while (curr != NULL)
     {
-        node *next = curr->next;
+        next = curr->next;
         prev = curr->prev;
         curr->next = prev;
         curr->prev = next;
+        prev = curr;
         curr = next;
     }
     return prev;
