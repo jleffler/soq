@@ -19,6 +19,7 @@ PROGRAMS = \
 	bs-files \
 	bsmax \
 	bsmin \
+	bsprobes \
 	bsrange \
 	bsrange-chux-00 \
 	bsrange-chux-01 \
