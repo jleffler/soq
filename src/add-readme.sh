@@ -15,15 +15,16 @@ do
     [ -f "$dir/README.md" ] && continue
     echo $dir
     (
+    ofile="$dir.html"
+    trap "rm -f '$ofile'; exit 1" 0 1 2 3 13 15
     qd=${dir#so-}
     qn=${qd/-/}
-    redirect=$(curl -s "$site/q/$qn" |
-               perl -lne 'print $1 if m/.*Object moved to <a href="([^"]*)".*/')
-    title=$(curl -s "$site$redirect" |
-            perl -lne 'print $1 if m/<title>(?:[^-]*? - )?(.+?) - [^-]*<\/title>.*/')
+    wget -q -O "$ofile" "$site/questions/$qn"
+    title=$(perl -lne 'print $1 if m/<title>(?:[^-]*? - )?(.+?) - [^-]*<\/title>.*/' "$ofile")
     echo "### Stack Overflow Question $qd"
     echo
     echo "[SO $qd]($site/q/$qn) &mdash;"
     echo "$title"
+    rm -f "$ofile"
     ) > $dir/README.md
 done
