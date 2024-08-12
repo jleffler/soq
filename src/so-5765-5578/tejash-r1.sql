@@ -1,0 +1,29 @@
+SELECT DISTINCT
+    TABLE3.NO_CEV,
+    TABLE1.LITERAL,
+    TABLE1.COLID,
+    TABLE2.REPID,
+    TABLE2.VALOR,
+    TABLE2.INDICADOR,
+    '',
+    '',
+    TABLE2.ORIGEN,
+    TABLE2.CODI,
+    TABLE2.NO_CIA,
+    TABLE2.NUM_DCCA,
+    TABLE2.NO_APROF,
+    TABLE2.NO_COMPTA
+FROM
+    TABLE1
+    LEFT OUTER JOIN 
+    -- ( -- removed this bracket 
+     TABLE2 ON ( ( TABLE1.COLID = TABLE2.COLID )
+                                AND ( TABLE1.GRUPID = TABLE2.GRUPID ) ) -- added this ON here
+    RIGHT OUTER JOIN TABLE3 ON TABLE3.NO_CEV = TABLE2.NO_CEV 
+    -- ) -- removed this bracket
+WHERE
+     TABLE1.GRUPID = '2' 
+    AND  TABLE2.COD_EXP = '99609' 
+    AND  TABLE2.INDICADOR = 'S' 
+    AND  TABLE3.NUM_DCCA = '1' 
+    AND  TABLE3.CODEST = '76695' ; 
