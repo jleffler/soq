@@ -4,7 +4,9 @@
 
 exec cat <<'EOF'
 Note that you don't need to search up to N-1; up to and including
-`ceil(sqrt(N))` is sufficient.
+`ceil(sqrt(N))` is sufficient (though a better test is `x <= N / x`; it
+avoids overflow and uses only integer division, not floating point
+arithmetic).
 If N is composite, then one factor is not larger than √N and the other
 is not smaller than √N).
 After you've checked for 'divisible by 2', you could check only the odd
