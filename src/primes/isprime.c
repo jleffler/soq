@@ -34,6 +34,25 @@ static const unsigned int small_primes[] =
 };
 enum { NUM_SMALL_PRIMES = sizeof(small_primes) / sizeof(small_primes[0]) };
 
+static const unsigned int medium_primes[] =
+{
+    /*2,   3,*/ 5,   7,  11,  13,  17,  19,  23,  29,  31,  37,
+     41,  43,  47,  53,  59,  61,  67,  71,  73,  79,  83,  89,
+     97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,
+    157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223,
+    227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
+    283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359,
+    367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433,
+    439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503,
+    509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593,
+    599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
+    661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743,
+    751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827,
+    829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911,
+    919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997,
+};
+enum { NUM_MEDIUM_PRIMES = sizeof(medium_primes) / sizeof(medium_primes[0]) };
+
 /* Original code - extremely slow */
 static int IsPrime0A(unsigned number)
 {
@@ -187,7 +206,7 @@ static int isprime3A(unsigned number)
         return 1;
     if (number % 2 == 0 || number % 3 == 0)
         return 0;
-    for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
+    for (unsigned i = 0; i < NUM_SMALL_PRIMES && small_primes[i] * small_primes[i] <= number; i++)
     {
         if (number == small_primes[i])
             return 1;
@@ -211,7 +230,7 @@ static int isprime3B(unsigned number)
         return 1;
     if (number % 2 == 0 || number % 3 == 0)
         return 0;
-    for (unsigned i = 0; i < NUM_SMALL_PRIMES; i++)
+    for (unsigned i = 0; i < NUM_SMALL_PRIMES && small_primes[i] <= number / small_primes[i]; i++)
     {
         if (number == small_primes[i])
             return 1;
@@ -316,6 +335,54 @@ static int isprime5B(unsigned number)
     return 1;
 }
 
+/* Another trial - a little faster than isprime5A() but slower than isprime5B() */
+static int isprime6A(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned i = 0; i < NUM_MEDIUM_PRIMES; i++)
+    {
+        if (number == medium_primes[i])
+            return 1;
+        if (number % medium_primes[i] == 0)
+            return 0;
+    }
+    for (unsigned i = 1001; i * i <= number; i += 6)
+    {
+        if (number % i == 0 || number % (i + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Another trial - somewhat faster than isprime5B() */
+static int isprime6B(unsigned number)
+{
+    if (number <= 1)
+        return 0;
+    if (number == 2 || number == 3)
+        return 1;
+    if (number % 2 == 0 || number % 3 == 0)
+        return 0;
+    for (unsigned i = 0; i < NUM_MEDIUM_PRIMES; i++)
+    {
+        if (number == medium_primes[i])
+            return 1;
+        if (number % medium_primes[i] == 0)
+            return 0;
+    }
+    for (unsigned i = 1001; i <= number / i; i += 6)
+    {
+        if (number % i == 0 || number % (i + 2) == 0)
+            return 0;
+    }
+    return 1;
+}
+
 static void test_primality_tester(const char *tag, int seed, int (*prime)(unsigned), int count)
 {
     srand(seed);
@@ -351,21 +418,23 @@ static int check_number(unsigned v)
     int p7b = isprime4B(v);
     int p8a = isprime5A(v);
     int p8b = isprime5B(v);
+    int p9a = isprime6A(v);
+    int p9b = isprime6B(v);
     if (p1a != p2a || p1a != p2b || p1a != p3a || p1a != p4a || p1a != p5a ||
         p1a != p6a || p1a != p6b || p1a != p7a || p1a != p7b || p1a != p8a ||
-        p1a != p8b)
+        p1a != p8b || p1a != p9a || p1a != p9b)
     {
         PROGRESS_REPORT(putchar('\n'));
         printf("!! FAIL !! %10u: IsPrime1A() %d; isPrime2A() %d; "
                 "IsPrime2B() %d; IsPrime3A() %d; isprime1A() %d; "
                 "isprime2A() %d; isprime3A() %d; isprime3B() %d; "
                 "isprime4A() %d; isprime4B() %d; isprime5A() %d; "
-                "isprime5B() %d\n",
-                v, p1a, p2a,
+                "isprime5B() %d; isprime6B() %d; isprime6B() %d\n",
+                v,   p1a, p2a,
                 p2b, p3a, p4a,
                 p5a, p6a, p6b,
                 p7a, p7b, p8a,
-                p8b);
+                p8b, p9a, p9b);
         return 1;
     }
     return 0;
@@ -390,7 +459,7 @@ static void set_interval_timer(int interval)
     struct itimerval iv = { { .tv_sec = interval, .tv_usec = 0 },
                             { .tv_sec = interval, .tv_usec = 0 } };
     struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
+    (void)sigemptyset(&sa.sa_mask);     /* Putrescence! */
     sa.sa_handler = alarm_handler;
     sa.sa_flags = SA_RESTART;
     sigaction(SIGALRM, &sa, 0);
@@ -474,6 +543,8 @@ static void one_test(int seed, bool do_IsPrimeX)
     test_primality_tester("isprime4B", seed, isprime4B, COUNT);
     test_primality_tester("isprime5A", seed, isprime5A, COUNT);
     test_primality_tester("isprime5B", seed, isprime5B, COUNT);
+    test_primality_tester("isprime6A", seed, isprime6A, COUNT);
+    test_primality_tester("isprime6B", seed, isprime6B, COUNT);
 }
 
 static const char optstr[] = "bhz";
