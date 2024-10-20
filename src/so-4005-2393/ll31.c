@@ -168,10 +168,10 @@ static void prlist(const char *tag, struct s_node *root)
 
 static struct s_node *mklist(void)
 {
-    struct s_node *n1 = calloc(sizeof(*n1), 1);
-    struct s_node *n2 = calloc(sizeof(*n2), 1);
-    struct s_node *n3 = calloc(sizeof(*n3), 1);
-    struct s_node *n4 = calloc(sizeof(*n4), 1);
+    struct s_node *n1 = calloc(1, sizeof(*n1));
+    struct s_node *n2 = calloc(1, sizeof(*n2));
+    struct s_node *n3 = calloc(1, sizeof(*n3));
+    struct s_node *n4 = calloc(1, sizeof(*n4));
 
     n1->elem = "Hello";
     n2->elem = "World";
@@ -217,7 +217,7 @@ static void test_list(int num, void *(*function)(struct s_node **))
 
 int main(void)
 {
-    //test_list(1, remove_node1);
+    test_list(1, remove_node1);
     test_list(2, remove_node2);
     test_list(3, remove_node3);
     test_list(4, remove_node4);
