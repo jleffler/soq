@@ -91,4 +91,9 @@ Martin Fowler
 Robert C Martin
 [Clean Code: A Handbook of Agile Software Craftsmanship](https://www.amazon.com/dp/0132350882) Aug 2008.
 
+[Learn C Programming: A beginner's guide to learning the most powerful
+and general-purpose programming language with ease, Second
+Edition](https://www.packtpub.com/en-us/product/learn-c-programming-9781801075114),
+Jeff Szuhay, Packt, Aug 2022.
+
 EOF
