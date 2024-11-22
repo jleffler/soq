@@ -62,6 +62,7 @@ PROG48 = so-realloc
 PROG49 = so-codereview
 PROG50 = so-flatten
 PROG51 = so-fopen
+PROG52 = so-c11
 
 PROG08_LINK1 = ${PROG08}-c
 PROG08_LINK2 = ${PROG08}-h
@@ -130,6 +131,7 @@ PROGRAMS = \
 	${PROG49} \
 	${PROG50} \
 	${PROG51} \
+	${PROG52} \
 
 all: ${PROGRAMS} ${PROG08_LINKS}
 
