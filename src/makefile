@@ -3,6 +3,7 @@
 include ../etc/soq-head.mk
 
 SO_DIRECTORIES = \
+	so-0020-4476 \
 	so-0035-2055 \
 	so-0036-7309 \
 	so-0037-0075 \
