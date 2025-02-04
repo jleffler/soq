@@ -55,6 +55,7 @@ AUXFILES.h = \
 	aomcore.h \
 	isqrt.h \
 	jlss.h \
+	jlss-getopt.h \
 	matmaxfldwid.h \
 	noreturn.h \
 	posixver.h \
