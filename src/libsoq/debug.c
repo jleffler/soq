@@ -2,8 +2,8 @@
 @(#)File:           debug.c
 @(#)Purpose:        Support for Debugging Printing
 @(#)Author:         J Leffler
-@(#)Copyright:      (C) JLSS 1990-2023
-@(#)Derivation:     debug.c 4.2 2024/05/31 19:53:09
+@(#)Copyright:      (C) JLSS 1990-2025
+@(#)Derivation:     debug.c 4.3 2025/03/15 05:46:05
 */
 
 /*TABSTOP=4*/
@@ -52,9 +52,9 @@ FILE *db_getfileptr(void)
 */
 void db_setfileptr(FILE * dbfp)
 {
-    if (dbfp != (FILE *)NULL)
+    if (dbfp != NULL)
     {
-        if (debugfp != stdin && debugfp != stdout && debugfp != stderr)
+        if (debugfp != NULL && debugfp != stdin && debugfp != stdout && debugfp != stderr)
             fclose(debugfp);
         debugfp = dbfp;
         strcpy(fn, "<unknown>");
@@ -70,7 +70,7 @@ void db_setfilename(const char *nfn)
 
     if (strcmp(nfn, fn) == 0)   /* Same as last time? */
         return;
-    if ((nfp = fopen(nfn, "a+")) != (FILE *)NULL)
+    if ((nfp = fopen(nfn, "a+")) != NULL)
     {
         db_setfileptr(nfp);
         strncpy(fn, nfn, sizeof(fn) - 1);
