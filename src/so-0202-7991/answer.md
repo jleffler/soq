@@ -60,7 +60,7 @@ Some headers become obsolescent, notably:
 
 ### ISO/IEC 9045:2008 (POSIX 2008, Single Unix Specification)
 
-Note that [POSIX][1] requires many more headers (82, including all the
+Note that [POSIX.1 2008][1] requires many more headers (82, including all the
 C99 headers).  The list below repeats the standard C (C99) headers.
 Windows requires a different set of headers, of course.
 
@@ -96,6 +96,23 @@ header).
 
 ```none
 <curses.h>  <term.h>  <uncntrl.h>
+```
+
+### POSIX.1-2024 (IEEE Std 1003.1-2024, The Open Group Base Specifications Issue 8)
+
+[POSIX.1 2024](https://pubs.opengroup.org/onlinepubs/9799919799/) loses
+a few headers, and gains a few headers compared to POSIX.1 2008.  Since
+it uses the C 2018 standard, it acquires the extra C headers:
+```none
+<stdalign.h>  <stdatomic.h>  <stdnoreturn.h>  <threads.h>  <uchar.h>
+```
+It also adds three other headers:
+```none
+<devctl.h>  <endian.h>  <libintl.h>
+```
+It loses 4 headers that were previously deprecated:
+```none
+<stropts.h>  <trace.h>  <ulimit.h>  <utime.h>
 ```
 
 ### Linux Standards Base
