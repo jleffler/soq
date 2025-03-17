@@ -123,11 +123,11 @@ Getopt (for long options, for example), you will need and use that
 header.  It is standard on Linux according to the [LSB, Linux Standards
 Base](http://www.linuxfoundation.org/collaborate/workgroups/lsb).  An
 older version of the LSB was defined as ISO/IEC 23360:2006 in multiple
-parts; as of 2014-09-21, the current version of the LSB is 4.1 but
-version 5.0 is in beta.  There is a section of the document that defines
-which headers are included, but there is no convenient table of the
-headers in the version I looked at.  It is closely aligned with POSIX,
-but has extra facilities beyond what POSIX defines.
+parts; as of 2025-03-16, the current version of the LSB is 5.0, which
+was released June 3, 2015.  There is a section of the document that
+defines which headers are included, but there is no convenient table of
+the headers in the version I looked at.  It is closely aligned with
+POSIX, but has extra facilities beyond what POSIX defines.
 
 <hr>
 
