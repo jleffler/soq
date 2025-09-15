@@ -49,8 +49,8 @@ checks the code for syntactic validity (which is good) but the optimizer
 only invokes the printing function if the DEBUG macro evaluates to
 non-zero.
 
-This does require a support function &mdash; dbg_printf() in the example
-&mdash; to handle things like 'stderr'.  It requires you to know how to
+This does require a support function &mdash; `dbg_printf()` in the example
+&mdash; to handle things like `stderr`.  It requires you to know how to
 write varargs functions, but that isn't hard:
 
     #include <stdarg.h>
@@ -90,7 +90,7 @@ See '[The Practice of Programming][1]' by Kernighan and Pike, especially Chapter
 (see also Wikipedia on
 [TPOP](https://en.wikipedia.org/wiki/The_Practice_of_Programming#External_links)).
 
-This is 'been there, done that' experience &mdash; I used essentially
+This is a 'been there, done that' experience &mdash; I used essentially
 the technique described in other answers where the non-debug build does
 not see the printf-like statements for a number of years (more than a
 decade).  But I came across the advice in TPOP (see my previous
@@ -252,8 +252,8 @@ However, you can do it with the straight C99 system by using:
                 do { if (DEBUG) fprintf(stderr, __VA_ARGS__); } while (0)
 
 Compared to the first version, you lose the limited checking that
-requires the 'fmt' argument, which means that someone could try to call
-'debug_print()' with no arguments (but the trailing comma in the
+requires the `fmt` argument, which means that someone could try to call
+`debug_print()` with no arguments (but the trailing comma in the
 argument list to `fprintf()` would fail to compile).  Whether the loss
 of checking is a problem at all is debatable.
 
@@ -261,11 +261,11 @@ of checking is a problem at all is debatable.
 
 Some compilers may offer extensions for other ways of handling
 variable-length argument lists in macros.  Specifically, as first noted
-in the comments by [Hugo Ideler][2], GCC allows you to omit the comma
-that would normally appear after the last 'fixed' argument to the macro.
-It also allows you to use [`##__VA_ARGS__`][3] in the macro replacement
-text, which deletes the comma preceding the notation if, but only if,
-the previous token is a comma:
+in the comments by [Hugo Ideler][2] (now deleted, I believe), GCC allows
+you to omit the comma that would normally appear after the last 'fixed'
+argument to the macro.  It also allows you to use [`##__VA_ARGS__`][3]
+in the macro replacement text, which deletes the comma preceding the
+notation if, but only if, the previous token is a comma:
 
     #define debug_print(fmt, ...) \
                 do { if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__); } while (0)
@@ -275,6 +275,20 @@ accepting optional arguments after the format.
 
 This technique is also supported by [Clang](https://clang.llvm.org/) for
 GCC compatibility.
+
+You can enclose that variant in `#ifdef __GNUC__` / `#endif` so that it is
+only used when the code is compiled by GCC.
+Note that if you use the `-pedantic` option, you will get a warning (or
+error if you're using `-Werror`):
+```none
+ISO C99 requires at least one argument for the ‘...’ in a variadic macro
+```
+You can't use the GCC
+[diagnostic pragmas](https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html)
+to suppress it, either:
+```none
+‘-pedantic’ is not an option that controls warnings
+```
 
 <hr>
 
@@ -294,6 +308,17 @@ not empty (and nothing is added if `__VA_ARGS__` is empty).  This should
 be available if `__STDC_VERSION__ >= 202311L` — but be aware that GCC
 14.1.0 (still) sets `__STDC_VERSION__ == 202000` when compiling with
 `-std=c23` or `-std=iso9899:2024`.
+
+Note that C23 §6.10.5 "Macro Replacement" allows a macro with no named
+arguments:
+```c
+#define debug_print(...) \
+        do { if (DEBUG) fprintf(stderr, __VA_ARGS__); } while (0)
+```
+Used like this, you must still provide at least one argument (the format
+argument for `fprintf()`), but you do not need to provide any more
+arguments.  This is not a good way of writing the macro, but it is
+allowed and it works.
 
 <hr>
 
@@ -367,6 +392,32 @@ the `do { ... } while(0)` notation.  It always works; the expression
 statement mechanism can be more difficult to apply.  You might also get
 warnings from the compiler with the expression form that you'd prefer to
 avoid; it will depend on the compiler and the flags you use.
+
+<hr>
+
+### GCC Statement Expressions
+
+[Atreyagaurav](https://stackoverflow.com/users/11825320/atreyagaurav)
+[commented](https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c/1644898#comment108596884_1644898):
+
+>How about using `({ … })` to put that `if (DEBUG) {code}` part into a block?
+Then that `if` won't matter for an `else` statement outside.
+
+I answered unnecessarily tersely — for which I now apologize:
+
+>That’s not C. I don’t use that feature of GCC.
+
+However, a more reasonable response would be:
+
+That extension feature of GCC is called an
+[Statement Expression](https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html).
+If you don't mind being bound to the GCC or Clang compilers (or any
+other compiler that provides the feature for compatibility with GCC),
+and if you do want to use the debug statement as a general expression
+rather than as an "expression statement" (an expression followed by a
+semicolon), then by all means use it.
+
+<hr>
 
   [1]: http://www.cs.princeton.edu/~bwk/tpop.webpage/
   [2]: https://stackoverflow.com/users/558647/hugo-ideler
