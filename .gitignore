@@ -49,6 +49,7 @@ file[0-9]
 inc/*.h
 input
 junk
+libcsv-git
 output
 qs8m
 script.awk
